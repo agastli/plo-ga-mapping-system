@@ -139,10 +139,10 @@ def extract_mapping_matrix(doc):
     return list(mappings.values())
 
 def extract_justifications(doc):
-    """Extract justifications organized by Graduate Attribute"""
-    justifications = {}
+    """Extract justifications for each competency"""
+    justifications = []
+    in_justification_section = False
     current_ga = None
-    current_text = []
     
     # GA patterns
     ga_patterns = [
@@ -158,7 +158,8 @@ def extract_justifications(doc):
         (r'السمة الخامسة[:\s]*الريادي', 'GA5'),
     ]
     
-    in_justification_section = False
+    # Competency pattern (C1-1, C1-2, etc.)
+    competency_pattern = re.compile(r'^(C\d+-\d+)\s*[–-]\s*(.+?):\s*(.+)', re.DOTALL)
     
     for para in doc.paragraphs:
         text = para.text.strip()
@@ -172,39 +173,30 @@ def extract_justifications(doc):
             continue
         
         # Check if this is a GA header
-        ga_found = None
         for pattern, ga_code in ga_patterns:
             if re.search(pattern, text, re.IGNORECASE):
-                ga_found = ga_code
+                current_ga = ga_code
                 break
         
-        if ga_found:
-            # Save previous GA justification
-            if current_ga and current_text:
-                is_arabic = bool(re.search(r'[\u0600-\u06FF]', ' '.join(current_text)))
-                justifications[current_ga] = {
+        # Check if this paragraph contains a competency justification
+        if current_ga and text:
+            match = competency_pattern.match(text)
+            if match:
+                competency_code = match.group(1)
+                competency_name = match.group(2).strip()
+                justification_text = match.group(3).strip()
+                
+                is_arabic = bool(re.search(r'[\u0600-\u06FF]', justification_text))
+                
+                justifications.append({
                     "gaCode": current_ga,
-                    "textEn": ' '.join(current_text) if not is_arabic else "",
-                    "textAr": ' '.join(current_text) if is_arabic else ""
-                }
-            
-            # Start new GA
-            current_ga = ga_found
-            current_text = []
-        elif current_ga and text:
-            # Add to current GA justification
-            current_text.append(text)
+                    "competencyCode": competency_code,
+                    "competencyName": competency_name,
+                    "textEn": justification_text if not is_arabic else "",
+                    "textAr": justification_text if is_arabic else ""
+                })
     
-    # Save last GA justification
-    if current_ga and current_text:
-        is_arabic = bool(re.search(r'[\u0600-\u06FF]', ' '.join(current_text)))
-        justifications[current_ga] = {
-            "gaCode": current_ga,
-            "textEn": ' '.join(current_text) if not is_arabic else "",
-            "textAr": ' '.join(current_text) if is_arabic else ""
-        }
-    
-    return list(justifications.values())
+    return justifications
 
 def parse_document(file_path):
     """Main function to parse the Word document"""

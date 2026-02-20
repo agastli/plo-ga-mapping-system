@@ -142,12 +142,13 @@ export const justifications = mysqlTable("justifications", {
   id: int("id").autoincrement().primaryKey(),
   programId: int("programId").notNull().references(() => programs.id, { onDelete: "cascade" }),
   gaId: int("gaId").notNull().references(() => graduateAttributes.id, { onDelete: "cascade" }),
+  competencyId: int("competencyId").notNull().references(() => competencies.id, { onDelete: "cascade" }),
   textEn: text("textEn"),
   textAr: text("textAr"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  uniqueJustification: unique().on(table.programId, table.gaId),
+  uniqueJustification: unique().on(table.programId, table.competencyId),
 }));
 
 export type Justification = typeof justifications.$inferSelect;
