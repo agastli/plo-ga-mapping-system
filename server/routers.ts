@@ -9,6 +9,10 @@ import { promisify } from "util";
 import { writeFile, unlink } from "fs/promises";
 import path from "path";
 import { tmpdir } from "os";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const execAsync = promisify(exec);
 
@@ -271,7 +275,8 @@ export const appRouter = router({
 
         try {
           // Call Python parser
-          const { stdout } = await execAsync(`python3 ${path.join(__dirname, '../scripts/parse-docx.py')} "${tempPath}"`);
+          const scriptPath = path.join(__dirname, '../scripts/parse-docx.py');
+          const { stdout } = await execAsync(`python "${scriptPath}" "${tempPath}"`);
           const result = JSON.parse(stdout);
 
           // Clean up temp file
