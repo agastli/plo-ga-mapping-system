@@ -112,3 +112,10 @@
 
 ## Phase 14: Justifications Ordering Fix
 - [x] Fix justifications ordering to match matrix table (C1-1, C1-2, C1-3, C1-4, C2-1, C2-2, etc.)
+
+## Phase 15: Import Update & Editing Features
+- [x] Fix import to allow updating existing program data (delete old data before inserting)
+- [ ] Add edit button to PLOs section
+- [ ] Add inline editing for mapping matrix weights
+- [ ] Add edit button to justifications section
+- [ ] Implement save functionality for all edits

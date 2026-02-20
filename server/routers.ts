@@ -345,6 +345,9 @@ export const appRouter = router({
         })),
       }))
       .mutation(async ({ input, ctx }) => {
+        // Delete existing PLOs (and cascade delete mappings and justifications)
+        await db.deletePLOsByProgram(input.programId);
+        
         // Create PLOs
         const ploMap = new Map<string, number>();
         for (const ploData of input.plos) {

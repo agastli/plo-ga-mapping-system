@@ -249,6 +249,13 @@ export async function deletePLO(id: number) {
   await db.delete(plos).where(eq(plos.id, id));
 }
 
+export async function deletePLOsByProgram(programId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // This will cascade delete all mappings and justifications
+  await db.delete(plos).where(eq(plos.programId, programId));
+}
+
 // ============================================================================
 // Mappings
 // ============================================================================
