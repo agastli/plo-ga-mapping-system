@@ -210,6 +210,35 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getMappingsByProgram(input.programId);
       }),
+    getMatrix: publicProcedure
+      .input(z.object({ programId: z.number() }))
+      .query(async ({ input }) => {
+        // Get program details
+        const program = await db.getProgramById(input.programId);
+        if (!program) throw new Error("Program not found");
+        
+        // Get all PLOs for the program
+        const plosData = await db.getPLOsByProgram(input.programId);
+        
+        // Get all competencies grouped by GA
+        const allCompetencies = await db.getAllCompetencies();
+        const allGAs = await db.getAllGraduateAttributes();
+        
+        // Get all mappings
+        const mappingsData = await db.getMappingsByProgram(input.programId);
+        
+        // Get all justifications
+        const justificationsData = await db.getJustificationsByProgram(input.programId);
+        
+        return {
+          program,
+          plos: plosData,
+          competencies: allCompetencies,
+          graduateAttributes: allGAs,
+          mappings: mappingsData,
+          justifications: justificationsData,
+        };
+      }),
     upsert: publicProcedure
       .input(z.object({
         ploId: z.number(),

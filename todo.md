@@ -93,3 +93,10 @@
 - [x] Update Python parser to extract individual competency justifications
 - [x] Update backend import endpoint to handle competency-level justifications
 - [ ] Fix Python environment issue for local development (use local Python instead of sandbox Python)
+- [ ] Fix SQL import error - column mismatch in PLOs table
+
+## Phase 11: Mapping Matrix View
+- [x] Create backend endpoint to fetch program mappings with PLOs, competencies, and weights
+- [x] Create frontend page to display mapping matrix (PLOs x Competencies)
+- [x] Display justifications alongside the matrix
+- [ ] Add export to Word functionality
