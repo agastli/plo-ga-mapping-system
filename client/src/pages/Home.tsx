@@ -1,23 +1,9 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getLoginUrl } from "@/const";
-import { FileUp, Database, BarChart3, PenTool, BookOpen } from "lucide-react";
+import { FileUp, Database, BarChart3, BookOpen } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
-  const { user, loading, isAuthenticated } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -29,18 +15,9 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-gray-900">PLO-GA Mapping System</h1>
           </div>
           <div>
-            {isAuthenticated ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/programs">My Programs</Link>
-                </Button>
-              </div>
-            ) : (
-              <Button asChild>
-                <a href={getLoginUrl()}>Sign In</a>
-              </Button>
-            )}
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/programs">View Programs</Link>
+            </Button>
           </div>
         </div>
       </header>
@@ -69,21 +46,6 @@ export default function Home() {
             <CardContent>
               <Button asChild className="w-full">
                 <Link href="/upload">Upload Document</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <PenTool className="h-10 w-10 text-green-600 mb-2" />
-              <CardTitle>Manual Entry</CardTitle>
-              <CardDescription>
-                Manually input PLOs, mapping weights, and justifications through interactive forms with validation
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full" variant="outline">
-                <Link href="/manual-entry">Manual Entry</Link>
               </Button>
             </CardContent>
           </Card>

@@ -9,7 +9,6 @@ import Upload from "./pages/Upload";
 import Programs from "./pages/Programs";
 import ProgramDetail from "./pages/ProgramDetail";
 import Dashboard from "./pages/Dashboard";
-import ManualEntry from "./pages/ManualEntry";
 
 function Router() {
   return (
@@ -19,7 +18,6 @@ function Router() {
       <Route path={"/programs"} component={Programs} />
       <Route path={"/programs/:id"} component={ProgramDetail} />
       <Route path={"/dashboard"} component={Dashboard} />
-      <Route path={"/manual-entry"} component={ManualEntry} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

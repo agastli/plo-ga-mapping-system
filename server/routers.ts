@@ -30,7 +30,7 @@ export const appRouter = router({
     list: publicProcedure.query(async () => {
       return await db.getAllColleges();
     }),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         nameEn: z.string(),
         nameAr: z.string().optional(),
@@ -38,13 +38,15 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const id = await db.createCollege(input);
-        await db.logAudit({
-          userId: ctx.user.id,
-          action: "create",
-          entityType: "college",
-          entityId: id,
-          details: JSON.stringify(input),
-        });
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "create",
+            entityType: "college",
+            entityId: id,
+            details: JSON.stringify(input),
+          });
+        }
         return { id };
       }),
   }),
@@ -55,7 +57,7 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getDepartmentsByCollege(input.collegeId);
       }),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         collegeId: z.number(),
         nameEn: z.string(),
@@ -64,13 +66,15 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const id = await db.createDepartment(input);
-        await db.logAudit({
-          userId: ctx.user.id,
-          action: "create",
-          entityType: "department",
-          entityId: id,
-          details: JSON.stringify(input),
-        });
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "create",
+            entityType: "department",
+            entityId: id,
+            details: JSON.stringify(input),
+          });
+        }
         return { id };
       }),
   }),
@@ -89,7 +93,7 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getProgramById(input.id);
       }),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         departmentId: z.number(),
         nameEn: z.string(),
@@ -99,13 +103,15 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const id = await db.createProgram(input);
-        await db.logAudit({
-          userId: ctx.user.id,
-          action: "create",
-          entityType: "program",
-          entityId: id,
-          details: JSON.stringify(input),
-        });
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "create",
+            entityType: "program",
+            entityId: id,
+            details: JSON.stringify(input),
+          });
+        }
         return { id };
       }),
   }),
@@ -135,7 +141,7 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getPLOsByProgram(input.programId);
       }),
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({
         programId: z.number(),
         code: z.string(),
@@ -145,16 +151,18 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const id = await db.createPLO(input);
-        await db.logAudit({
-          userId: ctx.user.id,
-          action: "create",
-          entityType: "plo",
-          entityId: id,
-          details: JSON.stringify(input),
-        });
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "create",
+            entityType: "plo",
+            entityId: id,
+            details: JSON.stringify(input),
+          });
+        }
         return { id };
       }),
-    update: protectedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         descriptionEn: z.string().optional(),
@@ -163,26 +171,30 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const { id, ...data } = input;
         await db.updatePLO(id, data);
-        await db.logAudit({
-          userId: ctx.user.id,
-          action: "update",
-          entityType: "plo",
-          entityId: id,
-          details: JSON.stringify(data),
-        });
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "update",
+            entityType: "plo",
+            entityId: id,
+            details: JSON.stringify(data),
+          });
+        }
         return { success: true };
       }),
-    delete: protectedProcedure
+    delete: publicProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
         await db.deletePLO(input.id);
-        await db.logAudit({
-          userId: ctx.user.id,
-          action: "delete",
-          entityType: "plo",
-          entityId: input.id,
-          details: null,
-        });
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "delete",
+            entityType: "plo",
+            entityId: input.id,
+            details: null,
+          });
+        }
         return { success: true };
       }),
   }),
@@ -194,7 +206,7 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getMappingsByProgram(input.programId);
       }),
-    upsert: protectedProcedure
+    upsert: publicProcedure
       .input(z.object({
         ploId: z.number(),
         competencyId: z.number(),
@@ -202,13 +214,15 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         await db.upsertMapping(input.ploId, input.competencyId, input.weight);
-        await db.logAudit({
-          userId: ctx.user.id,
-          action: "update",
-          entityType: "mapping",
-          entityId: input.ploId,
-          details: JSON.stringify(input),
-        });
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "update",
+            entityType: "mapping",
+            entityId: input.ploId,
+            details: JSON.stringify(input),
+          });
+        }
         return { success: true };
       }),
   }),
@@ -220,7 +234,7 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getJustificationsByProgram(input.programId);
       }),
-    upsert: protectedProcedure
+    upsert: publicProcedure
       .input(z.object({
         programId: z.number(),
         gaId: z.number(),
@@ -229,13 +243,15 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         await db.upsertJustification(input);
-        await db.logAudit({
-          userId: ctx.user.id,
-          action: "update",
-          entityType: "justification",
-          entityId: input.programId,
-          details: JSON.stringify(input),
-        });
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "update",
+            entityType: "justification",
+            entityId: input.programId,
+            details: JSON.stringify(input),
+          });
+        }
         return { success: true };
       }),
   }),
