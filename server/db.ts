@@ -317,11 +317,13 @@ export async function getJustificationsByProgram(programId: number) {
     .select({
       justification: justifications,
       ga: graduateAttributes,
+      competency: competencies,
     })
     .from(justifications)
     .innerJoin(graduateAttributes, eq(justifications.gaId, graduateAttributes.id))
+    .innerJoin(competencies, eq(justifications.competencyId, competencies.id))
     .where(eq(justifications.programId, programId))
-    .orderBy(graduateAttributes.sortOrder);
+    .orderBy(competencies.sortOrder);
 }
 
 export async function upsertJustification(data: InsertJustification) {

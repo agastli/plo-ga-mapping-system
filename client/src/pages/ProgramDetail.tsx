@@ -157,7 +157,7 @@ export default function ProgramDetail() {
               <div className="space-y-4">
                 {justifications.map((item) => (
                   <div key={item.justification.id} className="border-l-4 border-purple-500 pl-4 py-2">
-                    <p className="font-semibold mb-2">{item.ga.nameEn}</p>
+                    <p className="font-semibold mb-2">{item.competency.code}: {item.competency.nameEn}</p>
                     <p className="text-gray-700 whitespace-pre-wrap">
                       {item.justification.textEn || item.justification.textAr}
                     </p>

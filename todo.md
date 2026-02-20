@@ -105,3 +105,7 @@
 - [x] Add college dropdown filter to Programs page
 - [x] Filter programs by selected college
 - [x] Show "All Colleges" option to display all programs
+
+## Phase 13: Justifications Display Enhancement
+- [x] Update justifications section to show competency code and title instead of GA title
+- [x] Format as "C1-1: [Competency Title]" for each justification
