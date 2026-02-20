@@ -100,3 +100,8 @@
 - [x] Create frontend page to display mapping matrix (PLOs x Competencies)
 - [x] Display justifications alongside the matrix
 - [ ] Add export to Word functionality
+
+## Phase 12: Programs Page Enhancement
+- [x] Add college dropdown filter to Programs page
+- [x] Filter programs by selected college
+- [x] Show "All Colleges" option to display all programs

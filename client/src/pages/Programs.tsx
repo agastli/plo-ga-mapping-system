@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Search } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -8,16 +9,26 @@ import { useState } from "react";
 
 export default function Programs() {
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: programs, isLoading } = trpc.programs.list.useQuery();
+  const [selectedCollegeId, setSelectedCollegeId] = useState<string>("all");
+  
+  const { data: programs, isLoading: programsLoading } = trpc.programs.list.useQuery();
+  const { data: colleges, isLoading: collegesLoading } = trpc.colleges.list.useQuery();
 
   const filteredPrograms = programs?.filter((item) => {
     const searchLower = searchTerm.toLowerCase();
-    return (
+    const matchesSearch = 
       item.program.nameEn.toLowerCase().includes(searchLower) ||
       item.department.nameEn.toLowerCase().includes(searchLower) ||
-      item.college.nameEn.toLowerCase().includes(searchLower)
-    );
+      item.college.nameEn.toLowerCase().includes(searchLower);
+    
+    const matchesCollege = 
+      selectedCollegeId === "all" || 
+      item.college.id.toString() === selectedCollegeId;
+    
+    return matchesSearch && matchesCollege;
   });
+
+  const isLoading = programsLoading || collegesLoading;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,9 +51,27 @@ export default function Programs() {
           </div>
         </div>
 
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
+        {/* Filters */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+          {/* College Filter */}
+          <div className="w-full sm:w-64">
+            <Select value={selectedCollegeId} onValueChange={setSelectedCollegeId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select College" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Colleges</SelectItem>
+                {colleges?.map((college) => (
+                  <SelectItem key={college.id} value={college.id.toString()}>
+                    {college.nameEn}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder="Search programs, departments, or colleges..."
@@ -87,7 +116,11 @@ export default function Programs() {
         ) : (
           <Card>
             <CardContent className="text-center py-12">
-              <p className="text-gray-600">No programs found</p>
+              <p className="text-gray-600">
+                {selectedCollegeId !== "all" 
+                  ? "No programs found in the selected college" 
+                  : "No programs found"}
+              </p>
             </CardContent>
           </Card>
         )}
