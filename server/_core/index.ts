@@ -35,6 +35,41 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  
+  // File download endpoint
+  app.get("/api/download/:filePath(*)", async (req, res) => {
+    try {
+      const filePath = decodeURIComponent(req.params.filePath);
+      const fs = await import('fs');
+      
+      // Security check: only allow files from /tmp directory
+      if (!filePath.startsWith('/tmp/')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'File not found' });
+      }
+      
+      // Set headers for download
+      const fileName = filePath.split('/').pop() || 'download.docx';
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      
+      // Stream file
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+      
+      // Clean up file after sending
+      fileStream.on('end', () => {
+        fs.unlinkSync(filePath);
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      res.status(500).json({ error: 'Failed to download file' });
+    }
+  });
   // tRPC API
   app.use(
     "/api/trpc",

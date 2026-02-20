@@ -1,14 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ArrowLeft, Edit2, Save, X, Download, ChevronDown } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ProgramDetail() {
   const { id } = useParams();
   const programId = parseInt(id || "0");
 
-  const { data: matrixData } = trpc.mappings.getMatrix.useQuery({ programId });
+
+  const { data: matrixData, refetch } = trpc.mappings.getMatrix.useQuery({ programId });
+  const updatePLO = trpc.plos.update.useMutation();
+  const updateMapping = trpc.mappings.upsert.useMutation();
+  const updateJustification = trpc.justifications.upsert.useMutation();
+  const exportDocument = trpc.export.generate.useMutation();
   
   const program = matrixData?.program;
   const plos = matrixData?.plos || [];
@@ -16,6 +31,12 @@ export default function ProgramDetail() {
   const graduateAttributes = matrixData?.graduateAttributes || [];
   const mappings = matrixData?.mappings || [];
   const justifications = matrixData?.justifications || [];
+  
+  // Editing states
+  const [editingPLO, setEditingPLO] = useState<number | null>(null);
+  const [editingPLOText, setEditingPLOText] = useState("");
+  const [editingJustification, setEditingJustification] = useState<number | null>(null);
+  const [editingJustificationText, setEditingJustificationText] = useState("");
   
   // Group competencies by GA
   const competenciesByGA = graduateAttributes.map(ga => ({
@@ -28,6 +49,83 @@ export default function ProgramDetail() {
   mappings.forEach(m => {
     weightMap.set(`${m.mapping.ploId}_${m.competency.id}`, m.mapping.weight);
   });
+
+  // Handle PLO edit
+  const handleEditPLO = (plo: typeof plos[0]) => {
+    setEditingPLO(plo.id);
+    setEditingPLOText(plo.descriptionEn || plo.descriptionAr || "");
+  };
+
+  const handleSavePLO = async (plo: typeof plos[0]) => {
+    try {
+      await updatePLO.mutateAsync({
+        id: plo.id,
+        descriptionEn: program?.language === "en" ? editingPLOText : undefined,
+        descriptionAr: program?.language === "ar" ? editingPLOText : undefined,
+      });
+      await refetch();
+      setEditingPLO(null);
+      toast.success("PLO updated successfully");
+    } catch (error) {
+      toast.error("Failed to update PLO");
+    }
+  };
+
+  // Handle mapping weight edit
+  const handleWeightChange = async (ploId: number, competencyId: number, newWeight: string) => {
+    const weight = parseFloat(newWeight);
+    if (isNaN(weight) || weight < 0 || weight > 1) {
+      toast.error("Weight must be between 0 and 1");
+      return;
+    }
+    
+    try {
+      await updateMapping.mutateAsync({
+        ploId,
+        competencyId,
+        weight: newWeight,
+      });
+      await refetch();
+      toast.success("Mapping updated successfully");
+    } catch (error) {
+      toast.error("Failed to update mapping");
+    }
+  };
+
+  // Handle justification edit
+  const handleEditJustification = (justification: typeof justifications[0]) => {
+    setEditingJustification(justification.justification.id);
+    setEditingJustificationText(justification.justification.textEn || justification.justification.textAr || "");
+  };
+
+  const handleSaveJustification = async (justification: typeof justifications[0]) => {
+    try {
+      await updateJustification.mutateAsync({
+        programId,
+        gaId: justification.justification.gaId,
+        competencyId: justification.justification.competencyId,
+        textEn: program?.language === "en" ? editingJustificationText : undefined,
+        textAr: program?.language === "ar" ? editingJustificationText : undefined,
+      });
+      await refetch();
+      setEditingJustification(null);
+      toast.success("Justification updated successfully");
+    } catch (error) {
+      toast.error("Failed to update justification");
+    }
+  };
+
+  // Handle export
+  const handleExport = async (format: 'word' | 'excel' | 'pdf') => {
+    try {
+      const result = await exportDocument.mutateAsync({ programId, format });
+      // Download the file
+      window.open(`/api/download/${encodeURIComponent(result.filePath)}`, '_blank');
+      toast.success(`Document exported successfully as ${format.toUpperCase()}`);
+    } catch (error) {
+      toast.error("Failed to export document");
+    }
+  };
 
   if (!program) {
     return (
@@ -42,13 +140,33 @@ export default function ProgramDetail() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Button variant="ghost" asChild>
             <Link href="/programs">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Programs
             </Link>
           </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="default">
+                <Download className="mr-2 h-4 w-4" />
+                Export
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleExport('word')}>
+                Export as Word (.docx)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('excel')}>
+                Export as Excel (.xlsx)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                Export as PDF (.pdf)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
@@ -64,9 +182,44 @@ export default function ProgramDetail() {
             {plos && plos.length > 0 ? (
               <div className="space-y-3">
                 {plos.map((plo) => (
-                  <div key={plo.id} className="border-l-4 border-indigo-500 pl-4 py-2">
-                    <p className="font-semibold">{plo.code}</p>
-                    <p className="text-gray-700">{plo.descriptionEn || plo.descriptionAr}</p>
+                  <div key={plo.id} className="border-l-4 border-indigo-500 pl-4 py-2 group">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <p className="font-semibold">{plo.code}</p>
+                        {editingPLO === plo.id ? (
+                          <div className="mt-2 space-y-2">
+                            <Textarea
+                              value={editingPLOText}
+                              onChange={(e) => setEditingPLOText(e.target.value)}
+                              className="w-full"
+                              rows={3}
+                            />
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={() => handleSavePLO(plo)}>
+                                <Save className="mr-1 h-3 w-3" />
+                                Save
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => setEditingPLO(null)}>
+                                <X className="mr-1 h-3 w-3" />
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-gray-700">{plo.descriptionEn || plo.descriptionAr}</p>
+                        )}
+                      </div>
+                      {editingPLO !== plo.id && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleEditPLO(plo)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -126,9 +279,17 @@ export default function ProgramDetail() {
                             return (
                               <td
                                 key={comp.id}
-                                className="border border-gray-300 p-2 text-center"
+                                className="border border-gray-300 p-1 text-center"
                               >
-                                {weight || "-"}
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  min="0"
+                                  max="1"
+                                  value={weight || "0"}
+                                  onChange={(e) => handleWeightChange(plo.id, comp.id, e.target.value)}
+                                  className="w-16 h-8 text-center text-sm p-1"
+                                />
                               </td>
                             );
                           })
@@ -156,11 +317,46 @@ export default function ProgramDetail() {
             {justifications && justifications.length > 0 ? (
               <div className="space-y-4">
                 {justifications.map((item) => (
-                  <div key={item.justification.id} className="border-l-4 border-purple-500 pl-4 py-2">
-                    <p className="font-semibold mb-2">{item.competency.code}: {item.competency.nameEn}</p>
-                    <p className="text-gray-700 whitespace-pre-wrap">
-                      {item.justification.textEn || item.justification.textAr}
-                    </p>
+                  <div key={item.justification.id} className="border-l-4 border-purple-500 pl-4 py-2 group">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <p className="font-semibold mb-2">{item.competency.code}: {item.competency.nameEn}</p>
+                        {editingJustification === item.justification.id ? (
+                          <div className="space-y-2">
+                            <Textarea
+                              value={editingJustificationText}
+                              onChange={(e) => setEditingJustificationText(e.target.value)}
+                              className="w-full"
+                              rows={4}
+                            />
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={() => handleSaveJustification(item)}>
+                                <Save className="mr-1 h-3 w-3" />
+                                Save
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => setEditingJustification(null)}>
+                                <X className="mr-1 h-3 w-3" />
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-gray-700 whitespace-pre-wrap">
+                            {item.justification.textEn || item.justification.textAr}
+                          </p>
+                        )}
+                      </div>
+                      {editingJustification !== item.justification.id && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleEditJustification(item)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -118,7 +118,13 @@
 - [x] Implement smart update logic: update existing PLOs, add new ones, remove deleted ones
 - [x] Update mappings intelligently without deleting all first (upsertMapping already handles this)
 - [x] Update justifications intelligently without deleting all first (upsertJustification already handles this)
-- [ ] Add edit button to PLOs section
-- [ ] Add inline editing for mapping matrix weights
-- [ ] Add edit button to justifications section
-- [ ] Implement save functionality for all edits
+- [x] Add inline editing UI for PLO descriptions
+- [x] Add inline editing for mapping matrix weights
+- [x] Add inline editing for justifications
+- [x] Implement Word document export functionality
+
+## Phase 16: Multi-Format Export
+- [x] Add Excel export script
+- [x] Add PDF export script
+- [x] Update export endpoint to support Word, Excel, and PDF formats
+- [x] Add format selection dropdown in export UI

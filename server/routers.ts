@@ -415,6 +415,77 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  // Export
+  export: router({  
+    generate: publicProcedure
+      .input(z.object({ 
+        programId: z.number(),
+        format: z.enum(['word', 'excel', 'pdf'])
+      }))
+      .mutation(async ({ input }) => {
+        // Get all data for the program
+        const program = await db.getProgramById(input.programId);
+        if (!program) throw new Error("Program not found");
+        
+        const department = await db.getDepartmentById(program.departmentId);
+        const college = department ? await db.getCollegeById(department.collegeId) : null;
+        
+        const plos = await db.getPLOsByProgram(input.programId);
+        const allCompetencies = await db.getAllCompetencies();
+        const allGAs = await db.getAllGraduateAttributes();
+        const mappings = await db.getMappingsByProgram(input.programId);
+        const justifications = await db.getJustificationsByProgram(input.programId);
+        
+        // Organize data for export
+        const exportData = {
+          program_name: program.nameEn || program.nameAr,
+          college_name: college?.nameEn || 'Unknown College',
+          department_name: department?.nameEn || 'Unknown Department',
+          language: program.language === 'en' ? 'English' : program.language === 'ar' ? 'Arabic' : 'Both',
+          logo_path: '/home/ubuntu/projects/plos-mapping-to-gas-8e39b02f/qu-logo.png',
+          plos: plos.map(plo => ({
+            code: plo.code,
+            description: plo.descriptionEn || plo.descriptionAr || '',
+            mappings: Object.fromEntries(
+              mappings
+                .filter(m => m.mapping.ploId === plo.id)
+                .map(m => [m.competency.code, m.mapping.weight])
+            )
+          })),
+          gas: allGAs.map(ga => ({
+            code: ga.code,
+            name: ga.nameEn,
+            competencies: allCompetencies
+              .filter(c => c.gaId === ga.id)
+              .map(c => ({ code: c.code, name: c.nameEn }))
+          })),
+          total_mappings: mappings.length,
+          justifications: justifications.map(j => ({
+            competency_code: j.competency.code,
+            competency_name: j.competency.nameEn,
+            text: j.justification.textEn || j.justification.textAr || ''
+          })),
+          output_path: `/tmp/plo-ga-mapping-${input.programId}-${Date.now()}.${input.format === 'word' ? 'docx' : input.format === 'excel' ? 'xlsx' : 'pdf'}`
+        };
+        
+        // Call Python script to generate document
+        const scriptName = input.format === 'word' ? 'export-to-word.py' : 
+                          input.format === 'excel' ? 'export-to-excel.py' : 
+                          'export-to-pdf.py';
+        const scriptPath = path.join(__dirname, '../../scripts', scriptName);
+        const { stdout } = await execAsync(
+          `python "${scriptPath}" '${JSON.stringify(exportData).replace(/'/g, "'\\''")}'`
+        );
+        const result = JSON.parse(stdout);
+        
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        
+        return { filePath: result.output_path };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
