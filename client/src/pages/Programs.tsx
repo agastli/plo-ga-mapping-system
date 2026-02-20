@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Search, BookOpen, GraduationCap } from "lucide-react";
+import { ArrowLeft, Search, BookOpen, GraduationCap, Home } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -43,15 +43,17 @@ export default function Programs() {
                   <BookOpen className="h-5 w-5" />
                   Programs Directory
                 </h1>
-                <p className="text-sm text-slate-600">Browse and manage program mappings</p>
+                <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
               </div>
             </div>
-            <Button variant="ghost" asChild className="text-[#8B1538] hover:bg-[#8B1538]/10">
-              <Link href="/">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Home
-              </Link>
-            </Button>
+            <div className="flex gap-3">
+              <Button variant="ghost" asChild className="text-[#8B1538] hover:bg-[#8B1538]/10">
+                <Link href="/">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </header>

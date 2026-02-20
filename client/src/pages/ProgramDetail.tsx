@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Edit2, Save, X, Download, ChevronDown } from "lucide-react";
+import { ArrowLeft, Edit2, Save, X, Download, ChevronDown, Home } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -146,10 +146,16 @@ export default function ProgramDetail() {
               <img src="/qu-logo.png" alt="Qatar University" className="h-12 w-auto" />
               <div className="border-l-2 border-[#8B1538] pl-4">
                 <h2 className="text-lg font-bold text-[#8B1538]">Program Details</h2>
-                <p className="text-sm text-slate-600">{program.nameEn}</p>
+                <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
               </div>
             </div>
             <div className="flex gap-3">
+              <Button variant="ghost" asChild className="text-[#8B1538] hover:bg-[#8B1538]/10">
+                <Link href="/">
+                  <Home className="mr-2 h-4 w-4" />
+                  Home
+                </Link>
+              </Button>
               <Button variant="ghost" asChild className="text-[#8B1538] hover:bg-[#8B1538]/10">
                 <Link href="/programs">
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -194,7 +200,7 @@ export default function ProgramDetail() {
             {plos && plos.length > 0 ? (
               <div className="space-y-3">
                 {plos.map((plo) => (
-                  <div key={plo.id} className="border-l-4 border-indigo-500 pl-4 py-2 group">
+                  <div key={plo.id} className="border-l-4 border-[#8B1538] pl-4 py-2 group">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <p className="font-semibold">{plo.code}</p>
@@ -252,7 +258,7 @@ export default function ProgramDetail() {
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     {/* GA Headers */}
-                    <tr className="bg-[#8B4513] text-white">
+                    <tr className="bg-[#8B1538] text-white">
                       <th className="border border-gray-300 p-2 text-left font-semibold">PLO</th>
                       {competenciesByGA.map(({ ga, competencies: comps }) => (
                         <th
@@ -265,7 +271,7 @@ export default function ProgramDetail() {
                       ))}
                     </tr>
                     {/* Competency Headers */}
-                    <tr className="bg-[#D2B48C]">
+                    <tr className="bg-[#8B1538]/20">
                       <th className="border border-gray-300 p-2"></th>
                       {competenciesByGA.map(({ competencies: comps }) =>
                         comps.map(comp => (
@@ -282,7 +288,7 @@ export default function ProgramDetail() {
                   <tbody>
                     {plos.map(plo => (
                       <tr key={plo.id} className="hover:bg-gray-50">
-                        <td className="border border-gray-300 p-2 font-semibold bg-[#F5DEB3]">
+                        <td className="border border-gray-300 p-2 font-semibold bg-[#8B1538]/10">
                           {plo.code}
                         </td>
                         {competenciesByGA.map(({ competencies: comps }) =>
@@ -329,7 +335,7 @@ export default function ProgramDetail() {
             {justifications && justifications.length > 0 ? (
               <div className="space-y-4">
                 {justifications.map((item) => (
-                  <div key={item.justification.id} className="border-l-4 border-purple-500 pl-4 py-2 group">
+                  <div key={item.justification.id} className="border-l-4 border-[#8B1538] pl-4 py-2 group">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <p className="font-semibold mb-2">{item.competency.code}: {item.competency.nameEn}</p>

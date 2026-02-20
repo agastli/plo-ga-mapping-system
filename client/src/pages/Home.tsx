@@ -14,7 +14,7 @@ export default function Home() {
               <img src="/qu-logo.png" alt="Qatar University" className="h-16 w-auto" />
               <div className="border-l-2 border-[#8B1538] pl-4">
                 <h1 className="text-2xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
-                <p className="text-sm text-slate-600">Academic Excellence Management</p>
+                <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
               </div>
             </div>
             <Button variant="default" size="lg" asChild className="bg-[#8B1538] hover:bg-[#6B1028]">
@@ -32,7 +32,7 @@ export default function Home() {
         <section className="py-20 text-center">
           <div className="inline-flex items-center gap-2 bg-[#8B1538]/10 text-[#8B1538] px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Sparkles className="h-4 w-4" />
-            <span>🎓 Qatar University Academic Quality Assurance</span>
+            <span>🎓 Qatar University Academic Planning & Quality Assurance Office</span>
           </div>
           
           <h2 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight">
@@ -91,7 +91,7 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-2xl text-slate-900">Manage Programs</CardTitle>
                 <CardDescription className="text-base text-slate-600">
-                  View, edit, and manage all program mappings with inline editing, full CRUD operations, 
+                  Browse and manage PLOs mapping to Graduate Attributes with inline editing, full CRUD operations, 
                   and comprehensive audit logging
                 </CardDescription>
               </CardHeader>
@@ -231,7 +231,7 @@ export default function Home() {
               <img src="/qu-logo.png" alt="Qatar University" className="h-12 w-auto opacity-90" />
               <div className="text-white">
                 <p className="font-semibold">Qatar University</p>
-                <p className="text-sm text-slate-400">Academic Quality Assurance</p>
+                <p className="text-sm text-slate-400">Academic Planning & Quality Assurance Office</p>
               </div>
             </div>
             <div className="text-center md:text-right">

@@ -139,3 +139,14 @@
 - [x] Redesign programs page with maroon theme and emojis
 - [ ] Complete program detail page redesign with maroon theme
 - [ ] Redesign upload page with maroon theme
+
+## Phase 18: Bug Fixes and Color Theme Completion
+- [x] Remove PLO delete functionality (keep only edit)
+- [x] Update table header colors from brown to maroon (#8B1538)
+- [x] Change vertical blue bars to maroon throughout
+- [ ] Fix Word export script
+- [ ] Fix Excel export script
+- [ ] Fix PDF export script
+- [x] Update office name to "Academic Planning & Quality Assurance Office"
+- [x] Add Home button to all pages
+- [x] Update text to "Browse and manage PLOs mapping to Graduate Attributes"
