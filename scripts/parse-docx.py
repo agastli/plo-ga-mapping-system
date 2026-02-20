@@ -152,123 +152,72 @@ def extract_mapping_matrix(doc):
     return list(mappings.values())
 
 def extract_justifications(doc):
-    """Extract justifications - handles multiple formats"""
+    """Extract PLO-based justifications - one justification per PLO"""
     justifications = []
     in_justification_section = False
-    current_ga = None
-    current_competency = None
-    current_competency_name = None
+    current_plo = None
     justification_buffer = []
     
-    # GA code mapping from competency code
-    def get_ga_from_competency(comp_code):
-        if comp_code.startswith('C1-'):
-            return 'GA1'
-        elif comp_code.startswith('C2-'):
-            return 'GA2'
-        elif comp_code.startswith('C3-'):
-            return 'GA3'
-        elif comp_code.startswith('C4-'):
-            return 'GA4'
-        elif comp_code.startswith('C5-'):
-            return 'GA5'
-        return None
-    
-    # GA patterns (optional)
-    ga_patterns = [
-        (r'GA1[:\s]*Competent', 'GA1'),
-        (r'GA2[:\s]*Life-long Learner', 'GA2'),
-        (r'GA3[:\s]*Well Rounded', 'GA3'),
-        (r'GA4[:\s]*Ethically.*Responsible', 'GA4'),
-        (r'GA5[:\s]*Entrepreneurial', 'GA5'),
-        (r'Graduate Attribute 1[:\s]*Competent', 'GA1'),
-        (r'Graduate Attribute 2[:\s]*Life-long Learner', 'GA2'),
-        (r'Graduate Attribute 3[:\s]*Well Rounded', 'GA3'),
-        (r'Graduate Attribute 4[:\s]*Ethically.*Responsible', 'GA4'),
-        (r'Graduate Attribute 5[:\s]*Entrepreneurial', 'GA5'),
-    ]
-    
-    # Competency patterns
-    competency_with_justification = re.compile(r'^(C\d+-\d+)\s*[–-]\s*(.+?):\s*(.+)', re.DOTALL)
-    competency_header_only = re.compile(r'^(C\d+-\d+)[:\s]+(.+?)$')
+    # PLO patterns
+    plo_with_code = re.compile(r'^(PLO\s*\d+)[:\s]*(.+)', re.IGNORECASE)
+    numbered_list = re.compile(r'^(\d+)[.)]\s+(.+)')
     
     for para in doc.paragraphs:
         text = para.text.strip()
         
         # Start justification section
-        if "Justifications" in text or "مبررات" in text:
+        if "Justifications" in text or "مبررات" in text or "Justification" in text:
             in_justification_section = True
             continue
         
         if not in_justification_section or not text:
             continue
         
-        # Check for GA header
-        for pattern, ga_code in ga_patterns:
-            if re.search(pattern, text, re.IGNORECASE):
-                # Save previous justification if exists
-                if current_competency and justification_buffer:
-                    justifications.append({
-                        "gaCode": current_ga,
-                        "competencyCode": current_competency,
-                        "competencyName": current_competency_name,
-                        "textEn": " ".join(justification_buffer),
-                        "textAr": ""
-                    })
-                    justification_buffer = []
-                
-                current_ga = ga_code
-                current_competency = None
-                break
-        
-        # Check for competency with justification on same line
-        match = competency_with_justification.match(text)
+        # Check for PLO header with code (e.g., "PLO1:" or "PLO 1:")
+        match = plo_with_code.match(text)
         if match:
             # Save previous justification
-            if current_competency and justification_buffer:
+            if current_plo and justification_buffer:
                 justifications.append({
-                    "gaCode": current_ga or get_ga_from_competency(current_competency),
-                    "competencyCode": current_competency,
-                    "competencyName": current_competency_name,
+                    "ploCode": current_plo,
                     "textEn": " ".join(justification_buffer),
                     "textAr": ""
                 })
             
-            current_competency = match.group(1)
-            current_ga = get_ga_from_competency(current_competency)
-            current_competency_name = match.group(2).strip()
-            justification_buffer = [match.group(3).strip()]
+            current_plo = match.group(1).replace(" ", "").upper()
+            # Check if justification starts on same line
+            rest_of_line = match.group(2).strip()
+            if rest_of_line:
+                justification_buffer = [rest_of_line]
+            else:
+                justification_buffer = []
             continue
         
-        # Check for competency header only (justification on next lines)
-        match = competency_header_only.match(text)
-        if match:
+        # Check for numbered PLO header (e.g., "1." or "1)")
+        match = numbered_list.match(text)
+        if match and not current_plo:  # Only if we haven't found a PLO yet
             # Save previous justification
-            if current_competency and justification_buffer:
+            if current_plo and justification_buffer:
                 justifications.append({
-                    "gaCode": current_ga or get_ga_from_competency(current_competency),
-                    "competencyCode": current_competency,
-                    "competencyName": current_competency_name,
+                    "ploCode": current_plo,
                     "textEn": " ".join(justification_buffer),
                     "textAr": ""
                 })
             
-            current_competency = match.group(1)
-            current_ga = get_ga_from_competency(current_competency)
-            current_competency_name = match.group(2).strip()
-            justification_buffer = []
+            number = match.group(1)
+            current_plo = f"PLO{number}"
+            rest_of_line = match.group(2).strip()
+            justification_buffer = [rest_of_line] if rest_of_line else []
             continue
         
         # Accumulate justification text
-        if current_competency and text:
+        if current_plo and text:
             justification_buffer.append(text)
     
     # Save last justification
-    if current_competency and justification_buffer:
+    if current_plo and justification_buffer:
         justifications.append({
-            "gaCode": current_ga or get_ga_from_competency(current_competency),
-            "competencyCode": current_competency,
-            "competencyName": current_competency_name,
+            "ploCode": current_plo,
             "textEn": " ".join(justification_buffer),
             "textAr": ""
         })

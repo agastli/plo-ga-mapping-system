@@ -22,6 +22,13 @@
       "when": 1771588053694,
       "tag": "0002_huge_leo",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1771601312252,
+      "tag": "0003_open_masked_marvel",
+      "breakpoints": true
     }
   ]
 }

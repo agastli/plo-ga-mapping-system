@@ -136,19 +136,17 @@ export type Mapping = typeof mappings.$inferSelect;
 export type InsertMapping = typeof mappings.$inferInsert;
 
 /**
- * Justifications - Organized by Graduate Attribute for each program
+ * Justifications - One justification per PLO explaining its mappings to competencies
  */
 export const justifications = mysqlTable("justifications", {
   id: int("id").autoincrement().primaryKey(),
-  programId: int("programId").notNull().references(() => programs.id, { onDelete: "cascade" }),
-  gaId: int("gaId").notNull().references(() => graduateAttributes.id, { onDelete: "cascade" }),
-  competencyId: int("competencyId").notNull().references(() => competencies.id, { onDelete: "cascade" }),
+  ploId: int("ploId").notNull().references(() => plos.id, { onDelete: "cascade" }),
   textEn: text("textEn"),
   textAr: text("textAr"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  uniqueJustification: unique().on(table.programId, table.competencyId),
+  uniqueJustification: unique().on(table.ploId),
 }));
 
 export type Justification = typeof justifications.$inferSelect;

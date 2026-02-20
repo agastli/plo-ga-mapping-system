@@ -162,5 +162,15 @@
 
 ## Phase 20: Fix Import 400 Error
 - [x] Reverted parse endpoint to original working version
-- [ ] Debug why import is failing after parsing succeeds
+- [x] Debug why import is failing after parsing succeeds - sortOrder field was missing
+- [x] Add sortOrder field to PLO extraction in parse-docx.py
 - [ ] Test import with Biomedical Sciences document
+
+## Phase 21: Restructure Justifications to be PLO-based
+- [x] Update database schema - change justifications table to link to PLOs instead of competencies
+- [x] Update parser to extract one justification per PLO
+- [x] Update backend helpers (getJustificationsByProgram, upsertJustification)
+- [x] Update import endpoint to handle PLO-based justifications
+- [x] Update export endpoint to use PLO-based justifications
+- [x] Update UI to display justifications organized by PLO (not by competency)
+- [ ] Test with Biomedical Sciences and Social Work documents

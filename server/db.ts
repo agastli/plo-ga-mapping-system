@@ -345,14 +345,12 @@ export async function getJustificationsByProgram(programId: number) {
   return await db
     .select({
       justification: justifications,
-      ga: graduateAttributes,
-      competency: competencies,
+      plo: plos,
     })
     .from(justifications)
-    .innerJoin(graduateAttributes, eq(justifications.gaId, graduateAttributes.id))
-    .innerJoin(competencies, eq(justifications.competencyId, competencies.id))
-    .where(eq(justifications.programId, programId))
-    .orderBy(graduateAttributes.sortOrder, competencies.sortOrder);
+    .innerJoin(plos, eq(justifications.ploId, plos.id))
+    .where(eq(plos.programId, programId))
+    .orderBy(plos.sortOrder);
 }
 
 export async function upsertJustification(data: InsertJustification) {
