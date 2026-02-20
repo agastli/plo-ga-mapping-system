@@ -100,41 +100,38 @@ def extract_mapping_matrix(doc):
     for table in doc.tables:
         # Check if this is the mapping matrix table
         header_text = " ".join([cell.text.strip() for cell in table.rows[0].cells]).lower()
-        if "plo" not in header_text:
+        if "plo" not in header_text and "graduate" not in header_text:
             continue
         
-        # Extract PLO codes from header row
-        header_cells = [cell.text.strip() for cell in table.rows[0].cells]
-        plo_indices = {}
-        for i, text in enumerate(header_cells):
-            if re.match(r'PLO\d+', text, re.IGNORECASE):
-                plo_indices[i] = text.upper()
+        # Extract PLO codes from header
+        plo_codes = []
+        for cell in table.rows[0].cells:
+            text = cell.text.strip()
+            if re.match(r'PLO\s*\d+', text, re.IGNORECASE):
+                plo_codes.append(text.replace(" ", "").upper())
+            elif re.match(r'^\d+$', text):
+                plo_codes.append(f"PLO{text}")
         
-        if not plo_indices:
+        if not plo_codes:
             continue
         
-        # Extract mappings from data rows
+        # Extract mappings
         for row in table.rows[1:]:
             cells = [cell.text.strip() for cell in row.cells]
-            if len(cells) < 3:
+            if len(cells) < 2:
                 continue
             
-            # Extract competency code (usually in second column)
-            competency_match = None
-            for cell_text in cells[:2]:
-                competency_match = re.search(r'(C\d+-\d+)', cell_text)
-                if competency_match:
-                    break
-            
+            # Extract competency code from first column
+            competency_match = re.search(r'(C\d+-\d+)', cells[0])
             if not competency_match:
                 continue
             
             competency_code = competency_match.group(1)
             
             # Extract weights for each PLO
-            for col_idx, plo_code in plo_indices.items():
-                if col_idx < len(cells):
-                    weight_text = cells[col_idx].strip()
+            for i, plo_code in enumerate(plo_codes):
+                if i + 1 < len(cells):
+                    weight_text = cells[i + 1].strip()
                     try:
                         weight = float(weight_text) if weight_text else 0.0
                         key = f"{plo_code}_{competency_code}"
@@ -157,21 +154,7 @@ def extract_justifications(doc):
     current_competency_name = None
     justification_buffer = []
     
-    # GA code mapping from competency code
-    def get_ga_from_competency(comp_code):
-        if comp_code.startswith('C1-'):
-            return 'GA1'
-        elif comp_code.startswith('C2-'):
-            return 'GA2'
-        elif comp_code.startswith('C3-'):
-            return 'GA3'
-        elif comp_code.startswith('C4-'):
-            return 'GA4'
-        elif comp_code.startswith('C5-'):
-            return 'GA5'
-        return None
-    
-    # GA patterns (optional)
+    # GA patterns
     ga_patterns = [
         (r'GA1[:\s]*Competent', 'GA1'),
         (r'GA2[:\s]*Life-long Learner', 'GA2'),
@@ -193,7 +176,7 @@ def extract_justifications(doc):
         text = para.text.strip()
         
         # Start justification section
-        if "Justifications" in text or "مبررات" in text:
+        if "Justifications for Mapping" in text or "مبررات المواءمة" in text:
             in_justification_section = True
             continue
         
@@ -224,7 +207,7 @@ def extract_justifications(doc):
             # Save previous justification
             if current_competency and justification_buffer:
                 justifications.append({
-                    "gaCode": current_ga or get_ga_from_competency(current_competency),
+                    "gaCode": current_ga,
                     "competencyCode": current_competency,
                     "competencyName": current_competency_name,
                     "textEn": " ".join(justification_buffer),
@@ -232,7 +215,6 @@ def extract_justifications(doc):
                 })
             
             current_competency = match.group(1)
-            current_ga = get_ga_from_competency(current_competency)
             current_competency_name = match.group(2).strip()
             justification_buffer = [match.group(3).strip()]
             continue
@@ -243,7 +225,7 @@ def extract_justifications(doc):
             # Save previous justification
             if current_competency and justification_buffer:
                 justifications.append({
-                    "gaCode": current_ga or get_ga_from_competency(current_competency),
+                    "gaCode": current_ga,
                     "competencyCode": current_competency,
                     "competencyName": current_competency_name,
                     "textEn": " ".join(justification_buffer),
@@ -251,7 +233,6 @@ def extract_justifications(doc):
                 })
             
             current_competency = match.group(1)
-            current_ga = get_ga_from_competency(current_competency)
             current_competency_name = match.group(2).strip()
             justification_buffer = []
             continue
@@ -263,7 +244,7 @@ def extract_justifications(doc):
     # Save last justification
     if current_competency and justification_buffer:
         justifications.append({
-            "gaCode": current_ga or get_ga_from_competency(current_competency),
+            "gaCode": current_ga,
             "competencyCode": current_competency,
             "competencyName": current_competency_name,
             "textEn": " ".join(justification_buffer),

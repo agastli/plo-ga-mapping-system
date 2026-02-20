@@ -150,3 +150,12 @@
 - [x] Update office name to "Academic Planning & Quality Assurance Office"
 - [x] Add Home button to all pages
 - [x] Update text to "Browse and manage PLOs mapping to Graduate Attributes"
+
+## Phase 19: Fix Document Parsing Issues
+- [x] Analyze Social Work document structure
+- [x] Fix justification extraction in parse-docx.py
+- [x] Fix PLO extraction to handle numbered list format (1., 2., 3.)
+- [x] Fix mapping extraction to include all weights including zeros
+- [x] Fix justification section detection to match simpler headers
+- [x] Add GA code inference from competency code when GA headers are missing
+- [x] Test with multiple document formats (Biomedical Sciences, Social Work)
