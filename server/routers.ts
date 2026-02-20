@@ -242,7 +242,7 @@ export const appRouter = router({
 
   // Document parsing
   document: router({
-    parse: protectedProcedure
+    parse: publicProcedure
       .input(z.object({
         fileContent: z.string(), // Base64 encoded file content
         fileName: z.string(),
@@ -272,7 +272,7 @@ export const appRouter = router({
         }
       }),
     
-    import: protectedProcedure
+    import: publicProcedure
       .input(z.object({
         programId: z.number(),
         plos: z.array(z.object({
@@ -335,13 +335,16 @@ export const appRouter = router({
           }
         }
 
-        await db.logAudit({
-          userId: ctx.user.id,
-          action: "create",
-          entityType: "program_import",
-          entityId: input.programId,
-          details: JSON.stringify({ ploCount: input.plos.length, mappingCount: input.mappings.length }),
-        });
+        // Log audit if user is authenticated
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "create",
+            entityType: "program_import",
+            entityId: input.programId,
+            details: JSON.stringify({ ploCount: input.plos.length, mappingCount: input.mappings.length }),
+          });
+        }
 
         return { success: true };
       }),
