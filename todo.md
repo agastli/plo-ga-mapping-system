@@ -128,3 +128,14 @@
 - [x] Add PDF export script
 - [x] Update export endpoint to support Word, Excel, and PDF formats
 - [x] Add format selection dropdown in export UI
+
+## Phase 17: Professional QU Branding Redesign
+- [x] Generate professional infographic for homepage
+- [ ] Update Word/PDF export to use unified professional template with QU logo
+- [ ] Restructure Excel export into 3 separate sheets (PLOs, Matrix, Justifications)
+- [x] Add QU logo to website header
+- [x] Implement maroon color theme across all pages
+- [x] Redesign homepage with professional QU branding and emojis
+- [x] Redesign programs page with maroon theme and emojis
+- [ ] Complete program detail page redesign with maroon theme
+- [ ] Redesign upload page with maroon theme

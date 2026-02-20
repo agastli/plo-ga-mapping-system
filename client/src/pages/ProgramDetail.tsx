@@ -138,45 +138,57 @@ export default function ProgramDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Button variant="ghost" asChild>
-            <Link href="/programs">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Programs
-            </Link>
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="default">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <img src="/qu-logo.png" alt="Qatar University" className="h-12 w-auto" />
+              <div className="border-l-2 border-[#8B1538] pl-4">
+                <h2 className="text-lg font-bold text-[#8B1538]">Program Details</h2>
+                <p className="text-sm text-slate-600">{program.nameEn}</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="ghost" asChild className="text-[#8B1538] hover:bg-[#8B1538]/10">
+                <Link href="/programs">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Link>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="bg-[#8B1538] hover:bg-[#6B1028]">
                 <Download className="mr-2 h-4 w-4" />
                 Export
                 <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => handleExport('word')}>
-                Export as Word (.docx)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('excel')}>
-                Export as Excel (.xlsx)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('pdf')}>
-                Export as PDF (.pdf)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <DropdownMenuItem onClick={() => handleExport('word')}>
+                    📄 Export as Word (.docx)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('excel')}>
+                    📊 Export as Excel (.xlsx)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('pdf')}>
+                    📃 Export as PDF (.pdf)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">{program.nameEn}</h1>
 
         {/* PLOs */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Program Learning Outcomes ({plos?.length || 0})</CardTitle>
+        <Card className="mb-6 border-2 border-slate-200 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-[#8B1538]/5 to-white border-b">
+            <CardTitle className="text-2xl text-[#8B1538] flex items-center gap-2">
+              🎯 Program Learning Outcomes ({plos?.length || 0})
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {plos && plos.length > 0 ? (
