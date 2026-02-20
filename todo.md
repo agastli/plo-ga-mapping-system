@@ -92,3 +92,4 @@
 - [x] Update database schema to support competency-level justifications
 - [x] Update Python parser to extract individual competency justifications
 - [x] Update backend import endpoint to handle competency-level justifications
+- [ ] Fix Python environment issue for local development (use local Python instead of sandbox Python)
