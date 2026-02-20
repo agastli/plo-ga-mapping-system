@@ -242,6 +242,7 @@ export const appRouter = router({
       .input(z.object({
         programId: z.number(),
         gaId: z.number(),
+        competencyId: z.number(),
         textEn: z.string().optional(),
         textAr: z.string().optional(),
       }))
@@ -309,6 +310,7 @@ export const appRouter = router({
         })),
         justifications: z.array(z.object({
           gaCode: z.string(),
+          competencyCode: z.string(),
           textEn: z.string().optional(),
           textAr: z.string().optional(),
         })),
@@ -345,11 +347,13 @@ export const appRouter = router({
         // Create justifications
         for (const justification of input.justifications) {
           const gaId = gaMap.get(justification.gaCode);
+          const competencyId = competencyMap.get(justification.competencyCode);
           
-          if (gaId) {
+          if (gaId && competencyId) {
             await db.upsertJustification({
               programId: input.programId,
               gaId,
+              competencyId,
               textEn: justification.textEn,
               textAr: justification.textAr,
             });

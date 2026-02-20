@@ -84,3 +84,11 @@
 - [ ] Create deployment package for WAMP server
 - [ ] Write deployment documentation
 - [ ] Create user manual
+
+## Phase 10: Bug Fixes & Improvements
+- [x] Fix document import not saving data to database
+- [x] Fix justification count display (should show 20 not 5)
+- [ ] Add success/error feedback after import operation
+- [x] Update database schema to support competency-level justifications
+- [x] Update Python parser to extract individual competency justifications
+- [x] Update backend import endpoint to handle competency-level justifications

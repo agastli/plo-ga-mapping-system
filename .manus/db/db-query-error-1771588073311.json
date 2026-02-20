@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Step 1: Delete all existing justifications\nDELETE FROM justifications;\n\n-- Step 2: Drop the old unique constraint\nALTER TABLE justifications DROP INDEX justifications_programId_gaId_unique;\n\n-- Step 3: Add competencyId column\nALTER TABLE justifications ADD COLUMN competencyId INT NOT NULL AFTER gaId;\n\n-- Step 4: Add foreign key constraint for competencyId\nALTER TABLE justifications ADD CONSTRAINT justifications_competencyId_fk \nFOREIGN KEY (competencyId) REFERENCES competencies(id) ON DELETE CASCADE;\n\n-- Step 5: Add new unique constraint\nALTER TABLE justifications ADD UNIQUE justifications_programId_competencyId_unique (programId, competencyId);\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute \n-- Step 1: Delete all existing justifications\nDELETE FROM justifications;\n\n-- Step 2: Drop the old unique constraint\nALTER TABLE justifications DROP INDEX justifications_programId_gaId_unique;\n\n-- Step 3: Add competencyId column\nALTER TABLE justifications ADD COLUMN competencyId INT NOT NULL AFTER gaId;\n\n-- Step 4: Add foreign key constraint for competencyId\nALTER TABLE justifications ADD CONSTRAINT justifications_competencyId_fk \nFOREIGN KEY (competencyId) REFERENCES competencies(id) ON DELETE CASCADE;\n\n-- Step 5: Add new unique constraint\nALTER TABLE justifications ADD UNIQUE justifications_programId_competencyId_unique (programId, competencyId);\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1553 (HY000) at line 6: Cannot drop index 'justifications_programId_gaId_unique': needed in a foreign key constraint"
+  ]
+}

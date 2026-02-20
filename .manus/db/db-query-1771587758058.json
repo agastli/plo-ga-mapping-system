@@ -1,0 +1,9 @@
+{
+  "query": "\n-- Check if program exists\nSELECT p.id, p.nameEn, p.code, d.nameEn as department, c.nameEn as college \nFROM programs p\nJOIN departments d ON p.departmentId = d.id\nJOIN colleges c ON d.collegeId = c.id\nWHERE p.nameEn LIKE '%Electrical%';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute \n-- Check if program exists\nSELECT p.id, p.nameEn, p.code, d.nameEn as department, c.nameEn as college \nFROM programs p\nJOIN departments d ON p.departmentId = d.id\nJOIN colleges c ON d.collegeId = c.id\nWHERE p.nameEn LIKE '%Electrical%';\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1507
+}

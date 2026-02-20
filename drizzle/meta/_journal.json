@@ -15,6 +15,13 @@
       "when": 1771581182040,
       "tag": "0001_known_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1771588053694,
+      "tag": "0002_huge_leo",
+      "breakpoints": true
     }
   ]
 }
