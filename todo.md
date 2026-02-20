@@ -109,3 +109,6 @@
 ## Phase 13: Justifications Display Enhancement
 - [x] Update justifications section to show competency code and title instead of GA title
 - [x] Format as "C1-1: [Competency Title]" for each justification
+
+## Phase 14: Justifications Ordering Fix
+- [x] Fix justifications ordering to match matrix table (C1-1, C1-2, C1-3, C1-4, C2-1, C2-2, etc.)
