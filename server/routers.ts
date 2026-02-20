@@ -308,10 +308,8 @@ export const appRouter = router({
           const scriptPath = path.join(__dirname, '../scripts/parse-docx.py');
           const { stdout } = await execAsync(`python "${scriptPath}" "${tempPath}"`);
           const result = JSON.parse(stdout);
-
           // Clean up temp file
           await unlink(tempPath);
-
           return result;
         } catch (error) {
           // Clean up temp file on error

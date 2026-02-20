@@ -159,3 +159,8 @@
 - [x] Fix justification section detection to match simpler headers
 - [x] Add GA code inference from competency code when GA headers are missing
 - [x] Test with multiple document formats (Biomedical Sciences, Social Work)
+
+## Phase 20: Fix Import 400 Error
+- [x] Reverted parse endpoint to original working version
+- [ ] Debug why import is failing after parsing succeeds
+- [ ] Test import with Biomedical Sciences document
