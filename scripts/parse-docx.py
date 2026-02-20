@@ -49,6 +49,7 @@ def extract_plos(doc):
     """Extract Program Learning Outcomes - handles multiple formats"""
     plos = []
     in_plo_section = False
+    plo_counter = 1
     
     # Patterns for different PLO formats
     plo_with_code = re.compile(r'^(PLO\s*\d+)[:\s]*(.+)', re.IGNORECASE)
@@ -88,8 +89,10 @@ def extract_plos(doc):
                 plos.append({
                     "code": code,
                     "descriptionEn": description if not is_arabic else "",
-                    "descriptionAr": description if is_arabic else ""
+                    "descriptionAr": description if is_arabic else "",
+                    "sortOrder": plo_counter
                 })
+                plo_counter += 1
     
     return plos
 
