@@ -345,13 +345,22 @@ export const appRouter = router({
         })),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Delete existing PLOs (and cascade delete mappings and justifications)
-        await db.deletePLOsByProgram(input.programId);
+        // Get existing PLOs for this program
+        const existingPLOs = await db.getPLOsByProgram(input.programId);
+        const existingPLOCodes = new Set(existingPLOs.map(p => p.code));
+        const newPLOCodes = new Set(input.plos.map(p => p.code));
         
-        // Create PLOs
+        // Delete PLOs that are no longer in the document
+        for (const existingPLO of existingPLOs) {
+          if (!newPLOCodes.has(existingPLO.code)) {
+            await db.deletePLO(existingPLO.id);
+          }
+        }
+        
+        // Upsert PLOs (update existing or create new)
         const ploMap = new Map<string, number>();
         for (const ploData of input.plos) {
-          const id = await db.createPLO({
+          const id = await db.upsertPLO({
             programId: input.programId,
             ...ploData,
           });

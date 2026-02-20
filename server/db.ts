@@ -249,6 +249,28 @@ export async function deletePLO(id: number) {
   await db.delete(plos).where(eq(plos.id, id));
 }
 
+export async function upsertPLO(data: InsertPLO) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Try to find existing PLO by programId and code
+  const existing = await db
+    .select()
+    .from(plos)
+    .where(and(eq(plos.programId, data.programId), eq(plos.code, data.code)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    // Update existing PLO
+    await db.update(plos).set(data).where(eq(plos.id, existing[0].id));
+    return existing[0].id;
+  } else {
+    // Create new PLO
+    const result = await db.insert(plos).values(data);
+    return Number(result[0].insertId);
+  }
+}
+
 export async function deletePLOsByProgram(programId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

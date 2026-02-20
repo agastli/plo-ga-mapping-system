@@ -115,6 +115,9 @@
 
 ## Phase 15: Import Update & Editing Features
 - [x] Fix import to allow updating existing program data (delete old data before inserting)
+- [x] Implement smart update logic: update existing PLOs, add new ones, remove deleted ones
+- [x] Update mappings intelligently without deleting all first (upsertMapping already handles this)
+- [x] Update justifications intelligently without deleting all first (upsertJustification already handles this)
 - [ ] Add edit button to PLOs section
 - [ ] Add inline editing for mapping matrix weights
 - [ ] Add edit button to justifications section
