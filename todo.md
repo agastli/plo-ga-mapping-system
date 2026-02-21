@@ -208,3 +208,11 @@
 - [x] Update Upload page to use consistent header with QU logo and navigation like Home page
 - [x] Add consistent footer to Upload page matching Home page footer
 - [x] Increase main container max-width on all pages for more content space (Upload: max-w-6xl, Programs/ProgramDetail: max-w-7xl)
+
+## Phase 25: Require College Selection on Programs Page
+- [x] Remove "All Colleges" option from college filter dropdown
+- [x] Hide program list when no college is selected
+- [x] Add placeholder message prompting user to select a college
+- [x] Update filtering logic to only show programs from selected college
+- [ ] Test filtering behavior
+- [ ] Push changes to GitHub

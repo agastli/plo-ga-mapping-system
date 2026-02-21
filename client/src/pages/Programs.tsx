@@ -9,24 +9,22 @@ import { useState } from "react";
 
 export default function Programs() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCollegeId, setSelectedCollegeId] = useState<string>("all");
+  const [selectedCollegeId, setSelectedCollegeId] = useState<string>("");
   
   const { data: programs, isLoading: programsLoading } = trpc.programs.list.useQuery();
   const { data: colleges, isLoading: collegesLoading } = trpc.colleges.list.useQuery();
 
-  const filteredPrograms = programs?.filter((item) => {
+  const filteredPrograms = selectedCollegeId ? programs?.filter((item) => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = 
       item.program.nameEn.toLowerCase().includes(searchLower) ||
       item.department.nameEn.toLowerCase().includes(searchLower) ||
       item.college.nameEn.toLowerCase().includes(searchLower);
     
-    const matchesCollege = 
-      selectedCollegeId === "all" || 
-      item.college.id.toString() === selectedCollegeId;
+    const matchesCollege = item.college.id.toString() === selectedCollegeId;
     
     return matchesSearch && matchesCollege;
-  });
+  }) : [];
 
   const isLoading = programsLoading || collegesLoading;
 
@@ -71,10 +69,9 @@ export default function Programs() {
                   </label>
                   <Select value={selectedCollegeId} onValueChange={setSelectedCollegeId}>
                     <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
-                      <SelectValue placeholder="All Colleges" />
+                      <SelectValue placeholder="Select a college" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Colleges</SelectItem>
                       {colleges?.map((college) => (
                         <SelectItem key={college.id} value={college.id.toString()}>
                           {college.nameEn}
@@ -124,6 +121,16 @@ export default function Programs() {
               <p className="text-slate-600">Loading programs...</p>
             </div>
           </div>
+        ) : !selectedCollegeId ? (
+          <Card className="border-2 border-dashed border-[#8B1538]/30 bg-gradient-to-br from-white to-amber-50/30">
+            <CardContent className="py-20 text-center">
+              <div className="text-7xl mb-6">🏛️</div>
+              <h3 className="text-3xl font-bold text-[#8B1538] mb-3">Select a College</h3>
+              <p className="text-lg text-slate-600 max-w-md mx-auto">
+                Please select a college from the filter above to view its programs
+              </p>
+            </CardContent>
+          </Card>
         ) : filteredPrograms && filteredPrograms.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPrograms.map((item) => (
@@ -188,11 +195,10 @@ export default function Programs() {
                 variant="outline" 
                 onClick={() => {
                   setSearchTerm("");
-                  setSelectedCollegeId("all");
                 }}
                 className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10"
               >
-                Clear Filters
+                Clear Search
               </Button>
             </CardContent>
           </Card>
