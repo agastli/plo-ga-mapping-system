@@ -7,7 +7,7 @@ Generates a professional, beautifully styled PDF document
 import sys
 import json
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image, KeepTogether
@@ -44,16 +44,17 @@ class NumberedCanvas(canvas.Canvas):
         self.setFont("Helvetica", 9)
         self.setFillColor(colors.gray)
         page_num = f"Page {self._pageNumber} of {page_count}"
-        self.drawCentredString(A4[0] / 2, 0.5 * inch, page_num)
+        # Use landscape width for centering
+        self.drawCentredString(landscape(A4)[0] / 2, 0.5 * inch, page_num)
 
 def create_mapping_pdf(data):
     """Create professional PDF document from mapping data"""
     output_path = data.get('output_path', '/tmp/mapping_output.pdf')
     
-    # Create PDF with A4 size and custom margins
+    # Create PDF with A4 landscape size and custom margins
     doc = SimpleDocTemplate(
         output_path,
-        pagesize=A4,
+        pagesize=landscape(A4),
         rightMargin=0.75*inch,
         leftMargin=0.75*inch,
         topMargin=1*inch,
@@ -124,7 +125,7 @@ def create_mapping_pdf(data):
     
     # Add decorative line
     line_data = [['', '']]
-    line_table = Table(line_data, colWidths=[6.95*inch])
+    line_table = Table(line_data, colWidths=[10*inch])
     line_table.setStyle(TableStyle([
         ('LINEABOVE', (0, 0), (-1, 0), 2, QU_MAROON),
         ('LINEBELOW', (0, 0), (-1, 0), 0.5, QU_GOLD),
@@ -148,7 +149,7 @@ def create_mapping_pdf(data):
         ['Academic Planning & Quality Assurance Office', '']
     ]
     
-    info_table = Table(info_data, colWidths=[2*inch, 4.95*inch])
+    info_table = Table(info_data, colWidths=[2*inch, 8*inch])
     info_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (0, 2), 'Helvetica-Bold'),
         ('FONTNAME', (1, 0), (1, 2), 'Helvetica'),
@@ -204,10 +205,10 @@ def create_mapping_pdf(data):
                 comp_row.append(weight)
             matrix_data.append(comp_row)
     
-    # Calculate column widths for transposed matrix
-    available_width = 6.95 * inch
-    ga_col_width = 1.2 * inch  # Graduate Attributes column
-    comp_col_width = 2.5 * inch  # Competencies column
+    # Calculate column widths for transposed matrix (landscape)
+    available_width = 10 * inch
+    ga_col_width = 1.5 * inch  # Graduate Attributes column
+    comp_col_width = 3.5 * inch  # Competencies column (wider for better readability)
     plo_count = len(data['plos'])
     plo_col_width = (available_width - ga_col_width - comp_col_width) / plo_count
     col_widths = [ga_col_width, comp_col_width] + [plo_col_width] * plo_count
@@ -280,7 +281,7 @@ def create_mapping_pdf(data):
     for just in data['justifications']:
         # Create a styled box for each justification
         just_data = [[just['competency_code'], just['competency_name'], just['text']]]
-        just_table = Table(just_data, colWidths=[0.8*inch, 2*inch, 4.15*inch])
+        just_table = Table(just_data, colWidths=[0.8*inch, 2.5*inch, 6.7*inch])
         just_table.setStyle(TableStyle([
             ('FONTNAME', (0, 0), (1, 0), 'Helvetica-Bold'),
             ('FONTNAME', (2, 0), (2, 0), 'Helvetica'),

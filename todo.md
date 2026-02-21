@@ -343,5 +343,7 @@
 - [x] Implement text wrapping in justifications table cells (WORDWRAP)
 - [x] Ensure text doesn't exceed cell boundaries
 - [x] Remove unnecessary page breaks before headers (replaced with Spacer)
+- [x] Change PDF orientation to landscape for better matrix display
+- [x] Adjust column widths for landscape format (10" available width)
 - [ ] Test PDF export with real data
 - [ ] Push changes to GitHub
