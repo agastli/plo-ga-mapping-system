@@ -367,5 +367,21 @@
 - [x] Add timestamp to Excel export
 - [x] Apply proper formatting to Word export (already has QU branding)
 - [x] Apply proper formatting to Excel export (already has QU branding)
+- [x] Test all three export formats
+- [x] Push changes to GitHub
+
+## Phase 46: Redesign Word and Excel Exports to Match PDF
+- [x] Set Word to landscape A4 orientation with same margins as PDF (1" top/bottom, 0.75" left/right)
+- [x] Redesign Word export layout (logo at top, office name under it, decorative lines, program info on page 1, PLOs on page 2)
+- [x] Transpose Word matrix (PLOs as columns, competencies as rows with GA section headers in gold)
+- [x] Add GA section headers between competency rows in Word matrix
+- [x] Match Word styling exactly to PDF (colors, fonts, spacing)
+- [x] Add QU logo to Excel first sheet above program information
+- [x] Add "Academic Planning & Quality Assurance Office" under logo in Excel
+- [x] Transpose Excel matrix (PLOs as columns, competencies as rows)
+- [x] Add GA section headers in Excel matrix with gold background
+- [x] Improve Excel professional styling (QU maroon and gold colors)
+- [x] Add text wrapping for long texts in Excel
+- [x] Add abbreviated program name to export filenames
 - [ ] Test all three export formats
 - [ ] Push changes to GitHub

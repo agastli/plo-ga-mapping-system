@@ -1,161 +1,291 @@
 #!/usr/bin/env python3
 """
 Export PLO-GA mapping data to Word document format
-Generates a document matching the uploaded template format
+Generates a document matching the PDF format exactly
 """
 
 import sys
 import json
 from docx import Document
-from docx.shared import Pt, RGBColor, Inches
+from docx.shared import Pt, RGBColor, Inches, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+from docx.enum.section import WD_ORIENT
 
-def set_cell_background(cell, fill):
+# Qatar University Colors
+QU_MAROON = RGBColor(139, 21, 56)  # #8B1538
+QU_GOLD = RGBColor(212, 175, 55)   # #D4AF37
+LIGHT_GOLD = RGBColor(200, 168, 130)  # #C8A882
+LIGHT_GRAY = RGBColor(245, 245, 245)  # #F5F5F5
+MEDIUM_GRAY = RGBColor(224, 224, 224)  # #E0E0E0
+DARK_GRAY = RGBColor(85, 85, 85)  # #555555
+
+def set_cell_background(cell, color):
     """Set cell background color"""
     shading_elm = OxmlElement('w:shd')
-    shading_elm.set(qn('w:fill'), fill)
+    shading_elm.set(qn('w:fill'), color)
     cell._element.get_or_add_tcPr().append(shading_elm)
 
+def add_horizontal_line(doc, color_rgb, width_pt=2):
+    """Add a horizontal line"""
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(0)
+    
+    pPr = p._element.get_or_add_pPr()
+    pBdr = OxmlElement('w:pBdr')
+    bottom = OxmlElement('w:bottom')
+    bottom.set(qn('w:val'), 'single')
+    bottom.set(qn('w:sz'), str(width_pt * 4))  # Size in eighths of a point
+    bottom.set(qn('w:space'), '1')
+    bottom.set(qn('w:color'), '%02x%02x%02x' % color_rgb)
+    pBdr.append(bottom)
+    pPr.append(pBdr)
+    
+    return p
+
 def create_mapping_document(data):
-    """Create Word document from mapping data"""
+    """Create Word document matching PDF format exactly"""
     doc = Document()
     
-    # Set up document margins
-    sections = doc.sections
-    for section in sections:
-        section.top_margin = Inches(1)
-        section.bottom_margin = Inches(1)
-        section.left_margin = Inches(1)
-        section.right_margin = Inches(1)
+    # Set to landscape A4 with same margins as PDF
+    section = doc.sections[0]
+    section.orientation = WD_ORIENT.LANDSCAPE
+    section.page_width = Inches(11.69)  # A4 landscape width
+    section.page_height = Inches(8.27)  # A4 landscape height
+    section.top_margin = Inches(1)
+    section.bottom_margin = Inches(1)
+    section.left_margin = Inches(0.75)
+    section.right_margin = Inches(0.75)
     
-    # Add logo if provided
+    # Add QU logo at the top (centered)
     if data.get('logo_path'):
         try:
-            doc.add_picture(data['logo_path'], width=Inches(1.5))
+            doc.add_picture(data['logo_path'], width=Inches(2.5))
             last_paragraph = doc.paragraphs[-1]
             last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            last_paragraph.paragraph_format.space_after = Pt(12)
         except:
             pass
+    
+    # Add "Academic Planning & Quality Assurance Office" under logo
+    office_para = doc.add_paragraph('Academic Planning & Quality Assurance Office')
+    office_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    office_para.runs[0].font.size = Pt(10)
+    office_para.runs[0].font.italic = True
+    office_para.runs[0].font.color.rgb = RGBColor(128, 128, 128)
+    office_para.paragraph_format.space_after = Pt(16)
+    
+    # Add decorative lines
+    add_horizontal_line(doc, (139, 21, 56), 2)  # Maroon line
+    add_horizontal_line(doc, (212, 175, 55), 0.5)  # Gold line
+    
+    doc.add_paragraph().paragraph_format.space_after = Pt(20)
     
     # Add title
     title = doc.add_heading(data['program_name'], level=1)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    title.runs[0].font.color.rgb = RGBColor(139, 21, 56)  # Maroon color (#8B1538)
+    title.runs[0].font.color.rgb = QU_MAROON
+    title.runs[0].font.size = Pt(24)
+    title.paragraph_format.space_after = Pt(6)
     
     # Add subtitle
-    subtitle = doc.add_paragraph('PLO-Graduate Attributes Mapping Report')
+    subtitle = doc.add_paragraph('Program Learning Outcomes to Graduate Attributes Mapping')
     subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
     subtitle.runs[0].font.size = Pt(14)
-    subtitle.runs[0].font.bold = True
+    subtitle.runs[0].font.color.rgb = DARK_GRAY
+    subtitle.paragraph_format.space_after = Pt(20)
     
-    doc.add_paragraph()  # Spacing
+    # Add decorative lines again
+    add_horizontal_line(doc, (139, 21, 56), 2)
+    add_horizontal_line(doc, (212, 175, 55), 0.5)
     
-    # Add program information
-    info = doc.add_paragraph()
-    info.add_run('College: ').bold = True
-    info.add_run(data['college_name'])
-    info.add_run('\nDepartment: ').bold = True
-    info.add_run(data['department_name'])
-    info.add_run('\nLanguage: ').bold = True
-    info.add_run(data['language'])
-    info.add_run('\nLast Updated: ').bold = True
-    info.add_run(data.get('last_updated', 'N/A'))
+    doc.add_paragraph().paragraph_format.space_after = Pt(20)
     
-    doc.add_paragraph()  # Spacing
+    # Add program information in a table
+    info_table = doc.add_table(rows=4, cols=2)
+    info_table.style = 'Table Grid'
+    
+    info_data = [
+        ('College:', data['college_name']),
+        ('Department:', data['department_name']),
+        ('Language:', data['language']),
+        ('Last Updated:', data.get('last_updated', 'N/A'))
+    ]
+    
+    for idx, (label, value) in enumerate(info_data):
+        info_table.cell(idx, 0).text = label
+        info_table.cell(idx, 1).text = value
+        
+        # Style label cells
+        info_table.cell(idx, 0).paragraphs[0].runs[0].font.bold = True
+        info_table.cell(idx, 0).paragraphs[0].runs[0].font.color.rgb = QU_MAROON
+        info_table.cell(idx, 0).paragraphs[0].runs[0].font.size = Pt(11)
+        
+        # Style value cells
+        info_table.cell(idx, 1).paragraphs[0].runs[0].font.size = Pt(11)
+        info_table.cell(idx, 1).paragraphs[0].runs[0].font.color.rgb = RGBColor(51, 51, 51)
+        
+        # Background color
+        set_cell_background(info_table.cell(idx, 0), 'F5F5F5')
+        set_cell_background(info_table.cell(idx, 1), 'F5F5F5')
+    
+    # Set column widths
+    info_table.columns[0].width = Inches(2)
+    info_table.columns[1].width = Inches(8)
+    
+    # Add page break - PLOs start on page 2
+    doc.add_page_break()
     
     # Add PLOs section
-    doc.add_heading('Program Learning Outcomes', level=2)
-    doc.paragraphs[-1].runs[0].font.color.rgb = RGBColor(139, 21, 56)  # Maroon
+    plo_heading = doc.add_heading('Program Learning Outcomes', level=2)
+    plo_heading.runs[0].font.color.rgb = QU_MAROON
+    plo_heading.runs[0].font.size = Pt(16)
+    plo_heading.paragraph_format.space_after = Pt(10)
     
     for plo in data['plos']:
-        p = doc.add_paragraph(style='List Number')
-        p.add_run(f"{plo['code']}: ").bold = True
+        p = doc.add_paragraph()
+        p.add_run(f"{plo['code']}: ").font.bold = True
+        p.add_run(f"{plo['code']}: ").font.color.rgb = QU_MAROON
         p.add_run(plo['description'])
+        p.paragraph_format.space_after = Pt(8)
     
-    doc.add_paragraph()  # Spacing
+    doc.add_paragraph().paragraph_format.space_after = Pt(24)
     
-    # Add mapping matrix
-    doc.add_heading('PLO-Competency Mapping Matrix', level=2)
-    doc.paragraphs[-1].runs[0].font.color.rgb = RGBColor(139, 21, 56)  # Maroon
+    # Add mapping matrix heading
+    matrix_heading = doc.add_heading('PLO-Competency Mapping Matrix', level=2)
+    matrix_heading.runs[0].font.color.rgb = QU_MAROON
+    matrix_heading.runs[0].font.size = Pt(16)
+    matrix_heading.paragraph_format.space_after = Pt(12)
     
-    # Count total competencies
-    total_comps = sum(len(ga['competencies']) for ga in data['gas'])
-    
-    # Create table
-    table = doc.add_table(rows=len(data['plos']) + 2, cols=total_comps + 1)
-    table.style = 'Table Grid'
-    
-    # Header row 1: GA names
-    row_idx = 0
-    col_idx = 1
-    table.cell(row_idx, 0).text = 'PLO'
-    set_cell_background(table.cell(row_idx, 0), '8B1538')  # Maroon
-    table.cell(row_idx, 0).paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
-    table.cell(row_idx, 0).paragraphs[0].runs[0].font.bold = True
-    
+    # Build transposed matrix: PLOs as columns, competencies as rows with GA headers
+    # Calculate total rows: 1 header + sum of (1 GA row + n competency rows for each GA)
+    total_rows = 1  # Header row
     for ga in data['gas']:
-        comp_count = len(ga['competencies'])
-        if comp_count > 0:
-            # Merge cells for GA header
-            start_cell = table.cell(row_idx, col_idx)
-            end_cell = table.cell(row_idx, col_idx + comp_count - 1)
-            merged_cell = start_cell.merge(end_cell)
-            merged_cell.text = f"{ga['code']}: {ga['name']}"
-            set_cell_background(merged_cell, '8B1538')  # Maroon
-            merged_cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
-            merged_cell.paragraphs[0].runs[0].font.bold = True
-            merged_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-            col_idx += comp_count
+        total_rows += 1 + len(ga['competencies'])  # GA row + competency rows
     
-    # Header row 2: Competency codes
-    row_idx = 1
-    col_idx = 1
-    for ga in data['gas']:
-        for comp in ga['competencies']:
-            cell = table.cell(row_idx, col_idx)
-            cell.text = comp['code']
-            set_cell_background(cell, 'D2B48C')  # Tan
-            cell.paragraphs[0].runs[0].font.bold = True
-            cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-            col_idx += 1
+    total_cols = 2 + len(data['plos'])  # GA column + Competency column + PLO columns
+    
+    matrix_table = doc.add_table(rows=total_rows, cols=total_cols)
+    matrix_table.style = 'Table Grid'
+    
+    # Header row
+    matrix_table.cell(0, 0).text = 'Graduate Attributes'
+    matrix_table.cell(0, 1).text = 'Supporting Competencies'
+    
+    for plo_idx, plo in enumerate(data['plos']):
+        matrix_table.cell(0, 2 + plo_idx).text = plo['code']
+    
+    # Style header row
+    for col_idx in range(total_cols):
+        cell = matrix_table.cell(0, col_idx)
+        set_cell_background(cell, '8B1538')  # Maroon
+        cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+        cell.paragraphs[0].runs[0].font.bold = True
+        cell.paragraphs[0].runs[0].font.size = Pt(9)
+        cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
     
     # Data rows
-    for plo_idx, plo in enumerate(data['plos']):
-        row_idx = plo_idx + 2
-        cell = table.cell(row_idx, 0)
-        cell.text = plo['code']
-        set_cell_background(cell, 'F5DEB3')  # Wheat
-        cell.paragraphs[0].runs[0].font.bold = True
+    row_idx = 1
+    for ga in data['gas']:
+        # GA section row
+        ga_cell = matrix_table.cell(row_idx, 0)
+        ga_cell.text = f"{ga['code']}: {ga['name']}"
         
-        col_idx = 1
-        for ga in data['gas']:
-            for comp in ga['competencies']:
+        # Merge first two columns for GA row
+        ga_cell.merge(matrix_table.cell(row_idx, 1))
+        
+        # Style GA row
+        set_cell_background(ga_cell, 'C8A882')  # Light gold
+        ga_cell.paragraphs[0].runs[0].font.color.rgb = QU_MAROON
+        ga_cell.paragraphs[0].runs[0].font.bold = True
+        ga_cell.paragraphs[0].runs[0].font.size = Pt(9)
+        
+        # Empty cells for PLO columns in GA row
+        for plo_idx in range(len(data['plos'])):
+            plo_cell = matrix_table.cell(row_idx, 2 + plo_idx)
+            set_cell_background(plo_cell, 'C8A882')
+        
+        row_idx += 1
+        
+        # Competency rows under this GA
+        for comp in ga['competencies']:
+            # Empty GA column
+            matrix_table.cell(row_idx, 0).text = ''
+            set_cell_background(matrix_table.cell(row_idx, 0), 'F5F5F5')
+            
+            # Competency name
+            comp_cell = matrix_table.cell(row_idx, 1)
+            comp_cell.text = f"{comp['code']} – {comp['name']}"
+            set_cell_background(comp_cell, 'F5F5F5')
+            comp_cell.paragraphs[0].runs[0].font.size = Pt(8)
+            
+            # Weights for each PLO
+            for plo_idx, plo in enumerate(data['plos']):
                 weight = plo['mappings'].get(comp['code'], '0.00')
-                cell = table.cell(row_idx, col_idx)
-                cell.text = weight
-                cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-                col_idx += 1
+                weight_cell = matrix_table.cell(row_idx, 2 + plo_idx)
+                weight_cell.text = weight
+                weight_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+                weight_cell.paragraphs[0].runs[0].font.size = Pt(8)
+            
+            row_idx += 1
     
-    # Add total mappings count
-    doc.add_paragraph()
-    total_p = doc.add_paragraph()
-    total_p.add_run('Total mappings: ').bold = True
-    total_p.add_run(str(data['total_mappings']))
+    # Add summary
+    doc.add_paragraph().paragraph_format.space_after = Pt(16)
+    total_comps = sum(len(ga['competencies']) for ga in data['gas'])
+    summary = doc.add_paragraph()
+    summary.add_run('Total Mappings: ').font.bold = True
+    summary.add_run(f"{data['total_mappings']} | ")
+    summary.add_run('Total PLOs: ').font.bold = True
+    summary.add_run(f"{len(data['plos'])} | ")
+    summary.add_run('Total Competencies: ').font.bold = True
+    summary.add_run(str(total_comps))
     
-    doc.add_paragraph()  # Spacing
+    doc.add_paragraph().paragraph_format.space_after = Pt(24)
     
     # Add justifications
-    doc.add_heading(f"Justifications ({len(data['justifications'])})", level=2)
-    doc.paragraphs[-1].runs[0].font.color.rgb = RGBColor(139, 21, 56)  # Maroon
+    just_heading = doc.add_heading(f"Competency Justifications ({len(data['justifications'])})", level=2)
+    just_heading.runs[0].font.color.rgb = QU_MAROON
+    just_heading.runs[0].font.size = Pt(16)
+    just_heading.paragraph_format.space_after = Pt(12)
     
     for just in data['justifications']:
-        p = doc.add_paragraph()
-        p.add_run(f"{just['competency_code']}: {just['competency_name']}").bold = True
-        p.add_run(f"\n{just['text']}")
-        p.paragraph_format.left_indent = Inches(0.25)
-        p.paragraph_format.space_after = Pt(12)
+        # Create a table for each justification
+        just_table = doc.add_table(rows=1, cols=3)
+        just_table.style = 'Table Grid'
+        
+        # Code cell
+        code_cell = just_table.cell(0, 0)
+        code_cell.text = just['competency_code']
+        set_cell_background(code_cell, '8B1538')
+        code_cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+        code_cell.paragraphs[0].runs[0].font.bold = True
+        code_cell.paragraphs[0].runs[0].font.size = Pt(9)
+        code_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        
+        # Name cell
+        name_cell = just_table.cell(0, 1)
+        name_cell.text = just['competency_name']
+        set_cell_background(name_cell, 'F5F5F5')
+        name_cell.paragraphs[0].runs[0].font.color.rgb = QU_MAROON
+        name_cell.paragraphs[0].runs[0].font.bold = True
+        name_cell.paragraphs[0].runs[0].font.size = Pt(9)
+        
+        # Justification text cell
+        text_cell = just_table.cell(0, 2)
+        text_cell.text = just['text']
+        text_cell.paragraphs[0].runs[0].font.size = Pt(9)
+        text_cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(51, 51, 51)
+        text_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        
+        # Set column widths
+        just_table.columns[0].width = Inches(0.8)
+        just_table.columns[1].width = Inches(2.5)
+        just_table.columns[2].width = Inches(6.7)
+        
+        # Add spacing after table
+        doc.add_paragraph().paragraph_format.space_after = Pt(10)
     
     return doc
 

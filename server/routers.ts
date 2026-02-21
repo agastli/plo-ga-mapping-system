@@ -428,6 +428,21 @@ export const appRouter = router({
         format: z.enum(['word', 'excel', 'pdf'])
       }))
       .mutation(async ({ input }) => {
+        // Helper function to abbreviate program name for filename
+        const abbreviateProgramName = (name: string): string => {
+          // Remove common words and create abbreviation
+          const cleaned = name
+            .replace(/Bachelor of Science in /gi, 'BS-')
+            .replace(/Bachelor of Arts in /gi, 'BA-')
+            .replace(/Master of Science in /gi, 'MS-')
+            .replace(/Master of Arts in /gi, 'MA-')
+            .replace(/Doctor of Philosophy in /gi, 'PhD-')
+            .replace(/[^a-zA-Z0-9\s-]/g, '')  // Remove special characters
+            .replace(/\s+/g, '-')  // Replace spaces with hyphens
+            .substring(0, 50);  // Limit length
+          return cleaned || 'program';
+        };
+        
         // Get all data for the program
         const program = await db.getProgramById(input.programId);
         if (!program) throw new Error("Program not found");
@@ -478,7 +493,7 @@ export const appRouter = router({
             competency_name: j.competency.nameEn || j.competency.nameAr || '',
             text: j.justification.textEn || j.justification.textAr || ''
           })),
-          output_path: `/tmp/plo-ga-mapping-${input.programId}-${Date.now()}.${input.format === 'word' ? 'docx' : input.format === 'excel' ? 'xlsx' : 'pdf'}`
+          output_path: `/tmp/plo-ga-mapping-${abbreviateProgramName(program.nameEn || program.nameAr || 'program')}-${Date.now()}.${input.format === 'word' ? 'docx' : input.format === 'excel' ? 'xlsx' : 'pdf'}`
         };
         
         // Call Python script to generate document
