@@ -233,3 +233,8 @@
 - [x] Fix background color mismatch between footer and logo (changed to #821F45)
 - [x] Apply changes to all pages (Home, Upload, Programs)
 - [ ] Test and push to GitHub
+
+## Phase 28: Replace Footer Logo with Transparent Background Version
+- [x] Copy qu-log-white-transparent.jpg to project public directory
+- [x] Update all pages (Home, Upload, Programs) to use transparent logo in footer
+- [ ] Test and push to GitHub

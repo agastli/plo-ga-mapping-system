@@ -220,7 +220,7 @@ export default function Programs() {
         <div className="px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-4">
-              <img src="/qu-logo-white.jpg" alt="Qatar University" className="h-14 w-auto" />
+              <img src="/qu-log-white-transparent.jpg" alt="Qatar University" className="h-14 w-auto" />
             </div>
             <div className="text-center md:text-right">
               <p className="text-white font-medium">PLO-GA Mapping Management System</p>
