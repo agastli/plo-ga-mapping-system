@@ -485,19 +485,35 @@ export const appRouter = router({
         await writeFile(tempDataPath, JSON.stringify(exportData));
         
         try {
+          console.log('=== Export Debug Info ===');
+          console.log('Script path:', scriptPath);
+          console.log('Temp data path:', tempDataPath);
+          console.log('Python command:', `python "${scriptPath}" "${tempDataPath}"`);
+          
           // Call Python script with temp file path (same approach as upload/parse)
-          const { stdout } = await execAsync(`python "${scriptPath}" "${tempDataPath}"`);
+          const { stdout, stderr } = await execAsync(`python "${scriptPath}" "${tempDataPath}"`);
+          
+          console.log('Python stdout:', stdout);
+          console.log('Python stderr:', stderr);
+          
           const result = JSON.parse(stdout);
           
           // Clean up temp file
           await unlink(tempDataPath);
           
           if (result.error) {
+            console.error('Python script returned error:', result.error);
             throw new Error(result.error);
           }
           
+          console.log('Export successful, output path:', result.output_path);
           return { filePath: result.output_path };
         } catch (error) {
+          console.error('=== Export Error ===');
+          console.error('Error details:', error);
+          console.error('Error message:', error instanceof Error ? error.message : String(error));
+          console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+          
           // Clean up temp file on error
           await unlink(tempDataPath).catch(() => {});
           throw error;

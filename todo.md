@@ -323,5 +323,11 @@
 
 ## Phase 40: Fix Export Script Path
 - [x] Change script path from '../../scripts' to '../scripts' to match upload/parse
-- [ ] Test export functionality
+- [x] Test export functionality
+- [x] Push changes to GitHub
+
+## Phase 41: Add Comprehensive Error Logging
+- [x] Add detailed console.error logging to export router
+- [x] Log Python command, file paths, and error details
+- [ ] Test export and review server console for error details
 - [ ] Push changes to GitHub
