@@ -482,7 +482,7 @@ export const appRouter = router({
             hour: '2-digit', 
             minute: '2-digit' 
           }) : 'N/A',
-          logo_path: path.join(__dirname, '../client/public/qu-logo.png'),  // QU logo from project public folder
+          logo_path: path.join(process.cwd(), 'client/public/qu-logo.png'),  // QU logo from project root
           plos: plos.map(plo => ({
             code: plo.code,
             description: plo.descriptionEn || plo.descriptionAr || '',
