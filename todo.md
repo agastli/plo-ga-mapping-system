@@ -386,3 +386,11 @@
 - [x] Add college abbreviation to export filenames (e.g., CENG, CEDU)
 - [x] Test all three export formats
 - [x] Push changes to GitHub
+
+## Phase 47: Fix Word Export Formatting Issues
+- [x] Add QU logo to Word export front page
+- [x] Adjust justifications table column widths (narrow code, reduce title, maximize justification)
+- [x] Add page numbering to Word export (like PDF)
+- [x] Adjust mapping matrix column widths (narrower PLO columns, wider competency titles)
+- [ ] Test Word export
+- [ ] Push changes to GitHub

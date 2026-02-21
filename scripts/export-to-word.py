@@ -62,12 +62,12 @@ def create_mapping_document(data):
     # Add QU logo at the top (centered)
     if data.get('logo_path'):
         try:
-            doc.add_picture(data['logo_path'], width=Inches(2.5))
+            doc.add_picture(data['logo_path'], width=Inches(2.5), height=Inches(1.2))
             last_paragraph = doc.paragraphs[-1]
             last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
             last_paragraph.paragraph_format.space_after = Pt(12)
-        except:
-            pass
+        except Exception as e:
+            print(f"Warning: Could not add logo: {e}")
     
     # Add "Academic Planning & Quality Assurance Office" under logo
     office_para = doc.add_paragraph('Academic Planning & Quality Assurance Office')
@@ -134,6 +134,50 @@ def create_mapping_document(data):
     # Set column widths
     info_table.columns[0].width = Inches(2)
     info_table.columns[1].width = Inches(8)
+    
+    # Add page numbering to footer
+    for section in doc.sections:
+        footer = section.footer
+        footer_para = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
+        footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        footer_para.text = "Page "
+        
+        # Add page number field
+        run = footer_para.add_run()
+        fldChar1 = OxmlElement('w:fldChar')
+        fldChar1.set(qn('w:fldCharType'), 'begin')
+        
+        instrText = OxmlElement('w:instrText')
+        instrText.set(qn('xml:space'), 'preserve')
+        instrText.text = 'PAGE'
+        
+        fldChar2 = OxmlElement('w:fldChar')
+        fldChar2.set(qn('w:fldCharType'), 'end')
+        
+        run._r.append(fldChar1)
+        run._r.append(instrText)
+        run._r.append(fldChar2)
+        
+        footer_para.add_run(' of ')
+        
+        # Add total pages field
+        run2 = footer_para.add_run()
+        fldChar3 = OxmlElement('w:fldChar')
+        fldChar3.set(qn('w:fldCharType'), 'begin')
+        
+        instrText2 = OxmlElement('w:instrText')
+        instrText2.set(qn('xml:space'), 'preserve')
+        instrText2.text = 'NUMPAGES'
+        
+        fldChar4 = OxmlElement('w:fldChar')
+        fldChar4.set(qn('w:fldCharType'), 'end')
+        
+        run2._r.append(fldChar3)
+        run2._r.append(instrText2)
+        run2._r.append(fldChar4)
+        
+        footer_para.runs[0].font.size = Pt(9)
+        footer_para.runs[0].font.color.rgb = DARK_GRAY
     
     # Add page break - PLOs start on page 2
     doc.add_page_break()
@@ -231,6 +275,12 @@ def create_mapping_document(data):
             
             row_idx += 1
     
+    # Set column widths for mapping matrix - narrower PLO columns, wider competency titles
+    matrix_table.columns[0].width = Inches(1.5)  # GA column
+    matrix_table.columns[1].width = Inches(4.0)  # Competency column (increased)
+    for plo_idx in range(len(data['plos'])):
+        matrix_table.columns[2 + plo_idx].width = Inches(0.6)  # PLO columns (decreased)
+    
     # Add summary
     doc.add_paragraph().paragraph_format.space_after = Pt(16)
     total_comps = sum(len(ga['competencies']) for ga in data['gas'])
@@ -279,10 +329,10 @@ def create_mapping_document(data):
         text_cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(51, 51, 51)
         text_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         
-        # Set column widths
-        just_table.columns[0].width = Inches(0.8)
-        just_table.columns[1].width = Inches(2.5)
-        just_table.columns[2].width = Inches(6.7)
+        # Set column widths - narrow code, reduce title, maximize justification
+        just_table.columns[0].width = Inches(0.6)  # Reduced for code
+        just_table.columns[1].width = Inches(1.8)  # Reduced for title
+        just_table.columns[2].width = Inches(7.6)  # Maximized for justification
         
         # Add spacing after table
         doc.add_paragraph().paragraph_format.space_after = Pt(10)
