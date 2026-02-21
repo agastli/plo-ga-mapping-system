@@ -485,7 +485,7 @@ export const appRouter = router({
             hour: '2-digit', 
             minute: '2-digit' 
           }) : 'N/A',
-          logo_path: path.join(process.cwd(), 'client/public/qu-logo.png'),  // QU logo from project root
+          logo_path: path.join(__dirname, '../client/public/qu-logo.png'),  // QU logo from project root
           plos: plos.map(plo => ({
             code: plo.code,
             description: plo.descriptionEn || plo.descriptionAr || '',
@@ -597,7 +597,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const tempInputFile = path.join(tmpdir(), `analytics-export-${Date.now()}.json`);
         const outputPath = path.join(tmpdir(), `analytics-report-${Date.now()}.pdf`);
-        const logoPath = path.join(process.cwd(), 'client/public/qu-logo.png');
+        const logoPath = path.join(__dirname, '../client/public/qu-logo.png');
         
         // Save chart image if provided
         let chartImagePath = null;
@@ -619,7 +619,7 @@ export const appRouter = router({
         await writeFile(tempInputFile, JSON.stringify(exportData));
         
         try {
-          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-pdf.py');
+          const scriptPath = path.join(__dirname, '../scripts/export-analytics-to-pdf.py');
           const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {
@@ -656,7 +656,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const tempInputFile = path.join(tmpdir(), `analytics-export-${Date.now()}.json`);
         const outputPath = path.join(tmpdir(), `analytics-report-${Date.now()}.xlsx`);
-        const logoPath = path.join(process.cwd(), 'client/public/qu-logo.png');
+        const logoPath = path.join(__dirname, '../client/public/qu-logo.png');
         
         const exportData = {
           data: input.data,
@@ -667,7 +667,7 @@ export const appRouter = router({
         await writeFile(tempInputFile, JSON.stringify(exportData));
         
         try {
-          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-excel.py');
+          const scriptPath = path.join(__dirname, '../scripts/export-analytics-to-excel.py');
           const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {
@@ -704,7 +704,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const tempInputFile = path.join(tmpdir(), `analytics-export-${Date.now()}.json`);
         const outputPath = path.join(tmpdir(), `analytics-report-${Date.now()}.docx`);
-        const logoPath = path.join(process.cwd(), 'client/public/qu-logo.png');
+        const logoPath = path.join(__dirname, '../client/public/qu-logo.png');
         
         const exportData = {
           data: input.data,
@@ -715,7 +715,7 @@ export const appRouter = router({
         await writeFile(tempInputFile, JSON.stringify(exportData));
         
         try {
-          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-word.py');
+          const scriptPath = path.join(__dirname, '../scripts/export-analytics-to-word.py');
           const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {
@@ -760,7 +760,7 @@ export const appRouter = router({
         await writeFile(tempInputFile, JSON.stringify(exportData));
         
         try {
-          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-csv.py');
+          const scriptPath = path.join(__dirname, '../scripts/export-analytics-to-csv.py');
           const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {
@@ -801,7 +801,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const tempInputFile = path.join(tmpdir(), `analytics-batch-${Date.now()}.json`);
         const outputPath = path.join(tmpdir(), `analytics-batch-${Date.now()}.zip`);
-        const logoPath = path.join(process.cwd(), 'client/public/qu-logo.png');
+        const logoPath = path.join(__dirname, '../client/public/qu-logo.png');
         
         const exportData = {
           entities: input.entities,
@@ -813,7 +813,7 @@ export const appRouter = router({
         await writeFile(tempInputFile, JSON.stringify(exportData));
         
         try {
-          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-batch.py');
+          const scriptPath = path.join(__dirname, '../scripts/export-analytics-batch.py');
           const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {

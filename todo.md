@@ -537,5 +537,20 @@
 ## Phase 62: Fix OKLCH Color Parsing Errors
 - [x] Convert oklch colors to hex/rgb in index.css
 - [x] Remove environment variable placeholders from index.html
-- [ ] Test PDF export after color fix
+- [ ] Test PDF export after color fix (user to test after pull)
+- [x] Push fixes to GitHub
+
+## Phase 63: Fix Python Export Scripts on Local WAMP
+- [x] Check if Python scripts are being executed correctly
+- [x] Fix script path to use __dirname instead of process.cwd() (like working PLO-GA export)
+- [x] Update PDF export script path
+- [x] Update Excel export script path
+- [x] Update Word export script path
+- [x] Update CSV export script path
+- [x] Update batch export script path
+- [x] Fix logo paths to use __dirname instead of process.cwd()
+- [ ] Test PDF export on local WAMP
+- [ ] Test Excel export on local WAMP
+- [ ] Test Word export on local WAMP
+- [ ] Test CSV export on local WAMP
 - [ ] Push fixes to GitHub
