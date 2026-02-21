@@ -383,5 +383,6 @@
 - [x] Improve Excel professional styling (QU maroon and gold colors)
 - [x] Add text wrapping for long texts in Excel
 - [x] Add abbreviated program name to export filenames
-- [ ] Test all three export formats
-- [ ] Push changes to GitHub
+- [x] Add college abbreviation to export filenames (e.g., CENG, CEDU)
+- [x] Test all three export formats
+- [x] Push changes to GitHub

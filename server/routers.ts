@@ -443,6 +443,19 @@ export const appRouter = router({
           return cleaned || 'program';
         };
         
+        // Helper function to get college abbreviation
+        const getCollegeAbbreviation = (collegeName: string): string => {
+          // Extract abbreviation from college name
+          // Examples: "College of Engineering" -> "CENG", "College of Education" -> "CEDU"
+          const match = collegeName.match(/College of (\w+)/);
+          if (match) {
+            const word = match[1];
+            return 'C' + word.substring(0, 3).toUpperCase();
+          }
+          // Fallback: take first 4 letters
+          return collegeName.substring(0, 4).toUpperCase();
+        };
+        
         // Get all data for the program
         const program = await db.getProgramById(input.programId);
         if (!program) throw new Error("Program not found");
@@ -493,7 +506,7 @@ export const appRouter = router({
             competency_name: j.competency.nameEn || j.competency.nameAr || '',
             text: j.justification.textEn || j.justification.textAr || ''
           })),
-          output_path: `/tmp/plo-ga-mapping-${abbreviateProgramName(program.nameEn || program.nameAr || 'program')}-${Date.now()}.${input.format === 'word' ? 'docx' : input.format === 'excel' ? 'xlsx' : 'pdf'}`
+          output_path: `/tmp/plo-ga-mapping-${getCollegeAbbreviation(college?.nameEn || college?.nameAr || 'College')}-${abbreviateProgramName(program.nameEn || program.nameAr || 'program')}-${Date.now()}.${input.format === 'word' ? 'docx' : input.format === 'excel' ? 'xlsx' : 'pdf'}`
         };
         
         // Call Python script to generate document
