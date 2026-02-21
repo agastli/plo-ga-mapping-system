@@ -13,6 +13,7 @@ import Analytics from "./pages/Analytics";
 import CollegeAnalytics from "./pages/CollegeAnalytics";
 import DepartmentAnalytics from "./pages/DepartmentAnalytics";
 import AnalyticsGuide from "./pages/AnalyticsGuide";
+import ReportTemplates from "./pages/ReportTemplates";
 
 function Router() {
   return (
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/analytics/guide"} component={AnalyticsGuide} />
       <Route path={"/analytics/college/:id"} component={CollegeAnalytics} />
       <Route path={"/analytics/department/:id"} component={DepartmentAnalytics} />
+      <Route path={"/templates"} component={ReportTemplates} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

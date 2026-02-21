@@ -12,6 +12,7 @@ import {
   mappings,
   justifications,
   auditLog,
+  reportTemplates,
   type College,
   type Department,
   type Program,
@@ -20,6 +21,7 @@ import {
   type PLO,
   type Mapping,
   type Justification,
+  type ReportTemplate,
   type InsertCollege,
   type InsertDepartment,
   type InsertProgram,
@@ -27,6 +29,7 @@ import {
   type InsertMapping,
   type InsertJustification,
   type InsertAuditLog,
+  type InsertReportTemplate,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -637,4 +640,69 @@ export async function getProgramAnalytics(programId: number) {
     coverageRate: Math.round(coverageRate * 100) / 100,
     gaScores,
   };
+}
+
+// ============================================================================
+// Report Templates
+// ============================================================================
+
+export async function createReportTemplate(data: InsertReportTemplate) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [result] = await db.insert(reportTemplates).values(data);
+  return result;
+}
+
+export async function getReportTemplatesByUser(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(reportTemplates)
+    .where(eq(reportTemplates.userId, userId))
+    .orderBy(sql`${reportTemplates.updatedAt} DESC`);
+}
+
+export async function getPublicReportTemplates() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return db
+    .select()
+    .from(reportTemplates)
+    .where(eq(reportTemplates.isPublic, 1))
+    .orderBy(sql`${reportTemplates.updatedAt} DESC`);
+}
+
+export async function getReportTemplateById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [template] = await db
+    .select()
+    .from(reportTemplates)
+    .where(eq(reportTemplates.id, id));
+  
+  return template;
+}
+
+export async function updateReportTemplate(id: number, data: Partial<InsertReportTemplate>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .update(reportTemplates)
+    .set(data)
+    .where(eq(reportTemplates.id, id));
+}
+
+export async function deleteReportTemplate(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .delete(reportTemplates)
+    .where(eq(reportTemplates.id, id));
 }

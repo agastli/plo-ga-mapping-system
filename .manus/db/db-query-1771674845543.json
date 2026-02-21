@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `reportTemplates` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`name` varchar(255) NOT NULL,\n\t`description` text,\n\t`format` enum('pdf','excel','word','csv') NOT NULL,\n\t`config` text NOT NULL,\n\t`isPublic` int NOT NULL DEFAULT 0,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `reportTemplates_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `reportTemplates_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute CREATE TABLE IF NOT EXISTS `reportTemplates` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`name` varchar(255) NOT NULL,\n\t`description` text,\n\t`format` enum('pdf','excel','word','csv') NOT NULL,\n\t`config` text NOT NULL,\n\t`isPublic` int NOT NULL DEFAULT 0,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `reportTemplates_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `reportTemplates_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE cascade ON UPDATE no action\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1763
+}

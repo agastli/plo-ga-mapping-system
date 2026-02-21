@@ -169,3 +169,22 @@ export const auditLog = mysqlTable("auditLog", {
 
 export type AuditLog = typeof auditLog.$inferSelect;
 export type InsertAuditLog = typeof auditLog.$inferInsert;
+
+/**
+ * Report Templates - Custom export configurations
+ */
+export const reportTemplates = mysqlTable("reportTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  format: mysqlEnum("format", ["pdf", "excel", "word", "csv"]).notNull(),
+  // JSON configuration for metrics, charts, branding
+  config: text("config").notNull(), // JSON string
+  isPublic: int("isPublic").notNull().default(0), // 0 = private, 1 = public
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ReportTemplate = typeof reportTemplates.$inferSelect;
+export type InsertReportTemplate = typeof reportTemplates.$inferInsert;

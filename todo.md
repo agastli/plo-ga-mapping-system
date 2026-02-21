@@ -486,5 +486,31 @@
 - [x] Add batch export button to Analytics page (university level)
 - [x] Add batch export button to CollegeAnalytics page
 - [x] Add batch export button to DepartmentAnalytics page
-- [ ] Test batch export with multiple selections
+- [x] Test batch export with multiple selections
+- [x] Push changes to GitHub
+
+## Phase 58: Add Custom Report Templates Feature
+- [ ] Design database schema for report templates (name, description, metrics, format, branding options)
+- [ ] Add reportTemplates table to drizzle schema
+- [ ] Run database migration
+- [ ] Create backend CRUD endpoints for templates (create, list, get, update, delete)
+- [ ] Create ReportTemplates management page
+- [ ] Create TemplateEditor component for creating/editing templates
+- [ ] Add template selector to AnalyticsExport component
+- [ ] Add template selector to BatchExportDialog component
+- [ ] Add "Save as Template" option in export dialogs
+- [ ] Test template creation, editing, and usage
+- [ ] Push changes to GitHub
+
+## Phase 59: Create Installation Documentation and Setup Scripts
+- [x] Create comprehensive INSTALLATION.md guide
+- [x] Document system requirements and prerequisites
+- [x] Create automated setup script for Windows (setup-windows.bat)
+- [x] Create automated setup script for Linux/Mac (setup-unix.sh)
+- [x] Document environment variables and configuration
+- [x] Create database setup and migration guide (docs/DATABASE_SETUP.md)
+- [x] Create deployment checklist (docs/DEPLOYMENT_CHECKLIST.md)
+- [x] Create troubleshooting guide
+- [x] Update README.md with installation overview
+- [ ] Test installation on clean machine
 - [ ] Push changes to GitHub

@@ -837,6 +837,112 @@ export const appRouter = router({
         }
       }),
   }),
+
+  // Report Templates
+  templates: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      const userTemplates = await db.getReportTemplatesByUser(ctx.user.id);
+      const publicTemplates = await db.getPublicReportTemplates();
+      
+      return {
+        userTemplates: userTemplates.map(t => ({
+          ...t,
+          config: JSON.parse(t.config),
+        })),
+        publicTemplates: publicTemplates.map(t => ({
+          ...t,
+          config: JSON.parse(t.config),
+        })),
+      };
+    }),
+
+    get: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const template = await db.getReportTemplateById(input.id);
+        if (!template) throw new Error("Template not found");
+        
+        return {
+          ...template,
+          config: JSON.parse(template.config),
+        };
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        format: z.enum(["pdf", "excel", "word", "csv"]),
+        config: z.object({
+          includeCharts: z.boolean(),
+          includeMetrics: z.boolean(),
+          includeTables: z.boolean(),
+          includeTimestamp: z.boolean(),
+          customBranding: z.object({
+            headerText: z.string().optional(),
+            footerText: z.string().optional(),
+          }).optional(),
+        }),
+        isPublic: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await db.createReportTemplate({
+          userId: ctx.user.id,
+          name: input.name,
+          description: input.description || null,
+          format: input.format,
+          config: JSON.stringify(input.config),
+          isPublic: input.isPublic ? 1 : 0,
+        });
+        
+        return { id: result.insertId };
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        format: z.enum(["pdf", "excel", "word", "csv"]).optional(),
+        config: z.object({
+          includeCharts: z.boolean(),
+          includeMetrics: z.boolean(),
+          includeTables: z.boolean(),
+          includeTimestamp: z.boolean(),
+          customBranding: z.object({
+            headerText: z.string().optional(),
+            footerText: z.string().optional(),
+          }).optional(),
+        }).optional(),
+        isPublic: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const template = await db.getReportTemplateById(input.id);
+        if (!template) throw new Error("Template not found");
+        if (template.userId !== ctx.user.id) throw new Error("Unauthorized");
+        
+        const updateData: any = {};
+        if (input.name) updateData.name = input.name;
+        if (input.description !== undefined) updateData.description = input.description;
+        if (input.format) updateData.format = input.format;
+        if (input.config) updateData.config = JSON.stringify(input.config);
+        if (input.isPublic !== undefined) updateData.isPublic = input.isPublic ? 1 : 0;
+        
+        await db.updateReportTemplate(input.id, updateData);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const template = await db.getReportTemplateById(input.id);
+        if (!template) throw new Error("Template not found");
+        if (template.userId !== ctx.user.id) throw new Error("Unauthorized");
+        
+        await db.deleteReportTemplate(input.id);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
