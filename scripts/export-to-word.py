@@ -60,6 +60,8 @@ def create_mapping_document(data):
     info.add_run(data['department_name'])
     info.add_run('\nLanguage: ').bold = True
     info.add_run(data['language'])
+    info.add_run('\nLast Updated: ').bold = True
+    info.add_run(data.get('last_updated', 'N/A'))
     
     doc.add_paragraph()  # Spacing
     
@@ -159,15 +161,14 @@ def create_mapping_document(data):
 
 def main():
     if len(sys.argv) < 2:
-        print(json.dumps({'error': 'No input data provided'}))
+        print(json.dumps({'error': 'No input data file provided'}))
         sys.exit(1)
     
     try:
-        # Read JSON data from stdin or argument
-        if sys.argv[1] == '-':
-            data = json.load(sys.stdin)
-        else:
-            data = json.loads(sys.argv[1])
+        # Read JSON data from file (same as PDF export approach)
+        data_file_path = sys.argv[1]
+        with open(data_file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
         
         # Create document
         doc = create_mapping_document(data)
@@ -179,7 +180,8 @@ def main():
         print(json.dumps({'success': True, 'output_path': output_path}))
     
     except Exception as e:
-        print(json.dumps({'error': str(e)}))
+        import traceback
+        print(json.dumps({'error': str(e), 'traceback': traceback.format_exc()}))
         sys.exit(1)
 
 if __name__ == '__main__':
