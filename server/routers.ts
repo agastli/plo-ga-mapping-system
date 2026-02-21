@@ -780,6 +780,62 @@ export const appRouter = router({
           throw error;
         }
       }),
+    
+    batchExport: publicProcedure
+      .input(z.object({
+        entities: z.array(z.object({
+          title: z.string(),
+          data: z.object({
+            title: z.string(),
+            metrics: z.array(z.object({ label: z.string(), value: z.any() })),
+            table_data: z.array(z.array(z.string())),
+            chart_image_data: z.string().optional(),
+            timestamp: z.string().optional(),
+          }),
+        })),
+        format: z.enum(['pdf', 'excel', 'word', 'csv']),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const tempInputFile = path.join(tmpdir(), `analytics-batch-${Date.now()}.json`);
+        const outputPath = path.join(tmpdir(), `analytics-batch-${Date.now()}.zip`);
+        const logoPath = path.join(process.cwd(), 'client/public/qu-logo.png');
+        
+        const exportData = {
+          entities: input.entities,
+          format: input.format,
+          output_path: outputPath,
+          logo_path: logoPath,
+        };
+        
+        await writeFile(tempInputFile, JSON.stringify(exportData));
+        
+        try {
+          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-batch.py');
+          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          
+          if (stderr) {
+            console.error('Python stderr:', stderr);
+          }
+          
+          const result = JSON.parse(stdout.trim());
+          
+          if (!result.success) {
+            throw new Error(result.error || 'Batch export failed');
+          }
+          
+          // Cleanup temp files (but keep the output ZIP for download)
+          await unlink(tempInputFile).catch(() => {});
+          
+          // Return file path for frontend to download
+          return { 
+            filePath: outputPath,
+            filesExported: result.files_exported 
+          };
+        } catch (error) {
+          await unlink(tempInputFile).catch(() => {});
+          throw error;
+        }
+      }),
   }),
 });
 

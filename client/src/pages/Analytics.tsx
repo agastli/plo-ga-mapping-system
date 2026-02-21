@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 import { TrendingUp, TrendingDown, Building2, GraduationCap, Target, Award } from "lucide-react";
 import AnalyticsExport from "@/components/AnalyticsExport";
+import BatchExportDialog from "@/components/BatchExportDialog";
 import { useRef } from "react";
 
 export default function Analytics() {
@@ -122,14 +123,28 @@ export default function Analytics() {
             })}
           </p>
         </div>
-        {analytics && (
-          <AnalyticsExport 
-            title="University Analytics"
-            chartRef={chartRef}
-            data={analytics}
-            type="university"
-          />
-        )}
+        <div className="flex gap-2">
+          {analytics && (
+            <>
+              <AnalyticsExport 
+                title="University Analytics"
+                chartRef={chartRef}
+                data={analytics}
+                type="university"
+              />
+              <BatchExportDialog
+                entities={analytics.colleges.map((college: any) => ({
+                  id: college.collegeCode,
+                  name: college.collegeName,
+                  code: college.collegeCode,
+                  data: college,
+                }))}
+                type="college"
+                chartRef={chartRef}
+              />
+            </>
+          )}
+        </div>
       </div>
 
       {/* Key Metrics Cards */}

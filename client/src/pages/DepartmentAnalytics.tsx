@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { ArrowLeft, GraduationCap, Target, TrendingUp, AlertCircle } from "lucide-react";
 import AnalyticsExport from "@/components/AnalyticsExport";
+import BatchExportDialog from "@/components/BatchExportDialog";
 import { useRef } from "react";
 
 export default function DepartmentAnalytics() {
@@ -139,14 +140,28 @@ export default function DepartmentAnalytics() {
               })}
             </p>
           </div>
-          {analytics && (
-            <AnalyticsExport 
-              title="Department Analytics"
-              chartRef={chartRef}
-              data={analytics}
-              type="department"
-            />
-          )}
+          <div className="flex gap-2">
+            {analytics && (
+              <>
+                <AnalyticsExport 
+                  title="Department Analytics"
+                  chartRef={chartRef}
+                  data={analytics}
+                  type="department"
+                />
+                <BatchExportDialog
+                  entities={analytics.programs.map((prog: any) => ({
+                    id: prog.programCode,
+                    name: prog.programName,
+                    code: prog.programCode,
+                    data: prog,
+                  }))}
+                  type="department"
+                  chartRef={chartRef}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
 

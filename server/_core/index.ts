@@ -66,6 +66,8 @@ async function startServer() {
         contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
       } else if (fileExt === 'csv') {
         contentType = 'text/csv';
+      } else if (fileExt === 'zip') {
+        contentType = 'application/zip';
       }
       
       res.setHeader('Content-Type', contentType);
