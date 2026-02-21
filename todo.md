@@ -524,4 +524,12 @@
 - [ ] Test Word export on Windows
 - [ ] Test CSV export on Windows
 - [ ] Test batch export on Windows
+- [x] Push fixes to GitHub
+
+## Phase 61: Fix Analytics Export Endpoint and MIME Type Errors
+- [x] Fix environment variable usage in AnalyticsExport component
+- [x] Remove VITE_ANALYTICS_ENDPOINT references (commented out Manus analytics)
+- [x] Fix MIME type errors (was caused by analytics script, now fixed)
+- [ ] Test PDF export on local WAMP
+- [ ] Test all other exports
 - [ ] Push fixes to GitHub
