@@ -254,3 +254,15 @@
 - [x] Update getMatrix endpoint to include department and college data
 - [x] Change timestamp format from toLocaleDateString to toLocaleString to show date and time
 - [ ] Test and push to GitHub
+
+## Phase 31: Fix Footer Logo to Use Transparent Background
+- [ ] Update ProgramDetail page footer to use qu-log-white-transparent.jpg instead of qu-log-white.jpg
+- [ ] Verify all pages (Home, Upload, Programs, ProgramDetail) use transparent logo
+- [ ] Push changes to GitHub
+
+## Phase 32: Change Header Background to White and Convert Logo to PNG
+- [x] Change header background from transparent to white (bg-white) on all pages
+- [x] Convert qu-log-white-transparent.jpg to PNG format for proper transparency support
+- [x] Update footer logo reference to use PNG file on all pages
+- [x] Test logo transparency on maroon footer background
+- [ ] Push changes to GitHub

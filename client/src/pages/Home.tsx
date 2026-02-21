@@ -8,7 +8,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Premium Header with QU Logo */}
       <div className="container mx-auto px-4 pt-4 max-w-6xl">
-        <header className="bg-transparent rounded-lg shadow-md mb-6">
+        <header className="bg-white rounded-lg shadow-md mb-6">
         <div className="px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
@@ -231,7 +231,7 @@ export default function Home() {
         <div className="px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-4">
-              <img src="/qu-log-white-transparent.jpg" alt="Qatar University" className="h-14 w-auto" />
+              <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
             </div>
             <div className="text-center md:text-right">
               <p className="text-white font-medium">PLO-GA Mapping Management System</p>
