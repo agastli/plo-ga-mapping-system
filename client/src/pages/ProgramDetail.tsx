@@ -138,9 +138,11 @@ export default function ProgramDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+    <div className="min-h-screen bg-amber-50">
+      {/* Header with QU Logo */}
+      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+        <header className="bg-white rounded-lg shadow-md mb-6">
+        <div className="px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <img src="/qu-logo.png" alt="Qatar University" className="h-12 w-auto" />
@@ -186,8 +188,37 @@ export default function ProgramDetail() {
           </div>
         </div>
       </header>
+      </div>
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Program Information */}
+        <Card className="mb-6 border-2 border-[#8B1538]/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-[#8B1538]/10 to-white border-b">
+            <CardTitle className="text-2xl text-[#8B1538]">Program Information</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Program Name</p>
+                <p className="text-lg text-gray-900 font-semibold">{program.nameEn || program.nameAr}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Program Code</p>
+                <p className="text-lg text-gray-900">{program.code}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Language</p>
+                <p className="text-lg text-gray-900">
+                  {program.language === 'en' ? '🇬🇧 English' : '🇶🇦 Arabic'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Last Updated</p>
+                <p className="text-lg text-gray-900">{new Date(program.updatedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* PLOs */}
         <Card className="mb-6 border-2 border-slate-200 shadow-lg">
@@ -384,6 +415,23 @@ export default function ProgramDetail() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Footer */}
+      <div className="container mx-auto px-4 pb-6 mt-20 max-w-7xl">
+        <footer className="bg-[#821F45] rounded-lg shadow-lg">
+        <div className="px-6 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-4">
+              <img src="/qu-log-white-transparent.jpg" alt="Qatar University" className="h-14 w-auto" />
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-white font-medium">PLO-GA Mapping Management System</p>
+              <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+      </div>
     </div>
   );
 }

@@ -238,3 +238,10 @@
 - [x] Copy qu-log-white-transparent.jpg to project public directory
 - [x] Update all pages (Home, Upload, Programs) to use transparent logo in footer
 - [ ] Test and push to GitHub
+
+## Phase 29: Update ProgramDetail Page Design
+- [x] Add consistent card-based header matching other pages
+- [x] Add consistent card-based footer with transparent logo
+- [x] Add program information section (name, code, language, last updated) before PLOs list
+- [x] Apply amber background (bg-amber-50) to match other pages
+- [ ] Test and push to GitHub
