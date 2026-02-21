@@ -16,10 +16,19 @@ interface AnalyticsExportProps {
   chartRef: React.RefObject<HTMLDivElement | null>;
   data: any;
   type: "university" | "college" | "department";
+  entityCode?: string; // Optional entity code for clean filenames
 }
 
-export default function AnalyticsExport({ title, chartRef, data, type }: AnalyticsExportProps) {
+export default function AnalyticsExport({ title, chartRef, data, type, entityCode }: AnalyticsExportProps) {
   const [isExporting, setIsExporting] = useState(false);
+  
+  // Generate clean filename based on entity code or title
+  const getBaseFilename = () => {
+    if (entityCode) {
+      return `${entityCode}_Analytics_Report`;
+    }
+    return title.replace(/\s+/g, "-").toLowerCase();
+  };
 
   const exportToPNG = async () => {
     if (!chartRef.current) {
@@ -35,7 +44,7 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
       });
       
       const link = document.createElement("a");
-      link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-analytics.png`;
+      link.download = `${getBaseFilename()}.png`;
       link.href = canvas.toDataURL();
       link.click();
       
@@ -85,7 +94,7 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
       if (result.filePath) {
         const link = document.createElement("a");
         link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
-        link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-analytics.pdf`;
+        link.download = `${getBaseFilename()}.pdf`;
         link.click();
       }
       
@@ -123,7 +132,7 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
       if (result.filePath) {
         const link = document.createElement("a");
         link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
-        link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-analytics.xlsx`;
+        link.download = `${getBaseFilename()}.xlsx`;
         link.click();
       }
       
@@ -172,7 +181,7 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
       if (result.filePath) {
         const link = document.createElement("a");
         link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
-        link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-analytics.docx`;
+        link.download = `${getBaseFilename()}.docx`;
         link.click();
       }
       
@@ -210,7 +219,7 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
       if (result.filePath) {
         const link = document.createElement("a");
         link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
-        link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-analytics.csv`;
+        link.download = `${getBaseFilename()}.csv`;
         link.click();
       }
       

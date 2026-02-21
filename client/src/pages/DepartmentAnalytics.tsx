@@ -15,7 +15,11 @@ export default function DepartmentAnalytics() {
   const departmentId = params?.id ? parseInt(params.id) : 0;
 
   const { data: analytics, isLoading } = trpc.analytics.departmentAnalytics.useQuery({ departmentId });
+  const { data: allPrograms } = trpc.programs.list.useQuery();
   const chartRef = useRef<HTMLDivElement>(null);
+
+  // Find department from programs
+  const department = allPrograms?.find(p => p.department.id === departmentId)?.department;
 
   // Header and Footer components
   const Header = () => (
@@ -151,10 +155,11 @@ export default function DepartmentAnalytics() {
             {analytics && (
               <>
                 <AnalyticsExport 
-                  title="Department Analytics"
+                  title={`${department?.nameEn || 'Department'} Analytics`}
                   chartRef={chartRef}
                   data={analytics}
                   type="department"
+                  entityCode={department?.code}
                 />
               </>
             )}

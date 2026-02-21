@@ -159,6 +159,7 @@ export default function CollegeAnalytics() {
                 chartRef={chartRef}
                 data={analytics}
                 type="college"
+                entityCode={college?.code}
               />
             </div>
           </div>

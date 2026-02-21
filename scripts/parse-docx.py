@@ -206,15 +206,27 @@ def extract_justifications(doc):
         comp_match = competency_pattern.match(text)
         if comp_match:
             # Save previous justification
-            if current_ga and current_competency and justification_buffer:
-                justifications.append({
-                    "gaCode": current_ga,
-                    "competencyCode": current_competency,
-                    "textEn": " ".join(justification_buffer),
-                    "textAr": ""
-                })
+            if current_competency and justification_buffer:
+                # Infer GA from competency code if not explicitly set
+                ga_for_save = current_ga
+                if not ga_for_save and current_competency:
+                    # Extract GA number from competency code (C1-1 -> GA1)
+                    comp_num = current_competency.split('-')[0][1:]  # C1-1 -> 1
+                    ga_for_save = f"GA{comp_num}"
+                
+                if ga_for_save:
+                    justifications.append({
+                        "gaCode": ga_for_save,
+                        "competencyCode": current_competency,
+                        "textEn": " ".join(justification_buffer),
+                        "textAr": ""
+                    })
             
             current_competency = comp_match.group(1).upper()
+            # Infer GA from new competency code
+            comp_num = current_competency.split('-')[0][1:]  # C1-1 -> 1
+            current_ga = f"GA{comp_num}"
+            
             # Check if justification starts on same line
             rest_of_line = comp_match.group(2).strip()
             if rest_of_line:
@@ -224,17 +236,24 @@ def extract_justifications(doc):
             continue
         
         # Accumulate justification text
-        if current_ga and current_competency and text:
+        if current_competency and text:
             justification_buffer.append(text)
     
     # Save last justification
-    if current_ga and current_competency and justification_buffer:
-        justifications.append({
-            "gaCode": current_ga,
-            "competencyCode": current_competency,
-            "textEn": " ".join(justification_buffer),
-            "textAr": ""
-        })
+    if current_competency and justification_buffer:
+        # Infer GA from competency code if not explicitly set
+        ga_for_save = current_ga
+        if not ga_for_save and current_competency:
+            comp_num = current_competency.split('-')[0][1:]  # C1-1 -> 1
+            ga_for_save = f"GA{comp_num}"
+        
+        if ga_for_save:
+            justifications.append({
+                "gaCode": ga_for_save,
+                "competencyCode": current_competency,
+                "textEn": " ".join(justification_buffer),
+                "textAr": ""
+            })
     
     return justifications
 

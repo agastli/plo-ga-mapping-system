@@ -610,7 +610,7 @@
 - [x] Remove Analytics Guide link from CollegeAnalytics.tsx footer
 - [x] Remove Analytics Guide link from DepartmentAnalytics.tsx footer
 - [x] Test that individual exports still work correctly
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub (via checkpoint)
 
 ## Phase 72: Fix File Upload Parsing Issue
 - [x] Read the uploaded Social Work file to understand its structure
@@ -618,4 +618,15 @@
 - [x] Add table structure validation to parser
 - [x] Add clear error messages for non-conforming files
 - [x] Test with the uploaded file (parser works correctly)
+- [x] Push changes to GitHub (via checkpoint)
+
+## Phase 73: Fix Individual Export Filenames and Parser Justifications
+- [x] Test parser with Chemistry file to identify justification extraction issue
+- [x] Fix parser justification extraction logic (infer GA from competency code)
+- [x] Add entityCode prop to AnalyticsExport component
+- [x] Update AnalyticsExport to generate clean filenames using entity codes
+- [x] Update Analytics.tsx to pass entity code
+- [x] Update CollegeAnalytics.tsx to pass college code
+- [x] Update DepartmentAnalytics.tsx to pass department code
+- [ ] Test individual exports and parser
 - [ ] Push changes to GitHub

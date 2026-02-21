@@ -138,6 +138,7 @@ export default function Analytics() {
                 chartRef={chartRef}
                 data={analytics}
                 type="university"
+                entityCode="University"
               />
             </>
           )}
