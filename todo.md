@@ -628,5 +628,14 @@
 - [x] Update Analytics.tsx to pass entity code
 - [x] Update CollegeAnalytics.tsx to pass college code
 - [x] Update DepartmentAnalytics.tsx to pass department code
-- [ ] Test individual exports and parser
+- [x] Test individual exports and parser
+- [x] Push changes to GitHub
+
+## Phase 74: Fix All Export Formats to Use Entity Code Filenames
+- [ ] Check AnalyticsExport component to see which export handlers need updating
+- [ ] Update PDF export filename to use entityCode
+- [ ] Update Excel export filename to use entityCode
+- [ ] Update Word export filename to use entityCode
+- [ ] Update CSV export filename to use entityCode
+- [ ] Test all export formats
 - [ ] Push changes to GitHub
