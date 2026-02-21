@@ -71,7 +71,16 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
         chart_image_data: chartImageData,
       };
 
-      await exportPDF.mutateAsync({ data: exportData });
+      const result = await exportPDF.mutateAsync({ data: exportData });
+      
+      // Trigger download using the returned file path
+      if (result.filePath) {
+        const link = document.createElement("a");
+        link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
+        link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-analytics.pdf`;
+        link.click();
+      }
+      
       toast.success("PDF exported successfully");
     } catch (error) {
       console.error("PDF export error:", error);
@@ -92,7 +101,16 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
         table_data: prepareTableData(data, type),
       };
 
-      await exportExcel.mutateAsync({ data: exportData });
+      const result = await exportExcel.mutateAsync({ data: exportData });
+      
+      // Trigger download using the returned file path
+      if (result.filePath) {
+        const link = document.createElement("a");
+        link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
+        link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-analytics.xlsx`;
+        link.click();
+      }
+      
       toast.success("Excel exported successfully");
     } catch (error) {
       console.error("Excel export error:", error);
@@ -124,7 +142,16 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
         chart_image_data: chartImageData,
       };
 
-      await exportWord.mutateAsync({ data: exportData });
+      const result = await exportWord.mutateAsync({ data: exportData });
+      
+      // Trigger download using the returned file path
+      if (result.filePath) {
+        const link = document.createElement("a");
+        link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
+        link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-analytics.docx`;
+        link.click();
+      }
+      
       toast.success("Word document exported successfully");
     } catch (error) {
       console.error("Word export error:", error);

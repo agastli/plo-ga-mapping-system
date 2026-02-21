@@ -628,21 +628,12 @@ export const appRouter = router({
             throw new Error(result.error || 'Export failed');
           }
           
-          // Read the generated PDF
-          const fs = await import('fs/promises');
-          const pdfBuffer = await fs.readFile(outputPath);
-          
-          // Set response headers
-          ctx.res.setHeader('Content-Type', 'application/pdf');
-          ctx.res.setHeader('Content-Disposition', `attachment; filename="analytics-report.pdf"`);
-          ctx.res.send(pdfBuffer);
-          
-          // Cleanup
+          // Cleanup temp files (but keep the output PDF for download)
           await unlink(tempInputFile).catch(() => {});
-          await unlink(outputPath).catch(() => {});
           if (chartImagePath) await unlink(chartImagePath).catch(() => {});
           
-          return { success: true };
+          // Return file path for frontend to download
+          return { filePath: outputPath };
         } catch (error) {
           await unlink(tempInputFile).catch(() => {});
           throw error;
@@ -684,20 +675,11 @@ export const appRouter = router({
             throw new Error(result.error || 'Export failed');
           }
           
-          // Read the generated Excel file
-          const fs = await import('fs/promises');
-          const excelBuffer = await fs.readFile(outputPath);
-          
-          // Set response headers
-          ctx.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-          ctx.res.setHeader('Content-Disposition', `attachment; filename="analytics-report.xlsx"`);
-          ctx.res.send(excelBuffer);
-          
-          // Cleanup
+          // Cleanup temp files (but keep the output Excel for download)
           await unlink(tempInputFile).catch(() => {});
-          await unlink(outputPath).catch(() => {});
           
-          return { success: true };
+          // Return file path for frontend to download
+          return { filePath: outputPath };
         } catch (error) {
           await unlink(tempInputFile).catch(() => {});
           throw error;
@@ -734,26 +716,17 @@ export const appRouter = router({
             console.error('Python stderr:', stderr);
           }
           
-          const result = JSON.parse(stdout.trim());
+           const result = JSON.parse(stdout.trim());
           
           if (!result.success) {
             throw new Error(result.error || 'Export failed');
           }
           
-          // Read the generated Word file
-          const fs = await import('fs/promises');
-          const wordBuffer = await fs.readFile(outputPath);
-          
-          // Set response headers
-          ctx.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-          ctx.res.setHeader('Content-Disposition', `attachment; filename="analytics-report.docx"`);
-          ctx.res.send(wordBuffer);
-          
-          // Cleanup
+          // Cleanup temp files (but keep the output Word doc for download)
           await unlink(tempInputFile).catch(() => {});
-          await unlink(outputPath).catch(() => {});
           
-          return { success: true };
+          // Return file path for frontend to download
+          return { filePath: outputPath };
         } catch (error) {
           await unlink(tempInputFile).catch(() => {});
           throw error;

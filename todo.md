@@ -424,3 +424,17 @@
 - [x] Apply professional QU branding and styling
 - [ ] Test dashboard with real data
 - [ ] Push changes to GitHub
+
+## Phase 51: Fix Missing AnalyticsExport Component
+- [x] Create AnalyticsExport.tsx component file
+- [x] Push to GitHub
+- [x] Install html2canvas dependency
+- [x] Verify analytics dashboard loads correctly
+
+## Phase 52: Add Consistent Header/Footer to Analytics Pages
+- [x] Add header with QU logo to all analytics pages
+- [x] Add footer with transparent logo to all analytics pages
+- [x] Change background to amber (bg-amber-50) on all analytics pages
+- [x] Fix export functionality (PDF, Excel, Word)
+- [ ] Test all exports
+- [ ] Push changes to GitHub

@@ -17,9 +17,40 @@ export default function DepartmentAnalytics() {
   const { data: analytics, isLoading } = trpc.analytics.departmentAnalytics.useQuery({ departmentId });
   const chartRef = useRef<HTMLDivElement>(null);
 
+  // Header and Footer components
+  const Header = () => (
+    <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <img src="/qu-logo.png" alt="QU Logo" className="h-14" />
+          <div>
+            <h1 className="text-xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
+            <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setLocation("/programs")}
+          className="bg-[#8B1538] text-white px-4 py-2 rounded hover:bg-[#6B1028] transition-colors"
+        >
+          View Programs
+        </button>
+      </div>
+    </div>
+  );
+
+  const Footer = () => (
+    <div className="bg-[#8B1538] rounded-lg shadow-md p-6 mt-8">
+      <div className="flex items-center justify-center">
+        <img src="/qu-logo.png" alt="QU Logo" className="h-14 opacity-50" />
+      </div>
+    </div>
+  );
+
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="min-h-screen bg-amber-50">
+        <div className="container mx-auto py-8">
+          <Header />
         <Skeleton className="h-10 w-64 mb-8" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {[1, 2, 3].map((i) => (
@@ -27,14 +58,20 @@ export default function DepartmentAnalytics() {
           ))}
         </div>
         <Skeleton className="h-96" />
+          <Footer />
+        </div>
       </div>
     );
   }
 
   if (!analytics) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="min-h-screen bg-amber-50">
+        <div className="container mx-auto py-8">
+          <Header />
         <p className="text-muted-foreground">No analytics data available for this department.</p>
+          <Footer />
+        </div>
       </div>
     );
   }
@@ -58,7 +95,9 @@ export default function DepartmentAnalytics() {
   const sortedPrograms = [...analytics.programs].sort((a, b) => b.alignmentScore - a.alignmentScore);
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="min-h-screen bg-amber-50">
+      <div className="container mx-auto py-8">
+        <Header />
       {/* Header with Back Button */}
       <div className="mb-8">
         <Button
@@ -232,6 +271,8 @@ export default function DepartmentAnalytics() {
           </Table>
         </CardContent>
       </Card>
+        <Footer />
+      </div>
     </div>
   );
 }

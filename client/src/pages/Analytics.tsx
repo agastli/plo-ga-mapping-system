@@ -12,6 +12,35 @@ export default function Analytics() {
   const { data: analytics, isLoading } = trpc.analytics.universityOverview.useQuery();
   const chartRef = useRef<HTMLDivElement>(null);
 
+  // Header and Footer components
+  const Header = () => (
+    <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <img src="/qu-logo.png" alt="QU Logo" className="h-14" />
+          <div>
+            <h1 className="text-xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
+            <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setLocation("/programs")}
+          className="bg-[#8B1538] text-white px-4 py-2 rounded hover:bg-[#6B1028] transition-colors"
+        >
+          View Programs
+        </button>
+      </div>
+    </div>
+  );
+
+  const Footer = () => (
+    <div className="bg-[#8B1538] rounded-lg shadow-md p-6 mt-8">
+      <div className="flex items-center justify-center">
+        <img src="/qu-logo.png" alt="QU Logo" className="h-14 opacity-50" />
+      </div>
+    </div>
+  );
+
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
@@ -58,7 +87,9 @@ export default function Analytics() {
   const bottomPerformers = sortedColleges.slice(-5).reverse();
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="min-h-screen bg-amber-50">
+      <div className="container mx-auto py-8">
+        <Header />
       {/* Header */}
       <div className="mb-8 flex justify-between items-start">
         <div>
@@ -232,6 +263,8 @@ export default function Analytics() {
             </div>
           </CardContent>
         </Card>
+      </div>
+        <Footer />
       </div>
     </div>
   );

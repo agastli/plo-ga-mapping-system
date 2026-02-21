@@ -53,8 +53,20 @@ async function startServer() {
       }
       
       // Set headers for download
-      const fileName = filePath.split('/').pop() || 'download.docx';
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      const fileName = filePath.split('/').pop() || 'download';
+      const fileExt = fileName.split('.').pop()?.toLowerCase();
+      
+      // Set appropriate Content-Type based on file extension
+      let contentType = 'application/octet-stream';
+      if (fileExt === 'pdf') {
+        contentType = 'application/pdf';
+      } else if (fileExt === 'docx') {
+        contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      } else if (fileExt === 'xlsx') {
+        contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      }
+      
+      res.setHeader('Content-Type', contentType);
       res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
       
       // Stream file
