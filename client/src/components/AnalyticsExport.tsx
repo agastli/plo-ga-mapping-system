@@ -69,6 +69,14 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
         metrics: prepareMetrics(data, type),
         table_data: prepareTableData(data, type),
         chart_image_data: chartImageData,
+        timestamp: new Date().toLocaleString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit'
+        }),
       };
 
       const result = await exportPDF.mutateAsync({ data: exportData });
@@ -99,6 +107,14 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
         title,
         metrics: prepareMetrics(data, type),
         table_data: prepareTableData(data, type),
+        timestamp: new Date().toLocaleString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit'
+        }),
       };
 
       const result = await exportExcel.mutateAsync({ data: exportData });
@@ -140,6 +156,14 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
         metrics: prepareMetrics(data, type),
         table_data: prepareTableData(data, type),
         chart_image_data: chartImageData,
+        timestamp: new Date().toLocaleString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit'
+        }),
       };
 
       const result = await exportWord.mutateAsync({ data: exportData });

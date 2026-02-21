@@ -73,6 +73,14 @@ def create_analytics_word(data, output_path, logo_path):
     run.font.color.rgb = RGBColor(139, 21, 56)
     run.font.size = Pt(24)
     
+    # Timestamp
+    if 'timestamp' in data:
+        p = doc.add_paragraph(f"Generated on: {data['timestamp']}")
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = p.runs[0]
+        run.font.size = Pt(10)
+        run.font.color.rgb = RGBColor(102, 102, 102)
+    
     doc.add_paragraph()  # Spacer
     
     # Key Metrics section

@@ -97,6 +97,16 @@ export default function Analytics() {
           <p className="text-lg text-muted-foreground">
             University-wide PLO-GA Alignment Overview
           </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Generated on: {new Date().toLocaleString('en-US', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric', 
+              hour: '2-digit', 
+              minute: '2-digit',
+              second: '2-digit'
+            })}
+          </p>
         </div>
         {analytics && (
           <AnalyticsExport 

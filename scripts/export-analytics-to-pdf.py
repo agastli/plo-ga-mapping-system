@@ -77,6 +77,19 @@ def create_analytics_pdf(data, output_path, logo_path):
     # Add title
     title = data.get('title', 'Analytics Report')
     elements.append(Paragraph(title, title_style))
+    
+    # Add timestamp
+    if 'timestamp' in data:
+        timestamp_style = ParagraphStyle(
+            'TimestampStyle',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=colors.HexColor('#666666'),
+            alignment=TA_CENTER,
+            spaceAfter=20
+        )
+        elements.append(Paragraph(f"Generated on: {data['timestamp']}", timestamp_style))
+    
     elements.append(Spacer(1, 0.3*inch))
     
     # Add summary metrics

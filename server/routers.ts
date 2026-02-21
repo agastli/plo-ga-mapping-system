@@ -588,6 +588,7 @@ export const appRouter = router({
           metrics: z.array(z.object({ label: z.string(), value: z.any() })),
           table_data: z.array(z.array(z.string())),
           chart_image_data: z.string().optional(),
+          timestamp: z.string().optional(),
         }),
       }))
       .mutation(async ({ input, ctx }) => {
@@ -646,6 +647,7 @@ export const appRouter = router({
           title: z.string(),
           metrics: z.array(z.object({ label: z.string(), value: z.any() })),
           table_data: z.array(z.array(z.string())),
+          timestamp: z.string().optional(),
         }),
       }))
       .mutation(async ({ input, ctx }) => {
@@ -693,6 +695,7 @@ export const appRouter = router({
           metrics: z.array(z.object({ label: z.string(), value: z.any() })),
           table_data: z.array(z.array(z.string())),
           chart_image_data: z.string().optional(),
+          timestamp: z.string().optional(),
         }),
       }))
       .mutation(async ({ input, ctx }) => {

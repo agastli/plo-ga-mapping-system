@@ -62,7 +62,18 @@ def create_analytics_excel(data, output_path, logo_path):
     cell.value = data.get('title', 'Analytics Report')
     cell.font = title_font
     cell.alignment = Alignment(horizontal='center')
-    current_row += 2
+    current_row += 1
+    
+    # Timestamp
+    if 'timestamp' in data:
+        ws.merge_cells(f'A{current_row}:F{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = f"Generated on: {data['timestamp']}"
+        cell.font = Font(size=10, color="666666")
+        cell.alignment = Alignment(horizontal='center')
+        current_row += 1
+    
+    current_row += 1
     
     # Metrics section
     if 'metrics' in data and len(data['metrics']) > 0:
