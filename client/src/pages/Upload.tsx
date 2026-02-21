@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,15 +11,36 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 export default function Upload() {
-  const [file, setFile] = useState<File | null>(null);
+  const [selectedCollege, setSelectedCollege] = useState<string>("");
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
   const [selectedProgram, setSelectedProgram] = useState<string>("");
+  const [file, setFile] = useState<File | null>(null);
   const [parsing, setParsing] = useState(false);
   const [parsedData, setParsedData] = useState<any>(null);
   const [importing, setImporting] = useState(false);
 
-  const { data: programs } = trpc.programs.list.useQuery();
+  const { data: colleges } = trpc.colleges.list.useQuery();
+  const { data: departments } = trpc.departments.listByCollege.useQuery(
+    { collegeId: parseInt(selectedCollege) },
+    { enabled: !!selectedCollege }
+  );
+  const { data: programs } = trpc.programs.listByDepartment.useQuery(
+    { departmentId: parseInt(selectedDepartment) },
+    { enabled: !!selectedDepartment }
+  );
+
   const parseMutation = trpc.document.parse.useMutation();
   const importMutation = trpc.document.import.useMutation();
+
+  // Reset dependent selections when parent changes
+  useEffect(() => {
+    setSelectedDepartment("");
+    setSelectedProgram("");
+  }, [selectedCollege]);
+
+  useEffect(() => {
+    setSelectedProgram("");
+  }, [selectedDepartment]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -31,6 +52,11 @@ export default function Upload() {
   const handleParse = async () => {
     if (!file) {
       toast.error("Please select a file");
+      return;
+    }
+
+    if (!selectedProgram) {
+      toast.error("Please select a program first");
       return;
     }
 
@@ -80,6 +106,8 @@ export default function Upload() {
       toast.success("Data imported successfully!");
       setFile(null);
       setParsedData(null);
+      setSelectedCollege("");
+      setSelectedDepartment("");
       setSelectedProgram("");
     } catch (error) {
       toast.error("Failed to import data");
@@ -108,48 +136,119 @@ export default function Upload() {
           Upload a Word document (.docx) in the standard PLO-GA mapping template format
         </p>
 
-        {/* Upload Section */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Step 1: Select Document</CardTitle>
-            <CardDescription>Choose a .docx file to upload and parse</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="file">Document File</Label>
-              <Input
-                id="file"
-                type="file"
-                accept=".docx"
-                onChange={handleFileChange}
-                className="mt-2"
-              />
-            </div>
+        {/* Step 1: Select College, Department, and Program */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {/* College Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Step 1: College</CardTitle>
+              <CardDescription>Select college</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Select value={selectedCollege} onValueChange={setSelectedCollege}>
+                <SelectTrigger id="college">
+                  <SelectValue placeholder="Select college" />
+                </SelectTrigger>
+                <SelectContent>
+                  {colleges?.map((college) => (
+                    <SelectItem key={college.id} value={college.id.toString()}>
+                      {college.nameEn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
 
-            {file && (
-              <Alert>
-                <FileText className="h-4 w-4" />
-                <AlertDescription>
-                  Selected: {file.name} ({(file.size / 1024).toFixed(2)} KB)
-                </AlertDescription>
-              </Alert>
-            )}
+          {/* Department Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Step 2: Department</CardTitle>
+              <CardDescription>Select department</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Select value={selectedDepartment} onValueChange={setSelectedDepartment} disabled={!selectedCollege}>
+                <SelectTrigger id="department">
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {departments?.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id.toString()}>
+                      {dept.nameEn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
 
-            <Button onClick={handleParse} disabled={!file || parsing} className="w-full">
-              {parsing ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Parsing...
-                </>
-              ) : (
-                <>
-                  <UploadIcon className="mr-2 h-4 w-4" />
-                  Parse Document
-                </>
+          {/* Program Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Step 3: Program</CardTitle>
+              <CardDescription>Select program</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Select value={selectedProgram} onValueChange={setSelectedProgram} disabled={!selectedDepartment}>
+                <SelectTrigger id="program">
+                  <SelectValue placeholder="Select program" />
+                </SelectTrigger>
+                <SelectContent>
+                  {programs?.map((prog) => (
+                    <SelectItem key={prog.id} value={prog.id.toString()}>
+                      {prog.nameEn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Step 4: Upload Document */}
+        {selectedProgram && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Step 4: Upload Document</CardTitle>
+              <CardDescription>Choose a .docx file to upload and parse</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="file">Document File</Label>
+                <Input
+                  id="file"
+                  type="file"
+                  accept=".docx"
+                  onChange={handleFileChange}
+                  className="mt-2"
+                />
+              </div>
+
+              {file && (
+                <Alert>
+                  <FileText className="h-4 w-4" />
+                  <AlertDescription>
+                    Selected: {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                  </AlertDescription>
+                </Alert>
               )}
-            </Button>
-          </CardContent>
-        </Card>
+
+              <Button onClick={handleParse} disabled={!file || parsing} className="w-full">
+                {parsing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Parsing...
+                  </>
+                ) : (
+                  <>
+                    <UploadIcon className="mr-2 h-4 w-4" />
+                    Parse Document
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Parsed Data Preview */}
         {parsedData && (
@@ -198,29 +297,13 @@ export default function Upload() {
               </CardContent>
             </Card>
 
-            {/* Program Selection */}
+            {/* Step 5: Import Data */}
             <Card>
               <CardHeader>
-                <CardTitle>Step 2: Select Target Program</CardTitle>
-                <CardDescription>Choose which program to import this data into</CardDescription>
+                <CardTitle>Step 5: Save to Database</CardTitle>
+                <CardDescription>Import the parsed data into the selected program</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="program">Program</Label>
-                  <Select value={selectedProgram} onValueChange={setSelectedProgram}>
-                    <SelectTrigger id="program" className="mt-2">
-                      <SelectValue placeholder="Select a program" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {programs?.map((item) => (
-                        <SelectItem key={item.program.id} value={item.program.id.toString()}>
-                          {item.program.nameEn} - {item.department.nameEn}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
@@ -228,7 +311,7 @@ export default function Upload() {
                   </AlertDescription>
                 </Alert>
 
-                <Button onClick={handleImport} disabled={!selectedProgram || importing} className="w-full">
+                <Button onClick={handleImport} disabled={importing} className="w-full">
                   {importing ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>

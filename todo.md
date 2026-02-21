@@ -184,3 +184,16 @@
 - [x] Revert UI to display justifications organized by competency
 - [ ] Update documentation explaining the assessment rationale
 - [ ] Test with sample documents and push to GitHub
+
+## Phase 23: Implement Cascading Upload Workflow (College → Department → Program)
+- [x] Add backend endpoint to fetch all colleges (already exists: colleges.list)
+- [x] Add backend endpoint to fetch departments by college ID (already exists: departments.listByCollege)
+- [x] Add backend endpoint to fetch programs by department ID (already exists: programs.listByDepartment)
+- [x] Update Upload page UI to add College dropdown
+- [x] Update Upload page UI to add Department dropdown (filtered by selected college)
+- [x] Update Upload page UI to add Program dropdown (filtered by selected department)
+- [x] Arrange College, Department, and Program dropdowns horizontally on the same line
+- [x] Implement cascading logic: college change → reset department & program, department change → reset program
+- [x] Update parse flow to use selected program ID (program must be selected before upload)
+- [ ] Test complete workflow: select college → department → program → upload → parse → save
+- [ ] Push changes to GitHub
