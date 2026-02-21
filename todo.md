@@ -225,3 +225,11 @@
 - [x] Test footer appearance across all pages
 - [ ] Push changes to GitHub
 - [x] Update header and footer to use same max-width as main container on all pages
+
+## Phase 27: Redesign Header and Footer as Cards
+- [x] Convert footer to rounded corner card with shadow (not full-width background)
+- [x] Convert header to rounded corner card with shadow
+- [x] Reduce footer padding/height to better fit logo (py-6 instead of py-12, h-14 logo instead of h-16)
+- [x] Fix background color mismatch between footer and logo (changed to #821F45)
+- [x] Apply changes to all pages (Home, Upload, Programs)
+- [ ] Test and push to GitHub

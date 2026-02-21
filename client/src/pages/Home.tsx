@@ -7,8 +7,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Premium Header with QU Logo */}
-      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 max-w-6xl">
+      <div className="container mx-auto px-4 pt-4 max-w-6xl">
+        <header className="bg-white rounded-lg shadow-md mb-6">
+        <div className="px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <img src="/qu-logo.png" alt="Qatar University" className="h-16 w-auto" />
@@ -26,6 +27,7 @@ export default function Home() {
           </div>
         </div>
       </header>
+      </div>
 
       {/* Hero Section with Elegant Design */}
       <main className="container mx-auto px-4">
@@ -224,19 +226,21 @@ export default function Home() {
       </main>
 
       {/* Premium Footer */}
-      <footer className="bg-[#8B1538] mt-20 py-12">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="container mx-auto px-4 pb-6 mt-20 max-w-6xl">
+        <footer className="bg-[#821F45] rounded-lg shadow-lg">
+        <div className="px-6 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-4">
-              <img src="/qu-logo-white.jpg" alt="Qatar University" className="h-16 w-auto" />
+              <img src="/qu-logo-white.jpg" alt="Qatar University" className="h-14 w-auto" />
             </div>
             <div className="text-center md:text-right">
-              <p className="text-white font-medium text-lg">PLO-GA Mapping Management System</p>
+              <p className="text-white font-medium">PLO-GA Mapping Management System</p>
               <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
             </div>
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
