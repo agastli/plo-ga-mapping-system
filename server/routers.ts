@@ -555,6 +555,211 @@ export const appRouter = router({
         }
       }),
   }),
+
+  // Analytics
+  analytics: router({
+    universityOverview: publicProcedure.query(async () => {
+      return await db.getUniversityAnalytics();
+    }),
+    
+    collegeAnalytics: publicProcedure
+      .input(z.object({ collegeId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getCollegeAnalytics(input.collegeId);
+      }),
+    
+    departmentAnalytics: publicProcedure
+      .input(z.object({ departmentId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getDepartmentAnalytics(input.departmentId);
+      }),
+    
+    programAnalytics: publicProcedure
+      .input(z.object({ programId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getProgramAnalytics(input.programId);
+      }),
+    
+    // Export endpoints
+    exportToPDF: publicProcedure
+      .input(z.object({
+        data: z.object({
+          title: z.string(),
+          metrics: z.array(z.object({ label: z.string(), value: z.any() })),
+          table_data: z.array(z.array(z.string())),
+          chart_image_data: z.string().optional(),
+        }),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const tempInputFile = path.join(tmpdir(), `analytics-export-${Date.now()}.json`);
+        const outputPath = path.join(tmpdir(), `analytics-report-${Date.now()}.pdf`);
+        const logoPath = path.join(process.cwd(), 'client/public/qu-logo.png');
+        
+        // Save chart image if provided
+        let chartImagePath = null;
+        if (input.data.chart_image_data) {
+          chartImagePath = path.join(tmpdir(), `chart-${Date.now()}.png`);
+          const base64Data = input.data.chart_image_data.split(',')[1];
+          await writeFile(chartImagePath, Buffer.from(base64Data, 'base64'));
+        }
+        
+        const exportData = {
+          data: {
+            ...input.data,
+            chart_image: chartImagePath,
+          },
+          output_path: outputPath,
+          logo_path: logoPath,
+        };
+        
+        await writeFile(tempInputFile, JSON.stringify(exportData));
+        
+        try {
+          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-pdf.py');
+          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          
+          if (stderr) {
+            console.error('Python stderr:', stderr);
+          }
+          
+          const result = JSON.parse(stdout.trim());
+          
+          if (!result.success) {
+            throw new Error(result.error || 'Export failed');
+          }
+          
+          // Read the generated PDF
+          const fs = await import('fs/promises');
+          const pdfBuffer = await fs.readFile(outputPath);
+          
+          // Set response headers
+          ctx.res.setHeader('Content-Type', 'application/pdf');
+          ctx.res.setHeader('Content-Disposition', `attachment; filename="analytics-report.pdf"`);
+          ctx.res.send(pdfBuffer);
+          
+          // Cleanup
+          await unlink(tempInputFile).catch(() => {});
+          await unlink(outputPath).catch(() => {});
+          if (chartImagePath) await unlink(chartImagePath).catch(() => {});
+          
+          return { success: true };
+        } catch (error) {
+          await unlink(tempInputFile).catch(() => {});
+          throw error;
+        }
+      }),
+    
+    exportToExcel: publicProcedure
+      .input(z.object({
+        data: z.object({
+          title: z.string(),
+          metrics: z.array(z.object({ label: z.string(), value: z.any() })),
+          table_data: z.array(z.array(z.string())),
+        }),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const tempInputFile = path.join(tmpdir(), `analytics-export-${Date.now()}.json`);
+        const outputPath = path.join(tmpdir(), `analytics-report-${Date.now()}.xlsx`);
+        const logoPath = path.join(process.cwd(), 'client/public/qu-logo.png');
+        
+        const exportData = {
+          data: input.data,
+          output_path: outputPath,
+          logo_path: logoPath,
+        };
+        
+        await writeFile(tempInputFile, JSON.stringify(exportData));
+        
+        try {
+          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-excel.py');
+          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          
+          if (stderr) {
+            console.error('Python stderr:', stderr);
+          }
+          
+          const result = JSON.parse(stdout.trim());
+          
+          if (!result.success) {
+            throw new Error(result.error || 'Export failed');
+          }
+          
+          // Read the generated Excel file
+          const fs = await import('fs/promises');
+          const excelBuffer = await fs.readFile(outputPath);
+          
+          // Set response headers
+          ctx.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+          ctx.res.setHeader('Content-Disposition', `attachment; filename="analytics-report.xlsx"`);
+          ctx.res.send(excelBuffer);
+          
+          // Cleanup
+          await unlink(tempInputFile).catch(() => {});
+          await unlink(outputPath).catch(() => {});
+          
+          return { success: true };
+        } catch (error) {
+          await unlink(tempInputFile).catch(() => {});
+          throw error;
+        }
+      }),
+    
+    exportToWord: publicProcedure
+      .input(z.object({
+        data: z.object({
+          title: z.string(),
+          metrics: z.array(z.object({ label: z.string(), value: z.any() })),
+          table_data: z.array(z.array(z.string())),
+          chart_image_data: z.string().optional(),
+        }),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const tempInputFile = path.join(tmpdir(), `analytics-export-${Date.now()}.json`);
+        const outputPath = path.join(tmpdir(), `analytics-report-${Date.now()}.docx`);
+        const logoPath = path.join(process.cwd(), 'client/public/qu-logo.png');
+        
+        const exportData = {
+          data: input.data,
+          output_path: outputPath,
+          logo_path: logoPath,
+        };
+        
+        await writeFile(tempInputFile, JSON.stringify(exportData));
+        
+        try {
+          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-word.py');
+          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          
+          if (stderr) {
+            console.error('Python stderr:', stderr);
+          }
+          
+          const result = JSON.parse(stdout.trim());
+          
+          if (!result.success) {
+            throw new Error(result.error || 'Export failed');
+          }
+          
+          // Read the generated Word file
+          const fs = await import('fs/promises');
+          const wordBuffer = await fs.readFile(outputPath);
+          
+          // Set response headers
+          ctx.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+          ctx.res.setHeader('Content-Disposition', `attachment; filename="analytics-report.docx"`);
+          ctx.res.send(wordBuffer);
+          
+          // Cleanup
+          await unlink(tempInputFile).catch(() => {});
+          await unlink(outputPath).catch(() => {});
+          
+          return { success: true };
+        } catch (error) {
+          await unlink(tempInputFile).catch(() => {});
+          throw error;
+        }
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

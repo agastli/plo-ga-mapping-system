@@ -9,6 +9,9 @@ import Upload from "./pages/Upload";
 import Programs from "./pages/Programs";
 import ProgramDetail from "./pages/ProgramDetail";
 import Dashboard from "./pages/Dashboard";
+import Analytics from "./pages/Analytics";
+import CollegeAnalytics from "./pages/CollegeAnalytics";
+import DepartmentAnalytics from "./pages/DepartmentAnalytics";
 
 function Router() {
   return (
@@ -18,6 +21,9 @@ function Router() {
       <Route path={"/programs"} component={Programs} />
       <Route path={"/programs/:id"} component={ProgramDetail} />
       <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/analytics"} component={Analytics} />
+      <Route path={"/analytics/college/:id"} component={CollegeAnalytics} />
+      <Route path={"/analytics/department/:id"} component={DepartmentAnalytics} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

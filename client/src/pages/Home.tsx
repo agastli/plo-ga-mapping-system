@@ -55,7 +55,7 @@ export default function Home() {
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/5">
-              <Link href="/dashboard">
+              <Link href="/analytics">
                 <BarChart3 className="mr-2 h-5 w-5" />
                 View Analytics
               </Link>
@@ -118,7 +118,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <Button asChild className="w-full bg-[#8B1538] hover:bg-[#6B1028]">
-                  <Link href="/dashboard">View Dashboard</Link>
+                  <Link href="/analytics">View Dashboard</Link>
                 </Button>
               </CardContent>
             </Card>

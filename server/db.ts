@@ -385,3 +385,256 @@ export async function logAudit(data: InsertAuditLog) {
     console.error("[Audit Log] Failed to log action:", error);
   }
 }
+
+// ============================================================================
+// Analytics
+// ============================================================================
+
+export async function getUniversityAnalytics() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get all colleges with their analytics
+  const allColleges = await db.select().from(colleges);
+  
+  const collegeAnalytics = await Promise.all(
+    allColleges.map(async (college) => {
+      const analytics = await getCollegeAnalytics(college.id);
+      return {
+        collegeId: college.id,
+        collegeName: college.nameEn,
+        collegeCode: college.code,
+        ...analytics,
+      };
+    })
+  );
+
+  // Calculate university-wide metrics
+  const totalPrograms = collegeAnalytics.reduce((sum, c) => sum + c.totalPrograms, 0);
+  const totalPLOs = collegeAnalytics.reduce((sum, c) => sum + c.totalPLOs, 0);
+  const avgAlignment = collegeAnalytics.length > 0
+    ? collegeAnalytics.reduce((sum, c) => sum + c.averageAlignment, 0) / collegeAnalytics.length
+    : 0;
+
+  return {
+    totalColleges: allColleges.length,
+    totalPrograms,
+    totalPLOs,
+    averageAlignment: Math.round(avgAlignment * 100) / 100,
+    colleges: collegeAnalytics,
+  };
+}
+
+export async function getCollegeAnalytics(collegeId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get college info
+  const college = await db
+    .select()
+    .from(colleges)
+    .where(eq(colleges.id, collegeId))
+    .limit(1);
+
+  if (college.length === 0) {
+    throw new Error("College not found");
+  }
+
+  // Get all departments in this college
+  const depts = await db
+    .select()
+    .from(departments)
+    .where(eq(departments.collegeId, collegeId));
+
+  const departmentAnalytics = await Promise.all(
+    depts.map(async (dept) => {
+      const analytics = await getDepartmentAnalytics(dept.id);
+      return {
+        departmentId: dept.id,
+        departmentName: dept.nameEn,
+        departmentCode: dept.code,
+        ...analytics,
+      };
+    })
+  );
+
+  const totalPrograms = departmentAnalytics.reduce((sum, d) => sum + d.totalPrograms, 0);
+  const totalPLOs = departmentAnalytics.reduce((sum, d) => sum + d.totalPLOs, 0);
+  const avgAlignment = departmentAnalytics.length > 0
+    ? departmentAnalytics.reduce((sum, d) => sum + d.averageAlignment, 0) / departmentAnalytics.length
+    : 0;
+
+  // Calculate GA breakdown across all programs in this college
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.sortOrder);
+  const gaBreakdown = await Promise.all(
+    allGAs.map(async (ga) => {
+      const gaCompetencies = await db
+        .select({ id: competencies.id })
+        .from(competencies)
+        .where(eq(competencies.gaId, ga.id));
+      
+      const competencyIds = gaCompetencies.map(c => c.id);
+      
+      // Get all programs in this college
+      const collegeProgramIds = departmentAnalytics.flatMap(d => d.programs.map(p => p.programId));
+      
+      let totalScore = 0;
+      let programCount = 0;
+      
+      for (const programId of collegeProgramIds) {
+        const programPLOs = await db
+          .select()
+          .from(plos)
+          .where(eq(plos.programId, programId));
+        
+        const programMappings = await db
+          .select({
+            weight: mappings.weight,
+            competencyId: mappings.competencyId,
+          })
+          .from(mappings)
+          .innerJoin(plos, eq(mappings.ploId, plos.id))
+          .where(eq(plos.programId, programId));
+        
+        const gaMappings = programMappings.filter(m => competencyIds.includes(m.competencyId));
+        const totalWeight = gaMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
+        const maxPossibleWeight = programPLOs.length * competencyIds.length;
+        const score = maxPossibleWeight > 0 ? (totalWeight / maxPossibleWeight) * 100 : 0;
+        
+        totalScore += score;
+        programCount++;
+      }
+      
+      return {
+        gaId: ga.id,
+        gaCode: ga.code,
+        gaName: ga.nameEn,
+        averageScore: programCount > 0 ? Math.round((totalScore / programCount) * 100) / 100 : 0,
+      };
+    })
+  );
+
+  return {
+    totalDepartments: depts.length,
+    totalPrograms,
+    totalPLOs,
+    averageAlignment: Math.round(avgAlignment * 100) / 100,
+    departments: departmentAnalytics,
+    gaBreakdown,
+  };
+}
+
+export async function getDepartmentAnalytics(departmentId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get all programs in this department
+  const progs = await db
+    .select()
+    .from(programs)
+    .where(eq(programs.departmentId, departmentId));
+
+  const programAnalytics = await Promise.all(
+    progs.map(async (prog) => {
+      const analytics = await getProgramAnalytics(prog.id);
+      return {
+        programId: prog.id,
+        programName: prog.nameEn,
+        programCode: prog.code,
+        ...analytics,
+      };
+    })
+  );
+
+  const totalPLOs = programAnalytics.reduce((sum, p) => sum + p.totalPLOs, 0);
+  const avgAlignment = programAnalytics.length > 0
+    ? programAnalytics.reduce((sum, p) => sum + p.alignmentScore, 0) / programAnalytics.length
+    : 0;
+
+  return {
+    totalPrograms: progs.length,
+    totalPLOs,
+    averageAlignment: Math.round(avgAlignment * 100) / 100,
+    programs: programAnalytics,
+  };
+}
+
+export async function getProgramAnalytics(programId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get PLOs for this program
+  const programPLOs = await db
+    .select()
+    .from(plos)
+    .where(eq(plos.programId, programId));
+
+  // Get all mappings for this program
+  const programMappings = await db
+    .select({
+      weight: mappings.weight,
+      competencyId: mappings.competencyId,
+    })
+    .from(mappings)
+    .innerJoin(plos, eq(mappings.ploId, plos.id))
+    .where(eq(plos.programId, programId));
+
+  // Get all competencies with their GA assignments
+  const allCompetencies = await db
+    .select({
+      id: competencies.id,
+      code: competencies.code,
+      gaId: competencies.gaId,
+    })
+    .from(competencies);
+
+  // Get all GAs
+  const allGAs = await db.select().from(graduateAttributes);
+
+  // Calculate alignment score for each GA
+  const gaScores = allGAs.map((ga) => {
+    const gaCompetencies = allCompetencies.filter((c) => c.gaId === ga.id);
+    const gaCompetencyIds = gaCompetencies.map((c) => c.id);
+
+    // Sum of weights for this GA's competencies
+    const totalWeight = programMappings
+      .filter((m) => gaCompetencyIds.includes(m.competencyId))
+      .reduce((sum, m) => sum + parseFloat(m.weight), 0);
+
+    // Max possible weight = number of competencies × number of PLOs
+    const maxWeight = gaCompetencies.length * programPLOs.length;
+
+    // Score as percentage
+    const score = maxWeight > 0 ? (totalWeight / maxWeight) * 100 : 0;
+
+    return {
+      gaId: ga.id,
+      gaCode: ga.code,
+      gaName: ga.nameEn,
+      score: Math.round(score * 100) / 100,
+      totalWeight,
+      maxWeight,
+    };
+  });
+
+  // Overall alignment score = average of all GA scores
+  const alignmentScore = gaScores.length > 0
+    ? gaScores.reduce((sum, ga) => sum + ga.score, 0) / gaScores.length
+    : 0;
+
+  // Coverage rate = percentage of competencies with at least one mapping > 0
+  const competenciesWithMappings = new Set(
+    programMappings.filter((m) => parseFloat(m.weight) > 0).map((m) => m.competencyId)
+  );
+  const coverageRate = allCompetencies.length > 0
+    ? (competenciesWithMappings.size / allCompetencies.length) * 100
+    : 0;
+
+  return {
+    totalPLOs: programPLOs.length,
+    totalMappings: programMappings.length,
+    alignmentScore: Math.round(alignmentScore * 100) / 100,
+    coverageRate: Math.round(coverageRate * 100) / 100,
+    gaScores,
+  };
+}
