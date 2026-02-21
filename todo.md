@@ -245,3 +245,12 @@
 - [x] Add program information section (name, code, language, last updated) before PLOs list
 - [x] Apply amber background (bg-amber-50) to match other pages
 - [ ] Test and push to GitHub
+
+## Phase 30: Change Header Background to Transparent and Add College/Department Info
+- [x] Update header background from white to transparent on Upload page
+- [x] Update header background from white to transparent on Programs page
+- [x] Update header background from white to transparent on Home and ProgramDetail pages
+- [x] Add College and Department information to Program Information section on ProgramDetail page
+- [x] Update getMatrix endpoint to include department and college data
+- [x] Change timestamp format from toLocaleDateString to toLocaleString to show date and time
+- [ ] Test and push to GitHub

@@ -8,7 +8,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Premium Header with QU Logo */}
       <div className="container mx-auto px-4 pt-4 max-w-6xl">
-        <header className="bg-white rounded-lg shadow-md mb-6">
+        <header className="bg-transparent rounded-lg shadow-md mb-6">
         <div className="px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">

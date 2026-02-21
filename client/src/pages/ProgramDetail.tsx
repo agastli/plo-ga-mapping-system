@@ -141,7 +141,7 @@ export default function ProgramDetail() {
     <div className="min-h-screen bg-amber-50">
       {/* Header with QU Logo */}
       <div className="container mx-auto px-4 pt-4 max-w-7xl">
-        <header className="bg-white rounded-lg shadow-md mb-6">
+        <header className="bg-transparent rounded-lg shadow-md mb-6">
         <div className="px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
@@ -197,7 +197,7 @@ export default function ProgramDetail() {
             <CardTitle className="text-2xl text-[#8B1538]">Program Information</CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-gray-600 font-medium">Program Name</p>
                 <p className="text-lg text-gray-900 font-semibold">{program.nameEn || program.nameAr}</p>
@@ -213,8 +213,16 @@ export default function ProgramDetail() {
                 </p>
               </div>
               <div>
+                <p className="text-sm text-gray-600 font-medium">College</p>
+                <p className="text-lg text-gray-900">{matrixData?.college?.nameEn || matrixData?.college?.nameAr || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Department</p>
+                <p className="text-lg text-gray-900">{matrixData?.department?.nameEn || matrixData?.department?.nameAr || 'N/A'}</p>
+              </div>
+              <div>
                 <p className="text-sm text-gray-600 font-medium">Last Updated</p>
-                <p className="text-lg text-gray-900">{new Date(program.updatedAt).toLocaleDateString()}</p>
+                <p className="text-lg text-gray-900">{new Date(program.updatedAt).toLocaleString()}</p>
               </div>
             </div>
           </CardContent>

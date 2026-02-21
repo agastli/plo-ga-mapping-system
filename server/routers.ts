@@ -217,6 +217,10 @@ export const appRouter = router({
         const program = await db.getProgramById(input.programId);
         if (!program) throw new Error("Program not found");
         
+        // Get department and college information
+        const department = await db.getDepartmentById(program.departmentId);
+        const college = department ? await db.getCollegeById(department.collegeId) : null;
+        
         // Get all PLOs for the program
         const plosData = await db.getPLOsByProgram(input.programId);
         
@@ -232,6 +236,8 @@ export const appRouter = router({
         
         return {
           program,
+          department,
+          college,
           plos: plosData,
           competencies: allCompetencies,
           graduateAttributes: allGAs,
