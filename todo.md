@@ -302,5 +302,12 @@
 - [x] Check server logs for export error details
 - [x] Debug Python script execution
 - [x] Fix identified issues (command line too long - switched to stdin)
-- [ ] Test PDF export with real program data
+- [x] Test PDF export with real program data
+- [x] Push changes to GitHub
+
+## Phase 38: Modify Python Scripts to Read from Stdin
+- [ ] Update export-to-pdf.py to read JSON from stdin when '-' argument is provided
+- [ ] Update export-to-word.py to read JSON from stdin when '-' argument is provided
+- [ ] Update export-to-excel.py to read JSON from stdin when '-' argument is provided
+- [ ] Test all export formats
 - [ ] Push changes to GitHub
