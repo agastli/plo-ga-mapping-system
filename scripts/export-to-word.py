@@ -42,7 +42,7 @@ def create_mapping_document(data):
     # Add title
     title = doc.add_heading(data['program_name'], level=1)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    title.runs[0].font.color.rgb = RGBColor(139, 69, 19)  # Brown color
+    title.runs[0].font.color.rgb = RGBColor(139, 21, 56)  # Maroon color (#8B1538)
     
     # Add subtitle
     subtitle = doc.add_paragraph('PLO-Graduate Attributes Mapping Report')
@@ -65,7 +65,7 @@ def create_mapping_document(data):
     
     # Add PLOs section
     doc.add_heading('Program Learning Outcomes', level=2)
-    doc.paragraphs[-1].runs[0].font.color.rgb = RGBColor(139, 69, 19)
+    doc.paragraphs[-1].runs[0].font.color.rgb = RGBColor(139, 21, 56)  # Maroon
     
     for plo in data['plos']:
         p = doc.add_paragraph(style='List Number')
@@ -76,7 +76,7 @@ def create_mapping_document(data):
     
     # Add mapping matrix
     doc.add_heading('PLO-Competency Mapping Matrix', level=2)
-    doc.paragraphs[-1].runs[0].font.color.rgb = RGBColor(139, 69, 19)
+    doc.paragraphs[-1].runs[0].font.color.rgb = RGBColor(139, 21, 56)  # Maroon
     
     # Count total competencies
     total_comps = sum(len(ga['competencies']) for ga in data['gas'])
@@ -89,7 +89,7 @@ def create_mapping_document(data):
     row_idx = 0
     col_idx = 1
     table.cell(row_idx, 0).text = 'PLO'
-    set_cell_background(table.cell(row_idx, 0), '8B4513')  # Brown
+    set_cell_background(table.cell(row_idx, 0), '8B1538')  # Maroon
     table.cell(row_idx, 0).paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
     table.cell(row_idx, 0).paragraphs[0].runs[0].font.bold = True
     
@@ -101,7 +101,7 @@ def create_mapping_document(data):
             end_cell = table.cell(row_idx, col_idx + comp_count - 1)
             merged_cell = start_cell.merge(end_cell)
             merged_cell.text = f"{ga['code']}: {ga['name']}"
-            set_cell_background(merged_cell, '8B4513')  # Brown
+            set_cell_background(merged_cell, '8B1538')  # Maroon
             merged_cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
             merged_cell.paragraphs[0].runs[0].font.bold = True
             merged_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -146,7 +146,7 @@ def create_mapping_document(data):
     
     # Add justifications
     doc.add_heading(f"Justifications ({len(data['justifications'])})", level=2)
-    doc.paragraphs[-1].runs[0].font.color.rgb = RGBColor(139, 69, 19)
+    doc.paragraphs[-1].runs[0].font.color.rgb = RGBColor(139, 21, 56)  # Maroon
     
     for just in data['justifications']:
         p = doc.add_paragraph()

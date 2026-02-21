@@ -35,7 +35,7 @@ def create_mapping_pdf(data):
         'CustomTitle',
         parent=styles['Heading1'],
         fontSize=18,
-        textColor=colors.HexColor('#8B4513'),
+        textColor=colors.HexColor('#8B1538'),
         spaceAfter=12,
         alignment=TA_CENTER
     )
@@ -44,7 +44,7 @@ def create_mapping_pdf(data):
         'CustomHeading',
         parent=styles['Heading2'],
         fontSize=14,
-        textColor=colors.HexColor('#8B4513'),
+        textColor=colors.HexColor('#8B1538'),
         spaceAfter=10
     )
     
@@ -135,7 +135,7 @@ def create_mapping_pdf(data):
     
     # Calculate span ranges for GA headers
     table_style_commands = [
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#8B4513')),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#8B1538')),
         ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#D2B48C')),
         ('BACKGROUND', (0, 2), (0, -1), colors.HexColor('#F5DEB3')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),

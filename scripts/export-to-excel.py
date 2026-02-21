@@ -38,7 +38,7 @@ def create_mapping_excel(data):
     ws_plos['B1'] = 'Description'
     
     # Header style
-    header_fill = PatternFill(start_color="8B4513", end_color="8B4513", fill_type="solid")
+    header_fill = PatternFill(start_color="8B1538", end_color="8B1538", fill_type="solid")
     header_font = Font(bold=True, color="FFFFFF")
     
     for cell in ['A1', 'B1']:
