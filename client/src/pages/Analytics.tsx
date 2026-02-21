@@ -132,6 +132,12 @@ export default function Analytics() {
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => setLocation("/analytics/guide")}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#8B1538] text-white rounded hover:bg-[#6B1028] transition-colors"
+          >
+            📖 Analytics Guide
+          </button>
           {analytics && (
             <>
               <AnalyticsExport 

@@ -584,3 +584,10 @@
 - [x] Add Home button to AnalyticsGuide.tsx header
 - [x] Test navigation
 - [ ] Push changes to GitHub
+
+## Phase 69: Add Analytics Guide Button to Top of Analytics Pages
+- [x] Add Analytics Guide button next to Export/Batch Export buttons on Analytics.tsx
+- [x] Add Analytics Guide button next to Export/Batch Export buttons on CollegeAnalytics.tsx
+- [x] Add Analytics Guide button next to Export/Batch Export buttons on DepartmentAnalytics.tsx
+- [x] Test button visibility and navigation
+- [ ] Save checkpoint and push to GitHub
