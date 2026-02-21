@@ -7,7 +7,7 @@ Reads from temp file, generates professional PDF report
 import sys
 import json
 import os
-from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
@@ -18,10 +18,10 @@ from reportlab.pdfgen import canvas
 def create_analytics_pdf(data, output_path, logo_path):
     """Generate PDF analytics report"""
     
-    # Create PDF document in landscape mode
+    # Create PDF document in portrait mode
     doc = SimpleDocTemplate(
         output_path,
-        pagesize=landscape(A4),
+        pagesize=A4,
         rightMargin=0.75*inch,
         leftMargin=0.75*inch,
         topMargin=1*inch,
@@ -158,7 +158,7 @@ def create_analytics_pdf(data, output_path, logo_path):
         canvas.setFont('Helvetica', 9)
         page_num = canvas.getPageNumber()
         text = f"Page {page_num}"
-        canvas.drawRightString(landscape(A4)[0] - 0.75*inch, 0.5*inch, text)
+        canvas.drawRightString(A4[0] - 0.75*inch, 0.5*inch, text)
         canvas.restoreState()
     
     # Build PDF

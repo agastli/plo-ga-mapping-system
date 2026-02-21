@@ -75,7 +75,7 @@ def export_batch(data):
             
             # Run the export script
             result = subprocess.run(
-                ['python3', script_path, temp_input],
+                ['python', script_path, temp_input],
                 capture_output=True,
                 text=True
             )

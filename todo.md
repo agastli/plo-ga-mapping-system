@@ -557,5 +557,15 @@
 
 ## Phase 64: Fix Download Endpoint for Windows Temp Directory
 - [x] Update download endpoint security check to accept Windows temp paths
-- [ ] Test downloads on Windows
-- [ ] Push fixes to GitHub
+- [ ] Test downloads on Windows (user to test after pull)
+- [x] Push fixes to GitHub
+
+## Phase 65: Change PDF and Word Export Orientation to Portrait
+- [x] Update PDF export script (export-analytics-to-pdf.py) to use portrait orientation
+- [x] Update Word export script (export-analytics-to-word.py) to use portrait orientation
+- [ ] Test PDF and Word exports
+- [ ] Push changes to GitHub
+
+## Phase 66: Fix Batch Export Python Command
+- [x] Update batch export script to use 'python' instead of 'python3' for Windows compatibility
+- [ ] Test batch export functionality

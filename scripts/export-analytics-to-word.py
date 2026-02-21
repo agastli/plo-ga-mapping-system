@@ -37,10 +37,10 @@ def create_analytics_word(data, output_path, logo_path):
     
     doc = Document()
     
-    # Set page to landscape A4
+    # Set page to portrait A4
     section = doc.sections[0]
-    section.page_height = Inches(8.27)
-    section.page_width = Inches(11.69)
+    section.page_height = Inches(11.69)
+    section.page_width = Inches(8.27)
     section.left_margin = Inches(0.75)
     section.right_margin = Inches(0.75)
     section.top_margin = Inches(1)
@@ -134,7 +134,7 @@ def create_analytics_word(data, output_path, logo_path):
             p = doc.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             run = p.add_run()
-            run.add_picture(image_stream, width=Inches(9))
+            run.add_picture(image_stream, width=Inches(6.5))
             
             doc.add_paragraph()  # Spacer
         except Exception as e:
