@@ -197,3 +197,14 @@
 - [x] Update parse flow to use selected program ID (program must be selected before upload)
 - [ ] Test complete workflow: select college → department → program → upload → parse → save
 - [ ] Push changes to GitHub
+
+## Phase 24: Improve Upload Page Visual Design
+- [ ] Change background from white to beige/cream tones
+- [ ] Fix program name overflow in dropdown (text truncation with ellipsis)
+- [ ] Add subtle shadows and maroon accents to cards
+- [ ] Enhance overall color scheme with warmer tones
+- [ ] Test visual improvements
+- [ ] Push changes to GitHub
+- [x] Update Upload page to use consistent header with QU logo and navigation like Home page
+- [x] Add consistent footer to Upload page matching Home page footer
+- [x] Increase main container max-width on all pages for more content space (Upload: max-w-6xl, Programs/ProgramDetail: max-w-7xl)

@@ -58,7 +58,7 @@ export default function Programs() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Search and Filter Section */}
         <div className="mb-8">
           <Card className="border-2 border-slate-200 shadow-lg">

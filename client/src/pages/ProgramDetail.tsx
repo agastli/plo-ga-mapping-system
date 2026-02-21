@@ -187,7 +187,7 @@ export default function ProgramDetail() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
 
         {/* PLOs */}
         <Card className="mb-6 border-2 border-slate-200 shadow-lg">

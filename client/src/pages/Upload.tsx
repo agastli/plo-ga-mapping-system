@@ -118,30 +118,47 @@ export default function Upload() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
+    <div className="min-h-screen bg-amber-50">
+      {/* Header with QU Logo */}
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" asChild>
-            <Link href="/">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Link>
-          </Button>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <img src="/qu-logo.png" alt="Qatar University" className="h-16 w-auto" />
+              <div className="border-l-2 border-[#8B1538] pl-4">
+                <h1 className="text-2xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
+                <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
+                <Link href="/">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Home
+                </Link>
+              </Button>
+              <Button variant="default" asChild className="bg-[#8B1538] hover:bg-[#6B1028]">
+                <Link href="/programs">
+                  View Programs
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-2">Upload Mapping Document</h1>
-        <p className="text-gray-600 mb-8">
+      <main className="container mx-auto px-4 py-8 max-w-6xl">
+        <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Upload Mapping Document</h1>
+        <p className="text-gray-700 mb-8">
           Upload a Word document (.docx) in the standard PLO-GA mapping template format
         </p>
 
         {/* Step 1: Select College, Department, and Program */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           {/* College Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Step 1: College</CardTitle>
+          <Card className="shadow-md border-[#8B1538]/20 bg-white">
+            <CardHeader className="bg-gradient-to-br from-[#8B1538]/5 to-transparent">
+              <CardTitle className="text-[#8B1538]">Step 1: College</CardTitle>
               <CardDescription>Select college</CardDescription>
             </CardHeader>
             <CardContent>
@@ -161,9 +178,9 @@ export default function Upload() {
           </Card>
 
           {/* Department Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Step 2: Department</CardTitle>
+          <Card className="shadow-md border-[#8B1538]/20 bg-white">
+            <CardHeader className="bg-gradient-to-br from-[#8B1538]/5 to-transparent">
+              <CardTitle className="text-[#8B1538]">Step 2: Department</CardTitle>
               <CardDescription>Select department</CardDescription>
             </CardHeader>
             <CardContent>
@@ -183,20 +200,20 @@ export default function Upload() {
           </Card>
 
           {/* Program Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Step 3: Program</CardTitle>
+          <Card className="shadow-md border-[#8B1538]/20 bg-white">
+            <CardHeader className="bg-gradient-to-br from-[#8B1538]/5 to-transparent">
+              <CardTitle className="text-[#8B1538]">Step 3: Program</CardTitle>
               <CardDescription>Select program</CardDescription>
             </CardHeader>
             <CardContent>
               <Select value={selectedProgram} onValueChange={setSelectedProgram} disabled={!selectedDepartment}>
-                <SelectTrigger id="program">
+                <SelectTrigger id="program" className="truncate">
                   <SelectValue placeholder="Select program" />
                 </SelectTrigger>
                 <SelectContent>
                   {programs?.map((prog) => (
-                    <SelectItem key={prog.id} value={prog.id.toString()}>
-                      {prog.nameEn}
+                    <SelectItem key={prog.id} value={prog.id.toString()} className="max-w-full">
+                      <span className="block truncate" title={prog.nameEn}>{prog.nameEn}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -207,9 +224,9 @@ export default function Upload() {
 
         {/* Step 4: Upload Document */}
         {selectedProgram && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Step 4: Upload Document</CardTitle>
+          <Card className="mb-6 shadow-md border-[#8B1538]/20 bg-white">
+            <CardHeader className="bg-gradient-to-br from-[#8B1538]/5 to-transparent">
+              <CardTitle className="text-[#8B1538]">Step 4: Upload Document</CardTitle>
               <CardDescription>Choose a .docx file to upload and parse</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -233,7 +250,7 @@ export default function Upload() {
                 </Alert>
               )}
 
-              <Button onClick={handleParse} disabled={!file || parsing} className="w-full">
+              <Button onClick={handleParse} disabled={!file || parsing} className="w-full bg-[#8B1538] hover:bg-[#6B1028]">
                 {parsing ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -253,9 +270,9 @@ export default function Upload() {
         {/* Parsed Data Preview */}
         {parsedData && (
           <>
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <Card className="mb-6 shadow-md border-[#8B1538]/20 bg-white">
+              <CardHeader className="bg-gradient-to-br from-[#8B1538]/5 to-transparent">
+                <CardTitle className="flex items-center gap-2 text-[#8B1538]">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                   Parsing Results
                 </CardTitle>
@@ -280,17 +297,17 @@ export default function Upload() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[#8B1538]/10">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-indigo-600">{parsedData.plos.length}</p>
+                    <p className="text-3xl font-bold text-[#8B1538]">{parsedData.plos.length}</p>
                     <p className="text-sm text-gray-600">PLOs Extracted</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-green-600">{parsedData.mappings.length}</p>
+                    <p className="text-3xl font-bold text-[#8B1538]">{parsedData.mappings.length}</p>
                     <p className="text-sm text-gray-600">Mappings Found</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-purple-600">{parsedData.justifications.length}</p>
+                    <p className="text-3xl font-bold text-[#8B1538]">{parsedData.justifications.length}</p>
                     <p className="text-sm text-gray-600">Justifications</p>
                   </div>
                 </div>
@@ -298,9 +315,9 @@ export default function Upload() {
             </Card>
 
             {/* Step 5: Import Data */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Step 5: Save to Database</CardTitle>
+            <Card className="shadow-md border-[#8B1538]/20 bg-white">
+              <CardHeader className="bg-gradient-to-br from-[#8B1538]/5 to-transparent">
+                <CardTitle className="text-[#8B1538]">Step 5: Save to Database</CardTitle>
                 <CardDescription>Import the parsed data into the selected program</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -311,7 +328,7 @@ export default function Upload() {
                   </AlertDescription>
                 </Alert>
 
-                <Button onClick={handleImport} disabled={importing} className="w-full">
+                <Button onClick={handleImport} disabled={importing} className="w-full bg-[#8B1538] hover:bg-[#6B1028]">
                   {importing ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -329,6 +346,25 @@ export default function Upload() {
           </>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="bg-gradient-to-r from-slate-900 to-slate-800 mt-20 py-12 border-t-4 border-[#8B1538]">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-4">
+              <img src="/qu-logo.png" alt="Qatar University" className="h-12 w-auto opacity-90" />
+              <div className="text-white">
+                <p className="font-semibold">Qatar University</p>
+                <p className="text-sm text-slate-400">Academic Planning & Quality Assurance Office</p>
+              </div>
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-white font-medium">PLO-GA Mapping Management System</p>
+              <p className="text-slate-400 text-sm">© {new Date().getFullYear()} All rights reserved</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
