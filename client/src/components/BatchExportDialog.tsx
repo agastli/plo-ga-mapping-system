@@ -66,26 +66,21 @@ export default function BatchExportDialog({ entities, type, chartRef }: BatchExp
 
     setIsExporting(true);
     try {
-      // Capture chart image if available and format is PDF or Word
-      let chartImageData = undefined;
-      if (chartRef?.current && (format === "pdf" || format === "word")) {
-        const canvas = await html2canvas(chartRef.current, {
-          backgroundColor: "#ffffff",
-          scale: 2,
-        });
-        chartImageData = canvas.toDataURL();
-      }
+      // Note: Charts are not included in batch exports to avoid showing incorrect visualizations
+      // Each entity would need its own chart rendered, which is not feasible in batch mode
+      // Users can export individual entities if charts are needed
 
       // Prepare entities data
       const selectedEntities = entities
         .filter(e => selectedIds.includes(e.id))
         .map(entity => ({
-          title: `${entity.name} (${entity.code})`,
+          title: `${entity.code}_Analytics_Report`,  // Use code for cleaner filenames
+          displayName: `${entity.name} (${entity.code})`,  // For display purposes
           data: {
             title: `${entity.name} Analytics Report`,
             metrics: prepareMetrics(entity.data, type),
             table_data: prepareTableData(entity.data, type),
-            chart_image_data: chartImageData,
+            // chart_image_data is intentionally omitted for batch exports
             timestamp: new Date().toLocaleString('en-US', {
               year: 'numeric',
               month: 'long',

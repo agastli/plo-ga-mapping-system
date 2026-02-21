@@ -583,11 +583,19 @@
 - [x] Add Home button to DepartmentAnalytics.tsx header
 - [x] Add Home button to AnalyticsGuide.tsx header
 - [x] Test navigation
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 69: Add Analytics Guide Button to Top of Analytics Pages
 - [x] Add Analytics Guide button next to Export/Batch Export buttons on Analytics.tsx
 - [x] Add Analytics Guide button next to Export/Batch Export buttons on CollegeAnalytics.tsx
 - [x] Add Analytics Guide button next to Export/Batch Export buttons on DepartmentAnalytics.tsx
 - [x] Test button visibility and navigation
-- [ ] Save checkpoint and push to GitHub
+- [x] Save checkpoint and push to GitHub
+
+## Phase 70: Fix Batch Export Charts and Filenames
+- [x] Investigate how BatchExportDialog captures chart images
+- [x] Fix batch export by removing charts (they were showing incorrect data for all entities)
+- [x] Add comment explaining why charts are omitted in batch exports
+- [x] Fix batch export filenames to use entity code (e.g., CAS_Analytics_Report.pdf)
+- [ ] Test batch export with multiple colleges
+- [ ] Push changes to GitHub
