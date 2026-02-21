@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import CollegeAnalytics from "./pages/CollegeAnalytics";
 import DepartmentAnalytics from "./pages/DepartmentAnalytics";
+import AnalyticsGuide from "./pages/AnalyticsGuide";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
       <Route path={"/programs/:id"} component={ProgramDetail} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/analytics"} component={Analytics} />
+      <Route path={"/analytics/guide"} component={AnalyticsGuide} />
       <Route path={"/analytics/college/:id"} component={CollegeAnalytics} />
       <Route path={"/analytics/department/:id"} component={DepartmentAnalytics} />
       <Route path={"/404"} component={NotFound} />

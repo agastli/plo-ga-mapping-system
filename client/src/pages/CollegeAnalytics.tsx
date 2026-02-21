@@ -42,8 +42,14 @@ export default function CollegeAnalytics() {
 
   const Footer = () => (
     <div className="bg-[#8B1538] rounded-lg shadow-md p-6 mt-8">
-      <div className="flex items-center justify-center">
-        <img src="/qu-logo.png" alt="QU Logo" className="h-14 opacity-50" />
+      <div className="flex flex-col items-center justify-center space-y-3">
+        <button
+          onClick={() => setLocation("/analytics/guide")}
+          className="text-white text-sm hover:text-amber-200 transition-colors underline"
+        >
+          📖 Analytics Guide - Understanding Metrics & Calculations
+        </button>
+        <img src="/qu-logo-white-transparent.png" alt="QU Logo" className="h-14 opacity-50" />
       </div>
     </div>
   );
