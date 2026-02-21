@@ -137,9 +137,14 @@ The PLO-GA Mapping Management System enables academic departments to:
 
 ## Documentation
 
+### Getting Started
+- **[Quick Start Guide](QUICK_START.md)** - 30-minute installation guide for new laptops
 - **[Installation Guide](INSTALLATION.md)** - Detailed installation instructions
-- **[Database Setup](docs/DATABASE_SETUP.md)** - Database configuration and management
-- **[Deployment Checklist](docs/DEPLOYMENT_CHECKLIST.md)** - Step-by-step deployment guide
+- **[Database Setup](DATABASE_SETUP.md)** - Database configuration and management
+
+### Deployment
+- **[Hostinger Deployment](HOSTINGER_DEPLOYMENT.md)** - Deploy to Hostinger hosting
+- **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - Step-by-step deployment guide
 
 ---
 
