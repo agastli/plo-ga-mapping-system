@@ -29,26 +29,28 @@ export default function Programs() {
   const isLoading = programsLoading || collegesLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      {/* Premium Header with QU Logo */}
+    <div className="min-h-screen bg-amber-50">
+      {/* Header with QU Logo */}
       <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <img src="/qu-logo.png" alt="Qatar University" className="h-14 w-auto" />
+              <img src="/qu-logo.png" alt="Qatar University" className="h-16 w-auto" />
               <div className="border-l-2 border-[#8B1538] pl-4">
-                <h1 className="text-xl font-bold text-[#8B1538] flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Programs Directory
-                </h1>
+                <h1 className="text-2xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
                 <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
               </div>
             </div>
             <div className="flex gap-3">
-              <Button variant="ghost" asChild className="text-[#8B1538] hover:bg-[#8B1538]/10">
+              <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
                 <Link href="/">
                   <Home className="mr-2 h-4 w-4" />
                   Home
+                </Link>
+              </Button>
+              <Button variant="default" asChild className="bg-[#8B1538] hover:bg-[#6B1028]">
+                <Link href="/upload">
+                  Upload Document
                 </Link>
               </Button>
             </div>
@@ -57,9 +59,14 @@ export default function Programs() {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
+        <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Programs Directory</h1>
+        <p className="text-gray-700 mb-8">
+          Browse and manage PLO-GA mappings for academic programs
+        </p>
+
         {/* Search and Filter Section */}
         <div className="mb-8">
-          <Card className="border-2 border-slate-200 shadow-lg">
+          <Card className="shadow-md border-[#8B1538]/20 bg-white">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4">
                 {/* College Filter */}
@@ -206,13 +213,21 @@ export default function Programs() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-slate-900 to-slate-800 mt-20 py-8 border-t-4 border-[#8B1538]">
-        <div className="container mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <img src="/qu-logo.png" alt="Qatar University" className="h-8 w-auto opacity-90" />
-            <span className="text-white font-medium">Qatar University</span>
+      <footer className="bg-gradient-to-r from-slate-900 to-slate-800 mt-20 py-12 border-t-4 border-[#8B1538]">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-4">
+              <img src="/qu-logo.png" alt="Qatar University" className="h-12 w-auto opacity-90" />
+              <div className="text-white">
+                <p className="font-semibold">Qatar University</p>
+                <p className="text-sm text-slate-400">Academic Planning & Quality Assurance Office</p>
+              </div>
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-white font-medium">PLO-GA Mapping Management System</p>
+              <p className="text-slate-400 text-sm">© {new Date().getFullYear()} All rights reserved</p>
+            </div>
           </div>
-          <p className="text-slate-400 text-sm">PLO-GA Mapping Management System © {new Date().getFullYear()}</p>
         </div>
       </footer>
     </div>

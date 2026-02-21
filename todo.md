@@ -216,3 +216,4 @@
 - [x] Update filtering logic to only show programs from selected college
 - [ ] Test filtering behavior
 - [ ] Push changes to GitHub
+- [x] Update Programs page design to match Upload page (amber background, consistent header, footer)
