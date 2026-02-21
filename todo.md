@@ -306,8 +306,10 @@
 - [x] Push changes to GitHub
 
 ## Phase 38: Modify Python Scripts to Read from Stdin
-- [ ] Update export-to-pdf.py to read JSON from stdin when '-' argument is provided
-- [ ] Update export-to-word.py to read JSON from stdin when '-' argument is provided
-- [ ] Update export-to-excel.py to read JSON from stdin when '-' argument is provided
+- [x] Update export-to-pdf.py to read JSON from stdin when '-' argument is provided (already implemented)
+- [x] Update export-to-word.py to read JSON from stdin when '-' argument is provided (already implemented)
+- [x] Update export-to-excel.py to read JSON from stdin when '-' argument is provided (already implemented)
+- [x] Fix Python command for Windows compatibility (python vs python3)
+- [x] Add error logging for debugging
 - [ ] Test all export formats
 - [ ] Push changes to GitHub

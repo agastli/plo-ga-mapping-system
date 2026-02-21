@@ -482,7 +482,9 @@ export const appRouter = router({
         
         // Pass data via stdin to avoid command line length limits
         const { spawn } = await import('child_process');
-        const pythonProcess = spawn('python3', [scriptPath, '-']);
+        // Use 'python' on Windows, 'python3' on Unix
+        const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+        const pythonProcess = spawn(pythonCmd, [scriptPath, '-']);
         
         let stdout = '';
         let stderr = '';
@@ -493,6 +495,7 @@ export const appRouter = router({
         
         pythonProcess.stderr.on('data', (data) => {
           stderr += data.toString();
+          console.error('Python stderr:', data.toString());
         });
         
         // Write JSON data to stdin
@@ -502,11 +505,19 @@ export const appRouter = router({
         // Wait for process to complete
         await new Promise((resolve, reject) => {
           pythonProcess.on('close', (code) => {
+            console.log('Python process closed with code:', code);
+            console.log('stdout:', stdout);
+            console.log('stderr:', stderr);
             if (code !== 0) {
               reject(new Error(`Python script failed with code ${code}: ${stderr}`));
             } else {
               resolve(null);
             }
+          });
+          
+          pythonProcess.on('error', (err) => {
+            console.error('Python process error:', err);
+            reject(new Error(`Failed to start Python process: ${err.message}`));
           });
         });
         
