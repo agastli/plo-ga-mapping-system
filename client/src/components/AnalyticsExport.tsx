@@ -92,9 +92,10 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
       
       // Trigger download using the returned file path
       if (result.filePath) {
+        const filename = `${getBaseFilename()}.pdf`;
         const link = document.createElement("a");
-        link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
-        link.download = `${getBaseFilename()}.pdf`;
+        link.href = `/api/download/${encodeURIComponent(result.filePath)}?filename=${encodeURIComponent(filename)}`;
+        link.download = filename;
         link.click();
       }
       
@@ -130,9 +131,10 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
       
       // Trigger download using the returned file path
       if (result.filePath) {
+        const filename = `${getBaseFilename()}.xlsx`;
         const link = document.createElement("a");
-        link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
-        link.download = `${getBaseFilename()}.xlsx`;
+        link.href = `/api/download/${encodeURIComponent(result.filePath)}?filename=${encodeURIComponent(filename)}`;
+        link.download = filename;
         link.click();
       }
       
@@ -179,9 +181,10 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
       
       // Trigger download using the returned file path
       if (result.filePath) {
+        const filename = `${getBaseFilename()}.docx`;
         const link = document.createElement("a");
-        link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
-        link.download = `${getBaseFilename()}.docx`;
+        link.href = `/api/download/${encodeURIComponent(result.filePath)}?filename=${encodeURIComponent(filename)}`;
+        link.download = filename;
         link.click();
       }
       
@@ -217,9 +220,10 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
       
       // Trigger download using the returned file path
       if (result.filePath) {
+        const filename = `${getBaseFilename()}.csv`;
         const link = document.createElement("a");
-        link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
-        link.download = `${getBaseFilename()}.csv`;
+        link.href = `/api/download/${encodeURIComponent(result.filePath)}?filename=${encodeURIComponent(filename)}`;
+        link.download = filename;
         link.click();
       }
       

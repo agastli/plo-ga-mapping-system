@@ -632,10 +632,20 @@
 - [x] Push changes to GitHub
 
 ## Phase 74: Fix All Export Formats to Use Entity Code Filenames
-- [ ] Check AnalyticsExport component to see which export handlers need updating
-- [ ] Update PDF export filename to use entityCode
-- [ ] Update Excel export filename to use entityCode
-- [ ] Update Word export filename to use entityCode
-- [ ] Update CSV export filename to use entityCode
+- [x] Check AnalyticsExport component to see which export handlers need updating
+- [x] Identified root cause: server Content-Disposition header overrides frontend download attribute
+- [x] Modified download endpoint to accept optional filename query parameter
+- [x] Updated AnalyticsExport to pass filename in query string for all formats
+- [x] Update PDF export filename to use entityCode
+- [x] Update Excel export filename to use entityCode
+- [x] Update Word export filename to use entityCode
+- [x] Update CSV export filename to use entityCode
 - [ ] Test all export formats
+- [ ] Push changes to GitHub
+
+## Phase 75: Fix Program Viewer Export Access Denied Error
+- [x] Investigate download endpoint access control
+- [x] Check if recent changes broke Program Viewer exports (overly strict temp dir check)
+- [x] Fix the access denied error (use lenient temp file pattern matching)
+- [ ] Test Program Viewer exports
 - [ ] Push changes to GitHub

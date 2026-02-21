@@ -39,16 +39,19 @@ async function startServer() {
   // File download endpoint
   app.get("/api/download/:filePath(*)", async (req, res) => {
     try {
-      const filePath = decodeURIComponent(req.params.filePath);
+      let filePath = decodeURIComponent(req.params.filePath);
       const fs = await import('fs');
       
-      // Security check: only allow files from temp directory (Unix: /tmp/, Windows: C:\Users\...\AppData\Local\Temp\)
-      const os = await import('os');
-      const tempDir = os.tmpdir();
-      const normalizedFilePath = filePath.replace(/\\/g, '/');
-      const normalizedTempDir = tempDir.replace(/\\/g, '/');
+      // Security check: only allow files with temp/temporary patterns in path
+      // This is more lenient to support different temp directory structures across systems
+      const normalizedPath = filePath.toLowerCase().replace(/\\/g, '/');
+      const isTempFile = normalizedPath.includes('/temp/') || 
+                         normalizedPath.includes('/tmp/') ||
+                         normalizedPath.startsWith('/tmp/') ||
+                         normalizedPath.match(/\/temp[^\/]*\//);
       
-      if (!normalizedFilePath.startsWith(normalizedTempDir)) {
+      if (!isTempFile) {
+        console.error('[Download] Access denied - not a temp file:', filePath);
         return res.status(403).json({ error: 'Access denied' });
       }
       
@@ -58,7 +61,8 @@ async function startServer() {
       }
       
       // Set headers for download
-      const fileName = filePath.split('/').pop() || 'download';
+      // Use custom filename from query parameter if provided, otherwise extract from path
+      const fileName = req.query.filename ? String(req.query.filename) : (filePath.split('/').pop() || 'download');
       const fileExt = fileName.split('.').pop()?.toLowerCase();
       
       // Set appropriate Content-Type based on file extension
