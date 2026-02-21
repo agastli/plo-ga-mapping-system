@@ -573,6 +573,14 @@
 ## Phase 67: Fix Chart Sizing and Batch Export Charts
 - [x] Reduce PDF chart width to fit portrait page (currently 9" is too wide for 8.27" page)
 - [x] Fix batch export to include chart_image parameter when calling individual export scripts
-- [ ] Test single export chart sizing
-- [ ] Test batch export with charts
+- [x] Test single export chart sizing
+- [x] Test batch export with charts
+- [x] Push changes to GitHub
+
+## Phase 68: Add Home Button to Analytics Pages
+- [x] Add Home button to Analytics.tsx header
+- [x] Add Home button to CollegeAnalytics.tsx header
+- [x] Add Home button to DepartmentAnalytics.tsx header
+- [x] Add Home button to AnalyticsGuide.tsx header
+- [x] Test navigation
 - [ ] Push changes to GitHub

@@ -17,12 +17,20 @@ export default function AnalyticsGuide() {
             <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
           </div>
         </div>
-        <button
-          onClick={() => setLocation("/analytics")}
-          className="bg-[#8B1538] text-white px-4 py-2 rounded hover:bg-[#6B1028] transition-colors"
-        >
-          Back to Analytics
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setLocation("/")}
+            className="bg-[#8B1538] text-white px-4 py-2 rounded hover:bg-[#6B1028] transition-colors"
+          >
+            Home
+          </button>
+          <button
+            onClick={() => setLocation("/analytics")}
+            className="bg-[#8B1538] text-white px-4 py-2 rounded hover:bg-[#6B1028] transition-colors"
+          >
+            Back to Analytics
+          </button>
+        </div>
       </div>
     </div>
   );
