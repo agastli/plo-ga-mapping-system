@@ -28,9 +28,17 @@ export default function AnalyticsGuide() {
   );
 
   const Footer = () => (
-    <div className="bg-[#8B1538] rounded-lg shadow-md p-6 mt-8">
-      <div className="flex items-center justify-center">
-        <img src="/qu-logo-white-transparent.png" alt="QU Logo" className="h-14 opacity-50" />
+    <div className="bg-[#821F45] rounded-lg shadow-lg mt-8">
+      <div className="px-6 py-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-4">
+            <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
+          </div>
+          <div className="text-center md:text-right">
+            <p className="text-white font-medium">PLO-GA Mapping Management System</p>
+            <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
+          </div>
+        </div>
       </div>
     </div>
   );
