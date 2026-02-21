@@ -101,7 +101,9 @@ export default function ProgramDetail() {
   const handleSaveJustification = async (justification: typeof justifications[0]) => {
     try {
       await updateJustification.mutateAsync({
-        ploId: justification.justification.ploId,
+        programId,
+        gaId: justification.justification.gaId,
+        competencyId: justification.justification.competencyId,
         textEn: program?.language === "en" ? editingJustificationText : undefined,
         textAr: program?.language === "ar" ? editingJustificationText : undefined,
       });
@@ -336,7 +338,7 @@ export default function ProgramDetail() {
                   <div key={item.justification.id} className="border-l-4 border-[#8B1538] pl-4 py-2 group">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <p className="font-semibold mb-2">{item.plo.code}: {item.plo.descriptionEn || item.plo.descriptionAr}</p>
+                        <p className="font-semibold mb-2">{item.competency.code}: {item.competency.nameEn || item.competency.nameAr}</p>
                         {editingJustification === item.justification.id ? (
                           <div className="space-y-2">
                             <Textarea

@@ -174,3 +174,13 @@
 - [x] Update export endpoint to use PLO-based justifications
 - [x] Update UI to display justifications organized by PLO (not by competency)
 - [ ] Test with Biomedical Sciences and Social Work documents
+
+## Phase 22: Revert to Competency-based Justifications (More Accurate for Assessment)
+- [x] Revert database schema - change justifications table back to link to competencies (programId + gaId + competencyId)
+- [x] Revert parser to extract competency-based justifications (one per competency)
+- [x] Revert backend helpers (getJustificationsByProgram, upsertJustification)
+- [x] Revert import endpoint to handle competency-based justifications
+- [x] Revert export endpoint to use competency-based justifications
+- [x] Revert UI to display justifications organized by competency
+- [ ] Update documentation explaining the assessment rationale
+- [ ] Test with sample documents and push to GitHub

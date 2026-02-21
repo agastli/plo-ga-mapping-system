@@ -269,7 +269,9 @@ export const appRouter = router({
       }),
     upsert: publicProcedure
       .input(z.object({
-        ploId: z.number(),
+        programId: z.number(),
+        gaId: z.number(),
+        competencyId: z.number(),
         textEn: z.string().optional(),
         textAr: z.string().optional(),
       }))
@@ -280,7 +282,7 @@ export const appRouter = router({
             userId: ctx.user.id,
             action: "update",
             entityType: "justification",
-            entityId: input.ploId,
+            entityId: input.programId,
             details: JSON.stringify(input),
           });
         }
@@ -334,7 +336,8 @@ export const appRouter = router({
           weight: z.number(),
         })),
         justifications: z.array(z.object({
-          ploCode: z.string(),
+          gaCode: z.string(),
+          competencyCode: z.string(),
           textEn: z.string().optional(),
           textAr: z.string().optional(),
         })),
@@ -380,13 +383,16 @@ export const appRouter = router({
         const allGAs = await db.getAllGraduateAttributes();
         const gaMap = new Map(allGAs.map(ga => [ga.code, ga.id]));
 
-        // Create justifications (PLO-based)
+        // Create justifications (competency-based)
         for (const justification of input.justifications) {
-          const ploId = ploMap.get(justification.ploCode);
+          const gaId = gaMap.get(justification.gaCode);
+          const competencyId = competencyMap.get(justification.competencyCode);
           
-          if (ploId) {
+          if (gaId && competencyId) {
             await db.upsertJustification({
-              ploId,
+              programId: input.programId,
+              gaId,
+              competencyId,
               textEn: justification.textEn,
               textAr: justification.textAr,
             });
@@ -454,8 +460,9 @@ export const appRouter = router({
           })),
           total_mappings: mappings.length,
           justifications: justifications.map(j => ({
-            plo_code: j.plo.code,
-            plo_description: j.plo.descriptionEn || j.plo.descriptionAr || '',
+            ga_code: j.ga.code,
+            competency_code: j.competency.code,
+            competency_name: j.competency.nameEn || j.competency.nameAr || '',
             text: j.justification.textEn || j.justification.textAr || ''
           })),
           output_path: `/tmp/plo-ga-mapping-${input.programId}-${Date.now()}.${input.format === 'word' ? 'docx' : input.format === 'excel' ? 'xlsx' : 'pdf'}`

@@ -140,13 +140,15 @@ export type InsertMapping = typeof mappings.$inferInsert;
  */
 export const justifications = mysqlTable("justifications", {
   id: int("id").autoincrement().primaryKey(),
-  ploId: int("ploId").notNull().references(() => plos.id, { onDelete: "cascade" }),
+  programId: int("programId").notNull().references(() => programs.id, { onDelete: "cascade" }),
+  gaId: int("gaId").notNull().references(() => graduateAttributes.id, { onDelete: "cascade" }),
+  competencyId: int("competencyId").notNull().references(() => competencies.id, { onDelete: "cascade" }),
   textEn: text("textEn"),
   textAr: text("textAr"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  uniqueJustification: unique().on(table.ploId),
+  uniqueJustification: unique().on(table.programId, table.gaId, table.competencyId),
 }));
 
 export type Justification = typeof justifications.$inferSelect;

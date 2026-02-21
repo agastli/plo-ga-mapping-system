@@ -1,0 +1,21 @@
+Document Analysis: PLOs-GAs_Mapping_Report_English_Literature_and_Linguistics.docx
+
+Structure:
+1. Header: College, Department, Program, Version
+2. PLOs Section: 5 PLOs listed as "PLO1:", "PLO2:", etc. with descriptions
+3. Mapping Matrix: Shows competencies (C1-1, C1-2, etc.) with weights for each PLO
+4. Justifications Section: "Justifications for Mapping"
+
+IMPORTANT FINDING - Justifications are PLO-based:
+- Each justification starts with "PLO1:", "PLO2:", etc. (bold heading)
+- Followed by the full PLO description
+- Then a paragraph explaining which competencies this PLO maps to and why
+- Example format:
+  "PLO1: Demonstrate the ability to read, communicate and write clearly in English.
+   This PLO directly addresses C3-2 (Effective communication skills) by focusing on..."
+
+This confirms the user's requirement: justifications should be organized by PLO (5 justifications for 5 PLOs), not by competency (21 justifications).
+
+Parser should extract:
+- PLO code from bold heading (PLO1:, PLO2:, etc.)
+- Full justification text (the paragraph explaining the mappings)
