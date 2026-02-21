@@ -274,3 +274,12 @@
 - [x] Review PDF export script and update with QU branding
 - [x] Test export functionality for all formats
 - [ ] Push changes to GitHub
+
+## Phase 34: Update PDF Export with Exact Specifications
+- [x] Change PDF page size to A4 (not landscape)
+- [x] Set margins: 1" top/bottom, 0.75" left/right
+- [x] Add QU logo at the top of the first page
+- [x] Add centered page numbers at the bottom of each page
+- [x] Add fancy professional styling with QU branding
+- [x] Test PDF export with sample data
+- [ ] Push changes to GitHub

@@ -1,95 +1,184 @@
 #!/usr/bin/env python3
 """
 Export PLO-GA mapping data to PDF format
-Generates a PDF document with formatted mapping matrix
+Generates a professional, beautifully styled PDF document
 """
 
 import sys
 import json
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter, A4, landscape
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image, KeepTogether
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.pdfgen import canvas
+
+# Qatar University Maroon color
+QU_MAROON = colors.HexColor('#8B1538')
+QU_GOLD = colors.HexColor('#D4AF37')
+LIGHT_GRAY = colors.HexColor('#F5F5F5')
+MEDIUM_GRAY = colors.HexColor('#E0E0E0')
+
+class NumberedCanvas(canvas.Canvas):
+    """Custom canvas to add page numbers"""
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self._saved_page_states = []
+
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        self._startPage()
+
+    def save(self):
+        """Add page numbers to each page"""
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number(num_pages)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+
+    def draw_page_number(self, page_count):
+        """Draw centered page number at bottom"""
+        self.setFont("Helvetica", 9)
+        self.setFillColor(colors.gray)
+        page_num = f"Page {self._pageNumber} of {page_count}"
+        self.drawCentredString(A4[0] / 2, 0.5 * inch, page_num)
 
 def create_mapping_pdf(data):
-    """Create PDF document from mapping data"""
+    """Create professional PDF document from mapping data"""
     output_path = data.get('output_path', '/tmp/mapping_output.pdf')
     
-    # Create PDF with landscape orientation for matrix
+    # Create PDF with A4 size and custom margins
     doc = SimpleDocTemplate(
         output_path,
-        pagesize=landscape(A4),
-        rightMargin=30,
-        leftMargin=30,
-        topMargin=30,
-        bottomMargin=30
+        pagesize=A4,
+        rightMargin=0.75*inch,
+        leftMargin=0.75*inch,
+        topMargin=1*inch,
+        bottomMargin=1*inch
     )
     
     story = []
     styles = getSampleStyleSheet()
     
-    # Custom styles
+    # Custom styles with elegant typography
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
-        fontSize=18,
-        textColor=colors.HexColor('#8B1538'),
-        spaceAfter=12,
-        alignment=TA_CENTER
+        fontSize=24,
+        textColor=QU_MAROON,
+        spaceAfter=6,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold',
+        leading=28
+    )
+    
+    subtitle_style = ParagraphStyle(
+        'CustomSubtitle',
+        parent=styles['Heading2'],
+        fontSize=14,
+        textColor=colors.HexColor('#555555'),
+        spaceAfter=20,
+        alignment=TA_CENTER,
+        fontName='Helvetica',
+        leading=18
     )
     
     heading_style = ParagraphStyle(
         'CustomHeading',
         parent=styles['Heading2'],
-        fontSize=14,
-        textColor=colors.HexColor('#8B1538'),
-        spaceAfter=10
+        fontSize=16,
+        textColor=QU_MAROON,
+        spaceAfter=12,
+        spaceBefore=16,
+        fontName='Helvetica-Bold',
+        borderWidth=0,
+        borderColor=QU_MAROON,
+        borderPadding=8,
+        backColor=LIGHT_GRAY,
+        leading=20
     )
     
-    # Add logo if provided
+    body_style = ParagraphStyle(
+        'CustomBody',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.HexColor('#333333'),
+        spaceAfter=8,
+        fontName='Helvetica',
+        leading=14,
+        alignment=TA_JUSTIFY
+    )
+    
+    # Add QU logo at the top (centered, professional size)
     if data.get('logo_path'):
         try:
-            logo = Image(data['logo_path'], width=1.5*inch, height=1.5*inch)
+            logo = Image(data['logo_path'], width=2*inch, height=2*inch)
             logo.hAlign = 'CENTER'
             story.append(logo)
-            story.append(Spacer(1, 12))
+            story.append(Spacer(1, 16))
         except:
             pass
     
-    # Add title
-    story.append(Paragraph(data['program_name'], title_style))
-    story.append(Paragraph("PLO-Graduate Attributes Mapping Report", styles['Heading2']))
-    story.append(Spacer(1, 12))
+    # Add decorative line
+    line_data = [['', '']]
+    line_table = Table(line_data, colWidths=[6.95*inch])
+    line_table.setStyle(TableStyle([
+        ('LINEABOVE', (0, 0), (-1, 0), 2, QU_MAROON),
+        ('LINEBELOW', (0, 0), (-1, 0), 0.5, QU_GOLD),
+    ]))
+    story.append(line_table)
+    story.append(Spacer(1, 20))
     
-    # Add program information
+    # Add title with elegant styling
+    story.append(Paragraph(data['program_name'], title_style))
+    story.append(Paragraph("Program Learning Outcomes to Graduate Attributes Mapping", subtitle_style))
+    
+    # Add decorative line
+    story.append(line_table)
+    story.append(Spacer(1, 20))
+    
+    # Add program information in a styled box
     info_data = [
         ['College:', data['college_name']],
         ['Department:', data['department_name']],
-        ['Language:', data['language']]
+        ['Language:', data['language']],
+        ['Academic Planning & Quality Assurance Office', '']
     ]
     
-    info_table = Table(info_data, colWidths=[1.5*inch, 4*inch])
+    info_table = Table(info_data, colWidths=[2*inch, 4.95*inch])
     info_table.setStyle(TableStyle([
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('FONTNAME', (0, 0), (0, 2), 'Helvetica-Bold'),
+        ('FONTNAME', (1, 0), (1, 2), 'Helvetica'),
+        ('FONTNAME', (0, 3), (-1, 3), 'Helvetica-Oblique'),
+        ('FONTSIZE', (0, 0), (-1, 2), 11),
+        ('FONTSIZE', (0, 3), (-1, 3), 9),
+        ('TEXTCOLOR', (0, 0), (0, 2), QU_MAROON),
+        ('TEXTCOLOR', (1, 0), (1, 2), colors.HexColor('#333333')),
+        ('TEXTCOLOR', (0, 3), (-1, 3), colors.gray),
+        ('BOTTOMPADDING', (0, 0), (-1, 2), 8),
+        ('TOPPADDING', (0, 0), (-1, 2), 8),
+        ('SPAN', (0, 3), (-1, 3)),
+        ('ALIGN', (0, 3), (-1, 3), 'CENTER'),
+        ('BACKGROUND', (0, 0), (-1, -1), LIGHT_GRAY),
+        ('BOX', (0, 0), (-1, -1), 1, MEDIUM_GRAY),
     ]))
     story.append(info_table)
-    story.append(Spacer(1, 20))
+    story.append(Spacer(1, 24))
     
-    # Add PLOs section
+    # Add PLOs section with elegant header
     story.append(Paragraph("Program Learning Outcomes", heading_style))
+    story.append(Spacer(1, 10))
     
-    for plo in data['plos']:
-        plo_text = f"<b>{plo['code']}:</b> {plo['description']}"
-        story.append(Paragraph(plo_text, styles['Normal']))
-        story.append(Spacer(1, 6))
+    for idx, plo in enumerate(data['plos'], 1):
+        plo_text = f"<b><font color='#8B1538'>{plo['code']}:</font></b> {plo['description']}"
+        story.append(Paragraph(plo_text, body_style))
     
     story.append(PageBreak())
     
-    # Add mapping matrix
+    # Add mapping matrix with professional styling
     story.append(Paragraph("PLO-Competency Mapping Matrix", heading_style))
     story.append(Spacer(1, 12))
     
@@ -103,7 +192,7 @@ def create_mapping_pdf(data):
         if comp_count > 0:
             header_row1.append(f"{ga['code']}: {ga['name']}")
             for _ in range(comp_count - 1):
-                header_row1.append('')  # Placeholder for merged cells
+                header_row1.append('')
     
     matrix_data.append(header_row1)
     
@@ -126,25 +215,44 @@ def create_mapping_pdf(data):
     
     # Calculate column widths
     total_comps = sum(len(ga['competencies']) for ga in data['gas'])
-    comp_col_width = 0.4 * inch
+    available_width = 6.95 * inch
     plo_col_width = 0.6 * inch
+    comp_col_width = (available_width - plo_col_width) / total_comps
     col_widths = [plo_col_width] + [comp_col_width] * total_comps
     
-    # Create table
+    # Create table with elegant styling
     matrix_table = Table(matrix_data, colWidths=col_widths, repeatRows=2)
     
-    # Calculate span ranges for GA headers
+    # Professional table styling
     table_style_commands = [
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#8B1538')),
-        ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#D2B48C')),
-        ('BACKGROUND', (0, 2), (0, -1), colors.HexColor('#F5DEB3')),
+        # Header backgrounds
+        ('BACKGROUND', (0, 0), (-1, 0), QU_MAROON),
+        ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#C8A882')),  # Light gold
+        ('BACKGROUND', (0, 2), (0, -1), LIGHT_GRAY),
+        
+        # Text colors
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('TEXTCOLOR', (0, 1), (-1, 1), colors.HexColor('#333333')),
+        
+        # Fonts
         ('FONTNAME', (0, 0), (-1, 1), 'Helvetica-Bold'),
         ('FONTNAME', (0, 2), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (1, 2), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
+        
+        # Alignment
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+        
+        # Borders
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.gray),
+        ('BOX', (0, 0), (-1, -1), 2, QU_MAROON),
+        
+        # Padding
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
     ]
     
     # Add span commands for GA headers
@@ -160,25 +268,42 @@ def create_mapping_pdf(data):
     matrix_table.setStyle(TableStyle(table_style_commands))
     story.append(matrix_table)
     
-    # Add total mappings
-    story.append(Spacer(1, 12))
-    story.append(Paragraph(f"<b>Total mappings:</b> {data['total_mappings']}", styles['Normal']))
+    # Add summary info
+    story.append(Spacer(1, 16))
+    summary_text = f"<b>Total Mappings:</b> {data['total_mappings']} | <b>Total PLOs:</b> {len(data['plos'])} | <b>Total Competencies:</b> {total_comps}"
+    story.append(Paragraph(summary_text, body_style))
     
     story.append(PageBreak())
     
-    # Add justifications
-    story.append(Paragraph(f"Justifications ({len(data['justifications'])})", heading_style))
+    # Add justifications with elegant formatting
+    story.append(Paragraph(f"Competency Justifications ({len(data['justifications'])})", heading_style))
     story.append(Spacer(1, 12))
     
     for just in data['justifications']:
-        just_title = f"<b>{just['competency_code']}: {just['competency_name']}</b>"
-        story.append(Paragraph(just_title, styles['Normal']))
-        story.append(Spacer(1, 4))
-        story.append(Paragraph(just['text'], styles['Normal']))
+        # Create a styled box for each justification
+        just_data = [[just['competency_code'], just['competency_name'], just['text']]]
+        just_table = Table(just_data, colWidths=[0.8*inch, 2*inch, 4.15*inch])
+        just_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (1, 0), 'Helvetica-Bold'),
+            ('FONTNAME', (2, 0), (2, 0), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('TEXTCOLOR', (0, 0), (0, 0), colors.white),
+            ('TEXTCOLOR', (1, 0), (1, 0), QU_MAROON),
+            ('TEXTCOLOR', (2, 0), (2, 0), colors.HexColor('#333333')),
+            ('BACKGROUND', (0, 0), (0, 0), QU_MAROON),
+            ('BACKGROUND', (1, 0), (1, 0), LIGHT_GRAY),
+            ('VALIGN', (0, 0), (-1, 0), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, 0), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('LEFTPADDING', (0, 0), (-1, 0), 8),
+            ('RIGHTPADDING', (0, 0), (-1, 0), 8),
+            ('BOX', (0, 0), (-1, -1), 1, MEDIUM_GRAY),
+        ]))
+        story.append(just_table)
         story.append(Spacer(1, 10))
     
-    # Build PDF
-    doc.build(story)
+    # Build PDF with custom canvas for page numbers
+    doc.build(story, canvasmaker=NumberedCanvas)
     
     return output_path
 
