@@ -9,6 +9,7 @@ import zipfile
 from pathlib import Path
 import subprocess
 import tempfile
+import base64
 
 def export_batch(data):
     """Export multiple analytics reports to a ZIP file"""
@@ -50,13 +51,32 @@ def export_batch(data):
             
             # Prepare export data
             export_data = {
-                'data': entity_data,
+                'data': entity_data.copy(),
                 'output_path': entity_file,
             }
             
             # Add logo path for PDF and Word
             if format_type in ['pdf', 'word']:
                 export_data['logo_path'] = logo_path
+            
+            # Convert base64 chart image to file for PDF/Word exports
+            if format_type in ['pdf', 'word'] and 'chart_image_data' in entity_data:
+                try:
+                    # Decode base64 image
+                    image_data = entity_data['chart_image_data'].split(',')[1]
+                    image_bytes = base64.b64decode(image_data)
+                    
+                    # Save to temp file
+                    chart_file = os.path.join(temp_dir, f'chart_{safe_filename}.png')
+                    with open(chart_file, 'wb') as f:
+                        f.write(image_bytes)
+                    
+                    # Replace chart_image_data with chart_image path
+                    export_data['data']['chart_image'] = chart_file
+                    if 'chart_image_data' in export_data['data']:
+                        del export_data['data']['chart_image_data']
+                except Exception as e:
+                    print(f'Warning: Could not process chart image for {entity_title}: {e}', file=sys.stderr)
             
             # Create temp input file for the export script
             temp_input = os.path.join(temp_dir, f'input_{safe_filename}.json')

@@ -122,7 +122,7 @@ def create_analytics_pdf(data, output_path, logo_path):
     if 'chart_image' in data and os.path.exists(data['chart_image']):
         elements.append(Paragraph("Visualization", heading_style))
         try:
-            chart_img = Image(data['chart_image'], width=9*inch, height=5*inch, kind='proportional')
+            chart_img = Image(data['chart_image'], width=6.5*inch, height=4*inch, kind='proportional')
             elements.append(chart_img)
             elements.append(Spacer(1, 0.3*inch))
         except Exception as e:

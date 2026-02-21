@@ -563,9 +563,16 @@
 ## Phase 65: Change PDF and Word Export Orientation to Portrait
 - [x] Update PDF export script (export-analytics-to-pdf.py) to use portrait orientation
 - [x] Update Word export script (export-analytics-to-word.py) to use portrait orientation
-- [ ] Test PDF and Word exports
-- [ ] Push changes to GitHub
+- [x] Test PDF and Word exports
+- [x] Push changes to GitHub
 
 ## Phase 66: Fix Batch Export Python Command
 - [x] Update batch export script to use 'python' instead of 'python3' for Windows compatibility
-- [ ] Test batch export functionality
+- [x] Test batch export functionality
+
+## Phase 67: Fix Chart Sizing and Batch Export Charts
+- [x] Reduce PDF chart width to fit portrait page (currently 9" is too wide for 8.27" page)
+- [x] Fix batch export to include chart_image parameter when calling individual export scripts
+- [ ] Test single export chart sizing
+- [ ] Test batch export with charts
+- [ ] Push changes to GitHub
