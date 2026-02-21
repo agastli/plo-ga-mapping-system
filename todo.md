@@ -217,3 +217,11 @@
 - [ ] Test filtering behavior
 - [ ] Push changes to GitHub
 - [x] Update Programs page design to match Upload page (amber background, consistent header, footer)
+
+## Phase 26: Update Footer Design with White Logo on Maroon Background
+- [x] Copy white QU logo (qu-log-white.jpg) to project public directory
+- [x] Update footer background from dark gray to maroon (#8B1538) on all pages
+- [x] Update footer to use white logo instead of regular logo
+- [x] Test footer appearance across all pages
+- [ ] Push changes to GitHub
+- [x] Update header and footer to use same max-width as main container on all pages

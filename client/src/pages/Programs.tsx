@@ -32,7 +32,7 @@ export default function Programs() {
     <div className="min-h-screen bg-amber-50">
       {/* Header with QU Logo */}
       <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 max-w-7xl">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <img src="/qu-logo.png" alt="Qatar University" className="h-16 w-auto" />
@@ -213,19 +213,15 @@ export default function Programs() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-slate-900 to-slate-800 mt-20 py-12 border-t-4 border-[#8B1538]">
-        <div className="container mx-auto px-4">
+      <footer className="bg-[#8B1538] mt-20 py-12">
+        <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-4">
-              <img src="/qu-logo.png" alt="Qatar University" className="h-12 w-auto opacity-90" />
-              <div className="text-white">
-                <p className="font-semibold">Qatar University</p>
-                <p className="text-sm text-slate-400">Academic Planning & Quality Assurance Office</p>
-              </div>
+              <img src="/qu-logo-white.jpg" alt="Qatar University" className="h-16 w-auto" />
             </div>
             <div className="text-center md:text-right">
-              <p className="text-white font-medium">PLO-GA Mapping Management System</p>
-              <p className="text-slate-400 text-sm">© {new Date().getFullYear()} All rights reserved</p>
+              <p className="text-white font-medium text-lg">PLO-GA Mapping Management System</p>
+              <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
             </div>
           </div>
         </div>
