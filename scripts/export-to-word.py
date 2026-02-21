@@ -288,10 +288,18 @@ def create_mapping_document(data):
             row_idx += 1
     
     # Set column widths for mapping matrix - narrower PLO columns, wider competency titles
+    # Apply to both table.columns AND individual cells for better enforcement
     matrix_table.columns[0].width = Inches(1.5)  # GA column
     matrix_table.columns[1].width = Inches(4.0)  # Competency column (increased)
     for plo_idx in range(len(data['plos'])):
         matrix_table.columns[2 + plo_idx].width = Inches(0.6)  # PLO columns (decreased)
+    
+    # Also set preferred width on each cell to force the width
+    for row in matrix_table.rows:
+        row.cells[0].width = Inches(1.5)
+        row.cells[1].width = Inches(4.0)
+        for plo_idx in range(len(data['plos'])):
+            row.cells[2 + plo_idx].width = Inches(0.6)
     
     # Add summary
     doc.add_paragraph().paragraph_format.space_after = Pt(16)
@@ -342,9 +350,15 @@ def create_mapping_document(data):
         text_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         
         # Set column widths - narrow code, reduce title, maximize justification
+        # Apply to both table.columns AND individual cells for better enforcement
         just_table.columns[0].width = Inches(0.6)  # Reduced for code
         just_table.columns[1].width = Inches(1.8)  # Reduced for title
         just_table.columns[2].width = Inches(7.6)  # Maximized for justification
+        
+        # Also set preferred width on each cell to force the width
+        just_table.rows[0].cells[0].width = Inches(0.6)
+        just_table.rows[0].cells[1].width = Inches(1.8)
+        just_table.rows[0].cells[2].width = Inches(7.6)
         
         # Add spacing after table
         doc.add_paragraph().paragraph_format.space_after = Pt(10)

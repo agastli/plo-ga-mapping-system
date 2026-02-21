@@ -400,5 +400,12 @@
 - [x] Fix Word mapping matrix column widths (narrower PLO columns, wider competency titles column)
 - [x] Fix Excel logo aspect ratio to prevent distortion (4.67:1 ratio)
 - [x] Add debug logging to diagnose Word logo loading issue
-- [ ] Test all exports
+- [x] Convert qu-logo.png from WebP to PNG format (python-docx doesn't support WebP)
+- [x] Test all exports
 - [x] Push changes to GitHub
+
+## Phase 49: Force Word Export Table Column Widths
+- [x] Apply column widths more forcefully to mapping matrix table
+- [x] Apply column widths more forcefully to justifications table
+- [ ] Test Word export with real data
+- [ ] Push changes to GitHub
