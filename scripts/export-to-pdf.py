@@ -307,15 +307,14 @@ def create_mapping_pdf(data):
 
 def main():
     if len(sys.argv) < 2:
-        print(json.dumps({'error': 'No input data provided'}))
+        print(json.dumps({'error': 'No input data file provided'}))
         sys.exit(1)
     
     try:
-        # Read JSON data
-        if sys.argv[1] == '-':
-            data = json.load(sys.stdin)
-        else:
-            data = json.loads(sys.argv[1])
+        # Read JSON data from file (same as upload/parse approach)
+        data_file_path = sys.argv[1]
+        with open(data_file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
         
         # Create PDF
         output_path = create_mapping_pdf(data)

@@ -311,5 +311,12 @@
 - [x] Update export-to-excel.py to read JSON from stdin when '-' argument is provided (already implemented)
 - [x] Fix Python command for Windows compatibility (python vs python3)
 - [x] Add error logging for debugging
-- [ ] Test all export formats
+- [x] Test all export formats
+- [x] Push changes to GitHub
+
+## Phase 39: Use Same Python Execution Approach as Upload
+- [x] Change export from spawn to execAsync (same as upload/parse)
+- [x] Update Python script to read from file path instead of stdin
+- [x] Use temp file for data instead of stdin
+- [ ] Test export functionality
 - [ ] Push changes to GitHub

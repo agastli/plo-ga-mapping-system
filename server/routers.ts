@@ -480,54 +480,28 @@ export const appRouter = router({
                           'export-to-pdf.py';
         const scriptPath = path.join(__dirname, '../../scripts', scriptName);
         
-        // Pass data via stdin to avoid command line length limits
-        const { spawn } = await import('child_process');
-        // Use 'python' on Windows, 'python3' on Unix
-        const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-        const pythonProcess = spawn(pythonCmd, [scriptPath, '-']);
+        // Write data to temp file to avoid command line length limits
+        const tempDataPath = path.join(tmpdir(), `export-data-${Date.now()}.json`);
+        await writeFile(tempDataPath, JSON.stringify(exportData));
         
-        let stdout = '';
-        let stderr = '';
-        
-        pythonProcess.stdout.on('data', (data) => {
-          stdout += data.toString();
-        });
-        
-        pythonProcess.stderr.on('data', (data) => {
-          stderr += data.toString();
-          console.error('Python stderr:', data.toString());
-        });
-        
-        // Write JSON data to stdin
-        pythonProcess.stdin.write(JSON.stringify(exportData));
-        pythonProcess.stdin.end();
-        
-        // Wait for process to complete
-        await new Promise((resolve, reject) => {
-          pythonProcess.on('close', (code) => {
-            console.log('Python process closed with code:', code);
-            console.log('stdout:', stdout);
-            console.log('stderr:', stderr);
-            if (code !== 0) {
-              reject(new Error(`Python script failed with code ${code}: ${stderr}`));
-            } else {
-              resolve(null);
-            }
-          });
+        try {
+          // Call Python script with temp file path (same approach as upload/parse)
+          const { stdout } = await execAsync(`python "${scriptPath}" "${tempDataPath}"`);
+          const result = JSON.parse(stdout);
           
-          pythonProcess.on('error', (err) => {
-            console.error('Python process error:', err);
-            reject(new Error(`Failed to start Python process: ${err.message}`));
-          });
-        });
-        
-        const result = JSON.parse(stdout);
-        
-        if (result.error) {
-          throw new Error(result.error);
+          // Clean up temp file
+          await unlink(tempDataPath);
+          
+          if (result.error) {
+            throw new Error(result.error);
+          }
+          
+          return { filePath: result.output_path };
+        } catch (error) {
+          // Clean up temp file on error
+          await unlink(tempDataPath).catch(() => {});
+          throw error;
         }
-        
-        return { filePath: result.output_path };
       }),
   }),
 });
