@@ -67,7 +67,7 @@ def create_mapping_document(data):
             last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
             last_paragraph.paragraph_format.space_after = Pt(12)
         except Exception as e:
-            print(f"Warning: Could not add logo: {e}")
+            print(f"Warning: Could not add logo: {e}", file=sys.stderr)
     
     # Add "Academic Planning & Quality Assurance Office" under logo
     office_para = doc.add_paragraph('Academic Planning & Quality Assurance Office')
