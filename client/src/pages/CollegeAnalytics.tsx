@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import { ArrowLeft, Building2, GraduationCap, Target } from "lucide-react";
 import AnalyticsExport from "@/components/AnalyticsExport";
-import BatchExportDialog from "@/components/BatchExportDialog";
 import { useRef } from "react";
 
 export default function CollegeAnalytics() {
@@ -57,12 +56,6 @@ export default function CollegeAnalytics() {
             <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
           </div>
           <div className="text-center md:text-right">
-            <button
-              onClick={() => setLocation("/analytics/guide")}
-              className="text-white text-sm hover:text-amber-200 transition-colors underline mb-2 block"
-            >
-              📖 Analytics Guide - Understanding Metrics & Calculations
-            </button>
             <p className="text-white font-medium">PLO-GA Mapping Management System</p>
             <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
           </div>
@@ -167,18 +160,6 @@ export default function CollegeAnalytics() {
                 data={analytics}
                 type="college"
               />
-              {analytics && (
-                <BatchExportDialog
-                  entities={analytics.departments.map((dept: any) => ({
-                    id: dept.departmentCode,
-                    name: dept.departmentName,
-                    code: dept.departmentCode,
-                    data: dept,
-                  }))}
-                  type="department"
-                  chartRef={chartRef}
-                />
-              )}
             </div>
           </div>
         </div>

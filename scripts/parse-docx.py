@@ -99,12 +99,15 @@ def extract_plos(doc):
 def extract_mapping_matrix(doc):
     """Extract mapping matrix from tables"""
     mappings = {}
+    found_valid_table = False
     
     for table in doc.tables:
         # Check if this is the mapping matrix table
         header_text = " ".join([cell.text.strip() for cell in table.rows[0].cells]).lower()
         if "plo" not in header_text:
             continue
+        
+        found_valid_table = True
         
         # Extract PLO codes from header row
         header_cells = [cell.text.strip() for cell in table.rows[0].cells]
@@ -148,6 +151,24 @@ def extract_mapping_matrix(doc):
                         }
                     except ValueError:
                         pass
+    
+    # Validate that we found a proper mapping table
+    if not found_valid_table:
+        raise ValueError(
+            "No valid mapping table found. The document must contain a table with:\n"
+            "- Column 1: Graduate Attributes (GA1, GA2, etc.)\n"
+            "- Column 2: Supporting Competencies (C1-1, C1-2, etc.)\n"
+            "- Columns 3+: PLO1, PLO2, PLO3, etc.\n\n"
+            "Please ensure your document follows the template structure with a proper table format."
+        )
+    
+    if not mappings:
+        raise ValueError(
+            "No mapping data found in the table. Please ensure:\n"
+            "- The table has competency codes (C1-1, C1-2, etc.) in the second column\n"
+            "- Weight values (0.0 to 1.0) are entered in the PLO columns\n"
+            "- The document follows the exact template structure"
+        )
     
     return list(mappings.values())
 

@@ -5,7 +5,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 import { TrendingUp, TrendingDown, Building2, GraduationCap, Target, Award } from "lucide-react";
 import AnalyticsExport from "@/components/AnalyticsExport";
-import BatchExportDialog from "@/components/BatchExportDialog";
 import { useRef } from "react";
 
 export default function Analytics() {
@@ -50,12 +49,6 @@ export default function Analytics() {
             <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
           </div>
           <div className="text-center md:text-right">
-            <button
-              onClick={() => setLocation("/analytics/guide")}
-              className="text-white text-sm hover:text-amber-200 transition-colors underline mb-2 block"
-            >
-              📖 Analytics Guide - Understanding Metrics & Calculations
-            </button>
             <p className="text-white font-medium">PLO-GA Mapping Management System</p>
             <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
           </div>
@@ -145,16 +138,6 @@ export default function Analytics() {
                 chartRef={chartRef}
                 data={analytics}
                 type="university"
-              />
-              <BatchExportDialog
-                entities={analytics.colleges.map((college: any) => ({
-                  id: college.collegeCode,
-                  name: college.collegeName,
-                  code: college.collegeCode,
-                  data: college,
-                }))}
-                type="college"
-                chartRef={chartRef}
               />
             </>
           )}

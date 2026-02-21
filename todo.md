@@ -597,5 +597,25 @@
 - [x] Fix batch export by removing charts (they were showing incorrect data for all entities)
 - [x] Add comment explaining why charts are omitted in batch exports
 - [x] Fix batch export filenames to use entity code (e.g., CAS_Analytics_Report.pdf)
-- [ ] Test batch export with multiple colleges
+- [x] Test batch export with multiple colleges
+- [x] Push changes to GitHub
+
+## Phase 71: Remove Batch Export Functionality and Footer Guide Links
+- [x] Remove BatchExportDialog import from Analytics.tsx
+- [x] Remove BatchExportDialog component from Analytics.tsx
+- [x] Remove BatchExportDialog component from CollegeAnalytics.tsx (already removed)
+- [x] Remove BatchExportDialog import from DepartmentAnalytics.tsx
+- [x] Remove BatchExportDialog component from DepartmentAnalytics.tsx
+- [x] Remove Analytics Guide link from Analytics.tsx footer
+- [x] Remove Analytics Guide link from CollegeAnalytics.tsx footer
+- [x] Remove Analytics Guide link from DepartmentAnalytics.tsx footer
+- [x] Test that individual exports still work correctly
+- [ ] Push changes to GitHub
+
+## Phase 72: Fix File Upload Parsing Issue
+- [x] Read the uploaded Social Work file to understand its structure
+- [x] Check the document parser to see why it failed
+- [x] Add table structure validation to parser
+- [x] Add clear error messages for non-conforming files
+- [x] Test with the uploaded file (parser works correctly)
 - [ ] Push changes to GitHub

@@ -7,7 +7,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { ArrowLeft, GraduationCap, Target, TrendingUp, AlertCircle } from "lucide-react";
 import AnalyticsExport from "@/components/AnalyticsExport";
-import BatchExportDialog from "@/components/BatchExportDialog";
 import { useRef } from "react";
 
 export default function DepartmentAnalytics() {
@@ -55,12 +54,6 @@ export default function DepartmentAnalytics() {
             <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
           </div>
           <div className="text-center md:text-right">
-            <button
-              onClick={() => setLocation("/analytics/guide")}
-              className="text-white text-sm hover:text-amber-200 transition-colors underline mb-2 block"
-            >
-              📖 Analytics Guide - Understanding Metrics & Calculations
-            </button>
             <p className="text-white font-medium">PLO-GA Mapping Management System</p>
             <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
           </div>
@@ -162,16 +155,6 @@ export default function DepartmentAnalytics() {
                   chartRef={chartRef}
                   data={analytics}
                   type="department"
-                />
-                <BatchExportDialog
-                  entities={analytics.programs.map((prog: any) => ({
-                    id: prog.programCode,
-                    name: prog.programName,
-                    code: prog.programCode,
-                    data: prog,
-                  }))}
-                  type="department"
-                  chartRef={chartRef}
                 />
               </>
             )}
