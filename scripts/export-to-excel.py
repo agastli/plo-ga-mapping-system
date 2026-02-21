@@ -33,14 +33,14 @@ def create_mapping_excel(data):
     if data.get('logo_path'):
         try:
             img = XLImage(data['logo_path'])
-            # Preserve aspect ratio - QU logo is approximately 2.08:1 (width:height)
-            img.width = 180
-            img.height = 86  # Maintains aspect ratio
-            # Center the logo by placing it in column B (since we merge A:B for centered text)
+            # Preserve aspect ratio - QU logo is 4.67:1 (2048x439 pixels)
+            img.width = 280  # Increased width for better visibility
+            img.height = 60  # 280 / 4.67 = 60 (maintains aspect ratio)
+            # Center the logo by placing it in column B
             ws_info.add_image(img, 'B1')
             current_row = 6  # Skip rows for logo
         except Exception as e:
-            print(f"Warning: Could not add logo: {e}")
+            print(f"Warning: Could not add logo: {e}", file=sys.stderr)
     
     # Add "Academic Planning & Quality Assurance Office" under logo
     ws_info.cell(current_row, 1, 'Academic Planning & Quality Assurance Office')

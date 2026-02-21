@@ -62,12 +62,24 @@ def create_mapping_document(data):
     # Add QU logo at the top (centered)
     if data.get('logo_path'):
         try:
-            doc.add_picture(data['logo_path'], width=Inches(2.5), height=Inches(1.2))
-            last_paragraph = doc.paragraphs[-1]
-            last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            last_paragraph.paragraph_format.space_after = Pt(12)
+            import os
+            logo_path = data['logo_path']
+            print(f"DEBUG: Logo path: {logo_path}", file=sys.stderr)
+            print(f"DEBUG: Logo exists: {os.path.exists(logo_path)}", file=sys.stderr)
+            if os.path.exists(logo_path):
+                # QU logo aspect ratio is 4.67:1 (2048x439 pixels)
+                # Set width and let python-docx calculate height to preserve aspect ratio
+                doc.add_picture(logo_path, width=Inches(2.5))
+                last_paragraph = doc.paragraphs[-1]
+                last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                last_paragraph.paragraph_format.space_after = Pt(12)
+                print(f"DEBUG: Logo added successfully", file=sys.stderr)
+            else:
+                print(f"ERROR: Logo file not found at {logo_path}", file=sys.stderr)
         except Exception as e:
-            print(f"Warning: Could not add logo: {e}", file=sys.stderr)
+            print(f"ERROR: Could not add logo: {e}", file=sys.stderr)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
     
     # Add "Academic Planning & Quality Assurance Office" under logo
     office_para = doc.add_paragraph('Academic Planning & Quality Assurance Office')
