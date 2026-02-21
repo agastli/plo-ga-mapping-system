@@ -735,6 +735,51 @@ export const appRouter = router({
           throw error;
         }
       }),
+    
+    exportToCSV: publicProcedure
+      .input(z.object({
+        data: z.object({
+          title: z.string(),
+          metrics: z.array(z.object({ label: z.string(), value: z.any() })),
+          table_data: z.array(z.array(z.string())),
+          timestamp: z.string().optional(),
+        }),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const tempInputFile = path.join(tmpdir(), `analytics-export-${Date.now()}.json`);
+        const outputPath = path.join(tmpdir(), `analytics-report-${Date.now()}.csv`);
+        
+        const exportData = {
+          data: input.data,
+          output_path: outputPath,
+        };
+        
+        await writeFile(tempInputFile, JSON.stringify(exportData));
+        
+        try {
+          const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-csv.py');
+          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          
+          if (stderr) {
+            console.error('Python stderr:', stderr);
+          }
+          
+          const result = JSON.parse(stdout.trim());
+          
+          if (!result.success) {
+            throw new Error(result.error || 'Export failed');
+          }
+          
+          // Cleanup temp files (but keep the output CSV for download)
+          await unlink(tempInputFile).catch(() => {});
+          
+          // Return file path for frontend to download
+          return { filePath: outputPath };
+        } catch (error) {
+          await unlink(tempInputFile).catch(() => {});
+          throw error;
+        }
+      }),
   }),
 });
 

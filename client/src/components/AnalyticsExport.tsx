@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, FileText, FileSpreadsheet, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Download, FileText, FileSpreadsheet, Image as ImageIcon, Loader2, Table } from "lucide-react";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
 
@@ -185,6 +185,44 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
     }
   };
 
+  const exportCSV = trpc.analytics.exportToCSV.useMutation();
+
+  const exportToCSV = async () => {
+    setIsExporting(true);
+    try {
+      const exportData = {
+        title,
+        metrics: prepareMetrics(data, type),
+        table_data: prepareTableData(data, type),
+        timestamp: new Date().toLocaleString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit'
+        }),
+      };
+
+      const result = await exportCSV.mutateAsync({ data: exportData });
+      
+      // Trigger download using the returned file path
+      if (result.filePath) {
+        const link = document.createElement("a");
+        link.href = `/api/download/${encodeURIComponent(result.filePath)}`;
+        link.download = `${title.replace(/\s+/g, "-").toLowerCase()}-analytics.csv`;
+        link.click();
+      }
+      
+      toast.success("CSV exported successfully");
+    } catch (error) {
+      console.error("CSV export error:", error);
+      toast.error("Failed to export CSV");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -218,6 +256,10 @@ export default function AnalyticsExport({ title, chartRef, data, type }: Analyti
         <DropdownMenuItem onClick={exportToWord}>
           <FileText className="mr-2 h-4 w-4" />
           Export as Word
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={exportToCSV}>
+          <Table className="mr-2 h-4 w-4" />
+          Export as CSV
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

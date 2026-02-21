@@ -64,6 +64,8 @@ async function startServer() {
         contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
       } else if (fileExt === 'xlsx') {
         contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      } else if (fileExt === 'csv') {
+        contentType = 'text/csv';
       }
       
       res.setHeader('Content-Type', contentType);
