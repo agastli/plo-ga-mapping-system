@@ -549,8 +549,13 @@
 - [x] Update CSV export script path
 - [x] Update batch export script path
 - [x] Fix logo paths to use __dirname instead of process.cwd()
-- [ ] Test PDF export on local WAMP
-- [ ] Test Excel export on local WAMP
-- [ ] Test Word export on local WAMP
-- [ ] Test CSV export on local WAMP
+- [ ] Test PDF export on local WAMP (user to test after pull)
+- [ ] Test Excel export on local WAMP (user to test after pull)
+- [ ] Test Word export on local WAMP (user to test after pull)
+- [ ] Test CSV export on local WAMP (user to test after pull)
+- [x] Push fixes to GitHub
+
+## Phase 64: Fix Download Endpoint for Windows Temp Directory
+- [x] Update download endpoint security check to accept Windows temp paths
+- [ ] Test downloads on Windows
 - [ ] Push fixes to GitHub

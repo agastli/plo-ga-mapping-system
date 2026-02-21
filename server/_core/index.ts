@@ -42,8 +42,13 @@ async function startServer() {
       const filePath = decodeURIComponent(req.params.filePath);
       const fs = await import('fs');
       
-      // Security check: only allow files from /tmp directory
-      if (!filePath.startsWith('/tmp/')) {
+      // Security check: only allow files from temp directory (Unix: /tmp/, Windows: C:\Users\...\AppData\Local\Temp\)
+      const os = await import('os');
+      const tempDir = os.tmpdir();
+      const normalizedFilePath = filePath.replace(/\\/g, '/');
+      const normalizedTempDir = tempDir.replace(/\\/g, '/');
+      
+      if (!normalizedFilePath.startsWith(normalizedTempDir)) {
         return res.status(403).json({ error: 'Access denied' });
       }
       
