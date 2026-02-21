@@ -196,7 +196,7 @@
 - [x] Implement cascading logic: college change → reset department & program, department change → reset program
 - [x] Update parse flow to use selected program ID (program must be selected before upload)
 - [ ] Test complete workflow: select college → department → program → upload → parse → save
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 24: Improve Upload Page Visual Design
 - [ ] Change background from white to beige/cream tones
@@ -204,7 +204,7 @@
 - [ ] Add subtle shadows and maroon accents to cards
 - [ ] Enhance overall color scheme with warmer tones
 - [ ] Test visual improvements
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 - [x] Update Upload page to use consistent header with QU logo and navigation like Home page
 - [x] Add consistent footer to Upload page matching Home page footer
 - [x] Increase main container max-width on all pages for more content space (Upload: max-w-6xl, Programs/ProgramDetail: max-w-7xl)
@@ -215,7 +215,7 @@
 - [x] Add placeholder message prompting user to select a college
 - [x] Update filtering logic to only show programs from selected college
 - [ ] Test filtering behavior
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 - [x] Update Programs page design to match Upload page (amber background, consistent header, footer)
 
 ## Phase 26: Update Footer Design with White Logo on Maroon Background
@@ -223,7 +223,7 @@
 - [x] Update footer background from dark gray to maroon (#8B1538) on all pages
 - [x] Update footer to use white logo instead of regular logo
 - [x] Test footer appearance across all pages
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 - [x] Update header and footer to use same max-width as main container on all pages
 
 ## Phase 27: Redesign Header and Footer as Cards
@@ -258,7 +258,7 @@
 ## Phase 31: Fix Footer Logo to Use Transparent Background
 - [ ] Update ProgramDetail page footer to use qu-log-white-transparent.jpg instead of qu-log-white.jpg
 - [ ] Verify all pages (Home, Upload, Programs, ProgramDetail) use transparent logo
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 32: Change Header Background to White and Convert Logo to PNG
 - [x] Change header background from transparent to white (bg-white) on all pages
@@ -273,7 +273,7 @@
 - [x] Review Excel export script and update with QU branding
 - [x] Review PDF export script and update with QU branding
 - [x] Test export functionality for all formats
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 34: Update PDF Export with Exact Specifications
 - [x] Change PDF page size to A4 (not landscape)
@@ -282,18 +282,25 @@
 - [x] Add centered page numbers at the bottom of each page
 - [x] Add fancy professional styling with QU branding
 - [x] Test PDF export with sample data
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 35: Transpose PDF Matrix Layout
 - [x] Change matrix orientation: PLOs as columns, competencies as rows
 - [x] Add GA headers as section rows between competency groups
 - [x] Match original Word template format
 - [x] Test transposed matrix with sample data
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 36: Transpose Webpage Matrix Layout
 - [x] Update ProgramDetail page to show transposed matrix
 - [x] PLOs as columns, competencies as rows with GA headers
 - [x] Match PDF export format for consistency
 - [x] Test responsive layout
+- [x] Push changes to GitHub
+
+## Phase 37: Fix PDF Export Failure
+- [x] Check server logs for export error details
+- [x] Debug Python script execution
+- [x] Fix identified issues (command line too long - switched to stdin)
+- [ ] Test PDF export with real program data
 - [ ] Push changes to GitHub

@@ -479,9 +479,37 @@ export const appRouter = router({
                           input.format === 'excel' ? 'export-to-excel.py' : 
                           'export-to-pdf.py';
         const scriptPath = path.join(__dirname, '../../scripts', scriptName);
-        const { stdout } = await execAsync(
-          `python "${scriptPath}" '${JSON.stringify(exportData).replace(/'/g, "'\\''")}'`
-        );
+        
+        // Pass data via stdin to avoid command line length limits
+        const { spawn } = await import('child_process');
+        const pythonProcess = spawn('python3', [scriptPath, '-']);
+        
+        let stdout = '';
+        let stderr = '';
+        
+        pythonProcess.stdout.on('data', (data) => {
+          stdout += data.toString();
+        });
+        
+        pythonProcess.stderr.on('data', (data) => {
+          stderr += data.toString();
+        });
+        
+        // Write JSON data to stdin
+        pythonProcess.stdin.write(JSON.stringify(exportData));
+        pythonProcess.stdin.end();
+        
+        // Wait for process to complete
+        await new Promise((resolve, reject) => {
+          pythonProcess.on('close', (code) => {
+            if (code !== 0) {
+              reject(new Error(`Python script failed with code ${code}: ${stderr}`));
+            } else {
+              resolve(null);
+            }
+          });
+        });
+        
         const result = JSON.parse(stdout);
         
         if (result.error) {
