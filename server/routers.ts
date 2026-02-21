@@ -16,6 +16,9 @@ const __dirname = path.dirname(__filename);
 
 const execAsync = promisify(exec);
 
+// Use 'python' command (works on both Windows and Unix with proper PATH setup)
+const PYTHON_CMD = 'python';
+
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -617,7 +620,7 @@ export const appRouter = router({
         
         try {
           const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-pdf.py');
-          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {
             console.error('Python stderr:', stderr);
@@ -665,7 +668,7 @@ export const appRouter = router({
         
         try {
           const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-excel.py');
-          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {
             console.error('Python stderr:', stderr);
@@ -713,7 +716,7 @@ export const appRouter = router({
         
         try {
           const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-word.py');
-          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {
             console.error('Python stderr:', stderr);
@@ -758,7 +761,7 @@ export const appRouter = router({
         
         try {
           const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-to-csv.py');
-          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {
             console.error('Python stderr:', stderr);
@@ -811,7 +814,7 @@ export const appRouter = router({
         
         try {
           const scriptPath = path.join(process.cwd(), 'scripts/export-analytics-batch.py');
-          const { stdout, stderr } = await execAsync(`python3 "${scriptPath}" "${tempInputFile}"`);
+          const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
           
           if (stderr) {
             console.error('Python stderr:', stderr);

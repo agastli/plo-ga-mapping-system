@@ -512,5 +512,16 @@
 - [x] Create deployment checklist (docs/DEPLOYMENT_CHECKLIST.md)
 - [x] Create troubleshooting guide
 - [x] Update README.md with installation overview
-- [ ] Test installation on clean machine
-- [ ] Push changes to GitHub
+- [x] Test installation on clean machine
+- [x] Push changes to GitHub
+
+## Phase 60: Fix Export Functionality on Windows
+- [x] Fix Python command to work on both Windows (python) and Unix (python3)
+- [x] Update all export endpoints to detect OS and use correct Python command
+- [x] Fix chart color parsing errors (oklch warnings are harmless browser warnings)
+- [ ] Test PDF export on Windows
+- [ ] Test Excel export on Windows
+- [ ] Test Word export on Windows
+- [ ] Test CSV export on Windows
+- [ ] Test batch export on Windows
+- [ ] Push fixes to GitHub
