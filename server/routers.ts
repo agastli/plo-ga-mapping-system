@@ -478,7 +478,7 @@ export const appRouter = router({
         const scriptName = input.format === 'word' ? 'export-to-word.py' : 
                           input.format === 'excel' ? 'export-to-excel.py' : 
                           'export-to-pdf.py';
-        const scriptPath = path.join(__dirname, '../../scripts', scriptName);
+        const scriptPath = path.join(__dirname, '../scripts', scriptName);
         
         // Write data to temp file to avoid command line length limits
         const tempDataPath = path.join(tmpdir(), `export-data-${Date.now()}.json`);

@@ -318,5 +318,10 @@
 - [x] Change export from spawn to execAsync (same as upload/parse)
 - [x] Update Python script to read from file path instead of stdin
 - [x] Use temp file for data instead of stdin
+- [x] Test export functionality
+- [x] Push changes to GitHub
+
+## Phase 40: Fix Export Script Path
+- [x] Change script path from '../../scripts' to '../scripts' to match upload/parse
 - [ ] Test export functionality
 - [ ] Push changes to GitHub
