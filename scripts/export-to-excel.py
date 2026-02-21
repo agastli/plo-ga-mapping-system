@@ -29,16 +29,18 @@ def create_mapping_excel(data):
     
     current_row = 1
     
-    # Add QU logo at the top
+    # Add QU logo at the top (centered)
     if data.get('logo_path'):
         try:
             img = XLImage(data['logo_path'])
-            img.width = 180  # Adjust size
-            img.height = 86
-            ws_info.add_image(img, 'A1')
+            # Preserve aspect ratio - QU logo is approximately 2.08:1 (width:height)
+            img.width = 180
+            img.height = 86  # Maintains aspect ratio
+            # Center the logo by placing it in column B (since we merge A:B for centered text)
+            ws_info.add_image(img, 'B1')
             current_row = 6  # Skip rows for logo
-        except:
-            pass
+        except Exception as e:
+            print(f"Warning: Could not add logo: {e}")
     
     # Add "Academic Planning & Quality Assurance Office" under logo
     ws_info.cell(current_row, 1, 'Academic Planning & Quality Assurance Office')
@@ -91,8 +93,12 @@ def create_mapping_excel(data):
         current_row += 1
     
     # Adjust column widths
-    ws_info.column_dimensions['A'].width = 20
-    ws_info.column_dimensions['B'].width = 80
+    ws_info.column_dimensions['A'].width = 25
+    ws_info.column_dimensions['B'].width = 75
+    
+    # Set row heights for logo area
+    for row in range(1, 6):
+        ws_info.row_dimensions[row].height = 20
     
     # ===== Sheet 2: PLOs =====
     ws_plos = wb.create_sheet("PLOs")

@@ -392,5 +392,5 @@
 - [x] Adjust justifications table column widths (narrow code, reduce title, maximize justification)
 - [x] Add page numbering to Word export (like PDF)
 - [x] Adjust mapping matrix column widths (narrower PLO columns, wider competency titles)
-- [ ] Test Word export
-- [ ] Push changes to GitHub
+- [x] Test Word export
+- [x] Push changes to GitHub
