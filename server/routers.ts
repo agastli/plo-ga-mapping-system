@@ -447,7 +447,7 @@ export const appRouter = router({
           college_name: college?.nameEn || 'Unknown College',
           department_name: department?.nameEn || 'Unknown Department',
           language: program.language === 'en' ? 'English' : program.language === 'ar' ? 'Arabic' : 'Both',
-          logo_path: '/home/ubuntu/projects/plos-mapping-to-gas-8e39b02f/qu-logo.png',  // QU logo from project shared files
+          logo_path: path.join(__dirname, '../client/public/qu-logo.png'),  // QU logo from project public folder
           plos: plos.map(plo => ({
             code: plo.code,
             description: plo.descriptionEn || plo.descriptionAr || '',
