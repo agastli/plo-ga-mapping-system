@@ -286,7 +286,7 @@ export default function ProgramDetail() {
           </CardContent>
         </Card>
 
-        {/* Mapping Matrix */}
+        {/* Mapping Matrix - Transposed: PLOs as columns, Competencies as rows */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>PLO-Competency Mapping Matrix</CardTitle>
@@ -296,62 +296,64 @@ export default function ProgramDetail() {
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-sm">
                   <thead>
-                    {/* GA Headers */}
+                    {/* Header row: Graduate Attributes + PLO codes */}
                     <tr className="bg-[#8B1538] text-white">
-                      <th className="border border-gray-300 p-2 text-left font-semibold">PLO</th>
-                      {competenciesByGA.map(({ ga, competencies: comps }) => (
+                      <th className="border border-gray-300 p-2 text-left font-semibold w-48">Graduate Attributes</th>
+                      <th className="border border-gray-300 p-2 text-left font-semibold w-64">Supporting Competencies</th>
+                      {plos.map(plo => (
                         <th
-                          key={ga.id}
-                          colSpan={comps.length}
+                          key={plo.id}
                           className="border border-gray-300 p-2 text-center font-semibold"
                         >
-                          {ga.code}: {ga.nameEn}
+                          {plo.code}
                         </th>
                       ))}
                     </tr>
-                    {/* Competency Headers */}
-                    <tr className="bg-[#8B1538]/20">
-                      <th className="border border-gray-300 p-2"></th>
-                      {competenciesByGA.map(({ competencies: comps }) =>
-                        comps.map(comp => (
-                          <th
-                            key={comp.id}
-                            className="border border-gray-300 p-2 text-center font-medium text-xs"
-                          >
-                            {comp.code}
-                          </th>
-                        ))
-                      )}
-                    </tr>
                   </thead>
                   <tbody>
-                    {plos.map(plo => (
-                      <tr key={plo.id} className="hover:bg-gray-50">
-                        <td className="border border-gray-300 p-2 font-semibold bg-[#8B1538]/10">
-                          {plo.code}
-                        </td>
-                        {competenciesByGA.map(({ competencies: comps }) =>
-                          comps.map(comp => {
-                            const weight = weightMap.get(`${plo.id}_${comp.id}`);
-                            return (
-                              <td
-                                key={comp.id}
-                                className="border border-gray-300 p-1 text-center"
-                              >
-                                <Input
-                                  type="number"
-                                  step="0.1"
-                                  min="0"
-                                  max="1"
-                                  value={weight || "0"}
-                                  onChange={(e) => handleWeightChange(plo.id, comp.id, e.target.value)}
-                                  className="w-16 h-8 text-center text-sm p-1"
-                                />
-                              </td>
-                            );
-                          })
-                        )}
-                      </tr>
+                    {competenciesByGA.map(({ ga, competencies: comps }) => (
+                      <>
+                        {/* GA Section Row */}
+                        <tr key={`ga-${ga.id}`} className="bg-[#C8A882]">
+                          <td
+                            colSpan={2}
+                            className="border border-gray-300 p-2 font-bold text-[#8B1538]"
+                          >
+                            {ga.code}: {ga.nameEn}
+                          </td>
+                          {plos.map(plo => (
+                            <td key={`ga-${ga.id}-plo-${plo.id}`} className="border border-gray-300 p-2 bg-[#C8A882]"></td>
+                          ))}
+                        </tr>
+                        {/* Competency Rows */}
+                        {comps.map(comp => (
+                          <tr key={comp.id} className="hover:bg-gray-50">
+                            <td className="border border-gray-300 p-2 bg-gray-50"></td>
+                            <td className="border border-gray-300 p-2 text-sm bg-gray-50">
+                              {comp.code} – {comp.nameEn || comp.nameAr}
+                            </td>
+                            {plos.map(plo => {
+                              const weight = weightMap.get(`${plo.id}_${comp.id}`);
+                              return (
+                                <td
+                                  key={`${plo.id}-${comp.id}`}
+                                  className="border border-gray-300 p-1 text-center"
+                                >
+                                  <Input
+                                    type="number"
+                                    step="0.1"
+                                    min="0"
+                                    max="1"
+                                    value={weight || "0"}
+                                    onChange={(e) => handleWeightChange(plo.id, comp.id, e.target.value)}
+                                    className="w-16 h-8 text-center text-sm p-1"
+                                  />
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </>
                     ))}
                   </tbody>
                 </table>

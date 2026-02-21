@@ -283,3 +283,17 @@
 - [x] Add fancy professional styling with QU branding
 - [x] Test PDF export with sample data
 - [ ] Push changes to GitHub
+
+## Phase 35: Transpose PDF Matrix Layout
+- [x] Change matrix orientation: PLOs as columns, competencies as rows
+- [x] Add GA headers as section rows between competency groups
+- [x] Match original Word template format
+- [x] Test transposed matrix with sample data
+- [ ] Push changes to GitHub
+
+## Phase 36: Transpose Webpage Matrix Layout
+- [x] Update ProgramDetail page to show transposed matrix
+- [x] PLOs as columns, competencies as rows with GA headers
+- [x] Match PDF export format for consistency
+- [x] Test responsive layout
+- [ ] Push changes to GitHub

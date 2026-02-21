@@ -178,70 +178,55 @@ def create_mapping_pdf(data):
     
     story.append(PageBreak())
     
-    # Add mapping matrix with professional styling
+    # Add mapping matrix with professional styling (transposed: PLOs as columns, competencies as rows)
     story.append(Paragraph("PLO-Competency Mapping Matrix", heading_style))
     story.append(Spacer(1, 12))
     
-    # Build matrix table
+    # Build transposed matrix table
     matrix_data = []
     
-    # Header row 1: GA names
-    header_row1 = ['PLO']
-    for ga in data['gas']:
-        comp_count = len(ga['competencies'])
-        if comp_count > 0:
-            header_row1.append(f"{ga['code']}: {ga['name']}")
-            for _ in range(comp_count - 1):
-                header_row1.append('')
+    # Header row: Graduate Attributes label + PLO codes
+    header_row = ['Graduate Attributes', 'Supporting Competencies'] + [plo['code'] for plo in data['plos']]
+    matrix_data.append(header_row)
     
-    matrix_data.append(header_row1)
-    
-    # Header row 2: Competency codes
-    header_row2 = ['']
+    # Data rows: GA sections with competencies
     for ga in data['gas']:
+        # Add GA row (merged across first two columns)
+        ga_row = [f"{ga['code']}: {ga['name']}", ''] + [''] * len(data['plos'])
+        matrix_data.append(ga_row)
+        
+        # Add competency rows under this GA
         for comp in ga['competencies']:
-            header_row2.append(comp['code'])
-    
-    matrix_data.append(header_row2)
-    
-    # Data rows
-    for plo in data['plos']:
-        row = [plo['code']]
-        for ga in data['gas']:
-            for comp in ga['competencies']:
+            comp_row = ['', f"{comp['code']} – {comp['name']}"]
+            # Add weights for each PLO
+            for plo in data['plos']:
                 weight = plo['mappings'].get(comp['code'], '0.00')
-                row.append(weight)
-        matrix_data.append(row)
+                comp_row.append(weight)
+            matrix_data.append(comp_row)
     
-    # Calculate column widths
-    total_comps = sum(len(ga['competencies']) for ga in data['gas'])
+    # Calculate column widths for transposed matrix
     available_width = 6.95 * inch
-    plo_col_width = 0.6 * inch
-    comp_col_width = (available_width - plo_col_width) / total_comps
-    col_widths = [plo_col_width] + [comp_col_width] * total_comps
+    ga_col_width = 1.2 * inch  # Graduate Attributes column
+    comp_col_width = 2.5 * inch  # Competencies column
+    plo_count = len(data['plos'])
+    plo_col_width = (available_width - ga_col_width - comp_col_width) / plo_count
+    col_widths = [ga_col_width, comp_col_width] + [plo_col_width] * plo_count
     
     # Create table with elegant styling
     matrix_table = Table(matrix_data, colWidths=col_widths, repeatRows=2)
     
-    # Professional table styling
+    # Professional table styling for transposed matrix
     table_style_commands = [
-        # Header backgrounds
+        # Header row background
         ('BACKGROUND', (0, 0), (-1, 0), QU_MAROON),
-        ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#C8A882')),  # Light gold
-        ('BACKGROUND', (0, 2), (0, -1), LIGHT_GRAY),
-        
-        # Text colors
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('TEXTCOLOR', (0, 1), (-1, 1), colors.HexColor('#333333')),
-        
-        # Fonts
-        ('FONTNAME', (0, 0), (-1, 1), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 2), (0, -1), 'Helvetica-Bold'),
-        ('FONTNAME', (1, 2), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
         
         # Alignment
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('ALIGN', (2, 0), (-1, -1), 'CENTER'),  # PLO columns centered
+        ('ALIGN', (0, 1), (1, -1), 'LEFT'),  # GA and competency columns left-aligned
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         
         # Borders
@@ -251,25 +236,38 @@ def create_mapping_pdf(data):
         # Padding
         ('TOPPADDING', (0, 0), (-1, -1), 6),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
     ]
     
-    # Add span commands for GA headers
-    col_idx = 1
+    # Add styling for GA section rows and competency rows
+    row_idx = 1
     for ga in data['gas']:
-        comp_count = len(ga['competencies'])
-        if comp_count > 1:
-            table_style_commands.append(
-                ('SPAN', (col_idx, 0), (col_idx + comp_count - 1, 0))
-            )
-        col_idx += comp_count
+        # GA row styling (merged first two columns)
+        table_style_commands.extend([
+            ('SPAN', (0, row_idx), (1, row_idx)),
+            ('BACKGROUND', (0, row_idx), (-1, row_idx), colors.HexColor('#C8A882')),  # Light gold
+            ('TEXTCOLOR', (0, row_idx), (-1, row_idx), QU_MAROON),
+            ('FONTNAME', (0, row_idx), (-1, row_idx), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, row_idx), (-1, row_idx), 9),
+        ])
+        row_idx += 1
+        
+        # Competency rows styling
+        for comp in ga['competencies']:
+            table_style_commands.extend([
+                ('BACKGROUND', (0, row_idx), (1, row_idx), LIGHT_GRAY),
+                ('FONTNAME', (1, row_idx), (1, row_idx), 'Helvetica'),
+                ('FONTSIZE', (0, row_idx), (-1, row_idx), 8),
+            ])
+            row_idx += 1
     
     matrix_table.setStyle(TableStyle(table_style_commands))
     story.append(matrix_table)
     
     # Add summary info
     story.append(Spacer(1, 16))
+    total_comps = sum(len(ga['competencies']) for ga in data['gas'])
     summary_text = f"<b>Total Mappings:</b> {data['total_mappings']} | <b>Total PLOs:</b> {len(data['plos'])} | <b>Total Competencies:</b> {total_comps}"
     story.append(Paragraph(summary_text, body_style))
     
