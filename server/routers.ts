@@ -447,6 +447,13 @@ export const appRouter = router({
           college_name: college?.nameEn || 'Unknown College',
           department_name: department?.nameEn || 'Unknown Department',
           language: program.language === 'en' ? 'English' : program.language === 'ar' ? 'Arabic' : 'Both',
+          last_updated: program.updatedAt ? new Date(program.updatedAt).toLocaleString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }) : 'N/A',
           logo_path: path.join(__dirname, '../client/public/qu-logo.png'),  // QU logo from project public folder
           plos: plos.map(plo => ({
             code: plo.code,

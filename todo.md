@@ -345,5 +345,15 @@
 - [x] Remove unnecessary page breaks before headers (replaced with Spacer)
 - [x] Change PDF orientation to landscape for better matrix display
 - [x] Adjust column widths for landscape format (10" available width)
-- [ ] Test PDF export with real data
+- [x] Test PDF export with real data
+- [x] Push changes to GitHub
+
+## Phase 44: Fix PDF Logo and Restructure Layout
+- [x] Fix logo to preserve aspect ratio (use preserveAspectRatio or calculate proper dimensions)
+- [x] Implement proper text wrapping in mapping matrix table cells
+- [x] Move "Academic Planning & Quality Assurance Office" under QU logo
+- [x] Keep page 1 for program information only
+- [x] Start PLOs section on page 2
+- [x] Add last update timestamp to program information section
+- [x] Test PDF export with real data
 - [ ] Push changes to GitHub

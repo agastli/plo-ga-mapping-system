@@ -116,10 +116,23 @@ def create_mapping_pdf(data):
     # Add QU logo at the top (centered, professional size, preserve aspect ratio)
     if data.get('logo_path'):
         try:
-            logo = Image(data['logo_path'], width=2.5*inch, height=1.2*inch)
+            # Use preserveAspectRatio to prevent distortion
+            logo = Image(data['logo_path'], width=2.5*inch, height=1.2*inch, kind='proportional')
             logo.hAlign = 'CENTER'
             story.append(logo)
-            story.append(Spacer(1, 16))
+            story.append(Spacer(1, 12))
+            
+            # Add "Academic Planning & Quality Assurance Office" directly under logo
+            office_style = ParagraphStyle(
+                'OfficeStyle',
+                parent=styles['Normal'],
+                fontSize=10,
+                textColor=colors.gray,
+                alignment=TA_CENTER,
+                fontName='Helvetica-Oblique',
+                spaceAfter=16
+            )
+            story.append(Paragraph("Academic Planning & Quality Assurance Office", office_style))
         except:
             pass
     
@@ -146,28 +159,26 @@ def create_mapping_pdf(data):
         ['College:', data['college_name']],
         ['Department:', data['department_name']],
         ['Language:', data['language']],
-        ['Academic Planning & Quality Assurance Office', '']
+        ['Last Updated:', data.get('last_updated', 'N/A')]
     ]
     
     info_table = Table(info_data, colWidths=[2*inch, 8*inch])
     info_table.setStyle(TableStyle([
-        ('FONTNAME', (0, 0), (0, 2), 'Helvetica-Bold'),
-        ('FONTNAME', (1, 0), (1, 2), 'Helvetica'),
-        ('FONTNAME', (0, 3), (-1, 3), 'Helvetica-Oblique'),
-        ('FONTSIZE', (0, 0), (-1, 2), 11),
-        ('FONTSIZE', (0, 3), (-1, 3), 9),
-        ('TEXTCOLOR', (0, 0), (0, 2), QU_MAROON),
-        ('TEXTCOLOR', (1, 0), (1, 2), colors.HexColor('#333333')),
-        ('TEXTCOLOR', (0, 3), (-1, 3), colors.gray),
-        ('BOTTOMPADDING', (0, 0), (-1, 2), 8),
-        ('TOPPADDING', (0, 0), (-1, 2), 8),
-        ('SPAN', (0, 3), (-1, 3)),
-        ('ALIGN', (0, 3), (-1, 3), 'CENTER'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 11),
+        ('TEXTCOLOR', (0, 0), (0, -1), QU_MAROON),
+        ('TEXTCOLOR', (1, 0), (1, -1), colors.HexColor('#333333')),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
         ('BACKGROUND', (0, 0), (-1, -1), LIGHT_GRAY),
         ('BOX', (0, 0), (-1, -1), 1, MEDIUM_GRAY),
     ]))
     story.append(info_table)
     story.append(Spacer(1, 24))
+    
+    # Add page break - PLOs start on page 2
+    story.append(PageBreak())
     
     # Add PLOs section with elegant header
     story.append(Paragraph("Program Learning Outcomes", heading_style))
@@ -239,6 +250,9 @@ def create_mapping_pdf(data):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ('LEFTPADDING', (0, 0), (-1, -1), 6),
         ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        
+        # Enable text wrapping in all cells
+        ('WORDWRAP', (0, 0), (-1, -1), True),
     ]
     
     # Add styling for GA section rows and competency rows
@@ -279,16 +293,34 @@ def create_mapping_pdf(data):
     story.append(Spacer(1, 12))
     
     for just in data['justifications']:
-        # Create a styled box for each justification
-        just_data = [[just['competency_code'], just['competency_name'], just['text']]]
+        # Create a styled box for each justification with Paragraph for proper text wrapping
+        code_para = Paragraph(just['competency_code'], ParagraphStyle(
+            'JustCode',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.white,
+            fontName='Helvetica-Bold',
+            alignment=TA_CENTER
+        ))
+        name_para = Paragraph(just['competency_name'], ParagraphStyle(
+            'JustName',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=QU_MAROON,
+            fontName='Helvetica-Bold'
+        ))
+        text_para = Paragraph(just['text'], ParagraphStyle(
+            'JustText',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.HexColor('#333333'),
+            fontName='Helvetica',
+            alignment=TA_JUSTIFY
+        ))
+        
+        just_data = [[code_para, name_para, text_para]]
         just_table = Table(just_data, colWidths=[0.8*inch, 2.5*inch, 6.7*inch])
         just_table.setStyle(TableStyle([
-            ('FONTNAME', (0, 0), (1, 0), 'Helvetica-Bold'),
-            ('FONTNAME', (2, 0), (2, 0), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, 0), 9),
-            ('TEXTCOLOR', (0, 0), (0, 0), colors.white),
-            ('TEXTCOLOR', (1, 0), (1, 0), QU_MAROON),
-            ('TEXTCOLOR', (2, 0), (2, 0), colors.HexColor('#333333')),
             ('BACKGROUND', (0, 0), (0, 0), QU_MAROON),
             ('BACKGROUND', (1, 0), (1, 0), LIGHT_GRAY),
             ('VALIGN', (0, 0), (-1, 0), 'TOP'),
@@ -297,7 +329,6 @@ def create_mapping_pdf(data):
             ('LEFTPADDING', (0, 0), (-1, 0), 8),
             ('RIGHTPADDING', (0, 0), (-1, 0), 8),
             ('BOX', (0, 0), (-1, -1), 1, MEDIUM_GRAY),
-            ('WORDWRAP', (2, 0), (2, 0), True),  # Enable text wrapping in justification column
         ]))
         story.append(just_table)
         story.append(Spacer(1, 10))
