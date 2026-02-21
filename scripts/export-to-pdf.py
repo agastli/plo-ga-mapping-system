@@ -112,10 +112,10 @@ def create_mapping_pdf(data):
         alignment=TA_JUSTIFY
     )
     
-    # Add QU logo at the top (centered, professional size)
+    # Add QU logo at the top (centered, professional size, preserve aspect ratio)
     if data.get('logo_path'):
         try:
-            logo = Image(data['logo_path'], width=2*inch, height=2*inch)
+            logo = Image(data['logo_path'], width=2.5*inch, height=1.2*inch)
             logo.hAlign = 'CENTER'
             story.append(logo)
             story.append(Spacer(1, 16))
@@ -176,7 +176,7 @@ def create_mapping_pdf(data):
         plo_text = f"<b><font color='#8B1538'>{plo['code']}:</font></b> {plo['description']}"
         story.append(Paragraph(plo_text, body_style))
     
-    story.append(PageBreak())
+    story.append(Spacer(1, 24))
     
     # Add mapping matrix with professional styling (transposed: PLOs as columns, competencies as rows)
     story.append(Paragraph("PLO-Competency Mapping Matrix", heading_style))
@@ -271,7 +271,7 @@ def create_mapping_pdf(data):
     summary_text = f"<b>Total Mappings:</b> {data['total_mappings']} | <b>Total PLOs:</b> {len(data['plos'])} | <b>Total Competencies:</b> {total_comps}"
     story.append(Paragraph(summary_text, body_style))
     
-    story.append(PageBreak())
+    story.append(Spacer(1, 24))
     
     # Add justifications with elegant formatting
     story.append(Paragraph(f"Competency Justifications ({len(data['justifications'])})", heading_style))
@@ -296,6 +296,7 @@ def create_mapping_pdf(data):
             ('LEFTPADDING', (0, 0), (-1, 0), 8),
             ('RIGHTPADDING', (0, 0), (-1, 0), 8),
             ('BOX', (0, 0), (-1, -1), 1, MEDIUM_GRAY),
+            ('WORDWRAP', (2, 0), (2, 0), True),  # Enable text wrapping in justification column
         ]))
         story.append(just_table)
         story.append(Spacer(1, 10))

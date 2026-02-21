@@ -335,5 +335,13 @@
 ## Phase 42: Fix Logo Path for Cross-Platform Compatibility
 - [x] Copy QU logo to client/public folder
 - [x] Update export router to use project-relative logo path
-- [ ] Test export on Windows system
+- [x] Test export on Windows system
+- [x] Push changes to GitHub
+
+## Phase 43: Fix PDF Logo and Table Text Formatting
+- [x] Fix QU logo aspect ratio to prevent distortion (set proper width/height ratio)
+- [x] Implement text wrapping in justifications table cells (WORDWRAP)
+- [x] Ensure text doesn't exceed cell boundaries
+- [x] Remove unnecessary page breaks before headers (replaced with Spacer)
+- [ ] Test PDF export with real data
 - [ ] Push changes to GitHub
