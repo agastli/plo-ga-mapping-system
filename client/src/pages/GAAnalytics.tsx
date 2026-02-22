@@ -261,8 +261,9 @@ export default function GAAnalytics() {
         </div>
 
         {/* Charts Section - Wrapped for Export */}
+        <div ref={chartRef}>
         {/* GA Coverage Distribution */}
-        <Card className="mb-8" ref={chartRef}>
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle>Graduate Attribute Coverage Distribution</CardTitle>
             <p className="text-sm text-gray-600">
@@ -496,6 +497,7 @@ export default function GAAnalytics() {
             </div>
           </CardContent>
         </Card>
+        </div>
         {/* End Charts Section */}
 
       </div>
