@@ -315,11 +315,11 @@ export const appRouter = router({
         try {
           // Call Python Excel parser
           const scriptPath = path.join(__dirname, '../scripts/parse_excel_plo_ga.py');
-          const { stdout } = await execAsync(`python3 "${scriptPath}" "${tempPath}"`);
-          const result = JSON.parse(stdout);
+          const { stdout } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempPath}"`);
+          const parsedData = JSON.parse(stdout);
           // Clean up temp file
           await unlink(tempPath);
-          return result;
+          return { success: true, data: parsedData };
         } catch (error) {
           // Clean up temp file on error
           try {

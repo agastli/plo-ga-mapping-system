@@ -72,11 +72,11 @@ export default function Upload() {
           fileName: file.name,
         });
 
-        if (result.success) {
+        if (result.success && result.data) {
           setParsedData(result.data);
           toast.success("Document parsed successfully!");
         } else {
-          toast.error(result.error || "Failed to parse document");
+          toast.error("Failed to parse document");
         }
       };
       reader.readAsDataURL(file);
