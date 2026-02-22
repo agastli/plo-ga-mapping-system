@@ -857,4 +857,11 @@
 - [ ] Test PDF export for Competency Analytics
 - [ ] Test Excel export for Competency Analytics
 - [ ] Test Word export for Competency Analytics
-- [ ] Push working export functionality to GitHub
+- [x] Push fixes to GitHubfunctionality to GitHub
+
+## Phase 60: Fix PNG Export "Chart Not Found" Error
+- [x] Fix chartRef attachment in GA Analytics page (wrap charts container with ref)
+- [x] Fix chartRef attachment in Competency Analytics page (wrap charts container with ref)
+- [ ] Test PNG export for GA Analytics
+- [ ] Test PNG export for Competency Analytics
+- [ ] Push fix to GitHub

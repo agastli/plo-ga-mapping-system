@@ -295,6 +295,8 @@ export default function CompetencyAnalytics() {
           </Card>
         </div>
 
+        {/* Charts Section - Wrapped for Export */}
+        <div ref={chartRef}>
         {/* All Competencies by Coverage */}
         <Card className="mb-8">
           <CardHeader>
@@ -592,7 +594,8 @@ export default function CompetencyAnalytics() {
             </div>
           </CardContent>
         </Card>
-
+        </div>
+        {/* End Charts Section */}
 
       </div>
     </div>
