@@ -378,13 +378,20 @@ export const appRouter = router({
         const allCompetencies = await db.getAllCompetencies();
         const competencyMap = new Map(allCompetencies.map(c => [c.code, c.id]));
 
-        // Create mappings
+        // Create a map of parsed mappings for quick lookup
+        const parsedMappingsMap = new Map<string, number>();
         for (const mapping of input.mappings) {
-          const ploId = ploMap.get(mapping.ploCode);
-          const competencyId = competencyMap.get(mapping.competencyCode);
-          
-          if (ploId && competencyId) {
-            await db.upsertMapping(ploId, competencyId, mapping.weight.toString());
+          const key = `${mapping.ploCode}-${mapping.competencyCode}`;
+          parsedMappingsMap.set(key, mapping.weight);
+        }
+
+        // Generate full mapping matrix (all PLOs × all 21 competencies)
+        for (const [ploCode, ploId] of ploMap.entries()) {
+          for (const [compCode, competencyId] of competencyMap.entries()) {
+            const key = `${ploCode}-${compCode}`;
+            // Use parsed weight if exists, otherwise default to 0.0
+            const weight = parsedMappingsMap.get(key) ?? 0.0;
+            await db.upsertMapping(ploId, competencyId, weight.toString());
           }
         }
 

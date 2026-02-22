@@ -25,7 +25,7 @@ def parse_plo_mappings(mapping_text):
     mappings = []
     # Pattern: PLO followed by number, then weight in parentheses
     pattern = r'PLO(\d+)\s*\(([0-9.]+)\)'
-    matches = re.findall(pattern, mapping_text)
+    matches = re.findall(pattern, str(mapping_text))
     
     for plo_num, weight in matches:
         mappings.append({
