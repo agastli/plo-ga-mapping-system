@@ -96,6 +96,30 @@ def parse_excel_plo_ga(filepath):
                 ws = wb[sheet_name]
                 break
     
+    # Extract PLO descriptions from "PLOs" sheet if available
+    plo_descriptions = {}  # {plo_number: {en: text, ar: text}}
+    if "PLOs" in wb.sheetnames:
+        plo_ws = wb["PLOs"]
+        for row in plo_ws.iter_rows(min_row=2, values_only=True):  # Skip header
+            if not row[0] or not row[1]:
+                continue
+            plo_code = str(row[0]).strip()  # e.g., "PLO1", "PLO2"
+            plo_desc = str(row[1]).strip()  # Description text
+            
+            # Extract PLO number from code
+            plo_match = re.match(r'PLO(\d+)', plo_code)
+            if plo_match:
+                plo_num = int(plo_match.group(1))
+                desc_lang = detect_language(plo_desc)
+                
+                if plo_num not in plo_descriptions:
+                    plo_descriptions[plo_num] = {"en": None, "ar": None}
+                
+                if desc_lang == "ar":
+                    plo_descriptions[plo_num]["ar"] = plo_desc
+                else:
+                    plo_descriptions[plo_num]["en"] = plo_desc
+    
     # Collect all unique PLOs mentioned in the document
     plo_set = set()
     mappings_list = []
@@ -150,13 +174,21 @@ def parse_excel_plo_ga(filepath):
                     "textAr": just_text if lang == "ar" else None
                 })
     
-    # Create PLO list
+    # Create PLO list with descriptions from PLOs sheet
     plos_list = []
     for plo_num in sorted(plo_set):
+        desc_en = None
+        desc_ar = None
+        
+        # Get descriptions from PLOs sheet if available
+        if plo_num in plo_descriptions:
+            desc_en = plo_descriptions[plo_num]["en"]
+            desc_ar = plo_descriptions[plo_num]["ar"]
+        
         plos_list.append({
             "code": f"PLO{plo_num}",
-            "descriptionEn": None,  # Not available in Excel
-            "descriptionAr": None,  # Not available in Excel
+            "descriptionEn": desc_en,
+            "descriptionAr": desc_ar,
             "sortOrder": plo_num
         })
     
