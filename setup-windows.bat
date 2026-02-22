@@ -88,8 +88,27 @@ if %errorlevel% neq 0 (
 echo Python dependencies installed successfully.
 echo.
 
+REM Create C:\tmp directory for export functionality
+echo [7/8] Creating temporary directory for exports...
+if not exist "C:\tmp" (
+    echo Creating C:\tmp directory...
+    mkdir C:\tmp
+    if %errorlevel% neq 0 (
+        echo WARNING: Failed to create C:\tmp directory!
+        echo You may need to create it manually with administrator privileges.
+        echo Run: mkdir C:\tmp
+        echo.
+    ) else (
+        echo C:\tmp directory created successfully.
+        echo.
+    )
+) else (
+    echo C:\tmp directory already exists.
+    echo.
+)
+
 REM Create .env file if it doesn't exist
-echo [7/8] Configuring environment...
+echo [8/9] Configuring environment...
 if not exist ".env" (
     echo Creating .env file...
     (
@@ -117,7 +136,7 @@ if not exist ".env" (
 )
 
 REM Database setup instructions
-echo [8/8] Database Setup
+echo [9/9] Database Setup
 echo.
 echo IMPORTANT: Before running the application, you need to:
 echo 1. Start your MySQL server

@@ -91,6 +91,11 @@ The PLO-GA Mapping Management System enables academic departments to:
 - MySQL 8.0+ or MariaDB 10.5+
 - Git
 
+**Windows Users:** The application requires a `C:\tmp` directory for temporary export files. The setup script will create this automatically, or you can create it manually:
+```cmd
+mkdir C:\tmp
+```
+
 ### Installation
 
 1. **Clone the repository**
@@ -141,10 +146,45 @@ The PLO-GA Mapping Management System enables academic departments to:
 - **[Quick Start Guide](QUICK_START.md)** - 30-minute installation guide for new laptops
 - **[Installation Guide](INSTALLATION.md)** - Detailed installation instructions
 - **[Database Setup](DATABASE_SETUP.md)** - Database configuration and management
+- **[Windows Setup Notes](#windows-setup-notes)** - Important information for Windows users
 
 ### Deployment
 - **[Hostinger Deployment](HOSTINGER_DEPLOYMENT.md)** - Deploy to Hostinger hosting
 - **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - Step-by-step deployment guide
+
+---
+
+## Windows Setup Notes
+
+### Critical: C:\tmp Directory Requirement
+
+The application uses Python scripts for document parsing and export functionality. These scripts write temporary files to `/tmp/` which on Windows translates to `C:\tmp`.
+
+**If you encounter "File not found" or "Permission denied" errors during export:**
+
+1. **Create the directory:**
+   ```cmd
+   mkdir C:\tmp
+   ```
+
+2. **Verify it exists:**
+   ```cmd
+   dir C:\tmp
+   ```
+
+3. **Restart the application** after creating the directory
+
+The automated setup script (`setup-windows.bat`) creates this directory automatically, but if you're setting up manually or the directory was deleted, you'll need to recreate it.
+
+### Why This Is Needed
+
+The Python export scripts (`export-to-pdf.py`, `export-to-word.py`, `export-to-excel.py`) hardcode `/tmp/` paths for cross-platform compatibility. On Unix/Linux/macOS, `/tmp/` exists by default. On Windows, we create `C:\tmp` to match this behavior.
+
+**Alternative Solutions:**
+
+- Use Windows Subsystem for Linux (WSL) where `/tmp/` exists natively
+- Deploy to a Linux server (recommended for production)
+- Modify Python scripts to use `tempfile.gettempdir()` for dynamic temp directory detection
 
 ---
 
