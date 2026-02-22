@@ -386,8 +386,13 @@ export const appRouter = router({
         }
 
         // Generate full mapping matrix (all PLOs × all 21 competencies)
-        for (const [ploCode, ploId] of ploMap.entries()) {
-          for (const [compCode, competencyId] of competencyMap.entries()) {
+        const ploEntries = Array.from(ploMap.entries());
+        const compEntries = Array.from(competencyMap.entries());
+        
+        for (let i = 0; i < ploEntries.length; i++) {
+          const [ploCode, ploId] = ploEntries[i];
+          for (let j = 0; j < compEntries.length; j++) {
+            const [compCode, competencyId] = compEntries[j];
             const key = `${ploCode}-${compCode}`;
             // Use parsed weight if exists, otherwise default to 0.0
             const weight = parsedMappingsMap.get(key) ?? 0.0;

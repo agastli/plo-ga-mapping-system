@@ -759,3 +759,10 @@
 - [ ] Display extracted names in parsing results UI for verification
 - [ ] Test with BS Chemical Engineering Excel file
 - [ ] Push changes to GitHub
+
+## Phase 74: Fix Mapping Count Display and Data Replacement
+- [ ] Update Upload.tsx to show "20 non-zero mappings found, 147 total mappings will be created"
+- [ ] Fix warning message to say "Existing data WILL be replaced" instead of "will not be overwritten"
+- [ ] Verify backend deletes all old mappings before creating new ones
+- [ ] Test import to confirm 147 mappings are created in database
+- [ ] Push changes to GitHub

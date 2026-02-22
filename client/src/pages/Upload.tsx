@@ -306,7 +306,8 @@ export default function Upload() {
                   </div>
                   <div className="text-center">
                     <p className="text-3xl font-bold text-[#8B1538]">{parsedData.mappings.length}</p>
-                    <p className="text-sm text-gray-600">Mappings Found</p>
+                    <p className="text-sm text-gray-600">Non-Zero Mappings</p>
+                    <p className="text-xs text-gray-500 mt-1">({parsedData.plos.length} × 21 = {parsedData.plos.length * 21} total will be created)</p>
                   </div>
                   <div className="text-center">
                     <p className="text-3xl font-bold text-[#8B1538]">{parsedData.justifications.length}</p>
@@ -326,7 +327,7 @@ export default function Upload() {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    Importing will add PLOs and mappings to the selected program. Existing data will not be overwritten.
+                    Importing will replace ALL existing PLOs and mappings for this program. Old data will be deleted and replaced with the new data from this file.
                   </AlertDescription>
                 </Alert>
 
