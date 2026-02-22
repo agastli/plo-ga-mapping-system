@@ -51,7 +51,6 @@ export default function CompetencyAnalytics() {
   // Prepare data for charts
   const coverageChartData = competencyStats
     .sort((a, b) => b.coverageRate - a.coverageRate)
-    .slice(0, 10)
     .map((comp) => ({
       name: comp.competencyCode,
       coverage: comp.coverageRate,
@@ -60,7 +59,6 @@ export default function CompetencyAnalytics() {
 
   const avgWeightChartData = competencyStats
     .sort((a, b) => b.avgWeight - a.avgWeight)
-    .slice(0, 10)
     .map((comp) => ({
       name: comp.competencyCode,
       weight: comp.avgWeight,
@@ -187,12 +185,12 @@ export default function CompetencyAnalytics() {
           </Card>
         </div>
 
-        {/* Top 10 Most Covered Competencies */}
+        {/* All Competencies by Coverage */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Top 10 Most Covered Competencies</CardTitle>
+            <CardTitle>All Competencies by Coverage Rate</CardTitle>
             <p className="text-sm text-gray-600">
-              Competencies with the highest coverage across programs
+              All competencies sorted by coverage across programs (highest to lowest)
             </p>
           </CardHeader>
           <CardContent>
@@ -226,12 +224,12 @@ export default function CompetencyAnalytics() {
           </CardContent>
         </Card>
 
-        {/* Top 10 Highest Average Weights */}
+        {/* All Competencies by Average Weight */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Top 10 Competencies by Average Weight</CardTitle>
+            <CardTitle>All Competencies by Average Weight</CardTitle>
             <p className="text-sm text-gray-600">
-              Competencies with the highest average mapping weights
+              All competencies sorted by average mapping weights (highest to lowest)
             </p>
           </CardHeader>
           <CardContent>

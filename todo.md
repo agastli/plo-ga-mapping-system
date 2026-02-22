@@ -682,3 +682,10 @@
 - [ ] Update analytics guide with GA/Competency analytics documentation
 - [x] Test all GA/Competency analytics features
 - [ ] Save checkpoint and push to GitHub
+
+## Phase 51: Update Competency Analytics to Show All Competencies
+- [x] Update CompetencyAnalytics.tsx to show all 21 competencies in coverage chart (not just top 10)
+- [x] Update CompetencyAnalytics.tsx to show all 21 competencies in average weight chart (not just top 10)
+- [x] Update chart titles to reflect all competencies
+- [x] Test the updated charts
+- [ ] Save checkpoint and push to GitHub
