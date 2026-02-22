@@ -152,7 +152,7 @@ export default function Upload() {
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Upload Mapping Document</h1>
         <p className="text-gray-700 mb-8">
-          Upload a Word document (.docx) in the standard PLO-GA mapping template format
+          Upload an Excel file (.xlsx) in the standard PLO-GA mapping template format
         </p>
 
         {/* Step 1: Select College, Department, and Program */}
@@ -229,7 +229,7 @@ export default function Upload() {
           <Card className="mb-6 shadow-md border-[#8B1538]/20 bg-white">
             <CardHeader className="bg-gradient-to-br from-[#8B1538]/5 to-transparent">
               <CardTitle className="text-[#8B1538]">Step 4: Upload Document</CardTitle>
-              <CardDescription>Choose a .docx file to upload and parse</CardDescription>
+              <CardDescription>Choose an .xlsx file to upload and parse</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -237,7 +237,7 @@ export default function Upload() {
                 <Input
                   id="file"
                   type="file"
-                  accept=".docx"
+                  accept=".xlsx,.xls"
                   onChange={handleFileChange}
                   className="mt-2"
                 />

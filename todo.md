@@ -721,3 +721,23 @@
 - [x] Filter programs list based on selected college (using department.collegeId)
 - [x] Test all cascading filter combinations
 - [ ] Save checkpoint and push to GitHub
+
+## Phase 55: Update Document Parser from Word to Excel Format
+- [x] Analyze Excel file structure for English version (BS Chemical Engineering)
+- [x] Analyze Excel file structure for Arabic version (BA Creed and Dawa)
+- [x] Identify differences between English and Arabic Excel formats (same structure)
+- [x] Create new Excel parser Python script (parse_excel_plo_ga.py)
+- [x] Support parsing competency codes (C1-1, C1-2, etc.)
+- [x] Support parsing competency descriptions
+- [x] Support parsing mapped PLOs with weights (single and multiple)
+- [x] Support parsing justifications in both English and Arabic
+- [x] Handle "-" for unmapped competencies
+- [x] Handle multi-sheet Excel files (Mapping & Justifications sheets)
+- [x] Update backend tRPC endpoint to use Excel parser instead of Word parser
+- [x] Update frontend to accept .xlsx files instead of .docx
+- [x] Test with English Excel file (BS Chemical Engineering) - parser output verified
+- [x] Test with Arabic Excel file (BA Creed and Dawa) - parser output verified
+- [x] Verify Arabic text preservation in parser output
+- [ ] Test end-to-end upload through web interface
+- [ ] Verify database storage of Arabic text
+- [ ] Save checkpoint and push to GitHub

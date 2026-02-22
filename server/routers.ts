@@ -313,9 +313,9 @@ export const appRouter = router({
         await writeFile(tempPath, buffer);
 
         try {
-          // Call Python parser
-          const scriptPath = path.join(__dirname, '../scripts/parse-docx.py');
-          const { stdout } = await execAsync(`python "${scriptPath}" "${tempPath}"`);
+          // Call Python Excel parser
+          const scriptPath = path.join(__dirname, '../scripts/parse_excel_plo_ga.py');
+          const { stdout } = await execAsync(`python3 "${scriptPath}" "${tempPath}"`);
           const result = JSON.parse(stdout);
           // Clean up temp file
           await unlink(tempPath);
