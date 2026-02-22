@@ -829,4 +829,15 @@
 - [x] Add color-coded bars to Competency Analytics charts (Green ≥80%, Yellow 50-79%, Red <50%)
 - [x] Add color-coding to main Analytics dashboard charts (Green ≥80%, Yellow 50-79%, Red <50%)
 - [x] Add color-coding to College and Department Analytics charts
-- [ ] Push corrections to GitHub
+- [x] Push corrections to GitHub
+
+## Phase 58: Implement Export Functionality for GA and Competency Analytics
+- [x] Examine main Analytics export implementation as reference
+- [x] Move export controls from bottom to top header in GA Analytics
+- [x] Move export controls from bottom to top header in Competency Analytics
+- [ ] Implement backend export endpoint for GA Analytics (PDF, Excel, Word)
+- [ ] Implement backend export endpoint for Competency Analytics (PDF, Excel, Word)
+- [ ] Create Python export script for GA Analytics with methodology guide
+- [ ] Create Python export script for Competency Analytics with methodology guide
+- [ ] Test all export formats for both dashboards
+- [ ] Push changes to GitHub

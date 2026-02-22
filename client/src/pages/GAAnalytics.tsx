@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "wouter";
 import { trpc } from "../lib/trpc";
 import { Button } from "../components/ui/button";
@@ -20,12 +20,13 @@ import {
   Cell,
 } from "recharts";
 import { Home, BookOpen, Download, FileText, FileSpreadsheet, FileImage } from "lucide-react";
+import AnalyticsExport from "../components/AnalyticsExport";
 
 export default function GAAnalytics() {
   const [filterLevel, setFilterLevel] = useState<"university" | "college" | "program">("university");
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>(undefined);
   const [selectedProgramId, setSelectedProgramId] = useState<number | undefined>(undefined);
-  const [exportFormat, setExportFormat] = useState<"pdf" | "excel" | "word">("pdf");
+  const chartRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch colleges and programs for filters
   const { data: colleges } = trpc.colleges.list.useQuery();
@@ -148,6 +149,15 @@ export default function GAAnalytics() {
                   GA Analytics Guide
                 </Button>
               </Link>
+              {gaData && (
+                <AnalyticsExport
+                  title="Graduate Attributes Analytics"
+                  chartRef={chartRef}
+                  data={gaData}
+                  type="university"
+                  entityCode="GA_Analytics"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -486,32 +496,7 @@ export default function GAAnalytics() {
           </CardContent>
         </Card>
 
-        {/* Export Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Export Graduate Attribute Analytics</CardTitle>
-            <p className="text-sm text-gray-600">
-              Download this analytics report in your preferred format
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <select
-                value={exportFormat}
-                onChange={(e) => setExportFormat(e.target.value as "pdf" | "excel" | "word")}
-                className="border border-gray-300 rounded px-4 py-2"
-              >
-                <option value="pdf">PDF Report</option>
-                <option value="excel">Excel Spreadsheet</option>
-                <option value="word">Word Document</option>
-              </select>
-              <Button className="bg-[#8B1538] hover:bg-[#A91D3A] text-white">
-                <Download className="mr-2 h-4 w-4" />
-                Export as {exportFormat.toUpperCase()}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+
       </div>
     </div>
   );
