@@ -15,7 +15,7 @@ interface AnalyticsExportProps {
   title: string;
   chartRef: React.RefObject<HTMLDivElement | null>;
   data: any;
-  type: "university" | "college" | "department";
+  type: "university" | "college" | "department" | "ga" | "competency";
   entityCode?: string; // Optional entity code for clean filenames
 }
 
@@ -296,6 +296,20 @@ function prepareMetrics(data: any, type: string) {
     metrics.push({ label: "Total Programs", value: data.totalPrograms });
     metrics.push({ label: "Total PLOs", value: data.totalPLOs });
     metrics.push({ label: "Department Alignment Score", value: `${data.averageAlignment.toFixed(1)}%` });
+  } else if (type === "ga") {
+    metrics.push({ label: "Total Graduate Attributes", value: data.totalGAs || 5 });
+    metrics.push({ label: "Total Programs Analyzed", value: data.totalPrograms });
+    if (data.gaStats && data.gaStats.length > 0) {
+      const avgCoverage = data.gaStats.reduce((sum: number, ga: any) => sum + ga.coverageRate, 0) / data.gaStats.length;
+      metrics.push({ label: "Average Coverage Rate", value: `${avgCoverage.toFixed(1)}%` });
+    }
+  } else if (type === "competency") {
+    metrics.push({ label: "Total Competencies", value: data.totalCompetencies || 21 });
+    metrics.push({ label: "Total Programs Analyzed", value: data.totalPrograms });
+    if (data.competencyStats && data.competencyStats.length > 0) {
+      const avgCoverage = data.competencyStats.reduce((sum: number, comp: any) => sum + comp.coverageRate, 0) / data.competencyStats.length;
+      metrics.push({ label: "Average Coverage Rate", value: `${avgCoverage.toFixed(1)}%` });
+    }
   }
   
   return metrics;
@@ -333,6 +347,28 @@ function prepareTableData(data: any, type: string) {
         prog.totalPLOs.toString(),
         `${prog.alignmentScore.toFixed(1)}%`,
         `${prog.coverageRate.toFixed(1)}%`,
+      ]);
+    });
+  } else if (type === "ga" && data.gaStats) {
+    tableData.push(["GA Code", "GA Name", "Programs Mapped", "Coverage Rate", "Avg Alignment Score"]);
+    data.gaStats.forEach((ga: any) => {
+      tableData.push([
+        ga.gaCode,
+        ga.gaNameEn,
+        `${ga.programCount}/${ga.totalPrograms}`,
+        `${ga.coverageRate.toFixed(1)}%`,
+        `${ga.avgAlignmentScore.toFixed(1)}%`,
+      ]);
+    });
+  } else if (type === "competency" && data.competencyStats) {
+    tableData.push(["Competency Code", "Competency Name", "Programs Using", "Coverage Rate", "Avg Weight"]);
+    data.competencyStats.forEach((comp: any) => {
+      tableData.push([
+        comp.competencyCode,
+        comp.competencyNameEn,
+        `${comp.programCount}/${comp.totalPrograms}`,
+        `${comp.coverageRate.toFixed(1)}%`,
+        comp.avgWeight ? comp.avgWeight.toFixed(2) : "0.00",
       ]);
     });
   }

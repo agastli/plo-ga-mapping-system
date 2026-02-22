@@ -154,7 +154,7 @@ export default function GAAnalytics() {
                   title="Graduate Attributes Analytics"
                   chartRef={chartRef}
                   data={gaData}
-                  type="university"
+                  type="ga"
                   entityCode="GA_Analytics"
                 />
               )}

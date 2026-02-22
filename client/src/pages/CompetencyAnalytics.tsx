@@ -179,7 +179,7 @@ export default function CompetencyAnalytics() {
                   title="Competency Analytics"
                   chartRef={chartRef}
                   data={competencyData}
-                  type="university"
+                  type="competency"
                   entityCode="Competency_Analytics"
                 />
               )}

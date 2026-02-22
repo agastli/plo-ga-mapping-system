@@ -840,4 +840,21 @@
 - [ ] Create Python export script for GA Analytics with methodology guide
 - [ ] Create Python export script for Competency Analytics with methodology guide
 - [ ] Test all export formats for both dashboards
-- [ ] Push changes to GitHub
+- [x] Push export UI relocation to GitHub
+
+## Phase 59: Fix Export Functionality for GA and Competency Analytics
+- [x] Diagnose export failure - check browser console for exact error
+- [x] Identify data structure mismatch between GA/Competency data and AnalyticsExport expectations
+- [x] Extend AnalyticsExport component prepareMetrics() to handle GA and Competency types
+- [x] Extend AnalyticsExport component prepareTableData() to handle GA and Competency types
+- [x] Update AnalyticsExport TypeScript interface to include "ga" and "competency" types
+- [x] Fix GA Analytics to pass type="ga" instead of type="university"
+- [x] Fix Competency Analytics to pass type="competency" instead of type="university"
+- [x] Fix competency data field names (coverageRate instead of usageRate)
+- [ ] Test PDF export for GA Analytics
+- [ ] Test Excel export for GA Analytics
+- [ ] Test Word export for GA Analytics
+- [ ] Test PDF export for Competency Analytics
+- [ ] Test Excel export for Competency Analytics
+- [ ] Test Word export for Competency Analytics
+- [ ] Push working export functionality to GitHub
