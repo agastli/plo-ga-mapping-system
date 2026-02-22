@@ -261,7 +261,7 @@ export default function GAAnalytics() {
         </div>
 
         {/* Charts Section - Wrapped for Export */}
-        <div ref={chartRef}>
+        <div ref={chartRef} style={{ backgroundColor: '#ffffff', color: '#000000' }}>
         {/* GA Coverage Distribution */}
         <Card className="mb-8">
           <CardHeader>

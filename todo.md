@@ -864,4 +864,13 @@
 - [x] Fix chartRef attachment in Competency Analytics page (wrap charts container with ref)
 - [ ] Test PNG export for GA Analytics
 - [ ] Test PNG export for Competency Analytics
+- [x] Push fix to GitHub
+
+## Phase 61: Fix Export Errors - Convert OKLCH Colors to Hex
+- [x] Add inline hex color styles to chartRef div in GA Analytics
+- [x] Add inline hex color styles to chartRef div in Competency Analytics
+- [ ] Test PNG export for GA Analytics
+- [ ] Test PDF export for GA Analytics
+- [ ] Test PNG export for Competency Analytics
+- [ ] Test PDF export for Competency Analytics
 - [ ] Push fix to GitHub
