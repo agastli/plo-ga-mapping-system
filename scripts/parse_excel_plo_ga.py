@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Excel PLO-GA Mapping Parser
 Parses Excel files containing PLO to Graduate Attribute mappings
@@ -9,6 +10,11 @@ import openpyxl
 import sys
 import json
 import re
+import io
+
+# Force UTF-8 encoding for stdout to handle Unicode characters
+if sys.stdout.encoding != 'utf-8':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def parse_plo_mappings(mapping_text):
     """
@@ -224,9 +230,12 @@ def main():
     
     try:
         result = parse_excel_plo_ga(filepath)
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        # Output JSON with UTF-8 encoding, ensure_ascii=False to preserve Unicode
+        output = json.dumps(result, ensure_ascii=False, indent=2)
+        print(output)
     except Exception as e:
-        print(json.dumps({"success": False, "error": str(e)}), file=sys.stderr)
+        error_msg = json.dumps({"success": False, "error": str(e)}, ensure_ascii=False)
+        print(error_msg, file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
