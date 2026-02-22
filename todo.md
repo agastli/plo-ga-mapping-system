@@ -709,4 +709,15 @@
 - [x] Ensure tables update dynamically when filter changes (automatic via query)
 - [x] Add filter context description to table headers
 - [x] Test all filter combinations with tables
+- [x] Save checkpoint and push to GitHub
+
+## Phase 54: Redesign Analytics Filters with Cascading Dropdowns
+- [x] Replace current filter UI in GAAnalytics.tsx with cascading approach
+- [x] First dropdown: "All Colleges" or select specific college
+- [x] Second dropdown (conditional): Shows only when college selected, displays programs from that college
+- [x] Update filter logic to pass collegeId or programId to analytics queries
+- [x] Replace current filter UI in CompetencyAnalytics.tsx with same cascading approach
+- [x] Update "Current View" display to show cascading selection
+- [x] Filter programs list based on selected college (using department.collegeId)
+- [x] Test all cascading filter combinations
 - [ ] Save checkpoint and push to GitHub

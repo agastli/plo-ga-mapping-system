@@ -141,58 +141,43 @@ export default function GAAnalytics() {
         <Card className="mb-8 border-2 border-[#8B1538]">
           <CardHeader>
             <CardTitle>Filter Analytics</CardTitle>
-            <p className="text-sm text-gray-600">View data at different organizational levels</p>
+            <p className="text-sm text-gray-600">Select college and program to filter data</p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Filter Level */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* College Selector */}
               <div>
-                <label className="block text-sm font-medium mb-2">View Level</label>
+                <label className="block text-sm font-medium mb-2">College</label>
                 <select
-                  value={filterLevel}
+                  value={selectedCollegeId || ""}
                   onChange={(e) => {
-                    setFilterLevel(e.target.value as "university" | "college" | "program");
-                    setSelectedCollegeId(undefined);
-                    setSelectedProgramId(undefined);
+                    setSelectedCollegeId(e.target.value ? Number(e.target.value) : undefined);
+                    setSelectedProgramId(undefined); // Reset program when college changes
                   }}
                   className="w-full border border-gray-300 rounded px-3 py-2"
                 >
-                  <option value="university">University-wide</option>
-                  <option value="college">By College</option>
-                  <option value="program">By Program</option>
+                  <option value="">All Colleges</option>
+                  {colleges?.map((college) => (
+                    <option key={college.id} value={college.id}>
+                      {college.nameEn}
+                    </option>
+                  ))}
                 </select>
               </div>
 
-              {/* College Selector */}
-              {filterLevel === "college" && (
+              {/* Program Selector - Only shown when college is selected */}
+              {selectedCollegeId && (
                 <div>
-                  <label className="block text-sm font-medium mb-2">Select College</label>
-                  <select
-                    value={selectedCollegeId || ""}
-                    onChange={(e) => setSelectedCollegeId(e.target.value ? Number(e.target.value) : undefined)}
-                    className="w-full border border-gray-300 rounded px-3 py-2"
-                  >
-                    <option value="">-- Select College --</option>
-                    {colleges?.map((college) => (
-                      <option key={college.id} value={college.id}>
-                        {college.nameEn}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Program Selector */}
-              {filterLevel === "program" && (
-                <div>
-                  <label className="block text-sm font-medium mb-2">Select Program</label>
+                  <label className="block text-sm font-medium mb-2">
+                    Program in {colleges?.find((c) => c.id === selectedCollegeId)?.nameEn}
+                  </label>
                   <select
                     value={selectedProgramId || ""}
                     onChange={(e) => setSelectedProgramId(e.target.value ? Number(e.target.value) : undefined)}
                     className="w-full border border-gray-300 rounded px-3 py-2"
                   >
-                    <option value="">-- Select Program --</option>
-                    {programs?.map((item) => (
+                    <option value="">All Programs in College</option>
+                    {filteredPrograms.map((item) => (
                       <option key={item.program.id} value={item.program.id}>
                         {item.program.nameEn}
                       </option>
@@ -205,7 +190,11 @@ export default function GAAnalytics() {
             {/* Current Filter Display */}
             <div className="mt-4 p-3 bg-amber-50 rounded">
               <p className="text-sm font-semibold text-[#8B1538]">
-                Current View: {filterLevel === "university" ? "University-wide" : filterLevel === "college" ? `College: ${colleges?.find((c) => c.id === selectedCollegeId)?.nameEn || "Select a college"}` : `Program: ${programs?.find((p) => p.program.id === selectedProgramId)?.program.nameEn || "Select a program"}`}
+                Current View: {selectedProgramId
+                  ? programs?.find((p) => p.program.id === selectedProgramId)?.program.nameEn || "Selected Program"
+                  : selectedCollegeId
+                  ? colleges?.find((c) => c.id === selectedCollegeId)?.nameEn || "Selected College"
+                  : "All programs across the university"}
               </p>
             </div>
           </CardContent>
@@ -426,13 +415,11 @@ export default function GAAnalytics() {
           <CardHeader>
             <CardTitle>Detailed Graduate Attribute Statistics</CardTitle>
             <p className="text-sm text-gray-600 mt-2">
-              {filterLevel === "university" 
-                ? "Showing data for all programs across the university" 
-                : filterLevel === "college" && selectedCollegeId
-                ? `Showing data for ${colleges?.find((c) => c.id === selectedCollegeId)?.nameEn || "selected college"}`
-                : filterLevel === "program" && selectedProgramId
+              {selectedProgramId
                 ? `Showing data for ${programs?.find((p) => p.program.id === selectedProgramId)?.program.nameEn || "selected program"}`
-                : "Please select a filter above to view specific data"}
+                : selectedCollegeId
+                ? `Showing data for ${colleges?.find((c) => c.id === selectedCollegeId)?.nameEn || "selected college"}`
+                : "Showing data for all programs across the university"}
             </p>
           </CardHeader>
           <CardContent>
