@@ -800,4 +800,23 @@
 - [x] Fix Python script to handle Unicode characters (LRM, RTL marks, etc.)
 - [x] Ensure UTF-8 encoding for stdout in Python script
 - [x] Test with BS Electrical Engineering Excel file
-- [ ] Push fix to GitHub
+- [x] Push fix to GitHub
+
+## Phase 56: Implement Dashboard-Specific Guides and Export Functionality
+- [ ] Create separate guide page for University Analytics (methodology, calculations, interpretation)
+- [ ] Create separate guide page for College Analytics
+- [ ] Create separate guide page for Department Analytics
+- [x] Create separate guide page for GA Analytics (coverage, alignment, formulas)
+- [x] Create separate guide page for Competency Analytics (usage, gaps, distribution)
+- [x] Add routes for GA and Competency Analytics guides
+- [x] Add guide buttons to GA and Competency Analytics pages
+- [ ] Implement GA Analytics export with embedded guide
+- [ ] Implement Competency Analytics export with embedded guide
+- [ ] Update existing analytics exports to include methodology sections
+- [ ] Create backend endpoints for GA and Competency exports
+- [ ] Create Python export scripts for GA Analytics (PDF, Excel, Word)
+- [ ] Create Python export scripts for Competency Analytics (PDF, Excel, Word)
+- [ ] Connect export UI to backend for GA Analytics
+- [ ] Connect export UI to backend for Competency Analytics
+- [ ] Test all exports with guides included
+- [ ] Push changes to GitHub

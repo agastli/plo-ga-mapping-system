@@ -14,7 +14,9 @@ import CollegeAnalytics from "./pages/CollegeAnalytics";
 import DepartmentAnalytics from "./pages/DepartmentAnalytics";
 import AnalyticsGuide from "./pages/AnalyticsGuide";
 import GAAnalytics from "./pages/GAAnalytics";
+import GAAnalyticsGuide from "./pages/GAAnalyticsGuide";
 import CompetencyAnalytics from "./pages/CompetencyAnalytics";
+import CompetencyAnalyticsGuide from "./pages/CompetencyAnalyticsGuide";
 import ReportTemplates from "./pages/ReportTemplates";
 
 function Router() {
@@ -28,7 +30,9 @@ function Router() {
       <Route path={"/analytics"} component={Analytics} />
       <Route path={"/analytics/guide"} component={AnalyticsGuide} />
       <Route path={"/analytics/ga"} component={GAAnalytics} />
+      <Route path={"/analytics/ga/guide"} component={GAAnalyticsGuide} />
       <Route path={"/analytics/competencies"} component={CompetencyAnalytics} />
+      <Route path={"/analytics/competencies/guide"} component={CompetencyAnalyticsGuide} />
       <Route path={"/analytics/college/:id"} component={CollegeAnalytics} />
       <Route path={"/analytics/department/:id"} component={DepartmentAnalytics} />
       <Route path={"/templates"} component={ReportTemplates} />

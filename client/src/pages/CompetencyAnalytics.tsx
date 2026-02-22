@@ -149,10 +149,10 @@ export default function CompetencyAnalytics() {
                   Main Analytics
                 </Button>
               </Link>
-              <Link href="/analytics-guide">
+              <Link href="/analytics/competencies/guide">
                 <Button variant="outline" className="bg-white text-[#8B1538] hover:bg-gray-100">
                   <BookOpen className="mr-2 h-4 w-4" />
-                  Analytics Guide
+                  Competency Guide
                 </Button>
               </Link>
             </div>
