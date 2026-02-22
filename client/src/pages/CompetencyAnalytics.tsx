@@ -514,6 +514,15 @@ export default function CompetencyAnalytics() {
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Detailed Competency Statistics</CardTitle>
+            <p className="text-sm text-gray-600 mt-2">
+              {filterLevel === "university" 
+                ? "Showing data for all programs across the university" 
+                : filterLevel === "college" && selectedCollegeId
+                ? `Showing data for ${colleges?.find((c) => c.id === selectedCollegeId)?.nameEn || "selected college"}`
+                : filterLevel === "program" && selectedProgramId
+                ? `Showing data for ${programs?.find((p) => p.program.id === selectedProgramId)?.program.nameEn || "selected program"}`
+                : "Please select a filter above to view specific data"}
+            </p>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
