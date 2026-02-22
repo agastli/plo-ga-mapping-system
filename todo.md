@@ -649,3 +649,36 @@
 - [x] Fix the access denied error (use lenient temp file pattern matching)
 - [ ] Test Program Viewer exports
 - [ ] Push changes to GitHub
+
+## Phase 50: Graduate Attribute & Competency Analytics
+- [x] Create database queries for GA coverage statistics
+- [x] Create database queries for competency usage statistics
+- [x] Add tRPC endpoint for GA analytics data
+- [x] Add tRPC endpoint for competency analytics data
+- [x] Add tRPC endpoint for cross-analysis data (GA vs College, Competency vs Department)
+- [x] Create Graduate Attributes Analytics page with visualizations
+- [x] Add GA coverage distribution chart (which GAs are most/least covered)
+- [x] Add average alignment scores per GA chart
+- [x] Add GA coverage by college heatmap
+- [x] Add GA trend analysis visualization (radar chart)
+- [x] Create Competencies Analytics page with visualizations
+- [x] Add competency usage distribution chart
+- [x] Add competency coverage rates across programs
+- [x] Add average weights per competency chart
+- [x] Add competency gaps analysis (underutilized competencies)
+- [x] Add competency distribution by department heatmap
+- [x] Create cross-analysis features
+- [x] Add GA vs College heatmap showing which colleges emphasize which GAs
+- [x] Add Competency vs Department heatmap
+- [x] Add PLO-to-Competency mapping density visualization (scatter plot)
+- [x] Add justification completeness by competency chart (in detailed table)
+- [x] Add radar charts for GA coverage profiles
+- [ ] Add treemaps for competency hierarchy visualization (deferred - scatter plot more useful)
+- [ ] Create Python export scripts for GA analytics (PDF, Excel, Word) (export buttons ready, scripts can reuse existing)
+- [ ] Create Python export scripts for Competency analytics (PDF, Excel, Word) (export buttons ready, scripts can reuse existing)
+- [x] Add export buttons to GA analytics page
+- [x] Add export buttons to Competency analytics page
+- [x] Add navigation links to GA/Competency analytics from main analytics page
+- [ ] Update analytics guide with GA/Competency analytics documentation
+- [x] Test all GA/Competency analytics features
+- [ ] Save checkpoint and push to GitHub

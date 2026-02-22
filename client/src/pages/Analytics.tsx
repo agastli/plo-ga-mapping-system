@@ -124,12 +124,24 @@ export default function Analytics() {
             })}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setLocation("/analytics/guide")}
             className="inline-flex items-center gap-2 px-4 py-2 bg-[#8B1538] text-white rounded hover:bg-[#6B1028] transition-colors"
           >
             📖 Analytics Guide
+          </button>
+          <button
+            onClick={() => setLocation("/analytics/ga")}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#A91D3A] text-white rounded hover:bg-[#8B1538] transition-colors"
+          >
+            📊 Graduate Attributes
+          </button>
+          <button
+            onClick={() => setLocation("/analytics/competencies")}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#C73E1D] text-white rounded hover:bg-[#A91D3A] transition-colors"
+          >
+            🎯 Competencies
           </button>
           {analytics && (
             <>

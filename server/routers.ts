@@ -583,6 +583,24 @@ export const appRouter = router({
         return await db.getProgramAnalytics(input.programId);
       }),
     
+    // Graduate Attribute Analytics
+    gaAnalytics: publicProcedure.query(async () => {
+      return await db.getGAAnalytics();
+    }),
+    
+    gaByCollegeAnalytics: publicProcedure.query(async () => {
+      return await db.getGAByCollegeAnalytics();
+    }),
+    
+    // Competency Analytics
+    competencyAnalytics: publicProcedure.query(async () => {
+      return await db.getCompetencyAnalytics();
+    }),
+    
+    competencyByDepartmentAnalytics: publicProcedure.query(async () => {
+      return await db.getCompetencyByDepartmentAnalytics();
+    }),
+    
     // Export endpoints
     exportToPDF: publicProcedure
       .input(z.object({

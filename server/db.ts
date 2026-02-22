@@ -706,3 +706,292 @@ export async function deleteReportTemplate(id: number) {
     .delete(reportTemplates)
     .where(eq(reportTemplates.id, id));
 }
+
+// ============================================================================
+// Graduate Attribute Analytics
+// ============================================================================
+
+/**
+ * Get GA coverage statistics across all programs
+ * Returns data for: which GAs are most/least covered, average alignment scores per GA
+ */
+export async function getGAAnalytics() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get all GAs
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.code);
+  
+  // Get all programs
+  const allPrograms = await db.select().from(programs);
+  
+  // Get all competencies
+  const allCompetencies = await db.select().from(competencies);
+  
+  // Get all mappings
+  const allMappings = await db.select().from(mappings);
+  
+  // Get all PLOs
+  const allPLOs = await db.select().from(plos);
+
+  const gaStats = allGAs.map((ga) => {
+    // Get competencies for this GA
+    const gaCompetencies = allCompetencies.filter((c) => c.gaId === ga.id);
+    const gaCompetencyIds = gaCompetencies.map((c) => c.id);
+
+    // Count programs that have mappings to this GA's competencies
+    const programsWithGA = new Set<number>();
+    let totalWeight = 0;
+    let totalPossibleWeight = 0;
+
+    allPrograms.forEach((program) => {
+      const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+      const programMappings = allMappings.filter(
+        (m) => programPLOs.some((plo) => plo.id === m.ploId) && gaCompetencyIds.includes(m.competencyId)
+      );
+
+      if (programMappings.length > 0 && programMappings.some((m) => parseFloat(m.weight) > 0)) {
+        programsWithGA.add(program.id);
+      }
+
+      // Calculate weight for this program
+      const programWeight = programMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
+      totalWeight += programWeight;
+      totalPossibleWeight += gaCompetencies.length * programPLOs.length;
+    });
+
+    // Calculate average alignment score
+    const avgScore = totalPossibleWeight > 0 ? (totalWeight / totalPossibleWeight) * 100 : 0;
+
+    // Calculate coverage rate (% of programs that map to this GA)
+    const coverageRate = allPrograms.length > 0 ? (programsWithGA.size / allPrograms.length) * 100 : 0;
+
+    return {
+      gaId: ga.id,
+      gaCode: ga.code,
+      gaNameEn: ga.nameEn,
+      gaNameAr: ga.nameAr,
+      programCount: programsWithGA.size,
+      totalPrograms: allPrograms.length,
+      coverageRate: Math.round(coverageRate * 100) / 100,
+      avgAlignmentScore: Math.round(avgScore * 100) / 100,
+      totalWeight: Math.round(totalWeight * 100) / 100,
+      competencyCount: gaCompetencies.length,
+    };
+  });
+
+  return {
+    gaStats,
+    totalGAs: allGAs.length,
+    totalPrograms: allPrograms.length,
+  };
+}
+
+/**
+ * Get GA coverage by college (heatmap data)
+ * Returns: which colleges emphasize which GAs
+ */
+export async function getGAByCollegeAnalytics() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.code);
+  const allColleges = await db.select().from(colleges).orderBy(colleges.code);
+  const allDepartments = await db.select().from(departments);
+  const allPrograms = await db.select().from(programs);
+  const allCompetencies = await db.select().from(competencies);
+  const allPLOs = await db.select().from(plos);
+  const allMappings = await db.select().from(mappings);
+
+  const heatmapData = allColleges.map((college) => {
+    // Get all programs in this college
+    const collegeDepartments = allDepartments.filter((d) => d.collegeId === college.id);
+    const collegeDepartmentIds = collegeDepartments.map((d) => d.id);
+    const collegePrograms = allPrograms.filter((p) => collegeDepartmentIds.includes(p.departmentId));
+    const collegeProgramIds = collegePrograms.map((p) => p.id);
+
+    const gaScores = allGAs.map((ga) => {
+      const gaCompetencies = allCompetencies.filter((c) => c.gaId === ga.id);
+      const gaCompetencyIds = gaCompetencies.map((c) => c.id);
+
+      let totalWeight = 0;
+      let totalPossibleWeight = 0;
+
+      collegePrograms.forEach((program) => {
+        const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+        const programMappings = allMappings.filter(
+          (m) => programPLOs.some((plo) => plo.id === m.ploId) && gaCompetencyIds.includes(m.competencyId)
+        );
+
+        totalWeight += programMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
+        totalPossibleWeight += gaCompetencies.length * programPLOs.length;
+      });
+
+      const score = totalPossibleWeight > 0 ? (totalWeight / totalPossibleWeight) * 100 : 0;
+
+      return {
+        gaCode: ga.code,
+        score: Math.round(score * 100) / 100,
+      };
+    });
+
+    return {
+      collegeId: college.id,
+      collegeCode: college.code,
+      collegeNameEn: college.nameEn,
+      collegeNameAr: college.nameAr,
+      programCount: collegePrograms.length,
+      gaScores,
+    };
+  });
+
+  return {
+    heatmapData,
+    gaList: allGAs.map((ga) => ({ code: ga.code, nameEn: ga.nameEn, nameAr: ga.nameAr })),
+    collegeList: allColleges.map((c) => ({ code: c.code, nameEn: c.nameEn, nameAr: c.nameAr })),
+  };
+}
+
+// ============================================================================
+// Competency Analytics
+// ============================================================================
+
+/**
+ * Get competency usage statistics across all programs
+ * Returns: which competencies are most/least mapped, average weights, coverage rates
+ */
+export async function getCompetencyAnalytics() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const allCompetencies = await db.select().from(competencies).orderBy(competencies.code);
+  const allPrograms = await db.select().from(programs);
+  const allPLOs = await db.select().from(plos);
+  const allMappings = await db.select().from(mappings);
+  const allJustifications = await db.select().from(justifications);
+
+  const competencyStats = allCompetencies.map((competency) => {
+    // Count programs that have mappings to this competency
+    const programsWithCompetency = new Set<number>();
+    let totalWeight = 0;
+    let mappingCount = 0;
+    let justificationCount = 0;
+
+    allPrograms.forEach((program) => {
+      const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+      const programMappings = allMappings.filter(
+        (m) => programPLOs.some((plo) => plo.id === m.ploId) && m.competencyId === competency.id
+      );
+
+      if (programMappings.length > 0 && programMappings.some((m) => parseFloat(m.weight) > 0)) {
+        programsWithCompetency.add(program.id);
+      }
+
+      programMappings.forEach((m) => {
+        const weight = parseFloat(m.weight);
+        if (weight > 0) {
+          totalWeight += weight;
+          mappingCount++;
+        }
+      });
+
+      // Count justifications for this competency in this program
+      const programJustifications = allJustifications.filter(
+        (j) => j.programId === program.id && j.competencyId === competency.id
+      );
+      justificationCount += programJustifications.length;
+    });
+
+    // Calculate average weight (only for non-zero mappings)
+    const avgWeight = mappingCount > 0 ? totalWeight / mappingCount : 0;
+
+    // Calculate coverage rate (% of programs that map to this competency)
+    const coverageRate = allPrograms.length > 0 ? (programsWithCompetency.size / allPrograms.length) * 100 : 0;
+
+    // Justification completeness (% of programs with justifications)
+    const justificationRate = allPrograms.length > 0 ? (justificationCount / allPrograms.length) * 100 : 0;
+
+    return {
+      competencyId: competency.id,
+      competencyCode: competency.code,
+      competencyNameEn: competency.nameEn,
+      competencyNameAr: competency.nameAr,
+      gaId: competency.gaId,
+      programCount: programsWithCompetency.size,
+      totalPrograms: allPrograms.length,
+      coverageRate: Math.round(coverageRate * 100) / 100,
+      avgWeight: Math.round(avgWeight * 100) / 100,
+      totalWeight: Math.round(totalWeight * 100) / 100,
+      mappingCount,
+      justificationCount,
+      justificationRate: Math.round(justificationRate * 100) / 100,
+    };
+  });
+
+  return {
+    competencyStats,
+    totalCompetencies: allCompetencies.length,
+    totalPrograms: allPrograms.length,
+  };
+}
+
+/**
+ * Get competency distribution by department (heatmap data)
+ */
+export async function getCompetencyByDepartmentAnalytics() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const allCompetencies = await db.select().from(competencies).orderBy(competencies.code);
+  const allDepartments = await db.select().from(departments).orderBy(departments.code);
+  const allPrograms = await db.select().from(programs);
+  const allPLOs = await db.select().from(plos);
+  const allMappings = await db.select().from(mappings);
+
+  const heatmapData = allDepartments.map((department) => {
+    const departmentPrograms = allPrograms.filter((p) => p.departmentId === department.id);
+
+    const competencyScores = allCompetencies.map((competency) => {
+      let totalWeight = 0;
+      let mappingCount = 0;
+
+      departmentPrograms.forEach((program) => {
+        const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+        const programMappings = allMappings.filter(
+          (m) => programPLOs.some((plo) => plo.id === m.ploId) && m.competencyId === competency.id
+        );
+
+        programMappings.forEach((m) => {
+          const weight = parseFloat(m.weight);
+          if (weight > 0) {
+            totalWeight += weight;
+            mappingCount++;
+          }
+        });
+      });
+
+      const avgWeight = mappingCount > 0 ? totalWeight / mappingCount : 0;
+
+      return {
+        competencyCode: competency.code,
+        avgWeight: Math.round(avgWeight * 100) / 100,
+        mappingCount,
+      };
+    });
+
+    return {
+      departmentId: department.id,
+      departmentCode: department.code,
+      departmentNameEn: department.nameEn,
+      departmentNameAr: department.nameAr,
+      programCount: departmentPrograms.length,
+      competencyScores,
+    };
+  });
+
+  return {
+    heatmapData,
+    competencyList: allCompetencies.map((c) => ({ code: c.code, nameEn: c.nameEn, nameAr: c.nameAr })),
+    departmentList: allDepartments.map((d) => ({ code: d.code, nameEn: d.nameEn, nameAr: d.nameAr })),
+  };
+}
