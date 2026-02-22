@@ -96,6 +96,24 @@ export default function GAAnalytics() {
   // Colors for charts
   const COLORS = ["#8B1538", "#A91D3A", "#C73E1D", "#E67E22", "#F39C12"];
 
+  // Color helper function based on coverage thresholds
+  const getCoverageColor = (value: number) => {
+    if (value >= 80) return "#22c55e"; // Green for high coverage (≥80%)
+    if (value >= 50) return "#eab308"; // Yellow for medium coverage (50-79%)
+    return "#ef4444"; // Red for low coverage (<50%)
+  };
+
+  // Add color property to chart data
+  const coverageChartDataWithColors = coverageChartData.map((item) => ({
+    ...item,
+    fill: getCoverageColor(item.coverage),
+  }));
+
+  const alignmentChartDataWithColors = alignmentChartData.map((item) => ({
+    ...item,
+    fill: getCoverageColor(item.score), // Use same thresholds for alignment scores
+  }));
+
   // Prepare heatmap data
   const heatmapData = gaByCollegeData?.heatmapData || [];
 
@@ -265,7 +283,11 @@ export default function GAAnalytics() {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="coverage" fill="#8B1538" name="Coverage Rate (%)" />
+                <Bar dataKey="coverage" name="Coverage Rate (%)">
+                  {coverageChartDataWithColors.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -287,7 +309,11 @@ export default function GAAnalytics() {
                 <YAxis label={{ value: "Alignment Score (%)", angle: -90, position: "insideLeft" }} />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="score" fill="#A91D3A" name="Alignment Score (%)" />
+                <Bar dataKey="score" name="Alignment Score (%)">
+                  {alignmentChartDataWithColors.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

@@ -1,0 +1,178 @@
+{
+  "query": "SELECT ga.code AS gaCode, ga.nameEn AS gaName, ga.sortOrder AS gaSort,\n       c.code AS compCode, c.nameEn AS compName, c.sortOrder AS compSort\nFROM graduateAttributes ga\nLEFT JOIN competencies c ON c.gaId = ga.id\nORDER BY ga.sortOrder, c.sortOrder;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT ga.code AS gaCode, ga.nameEn AS gaName, ga.sortOrder AS gaSort,\n       c.code AS compCode, c.nameEn AS compName, c.sortOrder AS compSort\nFROM graduateAttributes ga\nLEFT JOIN competencies c ON c.gaId = ga.id\nORDER BY ga.sortOrder, c.sortOrder;",
+  "rows": [
+    {
+      "gaCode": "GA1",
+      "gaName": "Competent",
+      "gaSort": "1",
+      "compCode": "C1-1",
+      "compName": "Subject-matter mastery",
+      "compSort": "1"
+    },
+    {
+      "gaCode": "GA1",
+      "gaName": "Competent",
+      "gaSort": "1",
+      "compCode": "C1-2",
+      "compName": "Critical-thinking skills",
+      "compSort": "2"
+    },
+    {
+      "gaCode": "GA1",
+      "gaName": "Competent",
+      "gaSort": "1",
+      "compCode": "C1-3",
+      "compName": "Problem-solving skills",
+      "compSort": "3"
+    },
+    {
+      "gaCode": "GA1",
+      "gaName": "Competent",
+      "gaSort": "1",
+      "compCode": "C1-4",
+      "compName": "Research, and Novel and Adaptive Thinking",
+      "compSort": "4"
+    },
+    {
+      "gaCode": "GA2",
+      "gaName": "Life-long Learner",
+      "gaSort": "2",
+      "compCode": "C2-1",
+      "compName": "Self-awareness",
+      "compSort": "1"
+    },
+    {
+      "gaCode": "GA2",
+      "gaName": "Life-long Learner",
+      "gaSort": "2",
+      "compCode": "C2-2",
+      "compName": "Adaptability",
+      "compSort": "2"
+    },
+    {
+      "gaCode": "GA2",
+      "gaName": "Life-long Learner",
+      "gaSort": "2",
+      "compCode": "C2-3",
+      "compName": "Adaptive Thinking",
+      "compSort": "3"
+    },
+    {
+      "gaCode": "GA2",
+      "gaName": "Life-long Learner",
+      "gaSort": "2",
+      "compCode": "C2-4",
+      "compName": "Desire for life-long learning",
+      "compSort": "4"
+    },
+    {
+      "gaCode": "GA3",
+      "gaName": "Well Rounded",
+      "gaSort": "3",
+      "compCode": "C3-1",
+      "compName": "Cultured",
+      "compSort": "1"
+    },
+    {
+      "gaCode": "GA3",
+      "gaName": "Well Rounded",
+      "gaSort": "3",
+      "compCode": "C3-2",
+      "compName": "Effective communication skills",
+      "compSort": "2"
+    },
+    {
+      "gaCode": "GA3",
+      "gaName": "Well Rounded",
+      "gaSort": "3",
+      "compCode": "C3-3",
+      "compName": "Awareness of local and international issues",
+      "compSort": "3"
+    },
+    {
+      "gaCode": "GA4",
+      "gaName": "Ethically & Socially Responsible",
+      "gaSort": "4",
+      "compCode": "C4-1",
+      "compName": "Embody the Arabic-Islamic identity",
+      "compSort": "1"
+    },
+    {
+      "gaCode": "GA4",
+      "gaName": "Ethically & Socially Responsible",
+      "gaSort": "4",
+      "compCode": "C4-2",
+      "compName": "Embrace diversity",
+      "compSort": "2"
+    },
+    {
+      "gaCode": "GA4",
+      "gaName": "Ethically & Socially Responsible",
+      "gaSort": "4",
+      "compCode": "C4-3",
+      "compName": "Professional and ethical conduct",
+      "compSort": "3"
+    },
+    {
+      "gaCode": "GA4",
+      "gaName": "Ethically & Socially Responsible",
+      "gaSort": "4",
+      "compCode": "C4-4",
+      "compName": "Civically engaged",
+      "compSort": "4"
+    },
+    {
+      "gaCode": "GA4",
+      "gaName": "Ethically & Socially Responsible",
+      "gaSort": "4",
+      "compCode": "C4-5",
+      "compName": "Community and Global Engagement",
+      "compSort": "5"
+    },
+    {
+      "gaCode": "GA5",
+      "gaName": "Entrepreneurial",
+      "gaSort": "5",
+      "compCode": "C5-1",
+      "compName": "Creativity and innovation",
+      "compSort": "1"
+    },
+    {
+      "gaCode": "GA5",
+      "gaName": "Entrepreneurial",
+      "gaSort": "5",
+      "compCode": "C5-2",
+      "compName": "Collaborative",
+      "compSort": "2"
+    },
+    {
+      "gaCode": "GA5",
+      "gaName": "Entrepreneurial",
+      "gaSort": "5",
+      "compCode": "C5-3",
+      "compName": "Management",
+      "compSort": "3"
+    },
+    {
+      "gaCode": "GA5",
+      "gaName": "Entrepreneurial",
+      "gaSort": "5",
+      "compCode": "C5-4",
+      "compName": "Interpersonal",
+      "compSort": "4"
+    },
+    {
+      "gaCode": "GA5",
+      "gaName": "Entrepreneurial",
+      "gaSort": "5",
+      "compCode": "C5-5",
+      "compName": "Leadership",
+      "compSort": "5"
+    }
+  ],
+  "messages": [],
+  "stdout": "gaCode\tgaName\tgaSort\tcompCode\tcompName\tcompSort\nGA1\tCompetent\t1\tC1-1\tSubject-matter mastery\t1\nGA1\tCompetent\t1\tC1-2\tCritical-thinking skills\t2\nGA1\tCompetent\t1\tC1-3\tProblem-solving skills\t3\nGA1\tCompetent\t1\tC1-4\tResearch, and Novel and Adaptive Thinking\t4\nGA2\tLife-long Learner\t2\tC2-1\tSelf-awareness\t1\nGA2\tLife-long Learner\t2\tC2-2\tAdaptability\t2\nGA2\tLife-long Learner\t2\tC2-3\tAdaptive Thinking\t3\nGA2\tLife-long Learner\t2\tC2-4\tDesire for life-long learning\t4\nGA3\tWell Rounded\t3\tC3-1\tCultured\t1\nGA3\tWell Rounded\t3\tC3-2\tEffective communication skills\t2\nGA3\tWell Rounded\t3\tC3-3\tAwareness of local and international issues\t3\nGA4\tEthically & Socially Responsible\t4\tC4-1\tEmbody the Arabic-Islamic identity\t1\nGA4\tEthically & Socially Responsible\t4\tC4-2\tEmbrace diversity\t2\nGA4\tEthically & Socially Responsible\t4\tC4-3\tProfessional and ethical conduct\t3\nGA4\tEthically & Socially Responsible\t4\tC4-4\tCivically engaged\t4\nGA4\tEthically & Socially Responsible\t4\tC4-5\tCommunity and Global Engagement\t5\nGA5\tEntrepreneurial\t5\tC5-1\tCreativity and innovation\t1\nGA5\tEntrepreneurial\t5\tC5-2\tCollaborative\t2\nGA5\tEntrepreneurial\t5\tC5-3\tManagement\t3\nGA5\tEntrepreneurial\t5\tC5-4\tInterpersonal\t4\nGA5\tEntrepreneurial\t5\tC5-5\tLeadership\t5\n",
+  "stderr": "",
+  "execution_time_ms": 1770
+}

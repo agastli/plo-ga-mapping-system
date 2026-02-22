@@ -94,10 +94,10 @@ export default function CollegeAnalytics() {
     );
   }
 
-  // Color coding
+  // Color coding (consistent with GA Analytics thresholds)
   const getColor = (score: number) => {
-    if (score >= 70) return "#10B981";
-    if (score >= 40) return "#F59E0B";
+    if (score >= 80) return "#22c55e"; // Green for high coverage (≥80%)
+    if (score >= 50) return "#eab308"; // Yellow for medium coverage (50-79%)
     return "#EF4444";
   };
 

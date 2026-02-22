@@ -58,7 +58,7 @@ export default function CompetencyAnalyticsGuide() {
           <CardContent className="space-y-4">
             <p className="text-gray-700">
               The Competency Analytics dashboard provides detailed insights into how the 21 competencies
-              (organized under 7 Graduate Attributes) are utilized across academic programs. This analysis
+              (organized under 5 Graduate Attributes) are utilized across academic programs. This analysis
               helps identify which competencies are well-covered and which may require additional curriculum attention.
             </p>
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
@@ -79,62 +79,49 @@ export default function CompetencyAnalyticsGuide() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <h3 className="font-bold text-lg text-[#8B1538] mb-2">GA1: Knowledge & Understanding</h3>
+                <h3 className="font-bold text-lg text-[#8B1538] mb-2">GA1: Competent</h3>
                 <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
                   <li><strong>C1-1:</strong> Subject-matter mastery</li>
-                  <li><strong>C1-2:</strong> Problem-solving skills</li>
-                  <li><strong>C1-3:</strong> Research skills</li>
-                  <li><strong>C1-4:</strong> Lifelong learning</li>
+                  <li><strong>C1-2:</strong> Critical-thinking skills</li>
+                  <li><strong>C1-3:</strong> Problem-solving skills</li>
+                  <li><strong>C1-4:</strong> Research, and Novel and Adaptive Thinking</li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-[#A91D3A] mb-2">GA2: Critical Thinking & Problem Solving</h3>
+                <h3 className="font-bold text-lg text-[#A91D3A] mb-2">GA2: Life-long Learner</h3>
                 <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                  <li><strong>C2-1:</strong> Analytical thinking</li>
-                  <li><strong>C2-2:</strong> Creative problem-solving</li>
-                  <li><strong>C2-3:</strong> Evidence-based decision making</li>
-                  <li><strong>C2-4:</strong> Systems thinking</li>
+                  <li><strong>C2-1:</strong> Self-awareness</li>
+                  <li><strong>C2-2:</strong> Adaptability</li>
+                  <li><strong>C2-3:</strong> Adaptive Thinking</li>
+                  <li><strong>C2-4:</strong> Desire for life-long learning</li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-[#C73E1D] mb-2">GA3: Communication & Collaboration</h3>
+                <h3 className="font-bold text-lg text-[#C73E1D] mb-2">GA3: Well Rounded</h3>
                 <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                  <li><strong>C3-1:</strong> Effective communication</li>
-                  <li><strong>C3-2:</strong> Teamwork and collaboration</li>
-                  <li><strong>C3-3:</strong> Interpersonal skills</li>
+                  <li><strong>C3-1:</strong> Cultured</li>
+                  <li><strong>C3-2:</strong> Effective communication skills</li>
+                  <li><strong>C3-3:</strong> Awareness of local and international issues</li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-[#D4A017] mb-2">GA4: Global & Cultural Awareness</h3>
+                <h3 className="font-bold text-lg text-[#D4A017] mb-2">GA4: Ethically & Socially Responsible</h3>
                 <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                  <li><strong>C4-1:</strong> Cultural sensitivity</li>
-                  <li><strong>C4-2:</strong> Global perspective</li>
-                  <li><strong>C4-3:</strong> Ethical awareness</li>
-                  <li><strong>C4-4:</strong> Social responsibility</li>
-                  <li><strong>C4-5:</strong> Sustainability awareness</li>
+                  <li><strong>C4-1:</strong> Embody the Arabic-Islamic identity</li>
+                  <li><strong>C4-2:</strong> Embrace diversity</li>
+                  <li><strong>C4-3:</strong> Professional and ethical conduct</li>
+                  <li><strong>C4-4:</strong> Civically engaged</li>
+                  <li><strong>C4-5:</strong> Community and Global Engagement</li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-[#2E8B57] mb-2">GA5: Leadership & Autonomy</h3>
+                <h3 className="font-bold text-lg text-[#2E8B57] mb-2">GA5: Entrepreneurial</h3>
                 <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                  <li><strong>C5-1:</strong> Self-direction and initiative</li>
-                  <li><strong>C5-2:</strong> Leadership capabilities</li>
-                  <li><strong>C5-3:</strong> Entrepreneurial mindset</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-bold text-lg text-[#4682B4] mb-2">GA6: Digital Literacy</h3>
-                <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                  <li><strong>C6-1:</strong> Technology proficiency</li>
-                  <li><strong>C6-2:</strong> Digital communication</li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-bold text-lg text-[#8B4789] mb-2">GA7: Professionalism & Ethics</h3>
-                <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                  <li><strong>C7-1:</strong> Professional conduct</li>
-                  <li><strong>C7-2:</strong> Ethical behavior</li>
-                  <li><strong>C7-3:</strong> Commitment to quality</li>
+                  <li><strong>C5-1:</strong> Creativity and innovation</li>
+                  <li><strong>C5-2:</strong> Collaborative</li>
+                  <li><strong>C5-3:</strong> Management</li>
+                  <li><strong>C5-4:</strong> Interpersonal</li>
+                  <li><strong>C5-5:</strong> Leadership</li>
                 </ul>
               </div>
             </div>
@@ -211,13 +198,13 @@ export default function CompetencyAnalyticsGuide() {
                 This helps identify which competencies are widely adopted and which are underutilized.
               </p>
               <div className="bg-green-50 border-l-4 border-green-500 p-3 mt-2">
-                <p className="text-green-900"><strong>High Coverage (≥70%):</strong> Competency is well-integrated across programs</p>
+                <p className="text-green-900"><strong>High Coverage (≥80%):</strong> Competency is well-integrated across programs</p>
               </div>
               <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 mt-2">
-                <p className="text-yellow-900"><strong>Medium Coverage (40-69%):</strong> Competency has moderate adoption</p>
+                <p className="text-yellow-900"><strong>Medium Coverage (50-79%):</strong> Competency has moderate adoption</p>
               </div>
               <div className="bg-red-50 border-l-4 border-red-500 p-3 mt-2">
-                <p className="text-red-900"><strong>Low Coverage (&lt;40%):</strong> Competency may be a curriculum gap</p>
+                <p className="text-red-900"><strong>Low Coverage (&lt;50%):</strong> Competency may be a curriculum gap</p>
               </div>
             </div>
 
@@ -343,7 +330,7 @@ export default function CompetencyAnalyticsGuide() {
               <h3 className="font-bold text-green-900 mb-2">High Coverage + High Weight</h3>
               <p className="text-green-800">
                 These are your institution's core competencies. They are widely addressed and strongly emphasized.
-                Examples might include C1-1 (Subject-matter mastery) or C3-1 (Effective communication).
+                Examples might include C1-1 (Subject-matter mastery) or C3-2 (Effective communication skills).
               </p>
             </div>
             <div className="bg-blue-50 p-4 rounded">

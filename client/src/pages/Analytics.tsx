@@ -90,11 +90,11 @@ export default function Analytics() {
     programs: college.totalPrograms,
   }));
 
-  // Color coding based on performance
+  // Color coding based on performance (consistent with GA Analytics thresholds)
   const getColor = (score: number) => {
-    if (score >= 70) return "#10B981"; // Green
-    if (score >= 40) return "#F59E0B"; // Yellow
-    return "#EF4444"; // Red
+    if (score >= 80) return "#22c55e"; // Green for high coverage (≥80%)
+    if (score >= 50) return "#eab308"; // Yellow for medium coverage (50-79%)
+    return "#ef4444"; // Red for low coverage (<50%)
   };
 
   // Sort colleges by alignment score

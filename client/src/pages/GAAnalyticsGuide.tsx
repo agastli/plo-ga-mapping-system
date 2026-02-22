@@ -58,7 +58,7 @@ export default function GAAnalyticsGuide() {
           <CardContent className="space-y-4">
             <p className="text-gray-700">
               The Graduate Attributes (GA) Analytics dashboard provides comprehensive insights into how well
-              academic programs align with Qatar University's seven Graduate Attributes. Each GA represents
+              academic programs align with Qatar University's five Graduate Attributes. Each GA represents
               a key competency area that graduates should demonstrate upon completion of their programs.
             </p>
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
@@ -71,47 +71,68 @@ export default function GAAnalyticsGuide() {
           </CardContent>
         </Card>
 
-        {/* The 7 Graduate Attributes */}
+        {/* The 5 Graduate Attributes */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl text-[#8B1538]">🎯 The Seven Graduate Attributes</CardTitle>
+            <CardTitle className="text-2xl text-[#8B1538]">🎯 The Five Graduate Attributes</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="border-l-4 border-[#8B1538] pl-4">
-                <h3 className="font-bold text-lg">GA1: Knowledge & Understanding</h3>
-                <p className="text-gray-600">Subject-matter mastery, problem-solving, research skills, and lifelong learning</p>
+                <h3 className="font-bold text-lg">GA1: Competent</h3>
+                <p className="text-gray-600">Subject-matter mastery, critical thinking, problem-solving, and research skills</p>
                 <p className="text-sm text-gray-500 mt-1">Competencies: C1-1, C1-2, C1-3, C1-4</p>
+                <ul className="list-disc list-inside text-sm text-gray-600 mt-2 ml-4">
+                  <li>C1-1: Subject-matter mastery</li>
+                  <li>C1-2: Critical-thinking skills</li>
+                  <li>C1-3: Problem-solving skills</li>
+                  <li>C1-4: Research, and Novel and Adaptive Thinking</li>
+                </ul>
               </div>
               <div className="border-l-4 border-[#A91D3A] pl-4">
-                <h3 className="font-bold text-lg">GA2: Critical Thinking & Problem Solving</h3>
-                <p className="text-gray-600">Analytical thinking, creative problem-solving, and evidence-based decision making</p>
+                <h3 className="font-bold text-lg">GA2: Life-long Learner</h3>
+                <p className="text-gray-600">Self-awareness, adaptability, and continuous learning mindset</p>
                 <p className="text-sm text-gray-500 mt-1">Competencies: C2-1, C2-2, C2-3, C2-4</p>
+                <ul className="list-disc list-inside text-sm text-gray-600 mt-2 ml-4">
+                  <li>C2-1: Self-awareness</li>
+                  <li>C2-2: Adaptability</li>
+                  <li>C2-3: Adaptive Thinking</li>
+                  <li>C2-4: Desire for life-long learning</li>
+                </ul>
               </div>
               <div className="border-l-4 border-[#C73E1D] pl-4">
-                <h3 className="font-bold text-lg">GA3: Communication & Collaboration</h3>
-                <p className="text-gray-600">Effective communication, teamwork, and interpersonal skills</p>
+                <h3 className="font-bold text-lg">GA3: Well Rounded</h3>
+                <p className="text-gray-600">Cultural awareness, effective communication, and global perspective</p>
                 <p className="text-sm text-gray-500 mt-1">Competencies: C3-1, C3-2, C3-3</p>
+                <ul className="list-disc list-inside text-sm text-gray-600 mt-2 ml-4">
+                  <li>C3-1: Cultured</li>
+                  <li>C3-2: Effective communication skills</li>
+                  <li>C3-3: Awareness of local and international issues</li>
+                </ul>
               </div>
               <div className="border-l-4 border-[#D4A017] pl-4">
-                <h3 className="font-bold text-lg">GA4: Global & Cultural Awareness</h3>
-                <p className="text-gray-600">Cultural sensitivity, global perspective, and ethical awareness</p>
+                <h3 className="font-bold text-lg">GA4: Ethically & Socially Responsible</h3>
+                <p className="text-gray-600">Arabic-Islamic identity, diversity appreciation, ethical conduct, and civic engagement</p>
                 <p className="text-sm text-gray-500 mt-1">Competencies: C4-1, C4-2, C4-3, C4-4, C4-5</p>
+                <ul className="list-disc list-inside text-sm text-gray-600 mt-2 ml-4">
+                  <li>C4-1: Embody the Arabic-Islamic identity</li>
+                  <li>C4-2: Embrace diversity</li>
+                  <li>C4-3: Professional and ethical conduct</li>
+                  <li>C4-4: Civically engaged</li>
+                  <li>C4-5: Community and Global Engagement</li>
+                </ul>
               </div>
               <div className="border-l-4 border-[#2E8B57] pl-4">
-                <h3 className="font-bold text-lg">GA5: Leadership & Autonomy</h3>
-                <p className="text-gray-600">Self-direction, initiative, and leadership capabilities</p>
-                <p className="text-sm text-gray-500 mt-1">Competencies: C5-1, C5-2, C5-3</p>
-              </div>
-              <div className="border-l-4 border-[#4682B4] pl-4">
-                <h3 className="font-bold text-lg">GA6: Digital Literacy</h3>
-                <p className="text-gray-600">Technology proficiency and digital communication skills</p>
-                <p className="text-sm text-gray-500 mt-1">Competencies: C6-1, C6-2</p>
-              </div>
-              <div className="border-l-4 border-[#8B4789] pl-4">
-                <h3 className="font-bold text-lg">GA7: Professionalism & Ethics</h3>
-                <p className="text-gray-600">Professional conduct, ethical behavior, and social responsibility</p>
-                <p className="text-sm text-gray-500 mt-1">Competencies: C7-1, C7-2, C7-3</p>
+                <h3 className="font-bold text-lg">GA5: Entrepreneurial</h3>
+                <p className="text-gray-600">Creativity, innovation, collaboration, management, and leadership</p>
+                <p className="text-sm text-gray-500 mt-1">Competencies: C5-1, C5-2, C5-3, C5-4, C5-5</p>
+                <ul className="list-disc list-inside text-sm text-gray-600 mt-2 ml-4">
+                  <li>C5-1: Creativity and innovation</li>
+                  <li>C5-2: Collaborative</li>
+                  <li>C5-3: Management</li>
+                  <li>C5-4: Interpersonal</li>
+                  <li>C5-5: Leadership</li>
+                </ul>
               </div>
             </div>
           </CardContent>
@@ -202,7 +223,7 @@ export default function GAAnalyticsGuide() {
                 The shape reveals balance (or imbalance) in GA emphasis.
               </p>
               <p className="text-sm text-gray-600 mt-2">
-                <strong>Ideal Shape:</strong> A relatively balanced polygon indicates comprehensive GA coverage.
+                <strong>Ideal Shape:</strong> A relatively balanced pentagon indicates comprehensive GA coverage.
               </p>
             </div>
 
@@ -213,7 +234,7 @@ export default function GAAnalyticsGuide() {
                 higher alignment scores.
               </p>
               <p className="text-sm text-gray-600 mt-2">
-                <strong>Insight:</strong> Reveals disciplinary patterns in GA emphasis (e.g., Engineering may emphasize GA1 & GA6).
+                <strong>Insight:</strong> Reveals disciplinary patterns in GA emphasis (e.g., Engineering may emphasize GA1 & GA5).
               </p>
             </div>
           </CardContent>
