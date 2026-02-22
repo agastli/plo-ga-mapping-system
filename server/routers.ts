@@ -584,18 +584,34 @@ export const appRouter = router({
       }),
     
     // Graduate Attribute Analytics
-    gaAnalytics: publicProcedure.query(async () => {
-      return await db.getGAAnalytics();
-    }),
+    gaAnalytics: publicProcedure
+      .input(z.object({
+        collegeId: z.number().optional(),
+        programId: z.number().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        if (!input || (!input.collegeId && !input.programId)) {
+          return await db.getGAAnalytics();
+        }
+        return await db.getFilteredGAAnalytics(input);
+      }),
     
     gaByCollegeAnalytics: publicProcedure.query(async () => {
       return await db.getGAByCollegeAnalytics();
     }),
     
     // Competency Analytics
-    competencyAnalytics: publicProcedure.query(async () => {
-      return await db.getCompetencyAnalytics();
-    }),
+    competencyAnalytics: publicProcedure
+      .input(z.object({
+        collegeId: z.number().optional(),
+        programId: z.number().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        if (!input || (!input.collegeId && !input.programId)) {
+          return await db.getCompetencyAnalytics();
+        }
+        return await db.getFilteredCompetencyAnalytics(input);
+      }),
     
     competencyByDepartmentAnalytics: publicProcedure.query(async () => {
       return await db.getCompetencyByDepartmentAnalytics();

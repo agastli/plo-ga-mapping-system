@@ -995,3 +995,187 @@ export async function getCompetencyByDepartmentAnalytics() {
     departmentList: allDepartments.map((d) => ({ code: d.code, nameEn: d.nameEn, nameAr: d.nameAr })),
   };
 }
+
+/**
+ * Get GA analytics with optional filters (college or program)
+ * @param filters - Optional filters: { collegeId?: number, programId?: number }
+ */
+export async function getFilteredGAAnalytics(filters?: { collegeId?: number; programId?: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get all GAs
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.code);
+  
+  // Get filtered programs
+  let filteredPrograms = await db.select().from(programs);
+  
+  if (filters?.programId) {
+    // Filter by specific program
+    filteredPrograms = filteredPrograms.filter((p) => p.id === filters.programId);
+  } else if (filters?.collegeId) {
+    // Filter by college (get departments first, then programs)
+    const collegeDepartments = await db.select().from(departments).where(eq(departments.collegeId, filters.collegeId));
+    const deptIds = collegeDepartments.map((d) => d.id);
+    filteredPrograms = filteredPrograms.filter((p) => deptIds.includes(p.departmentId));
+  }
+  
+  // Get all competencies
+  const allCompetencies = await db.select().from(competencies);
+  
+  // Get all mappings
+  const allMappings = await db.select().from(mappings);
+  
+  // Get all PLOs
+  const allPLOs = await db.select().from(plos);
+
+  const gaStats = allGAs.map((ga) => {
+    // Get competencies for this GA
+    const gaCompetencies = allCompetencies.filter((c) => c.gaId === ga.id);
+    const gaCompetencyIds = gaCompetencies.map((c) => c.id);
+
+    // Count programs that have mappings to this GA's competencies
+    const programsWithGA = new Set<number>();
+    let totalWeight = 0;
+    let totalPossibleWeight = 0;
+
+    filteredPrograms.forEach((program) => {
+      const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+      const programMappings = allMappings.filter(
+        (m) => programPLOs.some((plo) => plo.id === m.ploId) && gaCompetencyIds.includes(m.competencyId)
+      );
+
+      if (programMappings.length > 0 && programMappings.some((m) => parseFloat(m.weight) > 0)) {
+        programsWithGA.add(program.id);
+      }
+
+      // Calculate weight for this program
+      const programWeight = programMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
+      totalWeight += programWeight;
+      totalPossibleWeight += gaCompetencies.length * programPLOs.length;
+    });
+
+    // Calculate average alignment score
+    const avgScore = totalPossibleWeight > 0 ? (totalWeight / totalPossibleWeight) * 100 : 0;
+
+    // Calculate coverage rate (% of programs that map to this GA)
+    const coverageRate = filteredPrograms.length > 0 ? (programsWithGA.size / filteredPrograms.length) * 100 : 0;
+
+    return {
+      gaId: ga.id,
+      gaCode: ga.code,
+      gaNameEn: ga.nameEn,
+      gaNameAr: ga.nameAr,
+      programCount: programsWithGA.size,
+      totalPrograms: filteredPrograms.length,
+      coverageRate: Math.round(coverageRate * 100) / 100,
+      avgAlignmentScore: Math.round(avgScore * 100) / 100,
+      totalWeight: Math.round(totalWeight * 100) / 100,
+      competencyCount: gaCompetencies.length,
+    };
+  });
+
+  return {
+    gaStats,
+    totalGAs: allGAs.length,
+    totalPrograms: filteredPrograms.length,
+  };
+}
+
+/**
+ * Get Competency analytics with optional filters (college or program)
+ * @param filters - Optional filters: { collegeId?: number, programId?: number }
+ */
+export async function getFilteredCompetencyAnalytics(filters?: { collegeId?: number; programId?: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get all competencies
+  const allCompetencies = await db.select().from(competencies);
+  
+  // Get filtered programs
+  let filteredPrograms = await db.select().from(programs);
+  
+  if (filters?.programId) {
+    // Filter by specific program
+    filteredPrograms = filteredPrograms.filter((p) => p.id === filters.programId);
+  } else if (filters?.collegeId) {
+    // Filter by college (get departments first, then programs)
+    const collegeDepartments = await db.select().from(departments).where(eq(departments.collegeId, filters.collegeId));
+    const deptIds = collegeDepartments.map((d) => d.id);
+    filteredPrograms = filteredPrograms.filter((p) => deptIds.includes(p.departmentId));
+  }
+  
+  // Get all mappings
+  const allMappings = await db.select().from(mappings);
+  
+  // Get all PLOs
+  const allPLOs = await db.select().from(plos);
+  
+  // Get all justifications
+  const allJustifications = await db.select().from(justifications);
+
+  const competencyStats = allCompetencies.map((comp) => {
+    // Count programs that have mappings to this competency
+    const programsWithComp = new Set<number>();
+    let totalWeight = 0;
+    let mappingCount = 0;
+    let justificationCount = 0;
+
+    filteredPrograms.forEach((program) => {
+      const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+      const programMappings = allMappings.filter(
+        (m) => programPLOs.some((plo) => plo.id === m.ploId) && m.competencyId === comp.id
+      );
+
+      if (programMappings.length > 0 && programMappings.some((m) => parseFloat(m.weight) > 0)) {
+        programsWithComp.add(program.id);
+      }
+
+      // Calculate weight for this program
+      programMappings.forEach((m) => {
+        const weight = parseFloat(m.weight);
+        if (weight > 0) {
+          totalWeight += weight;
+          mappingCount++;
+        }
+      });
+
+      // Count justifications for this competency in this program
+      const programJustifications = allJustifications.filter(
+        (j) => j.programId === program.id && j.competencyId === comp.id
+      );
+      justificationCount += programJustifications.length;
+    });
+
+    // Calculate average weight
+    const avgWeight = mappingCount > 0 ? totalWeight / mappingCount : 0;
+
+    // Calculate coverage rate (% of programs that map to this competency)
+    const coverageRate = filteredPrograms.length > 0 ? (programsWithComp.size / filteredPrograms.length) * 100 : 0;
+    
+    // Justification completeness (% of programs with justifications)
+    const justificationRate = filteredPrograms.length > 0 ? (justificationCount / filteredPrograms.length) * 100 : 0;
+
+    return {
+      competencyId: comp.id,
+      competencyCode: comp.code,
+      competencyNameEn: comp.nameEn,
+      competencyNameAr: comp.nameAr,
+      gaId: comp.gaId,
+      programCount: programsWithComp.size,
+      totalPrograms: filteredPrograms.length,
+      coverageRate: Math.round(coverageRate * 100) / 100,
+      avgWeight: Math.round(avgWeight * 100) / 100,
+      mappingCount,
+      justificationCount,
+      justificationRate: Math.round(justificationRate * 100) / 100,
+    };
+  });
+
+  return {
+    competencyStats,
+    totalCompetencies: allCompetencies.length,
+    totalPrograms: filteredPrograms.length,
+  };
+}

@@ -689,3 +689,14 @@
 - [x] Update chart titles to reflect all competencies
 - [x] Test the updated charts
 - [ ] Save checkpoint and push to GitHub
+
+## Phase 52: Add Filtering to GA and Competency Analytics
+- [x] Add database queries for filtered GA analytics (by college, by program)
+- [x] Add database queries for filtered Competency analytics (by college, by program)
+- [x] Update tRPC endpoints to accept filter parameters (collegeId, programId)
+- [x] Add filter dropdowns to GAAnalytics.tsx (University/College/Program)
+- [x] Add filter dropdowns to CompetencyAnalytics.tsx (University/College/Program)
+- [x] Implement filter UI with current view display
+- [x] Update charts to reflect filtered data (automatic via query input)
+- [x] Test all filter combinations
+- [ ] Save checkpoint and push to GitHub
