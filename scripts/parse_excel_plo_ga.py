@@ -50,7 +50,8 @@ def parse_excel_plo_ga(filepath):
     Parse Excel file containing PLO-GA mappings
     
     Expected structure:
-    - Sheet named "Justifications" (or first sheet if not found)
+    - Sheet "Program Information": Contains program name, college, department
+    - Sheet "Justifications": Contains competency mappings and justifications
     - Column A: Competency Code (e.g., C1-1, GA1)
     - Column B: Competency Name
     - Column C: Mapped PLOs (e.g., "PLO6 (1.00)" or "PLO4 (0.51) & PLO2 (0.49)")
@@ -60,11 +61,40 @@ def parse_excel_plo_ga(filepath):
     """
     wb = openpyxl.load_workbook(filepath, data_only=True)
     
-    # Try to find "Justifications" sheet, otherwise use first sheet
+    # Extract program information from "Program Information" sheet
+    program_name = None
+    college_name = None
+    department_name = None
+    language = "en"
+    
+    if "Program Information" in wb.sheetnames:
+        info_ws = wb["Program Information"]
+        for row in info_ws.iter_rows(min_row=2, max_row=10, values_only=True):
+            if not row[0]:
+                continue
+            field = str(row[0]).strip()
+            value = str(row[1]).strip() if row[1] else None
+            
+            if field == "Program Name" and value:
+                program_name = value
+            elif field == "College" and value:
+                college_name = value
+            elif field == "Department" and value:
+                department_name = value
+            elif field == "Language" and value:
+                language = "ar" if "arabic" in value.lower() else "en"
+    
+    # Find "Justifications" sheet for mappings
     if "Justifications" in wb.sheetnames:
         ws = wb["Justifications"]
+    elif "Mapping" in wb.sheetnames:
+        ws = wb["Mapping"]
     else:
-        ws = wb[wb.sheetnames[0]]
+        # Skip "Program Information" sheet if it exists
+        for sheet_name in wb.sheetnames:
+            if sheet_name != "Program Information":
+                ws = wb[sheet_name]
+                break
     
     # Collect all unique PLOs mentioned in the document
     plo_set = set()
@@ -142,10 +172,10 @@ def parse_excel_plo_ga(filepath):
         "success": True,
         "data": {
             "programInfo": {
-                "programNameEn": "Extracted from Excel",
-                "departmentEn": "See selection",
-                "collegeEn": "See selection",
-                "language": doc_language
+                "programNameEn": program_name or "Extracted from Excel",
+                "departmentEn": department_name or "See selection",
+                "collegeEn": college_name or "See selection",
+                "language": language if language != "en" else doc_language
             },
             "plos": plos_list,
             "mappings": mappings_list,

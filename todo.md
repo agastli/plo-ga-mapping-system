@@ -752,3 +752,10 @@
 - [ ] Test with English Excel file (BS Chemical Engineering)
 - [ ] Test with Arabic Excel file (BA Creed and Dawa)
 - [ ] Save checkpoint and push to GitHub
+
+## Phase 73: Extract Program/College Names from Excel for Verification
+- [ ] Analyze Excel file structure to find program, college, and department name locations
+- [ ] Update parse_excel_plo_ga.py to extract actual names from Excel file
+- [ ] Display extracted names in parsing results UI for verification
+- [ ] Test with BS Chemical Engineering Excel file
+- [ ] Push changes to GitHub
