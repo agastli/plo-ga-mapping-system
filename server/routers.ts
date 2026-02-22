@@ -335,8 +335,8 @@ export const appRouter = router({
         programId: z.number(),
         plos: z.array(z.object({
           code: z.string(),
-          descriptionEn: z.string().optional(),
-          descriptionAr: z.string().optional(),
+          descriptionEn: z.string().nullable().optional(),
+          descriptionAr: z.string().nullable().optional(),
           sortOrder: z.number(),
         })),
         mappings: z.array(z.object({
@@ -347,8 +347,8 @@ export const appRouter = router({
         justifications: z.array(z.object({
           gaCode: z.string(),
           competencyCode: z.string(),
-          textEn: z.string().optional(),
-          textAr: z.string().optional(),
+          textEn: z.string().nullable().optional(),
+          textAr: z.string().nullable().optional(),
         })),
       }))
       .mutation(async ({ input, ctx }) => {
@@ -369,7 +369,10 @@ export const appRouter = router({
         for (const ploData of input.plos) {
           const id = await db.upsertPLO({
             programId: input.programId,
-            ...ploData,
+            code: ploData.code,
+            descriptionEn: ploData.descriptionEn ?? '',
+            descriptionAr: ploData.descriptionAr ?? '',
+            sortOrder: ploData.sortOrder,
           });
           ploMap.set(ploData.code, id);
         }
@@ -414,8 +417,8 @@ export const appRouter = router({
               programId: input.programId,
               gaId,
               competencyId,
-              textEn: justification.textEn,
-              textAr: justification.textAr,
+              textEn: justification.textEn ?? '',
+              textAr: justification.textAr ?? '',
             });
           }
         }

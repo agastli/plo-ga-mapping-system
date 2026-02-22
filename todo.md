@@ -761,8 +761,23 @@
 - [ ] Push changes to GitHub
 
 ## Phase 74: Fix Mapping Count Display and Data Replacement
-- [ ] Update Upload.tsx to show "20 non-zero mappings found, 147 total mappings will be created"
-- [ ] Fix warning message to say "Existing data WILL be replaced" instead of "will not be overwritten"
-- [ ] Verify backend deletes all old mappings before creating new ones
-- [ ] Test import to confirm 147 mappings are created in database
-- [ ] Push changes to GitHub
+- [x] Update Upload.tsx to show "20 non-zero mappings found, 147 total mappings will be created"
+- [x] Fix warning message to say "Existing data WILL be replaced" instead of "will not be overwritten"
+- [x] Verify backend deletes all old mappings before creating new ones
+- [x] Test import to confirm 147 mappings are created in database
+- [x] Push changes to GitHub
+
+## Phase 75: Fix Justification Validation Error
+- [ ] Update backend to accept null justifications and convert to empty strings
+- [ ] Update Excel parser to default null justifications to empty string
+- [ ] Test import with BS Chemical Engineering Excel file
+- [ ] Push fix to GitHub
+
+## Phase 76: Fix All Null Validation Errors and Verify 147 Mappings
+- [ ] Fix PLO description validation to accept null (descriptionEn, descriptionAr)
+- [ ] Fix justification validation to accept null (textEn, textAr)
+- [ ] Convert all null values to empty strings before database insert
+- [ ] Verify backend code creates all 147 mappings (7 PLOs × 21 competencies)
+- [ ] Test import with BS Chemical Engineering Excel file
+- [ ] Query database to confirm 147 mappings were created
+- [ ] Push all fixes to GitHub
