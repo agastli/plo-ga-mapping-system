@@ -296,9 +296,8 @@ export default function CompetencyAnalytics() {
         </div>
 
         {/* Charts Section - Wrapped for Export */}
-        <div ref={chartRef} style={{ backgroundColor: '#ffffff', color: '#000000' }}>
         {/* All Competencies by Coverage */}
-        <Card className="mb-8">
+        <Card className="mb-8" ref={chartRef}>
           <CardHeader>
             <CardTitle>All Competencies by Coverage Rate</CardTitle>
             <p className="text-sm text-gray-600">
@@ -594,7 +593,6 @@ export default function CompetencyAnalytics() {
             </div>
           </CardContent>
         </Card>
-        </div>
         {/* End Charts Section */}
 
       </div>

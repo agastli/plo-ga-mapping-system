@@ -882,3 +882,5 @@
 - [ ] Commit changes with git
 - [ ] Push to GitHub
 - [ ] Verify changes are visible on GitHub
+
+- [x] Fix PDF, Word, and PNG export failures - html2canvas OKLCH color parsing errors - Applied working approach from Analytics.tsx
