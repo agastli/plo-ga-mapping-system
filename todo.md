@@ -989,3 +989,10 @@
 - [x] Add route to App.tsx for /programs/new
 - [x] Add navigation link from Programs list page
 - [ ] Test complete workflow and verify all data persistence
+
+## Phase 42: Make PLOs/Mappings/Justifications Optional in Add Program Form
+- [x] Update form validation to make Steps 2-4 optional (only Step 1 required)
+- [x] Add "Skip" button for Steps 2-4 to allow quick program creation
+- [x] Update submission logic to handle programs without PLOs
+- [x] Allow form submission from Step 1 directly
+- [ ] Test creating program with only basic info and verify it works

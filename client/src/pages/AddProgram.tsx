@@ -160,9 +160,9 @@ export default function AddProgram() {
   };
   
   const validateStep2 = () => {
+    // Step 2 is optional - only validate if PLOs exist
     if (plos.length === 0) {
-      toast.error("Please add at least one PLO");
-      return false;
+      return true; // Allow empty PLOs
     }
     for (const plo of plos) {
       if (!plo.descriptionEn.trim() && !plo.descriptionAr.trim()) {
@@ -174,10 +174,10 @@ export default function AddProgram() {
   };
   
   const validateStep3 = () => {
+    // Step 3 is optional - only validate if mappings exist
     const nonEmptyMappings = mappings.filter(m => m.weight.trim() !== "");
     if (nonEmptyMappings.length === 0) {
-      toast.error("Please add at least one mapping with a weight");
-      return false;
+      return true; // Allow empty mappings
     }
     for (const mapping of nonEmptyMappings) {
       const weight = parseFloat(mapping.weight);
@@ -203,8 +203,16 @@ export default function AddProgram() {
   
   // Submit
   const handleSubmit = async () => {
-    if (!validateStep1() || !validateStep2() || !validateStep3()) {
-      toast.error("Please complete all required fields");
+    if (!validateStep1()) {
+      toast.error("Please complete all required fields in Program Information");
+      return;
+    }
+    
+    // Validate optional steps only if they have data
+    if (plos.length > 0 && !validateStep2()) {
+      return;
+    }
+    if (mappings.length > 0 && !validateStep3()) {
       return;
     }
     
@@ -687,23 +695,36 @@ export default function AddProgram() {
             Previous
           </Button>
           
-          {currentStep < 4 ? (
-            <Button
-              onClick={goToNextStep}
-              className="bg-[#8B1538] hover:bg-[#6B1028]"
-            >
-              Next
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              <Save className="mr-2 h-4 w-4" />
-              Create Program
-            </Button>
-          )}
+          <div className="flex gap-3">
+            {currentStep === 1 && (
+              <Button
+                onClick={handleSubmit}
+                variant="outline"
+                className="border-green-600 text-green-600 hover:bg-green-50"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                Create Program (Skip Details)
+              </Button>
+            )}
+            
+            {currentStep < 4 ? (
+              <Button
+                onClick={goToNextStep}
+                className="bg-[#8B1538] hover:bg-[#6B1028]"
+              >
+                {currentStep === 1 ? "Add PLOs (Optional)" : "Next"}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleSubmit}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                Create Program
+              </Button>
+            )}
+          </div>
         </div>
       </main>
     </div>
