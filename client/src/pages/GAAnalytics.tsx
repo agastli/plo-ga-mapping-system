@@ -152,11 +152,16 @@ export default function GAAnalytics() {
               </Link>
               {gaData && (
                 <AnalyticsExport
-                  title="Graduate Attributes Analytics"
+                  title={`Graduate Attributes Analytics${filterLevel === 'college' && selectedCollegeId ? ` - ${colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College'}` : filterLevel === 'program' && selectedProgramId ? ` - ${programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program'}` : ' - All Programs'}`}
                   chartRef={chartRef}
                   data={gaData}
                   type="ga"
-                  entityCode="GA_Analytics"
+                  entityCode={`GA_Analytics${filterLevel === 'college' && selectedCollegeId ? `_${colleges?.find(c => c.id === selectedCollegeId)?.code || 'College'}` : filterLevel === 'program' && selectedProgramId ? `_${programs?.find(p => p.program.id === selectedProgramId)?.program.code || 'Program'}` : '_All'}`}
+                  filterContext={{
+                    level: filterLevel,
+                    collegeName: filterLevel === 'college' && selectedCollegeId ? colleges?.find(c => c.id === selectedCollegeId)?.nameEn : undefined,
+                    programName: filterLevel === 'program' && selectedProgramId ? programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn : undefined,
+                  }}
                 />
               )}
             </div>

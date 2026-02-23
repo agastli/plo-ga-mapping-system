@@ -889,3 +889,6 @@
 - [x] Add color legends to all charts for better readability
 - [x] Add data labels on bars showing exact values
 - [x] Add Key Metrics Explained section to PDF and Word exports
+- [x] Add color legend to exported reports
+- [x] Add College/Program context information to exports
+- [x] Implement dynamic file names based on selected filters

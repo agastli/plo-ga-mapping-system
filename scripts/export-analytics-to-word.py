@@ -81,6 +81,24 @@ def create_analytics_word(data, output_path, logo_path):
         run.font.size = Pt(10)
         run.font.color.rgb = RGBColor(102, 102, 102)
     
+    # Filter context
+    if 'filter_context' in data and data['filter_context']:
+        filter_ctx = data['filter_context']
+        if filter_ctx.get('college_name'):
+            p = doc.add_paragraph()
+            run = p.add_run('College: ')
+            run.bold = True
+            run = p.add_run(filter_ctx['college_name'])
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            run.font.size = Pt(11)
+        if filter_ctx.get('program_name'):
+            p = doc.add_paragraph()
+            run = p.add_run('Program: ')
+            run.bold = True
+            run = p.add_run(filter_ctx['program_name'])
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            run.font.size = Pt(11)
+    
     doc.add_paragraph()  # Spacer
     
     # Key Metrics section
@@ -182,6 +200,40 @@ def create_analytics_word(data, output_path, logo_path):
         run = p.add_run('A higher count suggests more comprehensive integration of the GA across program learning outcomes.')
         
         doc.add_paragraph()  # Spacer
+        
+        # Add Color Legend section
+        if 'color_legend' in data:
+            heading = doc.add_heading('Chart Color Legend', level=2)
+            run = heading.runs[0]
+            run.font.color.rgb = RGBColor(139, 21, 56)
+            
+            doc.add_paragraph(
+                'The charts use color coding to indicate coverage performance levels:'
+            )
+            
+            # Create legend table
+            legend_table = doc.add_table(rows=4, cols=2)
+            legend_table.style = 'Light Grid Accent 1'
+            
+            # Header row
+            header_cells = legend_table.rows[0].cells
+            header_cells[0].text = 'Color'
+            header_cells[1].text = 'Meaning'
+            
+            # Data rows
+            legend_table.rows[1].cells[0].text = 'Green'
+            legend_table.rows[1].cells[1].text = data['color_legend'].get('green', 'High coverage')
+            legend_table.rows[2].cells[0].text = 'Yellow'
+            legend_table.rows[2].cells[1].text = data['color_legend'].get('yellow', 'Medium coverage')
+            legend_table.rows[3].cells[0].text = 'Red'
+            legend_table.rows[3].cells[1].text = data['color_legend'].get('red', 'Low coverage')
+            
+            # Set column widths
+            for row in legend_table.rows:
+                row.cells[0].width = Inches(1.5)
+                row.cells[1].width = Inches(4)
+            
+            doc.add_paragraph()  # Spacer
     
     # Add chart images if provided (each as separate section)
     if 'chart_images' in data and len(data['chart_images']) > 0:

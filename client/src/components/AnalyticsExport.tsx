@@ -17,9 +17,14 @@ interface AnalyticsExportProps {
   data: any;
   type: "university" | "college" | "department" | "ga" | "competency";
   entityCode?: string; // Optional entity code for clean filenames
+  filterContext?: {
+    level: string;
+    collegeName?: string;
+    programName?: string;
+  };
 }
 
-export default function AnalyticsExport({ title, chartRef, data, type, entityCode }: AnalyticsExportProps) {
+export default function AnalyticsExport({ title, chartRef, data, type, entityCode, filterContext }: AnalyticsExportProps) {
   const [isExporting, setIsExporting] = useState(false);
   
   // Generate clean filename based on entity code or title
@@ -138,6 +143,16 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
           minute: '2-digit',
           second: '2-digit'
         }),
+        filter_context: filterContext ? {
+          level: filterContext.level,
+          college_name: filterContext.collegeName,
+          program_name: filterContext.programName,
+        } : undefined,
+        color_legend: {
+          green: 'Coverage Rate > 85%',
+          yellow: 'Coverage Rate 70-85%',
+          red: 'Coverage Rate < 70%',
+        },
       };
 
       const result = await exportPDF.mutateAsync({ data: exportData });
@@ -254,6 +269,16 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
           minute: '2-digit',
           second: '2-digit'
         }),
+        filter_context: filterContext ? {
+          level: filterContext.level,
+          college_name: filterContext.collegeName,
+          program_name: filterContext.programName,
+        } : undefined,
+        color_legend: {
+          green: 'Coverage Rate > 85%',
+          yellow: 'Coverage Rate 70-85%',
+          red: 'Coverage Rate < 70%',
+        },
       };
 
       const result = await exportWord.mutateAsync({ data: exportData });

@@ -90,6 +90,22 @@ def create_analytics_pdf(data, output_path, logo_path):
         )
         elements.append(Paragraph(f"Generated on: {data['timestamp']}", timestamp_style))
     
+    # Add filter context if provided
+    if 'filter_context' in data and data['filter_context']:
+        context_style = ParagraphStyle(
+            'ContextStyle',
+            parent=styles['Normal'],
+            fontSize=11,
+            textColor=colors.HexColor('#333333'),
+            alignment=TA_CENTER,
+            spaceAfter=10
+        )
+        filter_ctx = data['filter_context']
+        if filter_ctx.get('college_name'):
+            elements.append(Paragraph(f"<b>College:</b> {filter_ctx['college_name']}", context_style))
+        if filter_ctx.get('program_name'):
+            elements.append(Paragraph(f"<b>Program:</b> {filter_ctx['program_name']}", context_style))
+    
     elements.append(Spacer(1, 0.3*inch))
     
     # Add summary metrics
@@ -184,6 +200,41 @@ def create_analytics_pdf(data, output_path, logo_path):
             styles['Normal']
         ))
         elements.append(Spacer(1, 0.3*inch))
+        
+        # Add Color Legend section
+        if 'color_legend' in data:
+            elements.append(Paragraph("Chart Color Legend", heading_style))
+            elements.append(Spacer(1, 0.1*inch))
+            elements.append(Paragraph(
+                "The charts use color coding to indicate coverage performance levels:",
+                styles['Normal']
+            ))
+            elements.append(Spacer(1, 0.1*inch))
+            
+            legend_data = [
+                ['Color', 'Meaning'],
+                ['Green', data['color_legend'].get('green', 'High coverage')],
+                ['Yellow', data['color_legend'].get('yellow', 'Medium coverage')],
+                ['Red', data['color_legend'].get('red', 'Low coverage')],
+            ]
+            
+            legend_table = Table(legend_data, colWidths=[1.5*inch, 4*inch])
+            legend_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#8B1538')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 11),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 10),
+                ('TOPPADDING', (0, 1), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+            ]))
+            elements.append(legend_table)
+            elements.append(Spacer(1, 0.3*inch))
     
     # Add chart images if provided (each as separate section)
     if 'chart_images' in data and len(data['chart_images']) > 0:
