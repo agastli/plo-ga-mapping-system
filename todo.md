@@ -1110,3 +1110,8 @@
 - [x] Add delete program endpoint with cascading deletes (PLOs, mappings, justifications)
 - [x] Update Home page button from "View Programs" to "Manage Programs"
 - [ ] Test delete program feature
+
+- [x] Make language field editable in program edit page (dropdown: English/Arabic/Both)
+- [x] Add delete PLO button with confirmation dialog
+- [x] Add new PLO form in edit page
+- [ ] Test language editing and PLO management features

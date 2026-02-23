@@ -8,7 +8,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Edit2, Save, X, Download, ChevronDown, Home } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { ArrowLeft, Edit2, Save, X, Download, ChevronDown, Home, Trash2, Plus } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -21,6 +31,8 @@ export default function ProgramDetail() {
 
   const { data: matrixData, refetch } = trpc.mappings.getMatrix.useQuery({ programId });
   const updatePLO = trpc.plos.update.useMutation();
+  const deletePLO = trpc.plos.delete.useMutation();
+  const createPLO = trpc.plos.create.useMutation();
   const updateMapping = trpc.mappings.upsert.useMutation();
   const updateJustification = trpc.justifications.upsert.useMutation();
   const exportDocument = trpc.export.generate.useMutation();
@@ -40,6 +52,10 @@ export default function ProgramDetail() {
   // Editing states
   const [editingPLO, setEditingPLO] = useState<number | null>(null);
   const [editingPLOText, setEditingPLOText] = useState("");
+  const [deletingPLO, setDeletingPLO] = useState<number | null>(null);
+  const [addingPLO, setAddingPLO] = useState(false);
+  const [newPLOCode, setNewPLOCode] = useState("");
+  const [newPLODescription, setNewPLODescription] = useState("");
   const [editingJustification, setEditingJustification] = useState<number | null>(null);
   const [editingJustificationText, setEditingJustificationText] = useState("");
   
@@ -48,6 +64,7 @@ export default function ProgramDetail() {
   const [editProgramNameEn, setEditProgramNameEn] = useState("");
   const [editProgramNameAr, setEditProgramNameAr] = useState("");
   const [editProgramCode, setEditProgramCode] = useState("");
+  const [editLanguage, setEditLanguage] = useState<"en" | "ar" | "both">("en");
   const [editCollegeId, setEditCollegeId] = useState<number | undefined>(undefined);
   const [editClusterId, setEditClusterId] = useState<number | undefined>(undefined);
   const [editDepartmentId, setEditDepartmentId] = useState<number | undefined>(undefined);
@@ -219,6 +236,7 @@ export default function ProgramDetail() {
                     setEditProgramNameEn(program.nameEn || "");
                     setEditProgramNameAr(program.nameAr || "");
                     setEditProgramCode(program.code || "");
+                    setEditLanguage(program.language as "en" | "ar" | "both");
                     const currentDept = allDepartments?.find(d => d.id === program.departmentId);
                     setEditCollegeId(currentDept?.collegeId);
                     setEditClusterId(currentDept?.clusterId || undefined);
@@ -249,6 +267,7 @@ export default function ProgramDetail() {
                           nameEn: editProgramNameEn || undefined,
                           nameAr: editProgramNameAr || undefined,
                           code: editProgramCode || undefined,
+                          language: editLanguage,
                           departmentId: editDepartmentId,
                         });
                         await refetch();
@@ -389,9 +408,21 @@ export default function ProgramDetail() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 font-medium mb-1">Language</p>
-                <p className="text-lg text-gray-900">
-                  {program.language === 'en' ? '🇬🇧 English' : program.language === 'ar' ? '🇶🇦 Arabic' : '🌐 Both'}
-                </p>
+                {editingProgram ? (
+                  <select
+                    value={editLanguage}
+                    onChange={(e) => setEditLanguage(e.target.value as "en" | "ar" | "both")}
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-lg"
+                  >
+                    <option value="en">🇬🇧 English</option>
+                    <option value="ar">🇶🇦 Arabic</option>
+                    <option value="both">🌐 Both</option>
+                  </select>
+                ) : (
+                  <p className="text-lg text-gray-900">
+                    {program.language === 'en' ? '🇬🇧 English' : program.language === 'ar' ? '🇶🇦 Arabic' : '🌐 Both'}
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-sm text-gray-600 font-medium mb-1">Last Updated</p>
@@ -440,14 +471,23 @@ export default function ProgramDetail() {
                         )}
                       </div>
                       {editingPLO !== plo.id && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => handleEditPLO(plo)}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditPLO(plo)}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => setDeletingPLO(plo.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -455,6 +495,90 @@ export default function ProgramDetail() {
               </div>
             ) : (
               <p className="text-gray-600">No PLOs defined for this program</p>
+            )}
+            
+            {/* Add New PLO Form */}
+            {addingPLO ? (
+              <div className="mt-4 p-4 border-2 border-dashed border-[#8B1538] rounded-lg">
+                <h4 className="font-semibold text-[#8B1538] mb-3">Add New PLO</h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">PLO Code *</label>
+                    <Input
+                      value={newPLOCode}
+                      onChange={(e) => setNewPLOCode(e.target.value)}
+                      placeholder="e.g., PLO7"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Description *</label>
+                    <Textarea
+                      value={newPLODescription}
+                      onChange={(e) => setNewPLODescription(e.target.value)}
+                      placeholder="Enter PLO description"
+                      rows={3}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        if (!newPLOCode || !newPLODescription) {
+                          toast.error("Please fill in all fields");
+                          return;
+                        }
+                        try {
+                          const sortOrder = (plos?.length || 0) + 1;
+                          await createPLO.mutateAsync({
+                            programId,
+                            code: newPLOCode,
+                            descriptionEn: program?.language === 'ar' ? undefined : newPLODescription,
+                            descriptionAr: program?.language === 'en' ? undefined : newPLODescription,
+                            sortOrder,
+                          });
+                          await refetch();
+                          toast.success("PLO added successfully");
+                          setAddingPLO(false);
+                          setNewPLOCode("");
+                          setNewPLODescription("");
+                        } catch (error) {
+                          toast.error("Failed to add PLO");
+                        }
+                      }}
+                      className="bg-[#8B1538] hover:bg-[#6B1028]"
+                    >
+                      <Save className="mr-1 h-3 w-3" />
+                      Save PLO
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setAddingPLO(false);
+                        setNewPLOCode("");
+                        setNewPLODescription("");
+                      }}
+                    >
+                      <X className="mr-1 h-3 w-3" />
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAddingPLO(true)}
+                  className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add New PLO
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -615,6 +739,39 @@ export default function ProgramDetail() {
         </div>
       </footer>
       </div>
+      
+      {/* Delete PLO Confirmation Dialog */}
+      <AlertDialog open={deletingPLO !== null} onOpenChange={() => setDeletingPLO(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete PLO?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this PLO and all its associated mappings and justifications.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={async () => {
+                if (deletingPLO) {
+                  try {
+                    await deletePLO.mutateAsync({ id: deletingPLO });
+                    await refetch();
+                    toast.success("PLO deleted successfully");
+                    setDeletingPLO(null);
+                  } catch (error) {
+                    toast.error("Failed to delete PLO");
+                  }
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
