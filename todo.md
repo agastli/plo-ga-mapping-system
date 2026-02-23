@@ -884,3 +884,4 @@
 - [ ] Verify changes are visible on GitHub
 
 - [x] Fix PDF, Word, and PNG export failures - html2canvas OKLCH color parsing errors - Applied working approach from Analytics.tsx
+- [x] Fix PDF/Word/PNG exports - added explicit white background and black text to wrapper div
