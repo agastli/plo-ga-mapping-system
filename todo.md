@@ -1027,3 +1027,13 @@
 - [ ] Create cluster management page for admins to assign departments to clusters
 - [ ] Test cluster analytics with CAS data
 - [ ] Verify backward compatibility with non-clustered colleges
+
+## Phase 46: Complete Remaining Cluster Features
+- [x] Add cluster display to ProgramDetail breadcrumbs (College > Cluster > Department > Program)
+- [x] Add cluster selection to ProgramDetail edit mode with cascading dropdowns
+- [x] Initialize edit state with current cluster when editing program
+- [x] Add cluster filter dropdown to UnifiedAnalytics dashboard
+- [x] Update analytics queries to support cluster-level filtering
+- [x] Create ClusterManagement admin page with department assignment interface
+- [x] Add route for /admin/clusters in App.tsx
+- [ ] Test complete cluster workflow (create, view, edit, analytics, management)

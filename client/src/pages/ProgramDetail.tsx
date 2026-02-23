@@ -219,6 +219,9 @@ export default function ProgramDetail() {
                     setEditProgramNameEn(program.nameEn || "");
                     setEditProgramNameAr(program.nameAr || "");
                     setEditProgramCode(program.code || "");
+                    const currentDept = allDepartments?.find(d => d.id === program.departmentId);
+                    setEditCollegeId(currentDept?.collegeId);
+                    setEditClusterId(currentDept?.clusterId || undefined);
                     setEditDepartmentId(program.departmentId);
                   }}
                   className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10"
@@ -310,10 +313,11 @@ export default function ProgramDetail() {
                 <p className="text-sm text-gray-600 font-medium mb-1">College</p>
                 {editingProgram ? (
                   <select
-                    value={allDepartments?.find(d => d.id === editDepartmentId)?.collegeId || ""}
+                    value={editCollegeId || ""}
                     onChange={(e) => {
                       const collegeId = parseInt(e.target.value);
-                      // Reset department when college changes
+                      setEditCollegeId(collegeId);
+                      setEditClusterId(undefined);
                       setEditDepartmentId(undefined);
                     }}
                     className="w-full h-10 px-3 rounded-md border border-input bg-background text-lg"
@@ -329,6 +333,32 @@ export default function ProgramDetail() {
                   <p className="text-lg text-gray-900">{matrixData?.college?.nameEn || matrixData?.college?.nameAr || 'N/A'}</p>
                 )}
               </div>
+              {/* Cluster field - only show if college has clusters */}
+              {(editingProgram && allClusters?.filter(c => c.collegeId === editCollegeId).length > 0) || (!editingProgram && matrixData?.cluster) ? (
+                <div>
+                  <p className="text-sm text-gray-600 font-medium mb-1">Cluster</p>
+                  {editingProgram ? (
+                    <select
+                      value={editClusterId || ""}
+                      onChange={(e) => {
+                        setEditClusterId(parseInt(e.target.value));
+                        setEditDepartmentId(undefined);
+                      }}
+                      className="w-full h-10 px-3 rounded-md border border-input bg-background text-lg"
+                      disabled={!editCollegeId}
+                    >
+                      <option value="">Select cluster</option>
+                      {allClusters?.filter(c => c.collegeId === editCollegeId).map(cluster => (
+                        <option key={cluster.id} value={cluster.id}>
+                          {cluster.nameEn}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p className="text-lg text-gray-900">{matrixData?.cluster?.nameEn || matrixData?.cluster?.nameAr || 'N/A'}</p>
+                  )}
+                </div>
+              ) : null}
               <div>
                 <p className="text-sm text-gray-600 font-medium mb-1">Department</p>
                 {editingProgram ? (
@@ -341,8 +371,11 @@ export default function ProgramDetail() {
                     <option value="">Select department</option>
                     {allDepartments
                       ?.filter(dept => {
-                        const currentCollege = allDepartments.find(d => d.id === editDepartmentId)?.collegeId;
-                        return currentCollege ? dept.collegeId === currentCollege : true;
+                        // Filter by college
+                        if (editCollegeId && dept.collegeId !== editCollegeId) return false;
+                        // If cluster is selected, filter by cluster
+                        if (editClusterId && dept.clusterId !== editClusterId) return false;
+                        return true;
                       })
                       .map(dept => (
                         <option key={dept.id} value={dept.id}>

@@ -374,17 +374,21 @@ export default function UnifiedAnalytics() {
     }
   };
 
-  const [filterLevel, setFilterLevel] = useState<"university" | "college" | "program">("university");
+  const [filterLevel, setFilterLevel] = useState<"university" | "college" | "cluster" | "program">("university");
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>(undefined);
+  const [selectedClusterId, setSelectedClusterId] = useState<number | undefined>(undefined);
   const [selectedProgramId, setSelectedProgramId] = useState<number | undefined>(undefined);
 
-  // Fetch colleges and programs for filters
+  // Fetch colleges, clusters, and programs for filters
   const { data: colleges } = trpc.colleges.list.useQuery();
+  const { data: clusters } = trpc.clusters.list.useQuery();
   const { data: programs } = trpc.programs.list.useQuery();
 
   // Build filter input based on selection
   const filterInput = filterLevel === "college" && selectedCollegeId
     ? { collegeId: selectedCollegeId }
+    : filterLevel === "cluster" && selectedClusterId
+    ? { clusterId: selectedClusterId }
     : filterLevel === "program" && selectedProgramId
     ? { programId: selectedProgramId }
     : undefined;
@@ -544,20 +548,22 @@ export default function UnifiedAnalytics() {
                 <select
                   value={filterLevel}
                   onChange={(e) => {
-                    setFilterLevel(e.target.value as "university" | "college" | "program");
+                    setFilterLevel(e.target.value as "university" | "college" | "cluster" | "program");
                     setSelectedCollegeId(undefined);
+                    setSelectedClusterId(undefined);
                     setSelectedProgramId(undefined);
                   }}
                   className="w-full border border-gray-300 rounded-md px-3 py-2"
                 >
                   <option value="university">University-wide</option>
                   <option value="college">By College</option>
+                  <option value="cluster">By Cluster</option>
                   <option value="program">By Program</option>
                 </select>
               </div>
 
               {/* College Filter */}
-              {filterLevel !== "university" && (
+              {(filterLevel === "college" || filterLevel === "cluster" || filterLevel === "program") && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     College
@@ -567,6 +573,7 @@ export default function UnifiedAnalytics() {
                     onChange={(e) => {
                       const collegeId = e.target.value ? Number(e.target.value) : undefined;
                       setSelectedCollegeId(collegeId);
+                      setSelectedClusterId(undefined);
                       setSelectedProgramId(undefined);
                     }}
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
@@ -575,6 +582,30 @@ export default function UnifiedAnalytics() {
                     {colleges?.map((college) => (
                       <option key={college.id} value={college.id}>
                         {college.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Cluster Filter */}
+              {filterLevel === "cluster" && selectedCollegeId && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Cluster
+                  </label>
+                  <select
+                    value={selectedClusterId || ""}
+                    onChange={(e) => {
+                      const clusterId = e.target.value ? Number(e.target.value) : undefined;
+                      setSelectedClusterId(clusterId);
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  >
+                    <option value="">Select Cluster</option>
+                    {clusters?.filter(c => c.collegeId === selectedCollegeId).map((cluster) => (
+                      <option key={cluster.id} value={cluster.id}>
+                        {cluster.nameEn}
                       </option>
                     ))}
                   </select>
