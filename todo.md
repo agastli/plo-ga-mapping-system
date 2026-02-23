@@ -906,9 +906,11 @@
 - [x] Fix getProgramAnalytics to use same hierarchical calculation as university-wide GA analytics
 - [x] Rewrite GA calculation: competency score = SUM of weights, GA score = AVERAGE of competency scores
 - [x] Update all documentation and guides to reflect new SUM-based calculation methodology
-- [ ] Merge GA Analytics and Competency Analytics into unified dashboard
-- [ ] Combine GA and Competency charts into single page with tabs or sections
-- [ ] Update navigation to remove separate GA/Competency menu items
-- [ ] Consolidate export functionality for unified analytics
+- [x] Merge GA Analytics and Competency Analytics into unified dashboard
+- [x] Combine GA and Competency charts into single page with tabs or sections
+- [x] Update navigation to remove separate GA/Competency menu items
+- [x] Consolidate export functionality for unified analytics
 - [ ] Update analytics guide to reflect unified dashboard
 - [ ] Remove separate GAAnalytics and CompetencyAnalytics pages
+- [x] Simplify charts: one chart for GAs (alignment scores), one chart for Competencies (average weights)
+- [x] Remove duplicate/redundant charts from unified dashboard

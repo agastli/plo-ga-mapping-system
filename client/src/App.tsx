@@ -17,6 +17,7 @@ import GAAnalytics from "./pages/GAAnalytics";
 import GAAnalyticsGuide from "./pages/GAAnalyticsGuide";
 import CompetencyAnalytics from "./pages/CompetencyAnalytics";
 import CompetencyAnalyticsGuide from "./pages/CompetencyAnalyticsGuide";
+import UnifiedAnalytics from "./pages/UnifiedAnalytics";
 import ReportTemplates from "./pages/ReportTemplates";
 
 function Router() {
@@ -27,7 +28,7 @@ function Router() {
       <Route path={"/programs"} component={Programs} />
       <Route path={"/programs/:id"} component={ProgramDetail} />
       <Route path={"/dashboard"} component={Dashboard} />
-      <Route path={"/analytics"} component={Analytics} />
+      <Route path={"/analytics"} component={UnifiedAnalytics} />
       <Route path={"/analytics/guide"} component={AnalyticsGuide} />
       <Route path={"/analytics/ga"} component={GAAnalytics} />
       <Route path={"/analytics/ga/guide"} component={GAAnalyticsGuide} />
