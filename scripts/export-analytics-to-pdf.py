@@ -117,6 +117,73 @@ def create_analytics_pdf(data, output_path, logo_path):
         ]))
         elements.append(metrics_table)
         elements.append(Spacer(1, 0.3*inch))
+        
+        # Add Key Metrics Explained section
+        elements.append(Paragraph("Key Metrics Explained", heading_style))
+        
+        # 1. Coverage Rate
+        elements.append(Paragraph("<b>1. Coverage Rate</b>", styles['Normal']))
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Paragraph(
+            "The percentage of programs that map to at least one competency within a Graduate Attribute.",
+            styles['Normal']
+        ))
+        elements.append(Spacer(1, 0.1*inch))
+        
+        # Formula in code style
+        formula_style = ParagraphStyle(
+            'FormulaStyle',
+            parent=styles['Code'],
+            fontSize=9,
+            textColor=colors.black,
+            backColor=colors.lightgrey,
+            leftIndent=20,
+            spaceAfter=6,
+            spaceBefore=6
+        )
+        elements.append(Paragraph(
+            "Coverage Rate = (Programs with GA mapping / Total Programs) × 100%",
+            formula_style
+        ))
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Paragraph(
+            "<b>Example:</b> If 45 out of 50 programs map to GA1, the coverage rate is 90%.",
+            styles['Normal']
+        ))
+        elements.append(Spacer(1, 0.2*inch))
+        
+        # 2. Average Alignment Score
+        elements.append(Paragraph("<b>2. Average Alignment Score</b>", styles['Normal']))
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Paragraph(
+            "The mean of all PLO-to-competency mapping weights for a specific GA across all programs.",
+            styles['Normal']
+        ))
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Paragraph(
+            "Avg Alignment = Σ(PLO weights for GA competencies) / Number of mappings",
+            formula_style
+        ))
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Paragraph(
+            "<b>Interpretation:</b> Higher scores indicate stronger emphasis on that GA in program curricula.",
+            styles['Normal']
+        ))
+        elements.append(Spacer(1, 0.2*inch))
+        
+        # 3. Total Mappings
+        elements.append(Paragraph("<b>3. Total Mappings</b>", styles['Normal']))
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Paragraph(
+            "The count of all PLO-to-competency mappings (with non-zero weights) for a GA.",
+            styles['Normal']
+        ))
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(Paragraph(
+            "<b>Note:</b> A higher count suggests more comprehensive integration of the GA across program learning outcomes.",
+            styles['Normal']
+        ))
+        elements.append(Spacer(1, 0.3*inch))
     
     # Add chart images if provided (each as separate section)
     if 'chart_images' in data and len(data['chart_images']) > 0:

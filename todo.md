@@ -888,3 +888,4 @@
 - [ ] Redesign PDF/Word exports - capture individual charts as images and format tables properly
 - [x] Add color legends to all charts for better readability
 - [x] Add data labels on bars showing exact values
+- [x] Add Key Metrics Explained section to PDF and Word exports

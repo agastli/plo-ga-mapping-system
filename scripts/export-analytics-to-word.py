@@ -117,6 +117,71 @@ def create_analytics_word(data, output_path, logo_path):
             row.cells[1].width = Inches(2)
         
         doc.add_paragraph()  # Spacer
+        
+        # Add Key Metrics Explained section
+        heading = doc.add_heading('Key Metrics Explained', level=2)
+        run = heading.runs[0]
+        run.font.color.rgb = RGBColor(139, 21, 56)
+        
+        # 1. Coverage Rate
+        p = doc.add_paragraph()
+        run = p.add_run('1. Coverage Rate')
+        run.bold = True
+        
+        doc.add_paragraph(
+            'The percentage of programs that map to at least one competency within a Graduate Attribute.'
+        )
+        
+        # Formula
+        p = doc.add_paragraph(
+            'Coverage Rate = (Programs with GA mapping / Total Programs) × 100%'
+        )
+        p.style = 'Intense Quote'
+        
+        p = doc.add_paragraph()
+        run = p.add_run('Example: ')
+        run.bold = True
+        run = p.add_run('If 45 out of 50 programs map to GA1, the coverage rate is 90%.')
+        
+        doc.add_paragraph()  # Spacer
+        
+        # 2. Average Alignment Score
+        p = doc.add_paragraph()
+        run = p.add_run('2. Average Alignment Score')
+        run.bold = True
+        
+        doc.add_paragraph(
+            'The mean of all PLO-to-competency mapping weights for a specific GA across all programs.'
+        )
+        
+        # Formula
+        p = doc.add_paragraph(
+            'Avg Alignment = Σ(PLO weights for GA competencies) / Number of mappings'
+        )
+        p.style = 'Intense Quote'
+        
+        p = doc.add_paragraph()
+        run = p.add_run('Interpretation: ')
+        run.bold = True
+        run = p.add_run('Higher scores indicate stronger emphasis on that GA in program curricula.')
+        
+        doc.add_paragraph()  # Spacer
+        
+        # 3. Total Mappings
+        p = doc.add_paragraph()
+        run = p.add_run('3. Total Mappings')
+        run.bold = True
+        
+        doc.add_paragraph(
+            'The count of all PLO-to-competency mappings (with non-zero weights) for a GA.'
+        )
+        
+        p = doc.add_paragraph()
+        run = p.add_run('Note: ')
+        run.bold = True
+        run = p.add_run('A higher count suggests more comprehensive integration of the GA across program learning outcomes.')
+        
+        doc.add_paragraph()  # Spacer
     
     # Add chart images if provided (each as separate section)
     if 'chart_images' in data and len(data['chart_images']) > 0:
