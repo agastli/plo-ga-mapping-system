@@ -45,14 +45,8 @@ export default function GAAnalytics() {
 
   // Filter programs by selected college for cascading dropdown
   const filteredPrograms = selectedCollegeId && programs
-    ? programs.filter((p) => {
-        const college = colleges?.find((c) => c.id === selectedCollegeId);
-        if (!college) return false;
-        // Find department for this program
-        // Note: We'll need to fetch departments to properly filter
-        return true; // For now, show all programs
-      })
-    : programs || [];
+    ? programs.filter((p) => p.department.collegeId === selectedCollegeId)
+    : [];
 
   if (isLoading) {
     return (
