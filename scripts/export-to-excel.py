@@ -282,7 +282,8 @@ def main():
         wb = create_mapping_excel(data)
         
         # Save to output path
-        output_path = data.get('output_path', '/tmp/mapping_output.xlsx')
+        import os
+        output_path = data.get('output_path', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'temp', 'mapping_output.xlsx'))
         wb.save(output_path)
         
         print(json.dumps({'success': True, 'output_path': output_path}))

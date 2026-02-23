@@ -894,6 +894,53 @@ export async function getGAByCollegeAnalytics() {
   };
 }
 
+export async function getGAByProgramAnalytics(collegeId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.code);
+  const allDepartments = await db.select().from(departments).where(eq(departments.collegeId, collegeId));
+  const departmentIds = allDepartments.map((d) => d.id);
+  const allPrograms = await db.select().from(programs).where(inArray(programs.departmentId, departmentIds));
+  const allCompetencies = await db.select().from(competencies);
+  const allPLOs = await db.select().from(plos);
+  const allMappings = await db.select().from(mappings);
+
+  const programData = allPrograms.map((program) => {
+    const gaScores = allGAs.map((ga) => {
+      const gaCompetencies = allCompetencies.filter((c) => c.gaId === ga.id);
+      const gaCompetencyIds = gaCompetencies.map((c) => c.id);
+
+      const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+      const programMappings = allMappings.filter(
+        (m) => programPLOs.some((plo) => plo.id === m.ploId) && gaCompetencyIds.includes(m.competencyId)
+      );
+
+      const totalWeight = programMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
+      const totalPossibleWeight = gaCompetencies.length * programPLOs.length;
+      const score = totalPossibleWeight > 0 ? (totalWeight / totalPossibleWeight) * 100 : 0;
+
+      return {
+        gaCode: ga.code,
+        score: Math.round(score * 100) / 100,
+      };
+    });
+
+    return {
+      programId: program.id,
+      programCode: program.code,
+      programNameEn: program.nameEn,
+      programNameAr: program.nameAr,
+      gaScores,
+    };
+  });
+
+  return {
+    programData,
+    gaList: allGAs.map((ga) => ({ code: ga.code, nameEn: ga.nameEn, nameAr: ga.nameAr })),
+  };
+}
+
 // ============================================================================
 // Competency Analytics
 // ============================================================================

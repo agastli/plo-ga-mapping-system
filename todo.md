@@ -945,3 +945,10 @@
 - [x] Update PNG file names to include analysis level context (University-wide/College/Program)
 - [x] Add colored boxes to legend (Green, Yellow, Red)
 - [x] Add College/Program context information at top of charts
+- [x] Fix legend text vertical alignment with color boxes
+- [x] Fix file download names to show only filename without path
+- [x] Add comparison chart for university-wide view (colleges GA scores)
+- [x] Add comparison chart for college view (programs GA scores)
+- [x] Include comparison charts in PNG export
+- [x] Move temp file storage from /tmp to project-local directory
+- [x] Add temp directory to .gitignore

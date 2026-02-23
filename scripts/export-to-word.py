@@ -380,7 +380,8 @@ def main():
         doc = create_mapping_document(data)
         
         # Save to output path
-        output_path = data.get('output_path', '/tmp/mapping_output.docx')
+        import os
+        output_path = data.get('output_path', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'temp', 'mapping_output.docx'))
         doc.save(output_path)
         
         print(json.dumps({'success': True, 'output_path': output_path}))

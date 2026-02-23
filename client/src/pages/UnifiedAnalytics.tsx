@@ -34,6 +34,7 @@ export default function UnifiedAnalytics() {
   const gaChartRef = useRef<HTMLDivElement>(null);
   const radarChartRef = useRef<HTMLDivElement>(null);
   const competencyChartRef = useRef<HTMLDivElement>(null);
+  const comparisonChartRef = useRef<HTMLDivElement>(null);
 
   const exportPNG = trpc.analytics.exportAnalyticsPNG.useMutation();
 
@@ -84,6 +85,12 @@ export default function UnifiedAnalytics() {
       const radarChartImage = await captureChartAsBase64(radarChartRef.current);
       const compChartImage = await captureChartAsBase64(competencyChartRef.current);
       
+      // Capture comparison chart if it exists
+      let comparisonChartImage = null;
+      if (comparisonChartRef.current) {
+        comparisonChartImage = await captureChartAsBase64(comparisonChartRef.current);
+      }
+      
       toast.info('Generating PNG files...');
       
       // Build context for file naming
@@ -96,17 +103,31 @@ export default function UnifiedAnalytics() {
         contextPrefix = program ? program.program.nameEn.replace(/\s+/g, '_') : 'Program';
       }
       
-      const result = await exportPNG.mutateAsync({
-        chartImages: [
-          { title: `${contextPrefix}_GA_Alignment_Scores`, imageData: gaChartImage },
-          { title: `${contextPrefix}_GA_Coverage_Profile`, imageData: radarChartImage },
-          { title: `${contextPrefix}_Competency_Average_Weights`, imageData: compChartImage },
-        ],
-      });
+      const chartImages = [
+        { title: `${contextPrefix}_GA_Alignment_Scores`, imageData: gaChartImage },
+        { title: `${contextPrefix}_GA_Coverage_Profile`, imageData: radarChartImage },
+      ];
+      
+      // Add comparison chart if available
+      if (comparisonChartImage) {
+        const comparisonTitle = filterLevel === 'university' 
+          ? `${contextPrefix}_College_Comparison` 
+          : `${contextPrefix}_Program_Comparison`;
+        chartImages.push({ title: comparisonTitle, imageData: comparisonChartImage });
+      }
+      
+      chartImages.push({ title: `${contextPrefix}_Competency_Average_Weights`, imageData: compChartImage });
+      
+      const result = await exportPNG.mutateAsync({ chartImages });
       
       // Download the files
       for (const file of result.files) {
-        window.open('/api/download/' + encodeURIComponent(file.path), '_blank');
+        const link = document.createElement('a');
+        link.href = '/api/download/' + encodeURIComponent(file.path);
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
       
       toast.success('PNG charts exported successfully!');
@@ -179,6 +200,16 @@ export default function UnifiedAnalytics() {
 
   const { data: gaData, isLoading: gaLoading } = trpc.analytics.gaAnalytics.useQuery(filterInput);
   const { data: competencyData, isLoading: compLoading } = trpc.analytics.competencyAnalytics.useQuery(filterInput);
+  
+  // Fetch comparison data based on filter level
+  const { data: collegeComparisonData } = trpc.analytics.gaByCollegeAnalytics.useQuery(
+    undefined,
+    { enabled: filterLevel === 'university' }
+  );
+  const { data: programComparisonData } = trpc.analytics.gaByProgramAnalytics.useQuery(
+    { collegeId: selectedCollegeId! },
+    { enabled: filterLevel === 'college' && !!selectedCollegeId }
+  );
 
   // Filter programs by selected college for cascading dropdown
   const filteredPrograms = selectedCollegeId && programs
@@ -477,23 +508,23 @@ export default function UnifiedAnalytics() {
                       }
                       return <Cell key={`cell-${index}`} fill={color} />;
                     })}
-                    <LabelList dataKey="score" position="top" formatter={(value: number) => `${value}%`} />
+                    <LabelList dataKey="score" position="top" formatter={(value: number) => value + '%'} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
               {/* Color Legend */}
               <div className="mt-4 flex flex-wrap justify-center gap-4">
-                <div className="flex items-center gap-2">
-                  <div style={{ width: '16px', height: '16px', backgroundColor: '#22c55e', borderRadius: '4px', border: '1px solid #22c55e' }} />
-                  <span className="text-sm text-gray-700">Strong (≥80%)</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '16px', height: '16px', backgroundColor: '#22c55e', borderRadius: '4px', border: '1px solid #22c55e', flexShrink: 0 }} />
+                  <span style={{ fontSize: '14px', color: '#374151', lineHeight: '16px' }}>Strong (≥80%)</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div style={{ width: '16px', height: '16px', backgroundColor: '#eab308', borderRadius: '4px', border: '1px solid #eab308' }} />
-                  <span className="text-sm text-gray-700">Moderate (50-79%)</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '16px', height: '16px', backgroundColor: '#eab308', borderRadius: '4px', border: '1px solid #eab308', flexShrink: 0 }} />
+                  <span style={{ fontSize: '14px', color: '#374151', lineHeight: '16px' }}>Moderate (50-79%)</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div style={{ width: '16px', height: '16px', backgroundColor: '#ef4444', borderRadius: '4px', border: '1px solid #ef4444' }} />
-                  <span className="text-sm text-gray-700">Weak (&lt;50%)</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '16px', height: '16px', backgroundColor: '#ef4444', borderRadius: '4px', border: '1px solid #ef4444', flexShrink: 0 }} />
+                  <span style={{ fontSize: '14px', color: '#374151', lineHeight: '16px' }}>Weak (&lt;50%)</span>
                 </div>
               </div>
             </CardContent>
@@ -549,6 +580,80 @@ export default function UnifiedAnalytics() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Comparison Chart - Colleges or Programs */}
+        {(filterLevel === 'university' && collegeComparisonData) || (filterLevel === 'college' && programComparisonData) ? (
+          <Card className="mb-6" ref={comparisonChartRef}>
+            <CardHeader>
+              <CardTitle>
+                {filterLevel === 'university' ? 'College Comparison - Average GA Scores' : 'Program Comparison - Average GA Scores'}
+              </CardTitle>
+              <p className="text-sm font-semibold text-[#8B1538] mb-1">
+                {filterLevel === 'university' ? 'University-wide' : 
+                 colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College'}
+              </p>
+              <p className="text-sm text-gray-600">
+                {filterLevel === 'university' 
+                  ? 'Average GA alignment scores across all colleges' 
+                  : 'Average GA alignment scores across all programs in the college'}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={
+                  filterLevel === 'university' && collegeComparisonData
+                    ? collegeComparisonData.heatmapData.map((college: any) => ({
+                        name: college.collegeCode,
+                        score: college.gaScores.reduce((sum: number, ga: any) => sum + ga.score, 0) / college.gaScores.length,
+                      }))
+                    : programComparisonData
+                    ? programComparisonData.programData.map((program: any) => ({
+                        name: program.programCode,
+                        score: program.gaScores.reduce((sum: number, ga: any) => sum + ga.score, 0) / program.gaScores.length,
+                      }))
+                    : []
+                }>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="name" stroke="#6b7280" style={{ fontSize: '12px' }} />
+                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} label={{ value: 'Average GA Score (%)', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+                    {(filterLevel === 'university' && collegeComparisonData
+                      ? collegeComparisonData.heatmapData.map((college: any) => ({
+                          score: college.gaScores.reduce((sum: number, ga: any) => sum + ga.score, 0) / college.gaScores.length,
+                        }))
+                      : programComparisonData
+                      ? programComparisonData.programData.map((program: any) => ({
+                          score: program.gaScores.reduce((sum: number, ga: any) => sum + ga.score, 0) / program.gaScores.length,
+                        }))
+                      : []
+                    ).map((entry: any, index: number) => {
+                      const score = entry.score;
+                      const color = score >= 80 ? '#22c55e' : score >= 50 ? '#eab308' : '#ef4444';
+                      return <Cell key={`cell-${index}`} fill={color} />;
+                    })}
+                    <LabelList dataKey="score" position="top" formatter={(value: number) => value.toFixed(1) + '%'} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              {/* Color Legend */}
+              <div className="mt-4 flex flex-wrap justify-center gap-4">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '16px', height: '16px', backgroundColor: '#22c55e', borderRadius: '4px', border: '1px solid #22c55e', flexShrink: 0 }} />
+                  <span style={{ fontSize: '14px', color: '#374151', lineHeight: '16px' }}>Strong (≥80%)</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '16px', height: '16px', backgroundColor: '#eab308', borderRadius: '4px', border: '1px solid #eab308', flexShrink: 0 }} />
+                  <span style={{ fontSize: '14px', color: '#374151', lineHeight: '16px' }}>Moderate (50-79%)</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '16px', height: '16px', backgroundColor: '#ef4444', borderRadius: '4px', border: '1px solid #ef4444', flexShrink: 0 }} />
+                  <span style={{ fontSize: '14px', color: '#374151', lineHeight: '16px' }}>Weak (&lt;50%)</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
 
         {/* Competency Average Weights Chart */}
         <Card className="mb-6" ref={competencyChartRef}>
@@ -610,17 +715,17 @@ export default function UnifiedAnalytics() {
             </ResponsiveContainer>
             {/* Color Legend */}
             <div className="mt-4 flex flex-wrap justify-center gap-4">
-              <div className="flex items-center gap-2">
-                <div style={{ width: '16px', height: '16px', backgroundColor: '#22c55e', borderRadius: '4px', border: '1px solid #22c55e' }} />
-                <span className="text-sm text-gray-700">Strong (≥80%)</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '16px', height: '16px', backgroundColor: '#22c55e', borderRadius: '4px', border: '1px solid #22c55e', flexShrink: 0 }} />
+                <span style={{ fontSize: '14px', color: '#374151', lineHeight: '16px' }}>Strong (≥80%)</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div style={{ width: '16px', height: '16px', backgroundColor: '#eab308', borderRadius: '4px', border: '1px solid #eab308' }} />
-                <span className="text-sm text-gray-700">Moderate (50-79%)</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '16px', height: '16px', backgroundColor: '#eab308', borderRadius: '4px', border: '1px solid #eab308', flexShrink: 0 }} />
+                <span style={{ fontSize: '14px', color: '#374151', lineHeight: '16px' }}>Moderate (50-79%)</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div style={{ width: '16px', height: '16px', backgroundColor: '#ef4444', borderRadius: '4px', border: '1px solid #ef4444' }} />
-                <span className="text-sm text-gray-700">Weak (&lt;50%)</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '16px', height: '16px', backgroundColor: '#ef4444', borderRadius: '4px', border: '1px solid #ef4444', flexShrink: 0 }} />
+                <span style={{ fontSize: '14px', color: '#374151', lineHeight: '16px' }}>Weak (&lt;50%)</span>
               </div>
             </div>
             {/* GA Separators */}

@@ -49,7 +49,8 @@ class NumberedCanvas(canvas.Canvas):
 
 def create_mapping_pdf(data):
     """Create professional PDF document from mapping data"""
-    output_path = data.get('output_path', '/tmp/mapping_output.pdf')
+    import os
+    output_path = data.get('output_path', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'temp', 'mapping_output.pdf'))
     
     # Create PDF with A4 landscape size and custom margins
     doc = SimpleDocTemplate(

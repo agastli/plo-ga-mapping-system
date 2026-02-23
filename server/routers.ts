@@ -524,7 +524,7 @@ export const appRouter = router({
             competency_name: j.competency.nameEn || j.competency.nameAr || '',
             text: j.justification.textEn || j.justification.textAr || ''
           })),
-          output_path: `/tmp/plo-ga-mapping-${getCollegeAbbreviation(college?.nameEn || college?.nameAr || 'College')}-${abbreviateProgramName(program.nameEn || program.nameAr || 'program')}-${Date.now()}.${input.format === 'word' ? 'docx' : input.format === 'excel' ? 'xlsx' : 'pdf'}`
+          output_path: path.join(__dirname, '../temp', `plo-ga-mapping-${getCollegeAbbreviation(college?.nameEn || college?.nameAr || 'College')}-${abbreviateProgramName(program.nameEn || program.nameAr || 'program')}-${Date.now()}.${input.format === 'word' ? 'docx' : input.format === 'excel' ? 'xlsx' : 'pdf'}`)
         };
         
         // Call Python script to generate document
@@ -614,6 +614,12 @@ export const appRouter = router({
     gaByCollegeAnalytics: publicProcedure.query(async () => {
       return await db.getGAByCollegeAnalytics();
     }),
+    
+    gaByProgramAnalytics: publicProcedure
+      .input(z.object({ collegeId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getGAByProgramAnalytics(input.collegeId);
+      }),
     
     // Competency Analytics
     competencyAnalytics: publicProcedure
@@ -891,7 +897,7 @@ export const appRouter = router({
         try {
           // Save each chart image to temp directory
           for (const chart of input.chartImages) {
-            const outputPath = path.join(tmpdir(), `${chart.title}_${timestamp}.png`);
+            const outputPath = path.join(__dirname, '../temp', `${chart.title}_${timestamp}.png`);
             const base64Data = chart.imageData.split(',')[1]; // Remove data:image/png;base64, prefix
             await writeFile(outputPath, Buffer.from(base64Data, 'base64'));
             outputFiles.push({
