@@ -914,3 +914,8 @@
 - [ ] Remove separate GAAnalytics and CompetencyAnalytics pages
 - [x] Simplify charts: one chart for GAs (alignment scores), one chart for Competencies (average weights)
 - [x] Remove duplicate/redundant charts from unified dashboard
+- [x] Show all 21 competencies in unified analytics (not just top ones)
+- [x] Order competencies by GA (C1-1, C1-2, C1-3, C1-4, C2-1...) instead of sorting by percentage
+- [x] Add data tables below charts showing detailed GA and competency data
+- [x] Apply maroon color scheme to charts matching university branding
+- [x] Move export button to top of page near filters

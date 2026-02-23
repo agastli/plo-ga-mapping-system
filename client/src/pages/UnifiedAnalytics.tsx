@@ -74,9 +74,9 @@ export default function UnifiedAnalytics() {
     fullName: ga.gaNameEn,
   }));
 
-  // Prepare Competency chart data (sorted by weight)
+  // Prepare Competency chart data (ordered by GA, not sorted by weight)
   const competencyChartData = competencyStats
-    .sort((a, b) => b.avgWeight - a.avgWeight)
+    .sort((a, b) => a.competencyCode.localeCompare(b.competencyCode))
     .map((comp) => ({
       name: comp.competencyCode,
       weight: comp.avgWeight * 100, // Convert to percentage
@@ -205,6 +205,12 @@ export default function UnifiedAnalytics() {
                 </div>
               )}
             </div>
+            <div className="flex justify-end mt-4">
+              <Button className="bg-[#8B1538] hover:bg-[#6B1028] flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Export Analytics Report
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -323,16 +329,80 @@ export default function UnifiedAnalytics() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </CardContent>
+        </Card>
+
+        {/* GA Data Table */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Graduate Attributes Detailed Data</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[#8B1538] text-white">
+                    <th className="border border-gray-300 px-4 py-2 text-left">GA Code</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">Graduate Attribute</th>
+                    <th className="border border-gray-300 px-4 py-2 text-right">Alignment Score (%)</th>
+                    <th className="border border-gray-300 px-4 py-2 text-right">Total Weight</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gaStats.map((ga, index) => (
+                    <tr key={ga.gaCode} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      <td className="border border-gray-300 px-4 py-2">{ga.gaCode}</td>
+                      <td className="border border-gray-300 px-4 py-2">{ga.gaNameEn}</td>
+                      <td className="border border-gray-300 px-4 py-2 text-right font-semibold">
+                        {ga.avgAlignmentScore.toFixed(2)}%
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2 text-right">
+                        {ga.totalWeight.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Export Button */}
-        <div className="flex justify-center">
-          <Button className="bg-[#8B1538] hover:bg-[#6B1028] flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            Export Analytics Report
-          </Button>
-        </div>
+        {/* Competency Data Table */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Competencies Detailed Data</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[#8B1538] text-white">
+                    <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
+                    <th className="border border-gray-300 px-4 py-2 text-left">Competency</th>
+                    <th className="border border-gray-300 px-4 py-2 text-right">Average Weight (%)</th>
+                    <th className="border border-gray-300 px-4 py-2 text-right">Total Mappings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {competencyStats
+                    .sort((a, b) => a.competencyCode.localeCompare(b.competencyCode))
+                    .map((comp, index) => (
+                    <tr key={comp.competencyCode} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      <td className="border border-gray-300 px-4 py-2">{comp.competencyCode}</td>
+                      <td className="border border-gray-300 px-4 py-2">{comp.competencyNameEn}</td>
+                      <td className="border border-gray-300 px-4 py-2 text-right font-semibold">
+                        {(comp.avgWeight * 100).toFixed(2)}%
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2 text-right">
+                        {comp.mappingCount}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
