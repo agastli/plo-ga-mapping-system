@@ -856,20 +856,36 @@ export async function getGAByCollegeAnalytics() {
       const gaCompetencies = allCompetencies.filter((c) => c.gaId === ga.id);
       const gaCompetencyIds = gaCompetencies.map((c) => c.id);
 
-      let totalWeight = 0;
-      let totalPossibleWeight = 0;
-
-      collegePrograms.forEach((program) => {
-        const programPLOs = allPLOs.filter((p) => p.programId === program.id);
-        const programMappings = allMappings.filter(
-          (m) => programPLOs.some((plo) => plo.id === m.ploId) && gaCompetencyIds.includes(m.competencyId)
-        );
-
-        totalWeight += programMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
-        totalPossibleWeight += gaCompetencies.length * programPLOs.length;
+      // Use same formula as getGAAnalytics: calculate average of competency scores
+      const competencyScores: number[] = [];
+      
+      gaCompetencies.forEach((competency) => {
+        let competencySumAcrossPrograms = 0;
+        let programCount = 0;
+        
+        collegePrograms.forEach((program) => {
+          const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+          const programPLOIds = programPLOs.map((p) => p.id);
+          const competencyMappingsInProgram = allMappings.filter(
+            (m) => m.competencyId === competency.id && programPLOIds.includes(m.ploId)
+          );
+          
+          if (programPLOIds.length > 0) {
+            const competencyWeightInProgram = competencyMappingsInProgram.reduce(
+              (sum, m) => sum + parseFloat(m.weight), 0
+            );
+            competencySumAcrossPrograms += competencyWeightInProgram;
+            programCount++;
+          }
+        });
+        
+        const avgCompetencyScore = programCount > 0 ? competencySumAcrossPrograms / programCount : 0;
+        competencyScores.push(avgCompetencyScore);
       });
 
-      const score = totalPossibleWeight > 0 ? (totalWeight / totalPossibleWeight) * 100 : 0;
+      const score = competencyScores.length > 0 
+        ? (competencyScores.reduce((sum, score) => sum + score, 0) / competencyScores.length) * 100
+        : 0;
 
       return {
         gaCode: ga.code,

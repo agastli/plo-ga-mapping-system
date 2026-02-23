@@ -952,3 +952,6 @@
 - [x] Include comparison charts in PNG export
 - [x] Move temp file storage from /tmp to project-local directory
 - [x] Add temp directory to .gitignore
+- [ ] Fix incorrect GA score calculations in college comparison chart
+- [ ] Fix incorrect GA score calculations in program comparison chart
+- [x] Fix gaByCollegeAnalytics to use same formula as gaAnalytics

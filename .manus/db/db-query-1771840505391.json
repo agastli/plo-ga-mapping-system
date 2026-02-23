@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, ploId, competencyId, weight FROM mappings LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT id, ploId, competencyId, weight FROM mappings LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "ploId": "1",
+      "competencyId": "1",
+      "weight": "1.00"
+    },
+    {
+      "id": "2",
+      "ploId": "2",
+      "competencyId": "1",
+      "weight": "0.80"
+    },
+    {
+      "id": "3",
+      "ploId": "3",
+      "competencyId": "1",
+      "weight": "0.20"
+    },
+    {
+      "id": "4",
+      "ploId": "4",
+      "competencyId": "1",
+      "weight": "0.20"
+    },
+    {
+      "id": "5",
+      "ploId": "5",
+      "competencyId": "1",
+      "weight": "0.20"
+    },
+    {
+      "id": "6",
+      "ploId": "6",
+      "competencyId": "1",
+      "weight": "0.80"
+    },
+    {
+      "id": "7",
+      "ploId": "7",
+      "competencyId": "1",
+      "weight": "0.50"
+    },
+    {
+      "id": "8",
+      "ploId": "1",
+      "competencyId": "2",
+      "weight": "1.00"
+    },
+    {
+      "id": "9",
+      "ploId": "2",
+      "competencyId": "2",
+      "weight": "0.80"
+    },
+    {
+      "id": "10",
+      "ploId": "3",
+      "competencyId": "2",
+      "weight": "0.20"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tploId\tcompetencyId\tweight\n1\t1\t1\t1.00\n2\t2\t1\t0.80\n3\t3\t1\t0.20\n4\t4\t1\t0.20\n5\t5\t1\t0.20\n6\t6\t1\t0.80\n7\t7\t1\t0.50\n8\t1\t2\t1.00\n9\t2\t2\t0.80\n10\t3\t2\t0.20\n",
+  "stderr": "",
+  "execution_time_ms": 1515
+}
