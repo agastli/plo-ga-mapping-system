@@ -736,6 +736,8 @@ export default function UnifiedAnalytics() {
                 {filterLevel === 'university' ? 'University-wide' : 
                  filterLevel === 'college' && selectedCollegeId ? 
                    colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College' :
+                 filterLevel === 'cluster' && selectedClusterId ?
+                   allClusters?.find((c: any) => c.id === selectedClusterId)?.nameEn || 'Cluster' :
                  filterLevel === 'program' && selectedProgramId ?
                    programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program' :
                  'All Programs'}
@@ -806,6 +808,8 @@ export default function UnifiedAnalytics() {
                 {filterLevel === 'university' ? 'University-wide' : 
                  filterLevel === 'college' && selectedCollegeId ? 
                    colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College' :
+                 filterLevel === 'cluster' && selectedClusterId ?
+                   allClusters?.find((c: any) => c.id === selectedClusterId)?.nameEn || 'Cluster' :
                  filterLevel === 'program' && selectedProgramId ?
                    programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program' :
                  'All Programs'}
@@ -931,6 +935,8 @@ export default function UnifiedAnalytics() {
               {filterLevel === 'university' ? 'University-wide' : 
                filterLevel === 'college' && selectedCollegeId ? 
                  colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College' :
+               filterLevel === 'cluster' && selectedClusterId ?
+                 allClusters?.find((c: any) => c.id === selectedClusterId)?.nameEn || 'Cluster' :
                filterLevel === 'program' && selectedProgramId ?
                  programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program' :
                'All Programs'}

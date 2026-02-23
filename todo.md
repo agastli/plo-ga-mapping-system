@@ -1091,7 +1091,8 @@
 - [x] Fix cluster filter not showing when "By Cluster" is selected
 - [x] Add departments.list endpoint for pages that need all departments
 - [x] Fix AddProgram to use departments.listByCollege
-- [ ] Fix clusters.listByCollege endpoint 500 error
+- [x] Fix clusters.listByCollege endpoint 500 error (missing description column in database)
+- [x] Fix analytics chart titles to show cluster name when filtering by cluster
 - [ ] Add cluster name display to program cards in Programs page
 - [ ] Update program list queries to include cluster information
 - [ ] Test cluster filter and display functionality
