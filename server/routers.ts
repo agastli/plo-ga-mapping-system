@@ -897,11 +897,12 @@ export const appRouter = router({
         try {
           // Save each chart image to temp directory
           for (const chart of input.chartImages) {
-            const outputPath = path.join(process.cwd(), 'temp', `${chart.title}_${timestamp}.png`);
+            const filename = `${chart.title}_${timestamp}.png`;
+            const outputPath = path.join(process.cwd(), 'temp', filename);
             const base64Data = chart.imageData.split(',')[1]; // Remove data:image/png;base64, prefix
             await writeFile(outputPath, Buffer.from(base64Data, 'base64'));
             outputFiles.push({
-              name: `${chart.title}_${timestamp}.png`,
+              name: filename,
               path: outputPath,
             });
           }

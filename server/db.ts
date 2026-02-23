@@ -928,13 +928,21 @@ export async function getGAByProgramAnalytics(collegeId: number) {
       const gaCompetencyIds = gaCompetencies.map((c) => c.id);
 
       const programPLOs = allPLOs.filter((p) => p.programId === program.id);
-      const programMappings = allMappings.filter(
-        (m) => programPLOs.some((plo) => plo.id === m.ploId) && gaCompetencyIds.includes(m.competencyId)
-      );
-
-      const totalWeight = programMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
-      const totalPossibleWeight = gaCompetencies.length * programPLOs.length;
-      const score = totalPossibleWeight > 0 ? (totalWeight / totalPossibleWeight) * 100 : 0;
+      
+      // Calculate competency scores for this program
+      const competencyScores = gaCompetencies.map((competency) => {
+        const competencyMappings = allMappings.filter(
+          (m) => programPLOs.some((plo) => plo.id === m.ploId) && m.competencyId === competency.id
+        );
+        // Competency score = SUM of weights
+        return competencyMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
+      });
+      
+      // GA score = AVERAGE of competency scores × 100
+      const avgCompetencyScore = competencyScores.length > 0
+        ? competencyScores.reduce((sum, score) => sum + score, 0) / competencyScores.length
+        : 0;
+      const score = avgCompetencyScore * 100;
 
       return {
         gaCode: ga.code,

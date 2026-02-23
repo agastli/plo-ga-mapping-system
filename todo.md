@@ -956,3 +956,7 @@
 - [ ] Fix incorrect GA score calculations in program comparison chart
 - [x] Fix gaByCollegeAnalytics to use same formula as gaAnalytics
 - [ ] Fix PNG export by ensuring temp directory exists and has proper permissions
+
+## Phase 38: Fix PNG Export Filename and Program Comparison Formula
+- [x] Fix PNG export filename to remove full Windows path (use only basename)
+- [x] Fix program comparison GA score calculation to match college comparison formula
