@@ -1,0 +1,46 @@
+{
+  "query": "SELECT \n  p.id,\n  p.nameEn,\n  COUNT(m.id) as mapping_count,\n  COUNT(DISTINCT plo.id) as plo_count\nFROM programs p\nLEFT JOIN plos plo ON p.id = plo.programId\nLEFT JOIN mappings m ON plo.id = m.ploId\nGROUP BY p.id, p.nameEn\nHAVING mapping_count > 50\nORDER BY mapping_count DESC\nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT \n  p.id,\n  p.nameEn,\n  COUNT(m.id) as mapping_count,\n  COUNT(DISTINCT plo.id) as plo_count\nFROM programs p\nLEFT JOIN plos plo ON p.id = plo.programId\nLEFT JOIN mappings m ON plo.id = m.ploId\nGROUP BY p.id, p.nameEn\nHAVING mapping_count > 50\nORDER BY mapping_count DESC\nLIMIT 10;",
+  "rows": [
+    {
+      "id": "19",
+      "nameEn": "Bachelor of Business Administration in Accounting",
+      "mapping_count": "105",
+      "plo_count": "5"
+    },
+    {
+      "id": "20",
+      "nameEn": "Bachelor of Business Administration in Economics",
+      "mapping_count": "105",
+      "plo_count": "5"
+    },
+    {
+      "id": "23",
+      "nameEn": "Bachelor of Business Administration in Management Information Systems",
+      "mapping_count": "105",
+      "plo_count": "5"
+    },
+    {
+      "id": "21",
+      "nameEn": "Bachelor of Business Administration in Finance",
+      "mapping_count": "105",
+      "plo_count": "5"
+    },
+    {
+      "id": "24",
+      "nameEn": "Bachelor of Business Administration in Marketing",
+      "mapping_count": "91",
+      "plo_count": "5"
+    },
+    {
+      "id": "22",
+      "nameEn": "Bachelor of Business Administration in Management",
+      "mapping_count": "84",
+      "plo_count": "4"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnameEn\tmapping_count\tplo_count\n19\tBachelor of Business Administration in Accounting\t105\t5\n20\tBachelor of Business Administration in Economics\t105\t5\n23\tBachelor of Business Administration in Management Information Systems\t105\t5\n21\tBachelor of Business Administration in Finance\t105\t5\n24\tBachelor of Business Administration in Marketing\t91\t5\n22\tBachelor of Business Administration in Management\t84\t4\n",
+  "stderr": "",
+  "execution_time_ms": 1609
+}

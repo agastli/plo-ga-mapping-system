@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, nameEn, code FROM programs WHERE nameEn LIKE '%Mechanical%' OR nameEn LIKE '%Engineering%' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT id, nameEn, code FROM programs WHERE nameEn LIKE '%Mechanical%' OR nameEn LIKE '%Engineering%' LIMIT 10;",
+  "rows": [
+    {
+      "id": "29",
+      "nameEn": "Bachelor of Science in Chemical Engineering",
+      "code": "ENG-CHE-BS"
+    },
+    {
+      "id": "30",
+      "nameEn": "Bachelor of Science in Civil Engineering",
+      "code": "ENG-CIV-BS"
+    },
+    {
+      "id": "31",
+      "nameEn": "Bachelor of Science in Computer Engineering",
+      "code": "ENG-CPE-BS"
+    },
+    {
+      "id": "32",
+      "nameEn": "Bachelor of Science in Electrical Engineering",
+      "code": "ENG-ELE-BS"
+    },
+    {
+      "id": "33",
+      "nameEn": "Bachelor of Science in Industrial and Systems Engineering",
+      "code": "ENG-ISE-BS"
+    },
+    {
+      "id": "34",
+      "nameEn": "Bachelor of Science in Mechanical Engineering",
+      "code": "ENG-MEC-BS"
+    },
+    {
+      "id": "35",
+      "nameEn": "Bachelor of Science in Mechatronics Engineering",
+      "code": "ENG-MCT-BS"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnameEn\tcode\n29\tBachelor of Science in Chemical Engineering\tENG-CHE-BS\n30\tBachelor of Science in Civil Engineering\tENG-CIV-BS\n31\tBachelor of Science in Computer Engineering\tENG-CPE-BS\n32\tBachelor of Science in Electrical Engineering\tENG-ELE-BS\n33\tBachelor of Science in Industrial and Systems Engineering\tENG-ISE-BS\n34\tBachelor of Science in Mechanical Engineering\tENG-MEC-BS\n35\tBachelor of Science in Mechatronics Engineering\tENG-MCT-BS\n",
+  "stderr": "",
+  "execution_time_ms": 1671
+}

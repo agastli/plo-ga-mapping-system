@@ -1,0 +1,220 @@
+{
+  "query": "SELECT \n  c.code,\n  c.nameEn,\n  c.gaId,\n  COUNT(m.id) as total_mappings,\n  SUM(CASE WHEN m.weight > 0 THEN 1 ELSE 0 END) as non_zero_mappings,\n  SUM(m.weight) as total_weight,\n  SUM(CASE WHEN m.weight > 0 THEN m.weight ELSE 0 END) as non_zero_weight,\n  AVG(CASE WHEN m.weight > 0 THEN m.weight ELSE NULL END) as avg_weight\nFROM competencies c\nLEFT JOIN mappings m ON c.id = m.competencyId\nLEFT JOIN plos p ON m.ploId = p.id\nWHERE p.programId = 20\nGROUP BY c.id, c.code, c.nameEn, c.gaId\nORDER BY c.code;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT \n  c.code,\n  c.nameEn,\n  c.gaId,\n  COUNT(m.id) as total_mappings,\n  SUM(CASE WHEN m.weight > 0 THEN 1 ELSE 0 END) as non_zero_mappings,\n  SUM(m.weight) as total_weight,\n  SUM(CASE WHEN m.weight > 0 THEN m.weight ELSE 0 END) as non_zero_weight,\n  AVG(CASE WHEN m.weight > 0 THEN m.weight ELSE NULL END) as avg_weight\nFROM competencies c\nLEFT JOIN mappings m ON c.id = m.competencyId\nLEFT JOIN plos p ON m.ploId = p.id\nWHERE p.programId = 20\nGROUP BY c.id, c.code, c.nameEn, c.gaId\nORDER BY c.code;",
+  "rows": [
+    {
+      "code": "C1-1",
+      "nameEn": "Subject-matter mastery",
+      "gaId": "1",
+      "total_mappings": "5",
+      "non_zero_mappings": "2",
+      "total_weight": "1.00",
+      "non_zero_weight": "1.00",
+      "avg_weight": "0.500000"
+    },
+    {
+      "code": "C1-2",
+      "nameEn": "Critical-thinking skills",
+      "gaId": "1",
+      "total_mappings": "5",
+      "non_zero_mappings": "2",
+      "total_weight": "1.00",
+      "non_zero_weight": "1.00",
+      "avg_weight": "0.500000"
+    },
+    {
+      "code": "C1-3",
+      "nameEn": "Problem-solving skills",
+      "gaId": "1",
+      "total_mappings": "5",
+      "non_zero_mappings": "2",
+      "total_weight": "1.00",
+      "non_zero_weight": "1.00",
+      "avg_weight": "0.500000"
+    },
+    {
+      "code": "C1-4",
+      "nameEn": "Research, and Novel and Adaptive Thinking",
+      "gaId": "1",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C2-1",
+      "nameEn": "Self-awareness",
+      "gaId": "2",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C2-2",
+      "nameEn": "Adaptability",
+      "gaId": "2",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C2-3",
+      "nameEn": "Adaptive Thinking",
+      "gaId": "2",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C2-4",
+      "nameEn": "Desire for life-long learning",
+      "gaId": "2",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C3-1",
+      "nameEn": "Cultured",
+      "gaId": "3",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C3-2",
+      "nameEn": "Effective communication skills",
+      "gaId": "3",
+      "total_mappings": "5",
+      "non_zero_mappings": "2",
+      "total_weight": "1.00",
+      "non_zero_weight": "1.00",
+      "avg_weight": "0.500000"
+    },
+    {
+      "code": "C3-3",
+      "nameEn": "Awareness of local and international issues",
+      "gaId": "3",
+      "total_mappings": "5",
+      "non_zero_mappings": "5",
+      "total_weight": "1.00",
+      "non_zero_weight": "1.00",
+      "avg_weight": "0.200000"
+    },
+    {
+      "code": "C4-1",
+      "nameEn": "Embody the Arabic-Islamic identity",
+      "gaId": "4",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C4-2",
+      "nameEn": "Embrace diversity",
+      "gaId": "4",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C4-3",
+      "nameEn": "Professional and ethical conduct",
+      "gaId": "4",
+      "total_mappings": "5",
+      "non_zero_mappings": "1",
+      "total_weight": "1.00",
+      "non_zero_weight": "1.00",
+      "avg_weight": "1.000000"
+    },
+    {
+      "code": "C4-4",
+      "nameEn": "Civically engaged",
+      "gaId": "4",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C4-5",
+      "nameEn": "Community and Global Engagement",
+      "gaId": "4",
+      "total_mappings": "5",
+      "non_zero_mappings": "2",
+      "total_weight": "1.00",
+      "non_zero_weight": "1.00",
+      "avg_weight": "0.500000"
+    },
+    {
+      "code": "C5-1",
+      "nameEn": "Creativity and innovation",
+      "gaId": "5",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C5-2",
+      "nameEn": "Collaborative",
+      "gaId": "5",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C5-3",
+      "nameEn": "Management",
+      "gaId": "5",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C5-4",
+      "nameEn": "Interpersonal",
+      "gaId": "5",
+      "total_mappings": "5",
+      "non_zero_mappings": "0",
+      "total_weight": "0.00",
+      "non_zero_weight": "0.00",
+      "avg_weight": "NULL"
+    },
+    {
+      "code": "C5-5",
+      "nameEn": "Leadership",
+      "gaId": "5",
+      "total_mappings": "5",
+      "non_zero_mappings": "1",
+      "total_weight": "1.00",
+      "non_zero_weight": "1.00",
+      "avg_weight": "1.000000"
+    }
+  ],
+  "messages": [],
+  "stdout": "code\tnameEn\tgaId\ttotal_mappings\tnon_zero_mappings\ttotal_weight\tnon_zero_weight\tavg_weight\nC1-1\tSubject-matter mastery\t1\t5\t2\t1.00\t1.00\t0.500000\nC1-2\tCritical-thinking skills\t1\t5\t2\t1.00\t1.00\t0.500000\nC1-3\tProblem-solving skills\t1\t5\t2\t1.00\t1.00\t0.500000\nC1-4\tResearch, and Novel and Adaptive Thinking\t1\t5\t0\t0.00\t0.00\tNULL\nC2-1\tSelf-awareness\t2\t5\t0\t0.00\t0.00\tNULL\nC2-2\tAdaptability\t2\t5\t0\t0.00\t0.00\tNULL\nC2-3\tAdaptive Thinking\t2\t5\t0\t0.00\t0.00\tNULL\nC2-4\tDesire for life-long learning\t2\t5\t0\t0.00\t0.00\tNULL\nC3-1\tCultured\t3\t5\t0\t0.00\t0.00\tNULL\nC3-2\tEffective communication skills\t3\t5\t2\t1.00\t1.00\t0.500000\nC3-3\tAwareness of local and international issues\t3\t5\t5\t1.00\t1.00\t0.200000\nC4-1\tEmbody the Arabic-Islamic identity\t4\t5\t0\t0.00\t0.00\tNULL\nC4-2\tEmbrace diversity\t4\t5\t0\t0.00\t0.00\tNULL\nC4-3\tProfessional and ethical conduct\t4\t5\t1\t1.00\t1.00\t1.000000\nC4-4\tCivically engaged\t4\t5\t0\t0.00\t0.00\tNULL\nC4-5\tCommunity and Global Engagement\t4\t5\t2\t1.00\t1.00\t0.500000\nC5-1\tCreativity and innovation\t5\t5\t0\t0.00\t0.00\tNULL\nC5-2\tCollaborative\t5\t5\t0\t0.00\t0.00\tNULL\nC5-3\tManagement\t5\t5\t0\t0.00\t0.00\tNULL\nC5-4\tInterpersonal\t5\t5\t0\t0.00\t0.00\tNULL\nC5-5\tLeadership\t5\t5\t1\t1.00\t1.00\t1.000000\n",
+  "stderr": "",
+  "execution_time_ms": 1521
+}

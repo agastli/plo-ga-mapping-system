@@ -1,0 +1,136 @@
+{
+  "query": "SELECT \n  c.code,\n  c.gaId,\n  COUNT(CASE WHEN m.weight > 0 THEN 1 END) as non_zero_count,\n  ROUND(AVG(CASE WHEN m.weight > 0 THEN m.weight END) * 100, 2) as avg_weight_pct\nFROM competencies c\nLEFT JOIN mappings m ON c.id = m.competencyId\nLEFT JOIN plos p ON m.ploId = p.id\nWHERE p.programId = 20\nGROUP BY c.id, c.code, c.gaId\nORDER BY c.code;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT \n  c.code,\n  c.gaId,\n  COUNT(CASE WHEN m.weight > 0 THEN 1 END) as non_zero_count,\n  ROUND(AVG(CASE WHEN m.weight > 0 THEN m.weight END) * 100, 2) as avg_weight_pct\nFROM competencies c\nLEFT JOIN mappings m ON c.id = m.competencyId\nLEFT JOIN plos p ON m.ploId = p.id\nWHERE p.programId = 20\nGROUP BY c.id, c.code, c.gaId\nORDER BY c.code;",
+  "rows": [
+    {
+      "code": "C1-1",
+      "gaId": "1",
+      "non_zero_count": "2",
+      "avg_weight_pct": "50.00"
+    },
+    {
+      "code": "C1-2",
+      "gaId": "1",
+      "non_zero_count": "2",
+      "avg_weight_pct": "50.00"
+    },
+    {
+      "code": "C1-3",
+      "gaId": "1",
+      "non_zero_count": "2",
+      "avg_weight_pct": "50.00"
+    },
+    {
+      "code": "C1-4",
+      "gaId": "1",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C2-1",
+      "gaId": "2",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C2-2",
+      "gaId": "2",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C2-3",
+      "gaId": "2",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C2-4",
+      "gaId": "2",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C3-1",
+      "gaId": "3",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C3-2",
+      "gaId": "3",
+      "non_zero_count": "2",
+      "avg_weight_pct": "50.00"
+    },
+    {
+      "code": "C3-3",
+      "gaId": "3",
+      "non_zero_count": "5",
+      "avg_weight_pct": "20.00"
+    },
+    {
+      "code": "C4-1",
+      "gaId": "4",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C4-2",
+      "gaId": "4",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C4-3",
+      "gaId": "4",
+      "non_zero_count": "1",
+      "avg_weight_pct": "100.00"
+    },
+    {
+      "code": "C4-4",
+      "gaId": "4",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C4-5",
+      "gaId": "4",
+      "non_zero_count": "2",
+      "avg_weight_pct": "50.00"
+    },
+    {
+      "code": "C5-1",
+      "gaId": "5",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C5-2",
+      "gaId": "5",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C5-3",
+      "gaId": "5",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C5-4",
+      "gaId": "5",
+      "non_zero_count": "0",
+      "avg_weight_pct": "NULL"
+    },
+    {
+      "code": "C5-5",
+      "gaId": "5",
+      "non_zero_count": "1",
+      "avg_weight_pct": "100.00"
+    }
+  ],
+  "messages": [],
+  "stdout": "code\tgaId\tnon_zero_count\tavg_weight_pct\nC1-1\t1\t2\t50.00\nC1-2\t1\t2\t50.00\nC1-3\t1\t2\t50.00\nC1-4\t1\t0\tNULL\nC2-1\t2\t0\tNULL\nC2-2\t2\t0\tNULL\nC2-3\t2\t0\tNULL\nC2-4\t2\t0\tNULL\nC3-1\t3\t0\tNULL\nC3-2\t3\t2\t50.00\nC3-3\t3\t5\t20.00\nC4-1\t4\t0\tNULL\nC4-2\t4\t0\tNULL\nC4-3\t4\t1\t100.00\nC4-4\t4\t0\tNULL\nC4-5\t4\t2\t50.00\nC5-1\t5\t0\tNULL\nC5-2\t5\t0\tNULL\nC5-3\t5\t0\tNULL\nC5-4\t5\t0\tNULL\nC5-5\t5\t1\t100.00\n",
+  "stderr": "",
+  "execution_time_ms": 1526
+}

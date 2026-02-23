@@ -1,0 +1,35 @@
+{
+  "query": "SELECT id, programId, code FROM plos WHERE id BETWEEN 300 AND 310 ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT id, programId, code FROM plos WHERE id BETWEEN 300 AND 310 ORDER BY id;",
+  "rows": [
+    {
+      "id": "300",
+      "programId": "48",
+      "code": "PLO6"
+    },
+    {
+      "id": "301",
+      "programId": "48",
+      "code": "PLO7"
+    },
+    {
+      "id": "302",
+      "programId": "49",
+      "code": "PLO2"
+    },
+    {
+      "id": "303",
+      "programId": "49",
+      "code": "PLO4"
+    },
+    {
+      "id": "304",
+      "programId": "49",
+      "code": "PLO5"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tprogramId\tcode\n300\t48\tPLO6\n301\t48\tPLO7\n302\t49\tPLO2\n303\t49\tPLO4\n304\t49\tPLO5\n",
+  "stderr": "",
+  "execution_time_ms": 1513
+}

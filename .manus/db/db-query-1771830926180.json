@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as mapping_count\nFROM mappings m\nJOIN plos p ON m.ploId = p.id\nWHERE p.programId = 34;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT COUNT(*) as mapping_count\nFROM mappings m\nJOIN plos p ON m.ploId = p.id\nWHERE p.programId = 34;",
+  "rows": [
+    {
+      "mapping_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "mapping_count\n0\n",
+  "stderr": "",
+  "execution_time_ms": 1546
+}

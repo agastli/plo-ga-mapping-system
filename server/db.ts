@@ -597,25 +597,43 @@ export async function getProgramAnalytics(programId: number) {
   // Calculate alignment score for each GA
   const gaScores = allGAs.map((ga) => {
     const gaCompetencies = allCompetencies.filter((c) => c.gaId === ga.id);
-    const gaCompetencyIds = gaCompetencies.map((c) => c.id);
-
-    // Sum of weights for this GA's competencies
-    const totalWeight = programMappings
-      .filter((m) => gaCompetencyIds.includes(m.competencyId))
-      .reduce((sum, m) => sum + parseFloat(m.weight), 0);
-
-    // Max possible weight = number of competencies × number of PLOs
+    
+    // Calculate average score for each competency, then average those for the GA
+    const competencyScores: number[] = [];
+    let totalWeight = 0;
+    
+    gaCompetencies.forEach((competency) => {
+      // Get mappings for this competency in this program
+      const competencyMappings = programMappings.filter((m) => m.competencyId === competency.id);
+      
+      // Only count non-zero weight mappings (matching competency analytics behavior)
+      const nonZeroMappings = competencyMappings.filter((m) => parseFloat(m.weight) > 0);
+      
+      if (nonZeroMappings.length > 0) {
+        const competencyWeight = nonZeroMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
+        const competencyAvg = (competencyWeight / nonZeroMappings.length) * 100;
+        competencyScores.push(competencyAvg);
+        totalWeight += competencyWeight;
+      } else {
+        // Include competencies with no mappings as 0% in the GA average
+        competencyScores.push(0);
+      }
+    });
+    
+    // GA score = average of competency scores
+    const score = competencyScores.length > 0
+      ? competencyScores.reduce((sum, s) => sum + s, 0) / competencyScores.length
+      : 0;
+    
+    // Max weight for display purposes
     const maxWeight = gaCompetencies.length * programPLOs.length;
-
-    // Score as percentage
-    const score = maxWeight > 0 ? (totalWeight / maxWeight) * 100 : 0;
 
     return {
       gaId: ga.id,
       gaCode: ga.code,
       gaName: ga.nameEn,
       score: Math.round(score * 100) / 100,
-      totalWeight,
+      totalWeight: Math.round(totalWeight * 100) / 100,
       maxWeight,
     };
   });
@@ -762,6 +780,9 @@ export async function getGAAnalytics() {
         // Track total weight and mappings for display
         totalWeight += competencyWeight;
         totalMappings += nonZeroMappings.length;
+      } else {
+        // Include competencies with no mappings as 0% in the GA average
+        competencyScores.push(0);
       }
     });
 
@@ -1083,6 +1104,9 @@ export async function getFilteredGAAnalytics(filters?: { collegeId?: number; pro
         // Track total weight and mappings for display
         totalWeight += competencyWeight;
         totalMappings += nonZeroMappings.length;
+      } else {
+        // Include competencies with no mappings as 0% in the GA average
+        competencyScores.push(0);
       }
     });
 

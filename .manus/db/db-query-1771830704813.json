@@ -1,0 +1,16 @@
+{
+  "query": "SELECT p.id, p.nameEn, p.departmentId, d.nameEn as deptName \nFROM programs p \nJOIN departments d ON p.departmentId = d.id \nWHERE p.id = 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT p.id, p.nameEn, p.departmentId, d.nameEn as deptName \nFROM programs p \nJOIN departments d ON p.departmentId = d.id \nWHERE p.id = 20;",
+  "rows": [
+    {
+      "id": "20",
+      "nameEn": "Bachelor of Business Administration in Economics",
+      "departmentId": "20",
+      "deptName": "Department of Economics"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnameEn\tdepartmentId\tdeptName\n20\tBachelor of Business Administration in Economics\t20\tDepartment of Economics\n",
+  "stderr": "",
+  "execution_time_ms": 1536
+}

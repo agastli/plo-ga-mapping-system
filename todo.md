@@ -903,3 +903,4 @@
 - [x] Fix incorrect GA alignment score calculation (showing 14.65% instead of ~67%)
 - [x] Debug GA alignment score calculation - fix not working, still showing low values
 - [x] Fix GA alignment score to average competency scores instead of individual mappings
+- [x] Fix getProgramAnalytics to use same hierarchical calculation as university-wide GA analytics

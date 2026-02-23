@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, nameEn, nameAr, code FROM programs WHERE nameEn LIKE '%Mechanical%' OR nameEn LIKE '%mechanical%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT id, nameEn, nameAr, code FROM programs WHERE nameEn LIKE '%Mechanical%' OR nameEn LIKE '%mechanical%';",
+  "rows": [
+    {
+      "id": "34",
+      "nameEn": "Bachelor of Science in Mechanical Engineering",
+      "nameAr": "بكالوريوس العلوم في الهندسة الميكانيكية",
+      "code": "ENG-MEC-BS"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tnameEn\tnameAr\tcode\n34\tBachelor of Science in Mechanical Engineering\tبكالوريوس العلوم في الهندسة الميكانيكية\tENG-MEC-BS\n",
+  "stderr": "",
+  "execution_time_ms": 1522
+}
