@@ -641,6 +641,16 @@ export const appRouter = router({
           table_data: z.array(z.array(z.string())),
           chart_images: z.array(z.object({ title: z.string(), imageData: z.string() })).optional(),
           timestamp: z.string().optional(),
+          filter_context: z.object({
+            level: z.string(),
+            college_name: z.string().optional(),
+            program_name: z.string().optional(),
+          }).optional(),
+          color_legend: z.object({
+            green: z.string(),
+            yellow: z.string(),
+            red: z.string(),
+          }).optional(),
         }),
       }))
       .mutation(async ({ input, ctx }) => {
@@ -754,6 +764,16 @@ export const appRouter = router({
           table_data: z.array(z.array(z.string())),
           chart_images: z.array(z.object({ title: z.string(), imageData: z.string() })).optional(),
           timestamp: z.string().optional(),
+          filter_context: z.object({
+            level: z.string(),
+            college_name: z.string().optional(),
+            program_name: z.string().optional(),
+          }).optional(),
+          color_legend: z.object({
+            green: z.string(),
+            yellow: z.string(),
+            red: z.string(),
+          }).optional(),
         }),
       }))
       .mutation(async ({ input, ctx }) => {

@@ -892,3 +892,6 @@
 - [x] Add color legend to exported reports
 - [x] Add College/Program context information to exports
 - [x] Implement dynamic file names based on selected filters
+
+- [x] Fix file naming to reflect selected filters (All vs College vs Program)
+- [x] Ensure color legend appears in exported PDF/Word reports

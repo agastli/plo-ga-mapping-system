@@ -152,11 +152,11 @@ export default function GAAnalytics() {
               </Link>
               {gaData && (
                 <AnalyticsExport
-                  title={`Graduate Attributes Analytics${filterLevel === 'college' && selectedCollegeId ? ` - ${colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College'}` : filterLevel === 'program' && selectedProgramId ? ` - ${programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program'}` : ' - All Programs'}`}
+                  title={`Graduate Attributes Analytics${filterLevel === 'program' && selectedProgramId ? ` - ${colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College'} - ${programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program'}` : filterLevel === 'college' && selectedCollegeId ? ` - ${colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College'} - All Programs` : ' - All Colleges'}`}
                   chartRef={chartRef}
                   data={gaData}
                   type="ga"
-                  entityCode={`GA_Analytics${filterLevel === 'college' && selectedCollegeId ? `_${colleges?.find(c => c.id === selectedCollegeId)?.code || 'College'}` : filterLevel === 'program' && selectedProgramId ? `_${programs?.find(p => p.program.id === selectedProgramId)?.program.code || 'Program'}` : '_All'}`}
+                  entityCode={`GA_Analytics${filterLevel === 'program' && selectedProgramId ? `_${colleges?.find(c => c.id === selectedCollegeId)?.code || 'College'}_${programs?.find(p => p.program.id === selectedProgramId)?.program.code || 'Program'}` : filterLevel === 'college' && selectedCollegeId ? `_${colleges?.find(c => c.id === selectedCollegeId)?.code || 'College'}_All_Programs` : '_All_Colleges'}`}
                   filterContext={{
                     level: filterLevel,
                     collegeName: filterLevel === 'college' && selectedCollegeId ? colleges?.find(c => c.id === selectedCollegeId)?.nameEn : undefined,
@@ -185,8 +185,10 @@ export default function GAAnalytics() {
                 <select
                   value={selectedCollegeId || ""}
                   onChange={(e) => {
-                    setSelectedCollegeId(e.target.value ? Number(e.target.value) : undefined);
+                    const collegeId = e.target.value ? Number(e.target.value) : undefined;
+                    setSelectedCollegeId(collegeId);
                     setSelectedProgramId(undefined); // Reset program when college changes
+                    setFilterLevel(collegeId ? 'college' : 'university'); // Update filter level
                   }}
                   className="w-full border border-gray-300 rounded px-3 py-2"
                 >
@@ -207,7 +209,11 @@ export default function GAAnalytics() {
                   </label>
                   <select
                     value={selectedProgramId || ""}
-                    onChange={(e) => setSelectedProgramId(e.target.value ? Number(e.target.value) : undefined)}
+                    onChange={(e) => {
+                      const programId = e.target.value ? Number(e.target.value) : undefined;
+                      setSelectedProgramId(programId);
+                      setFilterLevel(programId ? 'program' : 'college'); // Update filter level
+                    }}
                     className="w-full border border-gray-300 rounded px-3 py-2"
                   >
                     <option value="">All Programs in College</option>
