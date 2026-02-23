@@ -1101,6 +1101,12 @@
 - [ ] Create SQL script to merge Mathematics and Statistics departments
 - [ ] Test department merge and verify all programs preserved
 
-- [ ] Add cluster filter dropdown to Programs page when college has clusters
-- [ ] Hide programs until cluster is selected (for colleges with clusters)
+- [x] Add cluster filter dropdown to Programs page when college has clusters
+- [x] Hide programs until cluster is selected (for colleges with clusters)
 - [ ] Test Programs page cluster filtering
+
+- [x] Create admin dashboard landing page with 4 options
+- [x] Implement delete program page with college/cluster/program selection
+- [x] Add delete program endpoint with cascading deletes (PLOs, mappings, justifications)
+- [x] Update Home page button from "View Programs" to "Manage Programs"
+- [ ] Test delete program feature

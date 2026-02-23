@@ -187,6 +187,22 @@ export const appRouter = router({
         }
         return { success: true };
       }),
+    delete: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        // Delete program and all related data (cascading delete)
+        await db.deleteProgram(input.id);
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "delete",
+            entityType: "program",
+            entityId: input.id,
+            details: JSON.stringify({ programId: input.id }),
+          });
+        }
+        return { success: true };
+      }),
   }),
 
   // Graduate Attributes & Competencies

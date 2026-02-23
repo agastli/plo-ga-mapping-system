@@ -9,6 +9,8 @@ import Upload from "./pages/Upload";
 import Programs from "./pages/Programs";
 import ProgramDetail from "./pages/ProgramDetail";
 import AddProgram from "./pages/AddProgram";
+import AdminDashboard from "./pages/AdminDashboard";
+import DeleteProgram from "./pages/DeleteProgram";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import CollegeAnalytics from "./pages/CollegeAnalytics";
@@ -32,7 +34,9 @@ function Router() {
       <Route path={"/upload"} component={Upload} />
       <Route path={"/programs"} component={Programs} />
       <Route path={"/programs/new"} component={AddProgram} />
+      <Route path={"/programs/delete"} component={DeleteProgram} />
       <Route path={"/programs/:id"} component={ProgramDetail} />
+      <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/analytics"} component={UnifiedAnalytics} />
       <Route path={"/analytics/guide"} component={AnalyticsGuide} />

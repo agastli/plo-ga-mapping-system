@@ -19,9 +19,9 @@ export default function Home() {
               </div>
             </div>
             <Button variant="default" size="lg" asChild className="bg-[#8B1538] hover:bg-[#6B1028]">
-              <Link href="/programs">
+              <Link href="/admin">
                 <Database className="mr-2 h-4 w-4" />
-                View Programs
+                Manage Programs
               </Link>
             </Button>
           </div>

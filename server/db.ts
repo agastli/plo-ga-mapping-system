@@ -235,6 +235,29 @@ export async function updateProgram(id: number, data: Partial<InsertProgram>) {
   await db.update(programs).set(data).where(eq(programs.id, id));
 }
 
+export async function deleteProgram(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Delete justifications for this program (by programId)
+  await db.delete(justifications).where(eq(justifications.programId, id));
+  
+  // Get all PLOs for this program
+  const programPLOs = await db.select().from(plos).where(eq(plos.programId, id));
+  const ploIds = programPLOs.map(plo => plo.id);
+  
+  if (ploIds.length > 0) {
+    // Delete mappings for these PLOs
+    await db.delete(mappings).where(inArray(mappings.ploId, ploIds));
+    
+    // Delete PLOs
+    await db.delete(plos).where(eq(plos.programId, id));
+  }
+  
+  // Finally, delete the program
+  await db.delete(programs).where(eq(programs.id, id));
+}
+
 export async function getAllPrograms() {
   const db = await getDb();
   if (!db) return [];
