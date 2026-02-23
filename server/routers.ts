@@ -877,6 +877,40 @@ export const appRouter = router({
         }
       }),
     
+    exportAnalyticsPNG: publicProcedure
+      .input(z.object({
+        chartImages: z.array(z.object({
+          title: z.string(),
+          imageData: z.string(), // base64 encoded PNG
+        })),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const timestamp = Date.now();
+        const outputFiles: Array<{ name: string; path: string }> = [];
+        
+        try {
+          // Save each chart image to temp directory
+          for (const chart of input.chartImages) {
+            const outputPath = path.join(tmpdir(), `${chart.title}_${timestamp}.png`);
+            const base64Data = chart.imageData.split(',')[1]; // Remove data:image/png;base64, prefix
+            await writeFile(outputPath, Buffer.from(base64Data, 'base64'));
+            outputFiles.push({
+              name: `${chart.title}_${timestamp}.png`,
+              path: outputPath,
+            });
+          }
+          
+          // Return file paths for frontend to download
+          return { files: outputFiles };
+        } catch (error) {
+          // Cleanup on error
+          for (const file of outputFiles) {
+            await unlink(file.path).catch(() => {});
+          }
+          throw error;
+        }
+      }),
+    
     batchExport: publicProcedure
       .input(z.object({
         entities: z.array(z.object({

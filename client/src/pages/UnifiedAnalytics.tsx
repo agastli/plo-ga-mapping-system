@@ -27,77 +27,54 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
+import { toast } from "sonner";
 import html2canvas from "html2canvas";
 
 export default function UnifiedAnalytics() {
   const gaChartRef = useRef<HTMLDivElement>(null);
   const competencyChartRef = useRef<HTMLDivElement>(null);
 
+  const exportPNG = trpc.analytics.exportAnalyticsPNG.useMutation();
+
+  const captureChartAsBase64 = async (element: HTMLElement): Promise<string> => {
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+    });
+    return canvas.toDataURL('image/png');
+  };
+
   const handleExportPNG = async () => {
+    if (!gaChartRef.current || !competencyChartRef.current) {
+      toast.error('Charts not ready for export');
+      return;
+    }
+
     try {
-      // Export GA Chart
-      if (gaChartRef.current) {
-        const canvas = await html2canvas(gaChartRef.current, {
-          backgroundColor: '#ffffff',
-          scale: 2,
-          ignoreElements: (element) => {
-            // Skip elements that might have OKLCH colors
-            const style = window.getComputedStyle(element);
-            return style.color?.includes('oklch') || style.backgroundColor?.includes('oklch');
-          },
-          onclone: (clonedDoc) => {
-            // Convert any OKLCH colors to standard hex colors in the cloned document
-            const allElements = clonedDoc.querySelectorAll('*');
-            allElements.forEach((el: any) => {
-              const style = window.getComputedStyle(el);
-              if (style.color?.includes('oklch')) {
-                el.style.color = '#000000';
-              }
-              if (style.backgroundColor?.includes('oklch')) {
-                el.style.backgroundColor = '#ffffff';
-              }
-            });
-          },
-        });
-        const link = document.createElement('a');
-        link.download = `GA_Alignment_Scores_${new Date().toISOString().split('T')[0]}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
+      toast.info('Capturing charts...');
+      
+      // Capture all chart elements as base64
+      const gaChartImage = await captureChartAsBase64(gaChartRef.current);
+      const compChartImage = await captureChartAsBase64(competencyChartRef.current);
+      
+      toast.info('Generating PNG files...');
+      
+      const result = await exportPNG.mutateAsync({
+        chartImages: [
+          { title: 'GA_Alignment_Scores', imageData: gaChartImage },
+          { title: 'Competency_Average_Weights', imageData: compChartImage },
+        ],
+      });
+      
+      // Download the files
+      for (const file of result.files) {
+        window.open('/api/download/' + encodeURIComponent(file.path), '_blank');
       }
-
-      // Export Competency Chart
-      if (competencyChartRef.current) {
-        const canvas = await html2canvas(competencyChartRef.current, {
-          backgroundColor: '#ffffff',
-          scale: 2,
-          ignoreElements: (element) => {
-            const style = window.getComputedStyle(element);
-            return style.color?.includes('oklch') || style.backgroundColor?.includes('oklch');
-          },
-          onclone: (clonedDoc) => {
-            const allElements = clonedDoc.querySelectorAll('*');
-            allElements.forEach((el: any) => {
-              const style = window.getComputedStyle(el);
-              if (style.color?.includes('oklch')) {
-                el.style.color = '#000000';
-              }
-              if (style.backgroundColor?.includes('oklch')) {
-                el.style.backgroundColor = '#ffffff';
-              }
-            });
-          },
-        });
-        const link = document.createElement('a');
-        link.download = `Competency_Average_Weights_${new Date().toISOString().split('T')[0]}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-      }
-
-      alert('Charts exported as PNG images successfully!');
+      
+      toast.success('PNG charts exported successfully!');
     } catch (error) {
       console.error('Error exporting charts:', error);
-      const errorMsg = error instanceof Error ? error.message : 'Please try again.';
-      alert('Error exporting charts: ' + errorMsg);
+      toast.error('Error exporting charts. Please try again.');
     }
   };
 
