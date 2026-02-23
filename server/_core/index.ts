@@ -28,6 +28,14 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Ensure temp directory exists
+  const fs = await import('fs');
+  const path = await import('path');
+  const tempDir = path.join(process.cwd(), 'temp');
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+  
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads

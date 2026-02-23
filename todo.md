@@ -955,3 +955,4 @@
 - [ ] Fix incorrect GA score calculations in college comparison chart
 - [ ] Fix incorrect GA score calculations in program comparison chart
 - [x] Fix gaByCollegeAnalytics to use same formula as gaAnalytics
+- [ ] Fix PNG export by ensuring temp directory exists and has proper permissions
