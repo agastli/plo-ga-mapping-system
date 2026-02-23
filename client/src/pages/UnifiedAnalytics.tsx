@@ -767,7 +767,18 @@ export default function UnifiedAnalytics() {
                       return null;
                     }}
                   />
-                  <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+                  <Bar 
+                    dataKey="score" 
+                    radius={[8, 8, 0, 0]}
+                    onClick={(data) => {
+                      if (filterLevel === 'college' && data.collegeId) {
+                        window.location.href = `/analytics?level=college&collegeId=${data.collegeId}`;
+                      } else if (filterLevel === 'program' && data.programId) {
+                        window.location.href = `/programs/${data.programId}`;
+                      }
+                    }}
+                    cursor="pointer"
+                  >
                     {gaChartData.map((entry, index) => {
                       // Threshold-based coloring
                       let color = "#22C55E"; // Green for ≥80%
@@ -889,7 +900,20 @@ export default function UnifiedAnalytics() {
                   <XAxis dataKey="name" stroke="#6b7280" style={{ fontSize: '12px' }} />
                   <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} label={{ value: 'Average GA Score (%)', angle: -90, position: 'insideLeft' }} />
                   <Tooltip />
-                  <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+                  <Bar 
+                    dataKey="score" 
+                    radius={[8, 8, 0, 0]}
+                    onClick={(data, index) => {
+                      if (filterLevel === 'university' && collegeComparisonData) {
+                        const college = collegeComparisonData.heatmapData[index];
+                        window.location.href = `/analytics?level=college&collegeId=${college.collegeId}`;
+                      } else if (programComparisonData) {
+                        const program = programComparisonData.programData[index];
+                        window.location.href = `/programs/${program.programId}`;
+                      }
+                    }}
+                    cursor="pointer"
+                  >
                     {(filterLevel === 'university' && collegeComparisonData
                       ? collegeComparisonData.heatmapData.map((college: any) => ({
                           score: college.gaScores.reduce((sum: number, ga: any) => sum + ga.score, 0) / college.gaScores.length,
@@ -972,7 +996,18 @@ export default function UnifiedAnalytics() {
                     return null;
                   }}
                 />
-                <Bar dataKey="weight" radius={[8, 8, 0, 0]}>
+                <Bar 
+                  dataKey="weight" 
+                  radius={[8, 8, 0, 0]}
+                  onClick={(data) => {
+                    if (filterLevel === 'college' && data.collegeId) {
+                      window.location.href = `/analytics?level=college&collegeId=${data.collegeId}`;
+                    } else if (filterLevel === 'program' && data.programId) {
+                      window.location.href = `/programs/${data.programId}`;
+                    }
+                  }}
+                  cursor="pointer"
+                >
                   {competencyChartData.map((entry, index) => {
                     // Threshold-based coloring
                     let color = "#22C55E"; // Green for ≥80%

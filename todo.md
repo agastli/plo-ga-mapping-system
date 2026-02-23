@@ -1115,3 +1115,32 @@
 - [x] Add delete PLO button with confirmation dialog
 - [x] Add new PLO form in edit page
 - [ ] Test language editing and PLO management features
+
+- [ ] Review all existing documentation files
+- [ ] Update README.md with comprehensive system overview and features
+- [ ] Revise INSTALLATION.md for clarity and completeness
+- [ ] Update DATABASE_SETUP.md with latest schema and setup instructions
+- [ ] Revise HOSTINGER_DEPLOYMENT.md with current deployment steps
+- [ ] Update WINDOWS_SETUP.md and setup-windows.bat
+- [ ] Update setup-unix.sh for Linux/Mac deployment
+- [ ] Create comprehensive deployment checklist
+- [ ] Test all installation instructions
+
+## Documentation Revision for Deployment
+- [x] Update README.md with complete system overview and features
+- [ ] Revise INSTALLATION.md for both Windows and Unix
+- [ ] Update DATABASE_SETUP.md with complete schema and setup
+- [ ] Revise setup-windows.bat script
+- [ ] Revise setup-unix.sh script  
+- [ ] Create unified DEPLOYMENT_GUIDE.md
+- [ ] Remove outdated documentation files
+- [ ] Test installation on clean Windows environment
+- [ ] Test installation on clean Unix environment
+
+## Interactive Chart Navigation
+- [x] Add click handlers to college bars in GA alignment chart to navigate to college dashboard
+- [x] Add click handlers to college bars in competency coverage chart to navigate to college dashboard
+- [x] Add click handlers to program bars to navigate to program detail page
+- [x] Add cursor pointer style to clickable bars
+- [ ] Test interactive navigation on all charts
+- [ ] Push changes to GitHub
