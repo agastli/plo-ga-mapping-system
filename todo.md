@@ -976,3 +976,16 @@
 - [x] Add inline editing for program name (English and Arabic)
 - [x] Add save/cancel buttons with validation
 - [ ] Test updating program information and verify data persistence
+
+## Phase 41: Add Comprehensive New Program Creation Form (Multi-Step Wizard)
+- [x] Create multi-step form wizard UI structure with progress indicator
+- [x] Step 1: Program Information (name EN/AR, code, language, college, department)
+- [x] Step 2: PLOs input with dynamic add/remove functionality
+- [x] Step 3: Mappings matrix (PLOs to competencies with weight inputs)
+- [x] Step 4: Justifications input for each PLO-competency mapping
+- [x] Add form validation for all steps (required fields, weight ranges 0-1)
+- [x] Implement navigation between steps (Next/Previous/Save Draft)
+- [x] Add final submission logic to create program with all related data
+- [x] Add route to App.tsx for /programs/new
+- [x] Add navigation link from Programs list page
+- [ ] Test complete workflow and verify all data persistence

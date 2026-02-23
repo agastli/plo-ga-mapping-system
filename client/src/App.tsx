@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Upload from "./pages/Upload";
 import Programs from "./pages/Programs";
 import ProgramDetail from "./pages/ProgramDetail";
+import AddProgram from "./pages/AddProgram";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import CollegeAnalytics from "./pages/CollegeAnalytics";
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/upload"} component={Upload} />
       <Route path={"/programs"} component={Programs} />
+      <Route path={"/programs/new"} component={AddProgram} />
       <Route path={"/programs/:id"} component={ProgramDetail} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/analytics"} component={UnifiedAnalytics} />

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Search, BookOpen, GraduationCap, Home } from "lucide-react";
+import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -47,6 +47,12 @@ export default function Programs() {
                 <Link href="/">
                   <Home className="mr-2 h-4 w-4" />
                   Home
+                </Link>
+              </Button>
+              <Button variant="outline" asChild className="border-green-600 text-green-600 hover:bg-green-50">
+                <Link href="/programs/new">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add New Program
                 </Link>
               </Button>
               <Button variant="default" asChild className="bg-[#8B1538] hover:bg-[#6B1028]">
