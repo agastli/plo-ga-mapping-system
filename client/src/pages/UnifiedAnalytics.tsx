@@ -427,7 +427,6 @@ export default function UnifiedAnalytics() {
                     <th className="border border-gray-300 px-4 py-2 text-left">GA Code</th>
                     <th className="border border-gray-300 px-4 py-2 text-left">Graduate Attribute</th>
                     <th className="border border-gray-300 px-4 py-2 text-right">Alignment Score (%)</th>
-                    <th className="border border-gray-300 px-4 py-2 text-right">Total Weight</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -437,9 +436,6 @@ export default function UnifiedAnalytics() {
                       <td className="border border-gray-300 px-4 py-2">{ga.gaNameEn}</td>
                       <td className="border border-gray-300 px-4 py-2 text-right font-semibold">
                         {ga.avgAlignmentScore.toFixed(2)}%
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2 text-right">
-                        {ga.totalWeight.toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -462,7 +458,6 @@ export default function UnifiedAnalytics() {
                     <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
                     <th className="border border-gray-300 px-4 py-2 text-left">Competency</th>
                     <th className="border border-gray-300 px-4 py-2 text-right">Average Weight (%)</th>
-                    <th className="border border-gray-300 px-4 py-2 text-right">Total Mappings</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -474,9 +469,6 @@ export default function UnifiedAnalytics() {
                       <td className="border border-gray-300 px-4 py-2">{comp.competencyNameEn}</td>
                       <td className="border border-gray-300 px-4 py-2 text-right font-semibold">
                         {(comp.avgWeight * 100).toFixed(2)}%
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2 text-right">
-                        {comp.mappingCount}
                       </td>
                     </tr>
                   ))}

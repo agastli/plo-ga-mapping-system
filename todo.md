@@ -925,3 +925,4 @@
 - [x] Implement export functionality to generate analytics report
 - [x] Add color scheme legend showing GA color coding
 - [x] Apply threshold-based coloring to competency bars (Green: ≥70%, Yellow: 40-69%, Red: <40%)
+- [x] Remove Total Weight column from GA and Competency data tables
