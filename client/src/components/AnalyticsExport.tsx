@@ -41,6 +41,31 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
       const canvas = await html2canvas(chartRef.current, {
         backgroundColor: "#ffffff",
         scale: 2,
+        onclone: (clonedDoc) => {
+          // Convert all OKLCH colors to safe colors by reading computed styles
+          const allElements = clonedDoc.body.querySelectorAll('*');
+          allElements.forEach((el: any) => {
+            const computed = window.getComputedStyle(el);
+            
+            // Check computed background color
+            const bgColor = computed.backgroundColor;
+            if (bgColor && bgColor.includes('oklch')) {
+              el.style.backgroundColor = '#ffffff';
+            }
+            
+            // Check computed text color
+            const textColor = computed.color;
+            if (textColor && textColor.includes('oklch')) {
+              el.style.color = '#000000';
+            }
+            
+            // Check computed border color
+            const borderColor = computed.borderColor;
+            if (borderColor && borderColor.includes('oklch')) {
+              el.style.borderColor = '#e5e7eb';
+            }
+          });
+        },
       });
       
       const link = document.createElement("a");
@@ -68,6 +93,31 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
         const canvas = await html2canvas(chartRef.current, {
           backgroundColor: "#ffffff",
           scale: 2,
+          onclone: (clonedDoc) => {
+            // Convert all OKLCH colors to safe colors by reading computed styles
+            const allElements = clonedDoc.body.querySelectorAll('*');
+            allElements.forEach((el: any) => {
+              const computed = window.getComputedStyle(el);
+              
+              // Check computed background color
+              const bgColor = computed.backgroundColor;
+              if (bgColor && bgColor.includes('oklch')) {
+                el.style.backgroundColor = '#ffffff';
+              }
+              
+              // Check computed text color
+              const textColor = computed.color;
+              if (textColor && textColor.includes('oklch')) {
+                el.style.color = '#000000';
+              }
+              
+              // Check computed border color
+              const borderColor = computed.borderColor;
+              if (borderColor && borderColor.includes('oklch')) {
+                el.style.borderColor = '#e5e7eb';
+              }
+            });
+          },
         });
         chartImageData = canvas.toDataURL();
       }
@@ -158,6 +208,31 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
         const canvas = await html2canvas(chartRef.current, {
           backgroundColor: "#ffffff",
           scale: 2,
+          onclone: (clonedDoc) => {
+            // Convert all OKLCH colors to safe colors by reading computed styles
+            const allElements = clonedDoc.body.querySelectorAll('*');
+            allElements.forEach((el: any) => {
+              const computed = window.getComputedStyle(el);
+              
+              // Check computed background color
+              const bgColor = computed.backgroundColor;
+              if (bgColor && bgColor.includes('oklch')) {
+                el.style.backgroundColor = '#ffffff';
+              }
+              
+              // Check computed text color
+              const textColor = computed.color;
+              if (textColor && textColor.includes('oklch')) {
+                el.style.color = '#000000';
+              }
+              
+              // Check computed border color
+              const borderColor = computed.borderColor;
+              if (borderColor && borderColor.includes('oklch')) {
+                el.style.borderColor = '#e5e7eb';
+              }
+            });
+          },
         });
         chartImageData = canvas.toDataURL();
       }
