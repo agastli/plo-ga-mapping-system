@@ -917,6 +917,239 @@ export const appRouter = router({
           throw error;
         }
       }),
+
+    exportAnalyticsPDF: publicProcedure
+      .input(z.object({
+        title: z.string(),
+        filterContext: z.object({
+          collegeName: z.string().optional(),
+          programName: z.string().optional(),
+        }).optional(),
+        metrics: z.array(z.object({
+          label: z.string(),
+          value: z.any(),
+        })),
+        chartImages: z.array(z.object({
+          title: z.string(),
+          imageData: z.string(),
+        })),
+        tableData: z.array(z.array(z.string())).optional(),
+        colorLegend: z.object({
+          green: z.string(),
+          yellow: z.string(),
+          red: z.string(),
+        }).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const timestamp = Date.now();
+        const tempChartPaths: string[] = [];
+        
+        try {
+          // Save chart images to temp files
+          const chartImagePaths = [];
+          for (const chart of input.chartImages) {
+            const chartPath = path.join(process.cwd(), 'temp', `chart_${timestamp}_${chartImagePaths.length}.png`);
+            const base64Data = chart.imageData.split(',')[1];
+            await writeFile(chartPath, Buffer.from(base64Data, 'base64'));
+            tempChartPaths.push(chartPath);
+            chartImagePaths.push({
+              title: chart.title,
+              path: chartPath,
+            });
+          }
+          
+          const exportData = {
+            title: input.title,
+            timestamp: new Date().toLocaleString(),
+            filter_context: input.filterContext ? {
+              college_name: input.filterContext.collegeName || 'All',
+              program_name: input.filterContext.programName || 'All',
+            } : undefined,
+            metrics: input.metrics,
+            chart_images: chartImagePaths,
+            table_data: input.tableData,
+            color_legend: input.colorLegend,
+          };
+          
+          const outputPath = path.join(process.cwd(), 'temp', `analytics_${timestamp}.pdf`);
+          const logoPath = path.join(__dirname, '../client/public/qu-logo.png');
+          const tempInputFile = path.join(tmpdir(), `analytics-pdf-${timestamp}.json`);
+          
+          await writeFile(tempInputFile, JSON.stringify({
+            data: exportData,
+            output_path: outputPath,
+            logo_path: logoPath,
+          }));
+          
+          const scriptPath = path.join(__dirname, '../scripts/export-analytics-to-pdf.py');
+          const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
+          
+          await unlink(tempInputFile).catch(() => {});
+          for (const chartPath of tempChartPaths) {
+            await unlink(chartPath).catch(() => {});
+          }
+          
+          const result = JSON.parse(stdout.trim());
+          if (!result.success) {
+            throw new Error(result.error || 'PDF generation failed');
+          }
+          
+          return {
+            success: true,
+            filename: `analytics_${timestamp}.pdf`,
+            path: outputPath,
+          };
+        } catch (error) {
+          for (const chartPath of tempChartPaths) {
+            await unlink(chartPath).catch(() => {});
+          }
+          throw error;
+        }
+      }),
+
+    exportAnalyticsWord: publicProcedure
+      .input(z.object({
+        title: z.string(),
+        filterContext: z.object({
+          collegeName: z.string().optional(),
+          programName: z.string().optional(),
+        }).optional(),
+        metrics: z.array(z.object({
+          label: z.string(),
+          value: z.any(),
+        })),
+        chartImages: z.array(z.object({
+          title: z.string(),
+          imageData: z.string(),
+        })),
+        tableData: z.array(z.array(z.string())).optional(),
+        colorLegend: z.object({
+          green: z.string(),
+          yellow: z.string(),
+          red: z.string(),
+        }).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const timestamp = Date.now();
+        const tempChartPaths: string[] = [];
+        
+        try {
+          const chartImagePaths = [];
+          for (const chart of input.chartImages) {
+            const chartPath = path.join(process.cwd(), 'temp', `chart_${timestamp}_${chartImagePaths.length}.png`);
+            const base64Data = chart.imageData.split(',')[1];
+            await writeFile(chartPath, Buffer.from(base64Data, 'base64'));
+            tempChartPaths.push(chartPath);
+            chartImagePaths.push({
+              title: chart.title,
+              path: chartPath,
+            });
+          }
+          
+          const exportData = {
+            title: input.title,
+            timestamp: new Date().toLocaleString(),
+            filter_context: input.filterContext ? {
+              college_name: input.filterContext.collegeName || 'All',
+              program_name: input.filterContext.programName || 'All',
+            } : undefined,
+            metrics: input.metrics,
+            chart_images: chartImagePaths,
+            table_data: input.tableData,
+            color_legend: input.colorLegend,
+          };
+          
+          const outputPath = path.join(process.cwd(), 'temp', `analytics_${timestamp}.docx`);
+          const logoPath = path.join(__dirname, '../client/public/qu-logo.png');
+          const tempInputFile = path.join(tmpdir(), `analytics-word-${timestamp}.json`);
+          
+          await writeFile(tempInputFile, JSON.stringify({
+            data: exportData,
+            output_path: outputPath,
+            logo_path: logoPath,
+          }));
+          
+          const scriptPath = path.join(__dirname, '../scripts/export-analytics-to-word.py');
+          const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
+          
+          await unlink(tempInputFile).catch(() => {});
+          for (const chartPath of tempChartPaths) {
+            await unlink(chartPath).catch(() => {});
+          }
+          
+          const result = JSON.parse(stdout.trim());
+          if (!result.success) {
+            throw new Error(result.error || 'Word generation failed');
+          }
+          
+          return {
+            success: true,
+            filename: `analytics_${timestamp}.docx`,
+            path: outputPath,
+          };
+        } catch (error) {
+          for (const chartPath of tempChartPaths) {
+            await unlink(chartPath).catch(() => {});
+          }
+          throw error;
+        }
+      }),
+
+    exportAnalyticsExcel: publicProcedure
+      .input(z.object({
+        title: z.string(),
+        filterContext: z.object({
+          collegeName: z.string().optional(),
+          programName: z.string().optional(),
+        }).optional(),
+        metrics: z.array(z.object({
+          label: z.string(),
+          value: z.any(),
+        })),
+        tableData: z.array(z.array(z.string())),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const timestamp = Date.now();
+        
+        try {
+          const exportData = {
+            title: input.title,
+            timestamp: new Date().toLocaleString(),
+            filter_context: input.filterContext ? {
+              college_name: input.filterContext.collegeName || 'All',
+              program_name: input.filterContext.programName || 'All',
+            } : undefined,
+            metrics: input.metrics,
+            table_data: input.tableData,
+          };
+          
+          const outputPath = path.join(process.cwd(), 'temp', `analytics_${timestamp}.xlsx`);
+          const tempInputFile = path.join(tmpdir(), `analytics-excel-${timestamp}.json`);
+          
+          await writeFile(tempInputFile, JSON.stringify({
+            data: exportData,
+            output_path: outputPath,
+          }));
+          
+          const scriptPath = path.join(__dirname, '../scripts/export-analytics-to-excel.py');
+          const { stdout, stderr } = await execAsync(`${PYTHON_CMD} "${scriptPath}" "${tempInputFile}"`);
+          
+          await unlink(tempInputFile).catch(() => {});
+          
+          const result = JSON.parse(stdout.trim());
+          if (!result.success) {
+            throw new Error(result.error || 'Excel generation failed');
+          }
+          
+          return {
+            success: true,
+            filename: `analytics_${timestamp}.xlsx`,
+            path: outputPath,
+          };
+        } catch (error) {
+          throw error;
+        }
+      }),
     
     batchExport: publicProcedure
       .input(z.object({

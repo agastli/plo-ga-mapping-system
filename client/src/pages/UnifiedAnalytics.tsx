@@ -37,6 +37,9 @@ export default function UnifiedAnalytics() {
   const comparisonChartRef = useRef<HTMLDivElement>(null);
 
   const exportPNG = trpc.analytics.exportAnalyticsPNG.useMutation();
+  const exportPDF = trpc.analytics.exportAnalyticsPDF.useMutation();
+  const exportWord = trpc.analytics.exportAnalyticsWord.useMutation();
+  const exportExcel = trpc.analytics.exportAnalyticsExcel.useMutation();
 
   const captureChartAsBase64 = async (element: HTMLElement): Promise<string> => {
     const canvas = await html2canvas(element, {
@@ -137,50 +140,238 @@ export default function UnifiedAnalytics() {
     }
   };
 
-  const handleExportPDF = () => {
-    alert('PDF export is coming soon!');
-  };
-
-  const handleExportWord = () => {
-    alert('Word export is coming soon!');
-  };
-
-  const handleExportExcel = () => {
-    if (!gaData || !competencyData) {
-      alert('No data available to export');
+  const handleExportPDF = async () => {
+    if (!gaChartRef.current || !radarChartRef.current || !competencyChartRef.current || !gaData || !competencyData) {
+      toast.error('Charts not ready for export');
       return;
     }
 
-    // Create CSV content (Excel-compatible)
-    let csvContent = "Graduate Attributes & Competencies Analytics Report\n\n";
-    csvContent += `Generated: ${new Date().toLocaleString()}\n`;
-    csvContent += `Analysis Level: ${filterLevel}\n\n`;
+    try {
+      toast.info('Generating PDF report...');
+      
+      // Capture all chart images
+      const gaChartImage = await captureChartAsBase64(gaChartRef.current);
+      const radarChartImage = await captureChartAsBase64(radarChartRef.current);
+      const compChartImage = await captureChartAsBase64(competencyChartRef.current);
+      
+      let comparisonChartImage = null;
+      if (comparisonChartRef.current) {
+        comparisonChartImage = await captureChartAsBase64(comparisonChartRef.current);
+      }
+      
+      // Build context
+      let contextPrefix = 'University-wide';
+      let collegeName = 'All';
+      let programName = 'All';
+      
+      if (filterLevel === 'college' && selectedCollegeId) {
+        const college = colleges?.find(c => c.id === selectedCollegeId);
+        contextPrefix = college ? college.nameEn.replace(/\s+/g, '_') : 'College';
+        collegeName = college ? college.nameEn : 'All';
+      } else if (filterLevel === 'program' && selectedProgramId) {
+        const program = programs?.find(p => p.program.id === selectedProgramId);
+        contextPrefix = program ? program.program.nameEn.replace(/\s+/g, '_') : 'Program';
+        programName = program ? program.program.nameEn : 'All';
+        collegeName = program ? program.college.nameEn : 'All';
+      }
+      
+      const chartImages = [
+        { title: `${contextPrefix}_GA_Alignment_Scores`, imageData: gaChartImage },
+        { title: `${contextPrefix}_GA_Coverage_Profile`, imageData: radarChartImage },
+      ];
+      
+      if (comparisonChartImage) {
+        const comparisonTitle = filterLevel === 'university' 
+          ? `${contextPrefix}_College_Comparison` 
+          : `${contextPrefix}_Program_Comparison`;
+        chartImages.push({ title: comparisonTitle, imageData: comparisonChartImage });
+      }
+      
+      chartImages.push({ title: `${contextPrefix}_Competency_Average_Weights`, imageData: compChartImage });
+      
+      // Prepare metrics
+      const avgGAScore = gaStats.reduce((sum, ga) => sum + ga.avgAlignmentScore, 0) / gaStats.length;
+      const metrics = [
+        { label: 'Total GAs', value: totalGAs },
+        { label: 'Total Competencies', value: totalCompetencies },
+        { label: 'Total Programs', value: totalPrograms },
+        { label: 'Average GA Score', value: `${avgGAScore.toFixed(2)}%` },
+      ];
+      
+      // Prepare table data
+      const tableData = [
+        ['GA Code', 'GA Name', 'Alignment Score (%)'],
+        ...gaStats.map(ga => [ga.gaCode, ga.gaNameEn, ga.avgAlignmentScore.toFixed(2)]),
+      ];
+      
+      const result = await exportPDF.mutateAsync({
+        title: 'Graduate Attributes & Competencies Analytics',
+        filterContext: { collegeName, programName },
+        metrics,
+        chartImages,
+        tableData,
+        colorLegend: {
+          green: 'Strong (≥80%)',
+          yellow: 'Moderate (50-79%)',
+          red: 'Weak (<50%)',
+        },
+      });
+      
+      // Download the file
+      const link = document.createElement('a');
+      link.href = '/api/download/' + encodeURIComponent(result.path);
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('PDF report generated successfully!');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Error generating PDF. Please try again.');
+    }
+  };
 
-    // GA Data
-    csvContent += "Graduate Attribute Alignment Scores\n";
-    csvContent += "GA Code,GA Name,Alignment Score (%)\n";
-    gaData.gaStats.forEach(ga => {
-      csvContent += `${ga.gaCode},${ga.gaNameEn},${ga.avgAlignmentScore.toFixed(2)}\n`;
-    });
-    csvContent += "\n";
+  const handleExportWord = async () => {
+    if (!gaChartRef.current || !radarChartRef.current || !competencyChartRef.current || !gaData || !competencyData) {
+      toast.error('Charts not ready for export');
+      return;
+    }
 
-    // Competency Data
-    csvContent += "Competency Average Weights\n";
-    csvContent += "Competency Code,Competency Name,Average Weight (%)\n";
-    competencyData.competencyStats.forEach(comp => {
-      csvContent += `${comp.competencyCode},${comp.competencyNameEn},${(comp.avgWeight * 100).toFixed(2)}\n`;
-    });
+    try {
+      toast.info('Generating Word document...');
+      
+      const gaChartImage = await captureChartAsBase64(gaChartRef.current);
+      const radarChartImage = await captureChartAsBase64(radarChartRef.current);
+      const compChartImage = await captureChartAsBase64(competencyChartRef.current);
+      
+      let comparisonChartImage = null;
+      if (comparisonChartRef.current) {
+        comparisonChartImage = await captureChartAsBase64(comparisonChartRef.current);
+      }
+      
+      let contextPrefix = 'University-wide';
+      let collegeName = 'All';
+      let programName = 'All';
+      
+      if (filterLevel === 'college' && selectedCollegeId) {
+        const college = colleges?.find(c => c.id === selectedCollegeId);
+        contextPrefix = college ? college.nameEn.replace(/\s+/g, '_') : 'College';
+        collegeName = college ? college.nameEn : 'All';
+      } else if (filterLevel === 'program' && selectedProgramId) {
+        const program = programs?.find(p => p.program.id === selectedProgramId);
+        contextPrefix = program ? program.program.nameEn.replace(/\s+/g, '_') : 'Program';
+        programName = program ? program.program.nameEn : 'All';
+        collegeName = program ? program.college.nameEn : 'All';
+      }
+      
+      const chartImages = [
+        { title: `${contextPrefix}_GA_Alignment_Scores`, imageData: gaChartImage },
+        { title: `${contextPrefix}_GA_Coverage_Profile`, imageData: radarChartImage },
+      ];
+      
+      if (comparisonChartImage) {
+        const comparisonTitle = filterLevel === 'university' 
+          ? `${contextPrefix}_College_Comparison` 
+          : `${contextPrefix}_Program_Comparison`;
+        chartImages.push({ title: comparisonTitle, imageData: comparisonChartImage });
+      }
+      
+      chartImages.push({ title: `${contextPrefix}_Competency_Average_Weights`, imageData: compChartImage });
+      
+      const avgGAScore = gaStats.reduce((sum, ga) => sum + ga.avgAlignmentScore, 0) / gaStats.length;
+      const metrics = [
+        { label: 'Total GAs', value: totalGAs },
+        { label: 'Total Competencies', value: totalCompetencies },
+        { label: 'Total Programs', value: totalPrograms },
+        { label: 'Average GA Score', value: `${avgGAScore.toFixed(2)}%` },
+      ];
+      
+      const tableData = [
+        ['GA Code', 'GA Name', 'Alignment Score (%)'],
+        ...gaStats.map(ga => [ga.gaCode, ga.gaNameEn, ga.avgAlignmentScore.toFixed(2)]),
+      ];
+      
+      const result = await exportWord.mutateAsync({
+        title: 'Graduate Attributes & Competencies Analytics',
+        filterContext: { collegeName, programName },
+        metrics,
+        chartImages,
+        tableData,
+        colorLegend: {
+          green: 'Strong (≥80%)',
+          yellow: 'Moderate (50-79%)',
+          red: 'Weak (<50%)',
+        },
+      });
+      
+      const link = document.createElement('a');
+      link.href = '/api/download/' + encodeURIComponent(result.path);
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Word document generated successfully!');
+    } catch (error) {
+      console.error('Error generating Word:', error);
+      toast.error('Error generating Word document. Please try again.');
+    }
+  };
 
-    // Download CSV
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `analytics_report_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExportExcel = async () => {
+    if (!gaData || !competencyData) {
+      toast.error('No data available to export');
+      return;
+    }
+
+    try {
+      toast.info('Generating Excel file...');
+      
+      let collegeName = 'All';
+      let programName = 'All';
+      
+      if (filterLevel === 'college' && selectedCollegeId) {
+        const college = colleges?.find(c => c.id === selectedCollegeId);
+        collegeName = college ? college.nameEn : 'All';
+      } else if (filterLevel === 'program' && selectedProgramId) {
+        const program = programs?.find(p => p.program.id === selectedProgramId);
+        programName = program ? program.program.nameEn : 'All';
+        collegeName = program ? program.college.nameEn : 'All';
+      }
+      
+      const avgGAScore = gaStats.reduce((sum, ga) => sum + ga.avgAlignmentScore, 0) / gaStats.length;
+      const metrics = [
+        { label: 'Total GAs', value: totalGAs },
+        { label: 'Total Competencies', value: totalCompetencies },
+        { label: 'Total Programs', value: totalPrograms },
+        { label: 'Average GA Score', value: `${avgGAScore.toFixed(2)}%` },
+      ];
+      
+      const tableData = [
+        ['GA Code', 'GA Name', 'Alignment Score (%)'],
+        ...gaStats.map(ga => [ga.gaCode, ga.gaNameEn, ga.avgAlignmentScore.toFixed(2)]),
+      ];
+      
+      const result = await exportExcel.mutateAsync({
+        title: 'Graduate Attributes & Competencies Analytics',
+        filterContext: { collegeName, programName },
+        metrics,
+        tableData,
+      });
+      
+      const link = document.createElement('a');
+      link.href = '/api/download/' + encodeURIComponent(result.path);
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Excel file generated successfully!');
+    } catch (error) {
+      console.error('Error generating Excel:', error);
+      toast.error('Error generating Excel file. Please try again.');
+    }
   };
 
   const [filterLevel, setFilterLevel] = useState<"university" | "college" | "program">("university");
