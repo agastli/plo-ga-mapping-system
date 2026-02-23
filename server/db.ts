@@ -1563,7 +1563,7 @@ export async function getCompetencyByDepartmentAnalytics() {
  * Get GA analytics with optional filters (college or program)
  * @param filters - Optional filters: { collegeId?: number, programId?: number }
  */
-export async function getFilteredGAAnalytics(filters?: { collegeId?: number; programId?: number }) {
+export async function getFilteredGAAnalytics(filters?: { collegeId?: number; clusterId?: number; programId?: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -1576,6 +1576,11 @@ export async function getFilteredGAAnalytics(filters?: { collegeId?: number; pro
   if (filters?.programId) {
     // Filter by specific program
     filteredPrograms = filteredPrograms.filter((p) => p.id === filters.programId);
+  } else if (filters?.clusterId) {
+    // Filter by cluster (get departments in cluster first, then programs)
+    const clusterDepartments = await db.select().from(departments).where(eq(departments.clusterId, filters.clusterId));
+    const deptIds = clusterDepartments.map((d) => d.id);
+    filteredPrograms = filteredPrograms.filter((p) => deptIds.includes(p.departmentId));
   } else if (filters?.collegeId) {
     // Filter by college (get departments first, then programs)
     const collegeDepartments = await db.select().from(departments).where(eq(departments.collegeId, filters.collegeId));
@@ -1686,7 +1691,7 @@ export async function getFilteredGAAnalytics(filters?: { collegeId?: number; pro
  * Get Competency analytics with optional filters (college or program)
  * @param filters - Optional filters: { collegeId?: number, programId?: number }
  */
-export async function getFilteredCompetencyAnalytics(filters?: { collegeId?: number; programId?: number }) {
+export async function getFilteredCompetencyAnalytics(filters?: { collegeId?: number; clusterId?: number; programId?: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -1699,6 +1704,11 @@ export async function getFilteredCompetencyAnalytics(filters?: { collegeId?: num
   if (filters?.programId) {
     // Filter by specific program
     filteredPrograms = filteredPrograms.filter((p) => p.id === filters.programId);
+  } else if (filters?.clusterId) {
+    // Filter by cluster (get departments in cluster first, then programs)
+    const clusterDepartments = await db.select().from(departments).where(eq(departments.clusterId, filters.clusterId));
+    const deptIds = clusterDepartments.map((d) => d.id);
+    filteredPrograms = filteredPrograms.filter((p) => deptIds.includes(p.departmentId));
   } else if (filters?.collegeId) {
     // Filter by college (get departments first, then programs)
     const collegeDepartments = await db.select().from(departments).where(eq(departments.collegeId, filters.collegeId));

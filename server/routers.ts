@@ -665,10 +665,11 @@ export const appRouter = router({
     gaAnalytics: publicProcedure
       .input(z.object({
         collegeId: z.number().optional(),
+        clusterId: z.number().optional(),
         programId: z.number().optional(),
       }).optional())
       .query(async ({ input }) => {
-        if (!input || (!input.collegeId && !input.programId)) {
+        if (!input || (!input.collegeId && !input.clusterId && !input.programId)) {
           return await db.getGAAnalytics();
         }
         return await db.getFilteredGAAnalytics(input);
@@ -688,10 +689,11 @@ export const appRouter = router({
     competencyAnalytics: publicProcedure
       .input(z.object({
         collegeId: z.number().optional(),
+        clusterId: z.number().optional(),
         programId: z.number().optional(),
       }).optional())
       .query(async ({ input }) => {
-        if (!input || (!input.collegeId && !input.programId)) {
+        if (!input || (!input.collegeId && !input.clusterId && !input.programId)) {
           return await db.getCompetencyAnalytics();
         }
         return await db.getFilteredCompetencyAnalytics(input);

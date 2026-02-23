@@ -1068,3 +1068,20 @@
 - [ ] Add competency breakdown table to Excel analytics export
 - [ ] Fix analytics export filenames to remove full path (use basename only)
 - [ ] Test all fixes
+
+## Phase 69: Add Cluster Filter to Analytics
+- [ ] Add cluster dropdown filter to UnifiedAnalytics page
+- [ ] Implement cluster filtering logic and cascading behavior
+- [ ] Update analytics queries to support cluster-level filtering
+- [ ] Update filter context display to show cluster name
+- [ ] Test cluster filtering with all analytics views
+
+## Phase 70: Conditional Cluster Display Throughout System
+- [ ] Update backend program queries to include cluster information
+- [ ] Update Programs page to show cluster name (if exists) next to college name
+- [ ] Update ProgramDetail page to show cluster in program information section
+- [ ] Update UnifiedAnalytics to conditionally show cluster filter only when college has clusters
+- [ ] Update analytics context display to show cluster name when filtering by cluster
+- [ ] Test cluster display and filtering functionality
+- [ ] Push all changes to GitHub for local testing
+- [ ] Update export filename generation to conditionally include cluster code in filenames

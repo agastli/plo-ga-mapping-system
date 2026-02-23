@@ -414,8 +414,16 @@ export default function UnifiedAnalytics() {
 
   // Fetch colleges, clusters, and programs for filters
   const { data: colleges } = trpc.colleges.list.useQuery();
-  const { data: clusters } = trpc.clusters.list.useQuery();
+  const { data: allClusters } = trpc.clusters.list.useQuery();
   const { data: programs } = trpc.programs.list.useQuery();
+  
+  // Filter clusters by selected college
+  const clusters = selectedCollegeId && allClusters
+    ? allClusters.filter((c: any) => c.collegeId === selectedCollegeId)
+    : [];
+  
+  // Check if selected college has clusters
+  const hasCluster = clusters.length > 0;
 
   // Build filter input based on selection
   const filterInput = filterLevel === "college" && selectedCollegeId
@@ -437,6 +445,11 @@ export default function UnifiedAnalytics() {
   const { data: programComparisonData } = trpc.analytics.gaByProgramAnalytics.useQuery(
     { collegeId: selectedCollegeId! },
     { enabled: filterLevel === 'college' && !!selectedCollegeId }
+  );
+  
+  const { data: clusterComparisonData } = trpc.analytics.gaByCollegeAnalytics.useQuery(
+    undefined,
+    { enabled: false } // TODO: Implement gaByClusterAnalytics endpoint
   );
 
   // Filter programs by selected college for cascading dropdown
@@ -636,7 +649,7 @@ export default function UnifiedAnalytics() {
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
                   >
                     <option value="">Select Cluster</option>
-                    {clusters?.filter(c => c.collegeId === selectedCollegeId).map((cluster) => (
+                    {clusters?.map((cluster: any) => (
                       <option key={cluster.id} value={cluster.id}>
                         {cluster.nameEn}
                       </option>
