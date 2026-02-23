@@ -900,3 +900,4 @@
 - [ ] Show College and Program as separate fields below title
 - [ ] Apply same format to both GA and Competency Analytics exports
 - [x] Fix cascading program filter to show only selected college's programs in GA and Competency Analytics
+- [x] Fix incorrect GA alignment score calculation (showing 14.65% instead of ~67%)

@@ -742,7 +742,7 @@ export async function getGAAnalytics() {
     // Count programs that have mappings to this GA's competencies
     const programsWithGA = new Set<number>();
     let totalWeight = 0;
-    let totalPossibleWeight = 0;
+    let totalMappings = 0;
 
     allPrograms.forEach((program) => {
       const programPLOs = allPLOs.filter((p) => p.programId === program.id);
@@ -757,11 +757,11 @@ export async function getGAAnalytics() {
       // Calculate weight for this program
       const programWeight = programMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
       totalWeight += programWeight;
-      totalPossibleWeight += gaCompetencies.length * programPLOs.length;
+      totalMappings += programMappings.length;
     });
 
-    // Calculate average alignment score
-    const avgScore = totalPossibleWeight > 0 ? (totalWeight / totalPossibleWeight) * 100 : 0;
+    // Calculate average alignment score (average weight per mapping)
+    const avgScore = totalMappings > 0 ? (totalWeight / totalMappings) * 100 : 0;
 
     // Calculate coverage rate (% of programs that map to this GA)
     const coverageRate = allPrograms.length > 0 ? (programsWithGA.size / allPrograms.length) * 100 : 0;
@@ -1037,7 +1037,7 @@ export async function getFilteredGAAnalytics(filters?: { collegeId?: number; pro
     // Count programs that have mappings to this GA's competencies
     const programsWithGA = new Set<number>();
     let totalWeight = 0;
-    let totalPossibleWeight = 0;
+    let totalMappings = 0;
 
     filteredPrograms.forEach((program) => {
       const programPLOs = allPLOs.filter((p) => p.programId === program.id);
@@ -1052,11 +1052,11 @@ export async function getFilteredGAAnalytics(filters?: { collegeId?: number; pro
       // Calculate weight for this program
       const programWeight = programMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
       totalWeight += programWeight;
-      totalPossibleWeight += gaCompetencies.length * programPLOs.length;
+      totalMappings += programMappings.length;
     });
 
-    // Calculate average alignment score
-    const avgScore = totalPossibleWeight > 0 ? (totalWeight / totalPossibleWeight) * 100 : 0;
+    // Calculate average alignment score (average weight per mapping)
+    const avgScore = totalMappings > 0 ? (totalWeight / totalMappings) * 100 : 0;
 
     // Calculate coverage rate (% of programs that map to this GA)
     const coverageRate = filteredPrograms.length > 0 ? (programsWithGA.size / filteredPrograms.length) * 100 : 0;
