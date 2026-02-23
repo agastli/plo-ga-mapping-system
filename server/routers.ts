@@ -121,6 +121,29 @@ export const appRouter = router({
         }
         return { id };
       }),
+    update: publicProcedure
+      .input(z.object({
+        id: z.number(),
+        departmentId: z.number().optional(),
+        nameEn: z.string().optional(),
+        nameAr: z.string().optional(),
+        code: z.string().optional(),
+        language: z.enum(["en", "ar", "both"]).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { id, ...data } = input;
+        await db.updateProgram(id, data);
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "update",
+            entityType: "program",
+            entityId: id,
+            details: JSON.stringify(data),
+          });
+        }
+        return { success: true };
+      }),
   }),
 
   // Graduate Attributes & Competencies

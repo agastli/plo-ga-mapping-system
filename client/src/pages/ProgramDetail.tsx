@@ -24,6 +24,10 @@ export default function ProgramDetail() {
   const updateMapping = trpc.mappings.upsert.useMutation();
   const updateJustification = trpc.justifications.upsert.useMutation();
   const exportDocument = trpc.export.generate.useMutation();
+  const updateProgram = trpc.programs.update.useMutation();
+  
+  const { data: allColleges } = trpc.colleges.list.useQuery();
+  const { data: allDepartments } = trpc.departments.list.useQuery();
   
   const program = matrixData?.program;
   const plos = matrixData?.plos || [];
@@ -37,6 +41,13 @@ export default function ProgramDetail() {
   const [editingPLOText, setEditingPLOText] = useState("");
   const [editingJustification, setEditingJustification] = useState<number | null>(null);
   const [editingJustificationText, setEditingJustificationText] = useState("");
+  
+  // Program editing states
+  const [editingProgram, setEditingProgram] = useState(false);
+  const [editProgramNameEn, setEditProgramNameEn] = useState("");
+  const [editProgramNameAr, setEditProgramNameAr] = useState("");
+  const [editProgramCode, setEditProgramCode] = useState("");
+  const [editDepartmentId, setEditDepartmentId] = useState<number | undefined>(undefined);
   
   // Group competencies by GA
   const competenciesByGA = graduateAttributes.map(ga => ({
@@ -194,34 +205,160 @@ export default function ProgramDetail() {
         {/* Program Information */}
         <Card className="mb-6 border-2 border-[#8B1538]/20 shadow-lg">
           <CardHeader className="bg-gradient-to-r from-[#8B1538]/10 to-white border-b">
-            <CardTitle className="text-2xl text-[#8B1538]">Program Information</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-2xl text-[#8B1538]">Program Information</CardTitle>
+              {!editingProgram ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setEditingProgram(true);
+                    setEditProgramNameEn(program.nameEn || "");
+                    setEditProgramNameAr(program.nameAr || "");
+                    setEditProgramCode(program.code || "");
+                    setEditDepartmentId(program.departmentId);
+                  }}
+                  className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10"
+                >
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingProgram(false)}
+                    className="border-gray-300"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        await updateProgram.mutateAsync({
+                          id: programId,
+                          nameEn: editProgramNameEn || undefined,
+                          nameAr: editProgramNameAr || undefined,
+                          code: editProgramCode || undefined,
+                          departmentId: editDepartmentId,
+                        });
+                        await refetch();
+                        setEditingProgram(false);
+                        toast.success("Program information updated successfully");
+                      } catch (error) {
+                        toast.error("Failed to update program information");
+                      }
+                    }}
+                    className="bg-[#8B1538] hover:bg-[#6B1028]"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Save
+                  </Button>
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <p className="text-sm text-gray-600 font-medium">Program Name</p>
-                <p className="text-lg text-gray-900 font-semibold">{program.nameEn || program.nameAr}</p>
+                <p className="text-sm text-gray-600 font-medium mb-1">Program Name (English)</p>
+                {editingProgram ? (
+                  <Input
+                    value={editProgramNameEn}
+                    onChange={(e) => setEditProgramNameEn(e.target.value)}
+                    className="text-lg"
+                    placeholder="Enter program name in English"
+                  />
+                ) : (
+                  <p className="text-lg text-gray-900 font-semibold">{program.nameEn || 'N/A'}</p>
+                )}
               </div>
               <div>
-                <p className="text-sm text-gray-600 font-medium">Program Code</p>
-                <p className="text-lg text-gray-900">{program.code}</p>
+                <p className="text-sm text-gray-600 font-medium mb-1">Program Name (Arabic)</p>
+                {editingProgram ? (
+                  <Input
+                    value={editProgramNameAr}
+                    onChange={(e) => setEditProgramNameAr(e.target.value)}
+                    className="text-lg"
+                    placeholder="Enter program name in Arabic"
+                    dir="rtl"
+                  />
+                ) : (
+                  <p className="text-lg text-gray-900 font-semibold" dir="rtl">{program.nameAr || 'N/A'}</p>
+                )}
               </div>
               <div>
-                <p className="text-sm text-gray-600 font-medium">Language</p>
+                <p className="text-sm text-gray-600 font-medium mb-1">Program Code</p>
+                {editingProgram ? (
+                  <Input
+                    value={editProgramCode}
+                    onChange={(e) => setEditProgramCode(e.target.value)}
+                    className="text-lg"
+                    placeholder="Enter program code"
+                  />
+                ) : (
+                  <p className="text-lg text-gray-900">{program.code}</p>
+                )}
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium mb-1">College</p>
+                {editingProgram ? (
+                  <select
+                    value={allDepartments?.find(d => d.id === editDepartmentId)?.collegeId || ""}
+                    onChange={(e) => {
+                      const collegeId = parseInt(e.target.value);
+                      // Reset department when college changes
+                      setEditDepartmentId(undefined);
+                    }}
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-lg"
+                  >
+                    <option value="">Select college</option>
+                    {allColleges?.map(college => (
+                      <option key={college.id} value={college.id}>
+                        {college.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="text-lg text-gray-900">{matrixData?.college?.nameEn || matrixData?.college?.nameAr || 'N/A'}</p>
+                )}
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium mb-1">Department</p>
+                {editingProgram ? (
+                  <select
+                    value={editDepartmentId || ""}
+                    onChange={(e) => setEditDepartmentId(parseInt(e.target.value))}
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-lg"
+                    disabled={!allDepartments?.find(d => d.id === editDepartmentId)?.collegeId}
+                  >
+                    <option value="">Select department</option>
+                    {allDepartments
+                      ?.filter(dept => {
+                        const currentCollege = allDepartments.find(d => d.id === editDepartmentId)?.collegeId;
+                        return currentCollege ? dept.collegeId === currentCollege : true;
+                      })
+                      .map(dept => (
+                        <option key={dept.id} value={dept.id}>
+                          {dept.nameEn}
+                        </option>
+                      ))}
+                  </select>
+                ) : (
+                  <p className="text-lg text-gray-900">{matrixData?.department?.nameEn || matrixData?.department?.nameAr || 'N/A'}</p>
+                )}
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium mb-1">Language</p>
                 <p className="text-lg text-gray-900">
-                  {program.language === 'en' ? '🇬🇧 English' : '🇶🇦 Arabic'}
+                  {program.language === 'en' ? '🇬🇧 English' : program.language === 'ar' ? '🇶🇦 Arabic' : '🌐 Both'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 font-medium">College</p>
-                <p className="text-lg text-gray-900">{matrixData?.college?.nameEn || matrixData?.college?.nameAr || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 font-medium">Department</p>
-                <p className="text-lg text-gray-900">{matrixData?.department?.nameEn || matrixData?.department?.nameAr || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 font-medium">Last Updated</p>
+                <p className="text-sm text-gray-600 font-medium mb-1">Last Updated</p>
                 <p className="text-lg text-gray-900">{new Date(program.updatedAt).toLocaleString()}</p>
               </div>
             </div>

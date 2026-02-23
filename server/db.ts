@@ -186,6 +186,12 @@ export async function createProgram(data: InsertProgram) {
   return Number(result[0].insertId);
 }
 
+export async function updateProgram(id: number, data: Partial<InsertProgram>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(programs).set(data).where(eq(programs.id, id));
+}
+
 export async function getAllPrograms() {
   const db = await getDb();
   if (!db) return [];

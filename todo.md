@@ -967,3 +967,12 @@
 - [x] Implement Excel export for analytics data (with data tables)
 - [x] Update export dropdown to enable all format options
 - [ ] Test all export formats with different filter levels (university/college/program)
+
+## Phase 40: Editable Program Information on Program View Page
+- [x] Create backend endpoint to update program college/department/name
+- [x] Add editable program information section to Program View page
+- [x] Implement dropdown for college selection
+- [x] Implement cascading dropdown for department selection (filtered by college)
+- [x] Add inline editing for program name (English and Arabic)
+- [x] Add save/cancel buttons with validation
+- [ ] Test updating program information and verify data persistence
