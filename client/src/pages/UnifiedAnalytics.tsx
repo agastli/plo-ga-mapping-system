@@ -771,10 +771,20 @@ export default function UnifiedAnalytics() {
                     dataKey="score" 
                     radius={[8, 8, 0, 0]}
                     onClick={(data) => {
-                      if (filterLevel === 'college' && data.collegeId) {
-                        window.location.href = `/analytics?level=college&collegeId=${data.collegeId}`;
-                      } else if (filterLevel === 'program' && data.programId) {
-                        window.location.href = `/programs/${data.programId}`;
+                      if (filterLevel === 'university' && data.collegeId) {
+                        // Clicking college bar from university view -> filter to that college
+                        setFilterLevel('college');
+                        setSelectedCollegeId(data.collegeId);
+                        setSelectedClusterId(undefined);
+                        setSelectedProgramId(undefined);
+                      } else if (filterLevel === 'college' && data.programId) {
+                        // Clicking program bar from college view -> filter to that program
+                        setFilterLevel('program');
+                        setSelectedProgramId(data.programId);
+                      } else if (filterLevel === 'cluster' && data.programId) {
+                        // Clicking program bar from cluster view -> filter to that program
+                        setFilterLevel('program');
+                        setSelectedProgramId(data.programId);
                       }
                     }}
                     cursor="pointer"
@@ -906,10 +916,18 @@ export default function UnifiedAnalytics() {
                     onClick={(data, index) => {
                       if (filterLevel === 'university' && collegeComparisonData) {
                         const college = collegeComparisonData.heatmapData[index];
-                        window.location.href = `/analytics?level=college&collegeId=${college.collegeId}`;
-                      } else if (programComparisonData) {
+                        setFilterLevel('college');
+                        setSelectedCollegeId(college.collegeId);
+                        setSelectedClusterId(undefined);
+                        setSelectedProgramId(undefined);
+                      } else if (filterLevel === 'college' && programComparisonData) {
                         const program = programComparisonData.programData[index];
-                        window.location.href = `/programs/${program.programId}`;
+                        setFilterLevel('program');
+                        setSelectedProgramId(program.programId);
+                      } else if (filterLevel === 'cluster' && programComparisonData) {
+                        const program = programComparisonData.programData[index];
+                        setFilterLevel('program');
+                        setSelectedProgramId(program.programId);
                       }
                     }}
                     cursor="pointer"
@@ -1000,10 +1018,20 @@ export default function UnifiedAnalytics() {
                   dataKey="weight" 
                   radius={[8, 8, 0, 0]}
                   onClick={(data) => {
-                    if (filterLevel === 'college' && data.collegeId) {
-                      window.location.href = `/analytics?level=college&collegeId=${data.collegeId}`;
-                    } else if (filterLevel === 'program' && data.programId) {
-                      window.location.href = `/programs/${data.programId}`;
+                    if (filterLevel === 'university' && data.collegeId) {
+                      // Clicking college bar from university view -> filter to that college
+                      setFilterLevel('college');
+                      setSelectedCollegeId(data.collegeId);
+                      setSelectedClusterId(undefined);
+                      setSelectedProgramId(undefined);
+                    } else if (filterLevel === 'college' && data.programId) {
+                      // Clicking program bar from college view -> filter to that program
+                      setFilterLevel('program');
+                      setSelectedProgramId(data.programId);
+                    } else if (filterLevel === 'cluster' && data.programId) {
+                      // Clicking program bar from cluster view -> filter to that program
+                      setFilterLevel('program');
+                      setSelectedProgramId(data.programId);
                     }
                   }}
                   cursor="pointer"

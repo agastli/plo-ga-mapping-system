@@ -1142,5 +1142,12 @@
 - [x] Add click handlers to college bars in competency coverage chart to navigate to college dashboard
 - [x] Add click handlers to program bars to navigate to program detail page
 - [x] Add cursor pointer style to clickable bars
-- [ ] Test interactive navigation on all charts
-- [ ] Push changes to GitHub
+- [x] Test interactive navigation on all charts
+- [x] Push changes to GitHub
+
+## Fix College and Program Bar Navigation
+- [x] Fix college bar clicks to set filter state (not navigate away) - stay on analytics page
+- [x] Fix program bar clicks to show program analytics dashboard (not program detail page)
+- [ ] Test college bar clicks properly filter to college analytics
+- [ ] Test program bar clicks properly filter to program analytics
+- [ ] Push fix to GitHub
