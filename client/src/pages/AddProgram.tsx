@@ -58,7 +58,10 @@ export default function AddProgram() {
     { collegeId: selectedCollegeId! },
     { enabled: !!selectedCollegeId }
   );
-  const { data: departments } = trpc.departments.list.useQuery();
+  const { data: departments } = trpc.departments.listByCollege.useQuery(
+    { collegeId: selectedCollegeId! },
+    { enabled: !!selectedCollegeId }
+  );
   const { data: graduateAttributes } = trpc.graduateAttributes.list.useQuery();
   const { data: competencies } = trpc.competencies.list.useQuery();
   
@@ -68,15 +71,13 @@ export default function AddProgram() {
   const upsertMapping = trpc.mappings.upsert.useMutation();
   const upsertJustification = trpc.justifications.upsert.useMutation();
   
-  // Filter departments by selected college and cluster
+  // Filter departments by cluster if selected
   const filteredDepartments = departments?.filter(d => {
-    if (!selectedCollegeId) return false;
-    if (d.collegeId !== selectedCollegeId) return false;
     // If college has clusters and one is selected, filter by cluster
     if (clusters && clusters.length > 0 && selectedClusterId) {
       return d.clusterId === selectedClusterId;
     }
-    // If college has no clusters, show all departments
+    // Otherwise show all departments from the selected college
     return true;
   }) || [];
   

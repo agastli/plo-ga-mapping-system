@@ -183,6 +183,12 @@ export async function createCluster(data: InsertCluster) {
 // Department Management
 // ============================================================================
 
+export async function getAllDepartments() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(departments).orderBy(departments.nameEn);
+}
+
 export async function getDepartmentsByCollege(collegeId: number) {
   const db = await getDb();
   if (!db) return [];

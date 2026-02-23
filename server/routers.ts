@@ -59,6 +59,9 @@ export const appRouter = router({
   }),
 
   departments: router({
+    list: publicProcedure.query(async () => {
+      return await db.getAllDepartments();
+    }),
     listByCollege: publicProcedure
       .input(z.object({ collegeId: z.number() }))
       .query(async ({ input }) => {

@@ -1085,3 +1085,13 @@
 - [ ] Test cluster display and filtering functionality
 - [ ] Push all changes to GitHub for local testing
 - [ ] Update export filename generation to conditionally include cluster code in filenames
+
+## Phase 71: Fix Cluster Filter Visibility and Program Display
+- [x] Verify "By Cluster" option exists in Analysis Level dropdown
+- [x] Fix cluster filter not showing when "By Cluster" is selected
+- [x] Add departments.list endpoint for pages that need all departments
+- [x] Fix AddProgram to use departments.listByCollege
+- [ ] Add cluster name display to program cards in Programs page
+- [ ] Update program list queries to include cluster information
+- [ ] Test cluster filter and display functionality
+- [ ] Push fixes to GitHub
