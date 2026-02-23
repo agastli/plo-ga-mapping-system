@@ -40,6 +40,24 @@ export default function UnifiedAnalytics() {
         const canvas = await html2canvas(gaChartRef.current, {
           backgroundColor: '#ffffff',
           scale: 2,
+          ignoreElements: (element) => {
+            // Skip elements that might have OKLCH colors
+            const style = window.getComputedStyle(element);
+            return style.color?.includes('oklch') || style.backgroundColor?.includes('oklch');
+          },
+          onclone: (clonedDoc) => {
+            // Convert any OKLCH colors to standard hex colors in the cloned document
+            const allElements = clonedDoc.querySelectorAll('*');
+            allElements.forEach((el: any) => {
+              const style = window.getComputedStyle(el);
+              if (style.color?.includes('oklch')) {
+                el.style.color = '#000000';
+              }
+              if (style.backgroundColor?.includes('oklch')) {
+                el.style.backgroundColor = '#ffffff';
+              }
+            });
+          },
         });
         const link = document.createElement('a');
         link.download = `GA_Alignment_Scores_${new Date().toISOString().split('T')[0]}.png`;
@@ -52,6 +70,22 @@ export default function UnifiedAnalytics() {
         const canvas = await html2canvas(competencyChartRef.current, {
           backgroundColor: '#ffffff',
           scale: 2,
+          ignoreElements: (element) => {
+            const style = window.getComputedStyle(element);
+            return style.color?.includes('oklch') || style.backgroundColor?.includes('oklch');
+          },
+          onclone: (clonedDoc) => {
+            const allElements = clonedDoc.querySelectorAll('*');
+            allElements.forEach((el: any) => {
+              const style = window.getComputedStyle(el);
+              if (style.color?.includes('oklch')) {
+                el.style.color = '#000000';
+              }
+              if (style.backgroundColor?.includes('oklch')) {
+                el.style.backgroundColor = '#ffffff';
+              }
+            });
+          },
         });
         const link = document.createElement('a');
         link.download = `Competency_Average_Weights_${new Date().toISOString().split('T')[0]}.png`;
@@ -62,7 +96,8 @@ export default function UnifiedAnalytics() {
       alert('Charts exported as PNG images successfully!');
     } catch (error) {
       console.error('Error exporting charts:', error);
-      alert('Error exporting charts. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'Please try again.';
+      alert('Error exporting charts: ' + errorMsg);
     }
   };
 

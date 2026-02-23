@@ -936,3 +936,7 @@
 - [x] Display radar chart side-by-side with GA bar chart
 - [x] Ensure radar chart shows coverage rate and alignment score for all 5 GAs
 - [x] Add proper legend for radar chart
+
+## Phase 57: Fix PNG Export Error
+- [x] Fix html2canvas OKLCH color parsing error in PNG export
+- [x] Ensure charts use standard color formats compatible with html2canvas
