@@ -10,9 +10,23 @@ import { useState } from "react";
 export default function Programs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCollegeId, setSelectedCollegeId] = useState<string>("");
+  const [selectedClusterId, setSelectedClusterId] = useState<string>("");
   
   const { data: programs, isLoading: programsLoading } = trpc.programs.list.useQuery();
   const { data: colleges, isLoading: collegesLoading } = trpc.colleges.list.useQuery();
+  
+  // Fetch clusters for selected college
+  const { data: allClusters } = trpc.clusters.list.useQuery();
+  const clusters = selectedCollegeId && allClusters
+    ? allClusters.filter((c: any) => c.collegeId === parseInt(selectedCollegeId))
+    : [];
+  const hasCluster = clusters.length > 0;
+
+  // Reset cluster selection when college changes
+  const handleCollegeChange = (collegeId: string) => {
+    setSelectedCollegeId(collegeId);
+    setSelectedClusterId(""); // Reset cluster when college changes
+  };
 
   const filteredPrograms = selectedCollegeId ? programs?.filter((item) => {
     const searchLower = searchTerm.toLowerCase();
@@ -23,7 +37,17 @@ export default function Programs() {
     
     const matchesCollege = item.college.id.toString() === selectedCollegeId;
     
-    return matchesSearch && matchesCollege;
+    // If college has clusters, require cluster selection
+    if (hasCluster && !selectedClusterId) {
+      return false; // Don't show any programs until cluster is selected
+    }
+    
+    // If cluster is selected, filter by cluster
+    const matchesCluster = selectedClusterId 
+      ? item.department.clusterId?.toString() === selectedClusterId
+      : true;
+    
+    return matchesSearch && matchesCollege && matchesCluster;
   }) : [];
 
   const isLoading = programsLoading || collegesLoading;
@@ -82,7 +106,7 @@ export default function Programs() {
                   <label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
                     🏛️ Filter by College
                   </label>
-                  <Select value={selectedCollegeId} onValueChange={setSelectedCollegeId}>
+                  <Select value={selectedCollegeId} onValueChange={handleCollegeChange}>
                     <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
                       <SelectValue placeholder="Select a college" />
                     </SelectTrigger>
@@ -95,6 +119,27 @@ export default function Programs() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Cluster Filter - Only show if selected college has clusters */}
+                {hasCluster && (
+                  <div className="flex-shrink-0 md:w-64">
+                    <label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
+                      📂 Filter by Cluster
+                    </label>
+                    <Select value={selectedClusterId} onValueChange={setSelectedClusterId}>
+                      <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
+                        <SelectValue placeholder="Select a cluster" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clusters.map((cluster: any) => (
+                          <SelectItem key={cluster.id} value={cluster.id.toString()}>
+                            {cluster.nameEn}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 {/* Search Box */}
                 <div className="flex-1">
@@ -143,6 +188,16 @@ export default function Programs() {
               <h3 className="text-3xl font-bold text-[#8B1538] mb-3">Select a College</h3>
               <p className="text-lg text-slate-600 max-w-md mx-auto">
                 Please select a college from the filter above to view its programs
+              </p>
+            </CardContent>
+          </Card>
+        ) : hasCluster && !selectedClusterId ? (
+          <Card className="border-2 border-dashed border-[#8B1538]/30 bg-gradient-to-br from-white to-amber-50/30">
+            <CardContent className="py-20 text-center">
+              <div className="text-7xl mb-6">📂</div>
+              <h3 className="text-3xl font-bold text-[#8B1538] mb-3">Select a Cluster</h3>
+              <p className="text-lg text-slate-600 max-w-md mx-auto">
+                This college has clusters. Please select a cluster from the filter above to view its programs
               </p>
             </CardContent>
           </Card>

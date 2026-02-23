@@ -1097,3 +1097,10 @@
 - [ ] Update program list queries to include cluster information
 - [ ] Test cluster filter and display functionality
 - [ ] Push fixes to GitHub
+
+- [ ] Create SQL script to merge Mathematics and Statistics departments
+- [ ] Test department merge and verify all programs preserved
+
+- [ ] Add cluster filter dropdown to Programs page when college has clusters
+- [ ] Hide programs until cluster is selected (for colleges with clusters)
+- [ ] Test Programs page cluster filtering
