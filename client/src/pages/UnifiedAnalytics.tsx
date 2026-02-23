@@ -18,6 +18,44 @@ import {
 import { Home, BookOpen, Download } from "lucide-react";
 
 export default function UnifiedAnalytics() {
+  const handleExport = () => {
+    if (!gaData || !competencyData) {
+      alert('No data available to export');
+      return;
+    }
+
+    // Create CSV content
+    let csvContent = "Graduate Attributes & Competencies Analytics Report\n\n";
+    csvContent += `Generated: ${new Date().toLocaleString()}\n`;
+    csvContent += `Analysis Level: ${filterLevel}\n\n`;
+
+    // GA Data
+    csvContent += "Graduate Attribute Alignment Scores\n";
+    csvContent += "GA Code,GA Name,Alignment Score (%)\n";
+    gaData.gaStats.forEach(ga => {
+      csvContent += `${ga.gaCode},${ga.gaNameEn},${ga.avgAlignmentScore.toFixed(2)}\n`;
+    });
+    csvContent += "\n";
+
+    // Competency Data
+    csvContent += "Competency Average Weights\n";
+    csvContent += "Competency Code,Competency Name,Average Weight (%)\n";
+    competencyData.competencyStats.forEach(comp => {
+      csvContent += `${comp.competencyCode},${comp.competencyNameEn},${(comp.avgWeight * 100).toFixed(2)}\n`;
+    });
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `analytics_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const [filterLevel, setFilterLevel] = useState<"university" | "college" | "program">("university");
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>(undefined);
   const [selectedProgramId, setSelectedProgramId] = useState<number | undefined>(undefined);
@@ -75,8 +113,19 @@ export default function UnifiedAnalytics() {
   }));
 
   // Prepare Competency chart data (ordered by GA, not sorted by weight)
+  // Ensure proper ordering: C1-1, C1-2, C1-3, C1-4, C2-1, C2-2, etc.
   const competencyChartData = competencyStats
-    .sort((a, b) => a.competencyCode.localeCompare(b.competencyCode))
+    .sort((a, b) => {
+      const aMatch = a.competencyCode.match(/C(\d+)-(\d+)/);
+      const bMatch = b.competencyCode.match(/C(\d+)-(\d+)/);
+      if (!aMatch || !bMatch) return a.competencyCode.localeCompare(b.competencyCode);
+      const aGA = parseInt(aMatch[1]);
+      const bGA = parseInt(bMatch[1]);
+      const aComp = parseInt(aMatch[2]);
+      const bComp = parseInt(bMatch[2]);
+      if (aGA !== bGA) return aGA - bGA;
+      return aComp - bComp;
+    })
     .map((comp) => ({
       name: comp.competencyCode,
       weight: comp.avgWeight * 100, // Convert to percentage
@@ -103,6 +152,13 @@ export default function UnifiedAnalytics() {
               Guide
             </Button>
           </Link>
+          <Button 
+            onClick={handleExport}
+            className="bg-[#8B1538] hover:bg-[#6B1028] flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
           <Link href="/">
             <Button className="bg-[#8B1538] hover:bg-[#6B1028] flex items-center gap-2">
               <Home className="h-4 w-4" />
@@ -205,12 +261,6 @@ export default function UnifiedAnalytics() {
                 </div>
               )}
             </div>
-            <div className="flex justify-end mt-4">
-              <Button className="bg-[#8B1538] hover:bg-[#6B1028] flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                Export Analytics Report
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
@@ -285,13 +335,35 @@ export default function UnifiedAnalytics() {
                   }}
                 />
                 <Bar dataKey="score" radius={[8, 8, 0, 0]}>
-                  {gaChartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={GA_COLORS[index % GA_COLORS.length]} />
-                  ))}
+                  {gaChartData.map((entry, index) => {
+                    // Threshold-based coloring
+                    let color = "#22C55E"; // Green for ≥80%
+                    if (entry.score < 50) {
+                      color = "#EF4444"; // Red for <50%
+                    } else if (entry.score < 80) {
+                      color = "#EAB308"; // Yellow for 50-79%
+                    }
+                    return <Cell key={`cell-${index}`} fill={color} />;
+                  })}
                   <LabelList dataKey="score" position="top" formatter={(value: number) => `${value}%`} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            {/* Color Legend */}
+            <div className="mt-4 flex flex-wrap justify-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-green-500" />
+                <span className="text-sm text-gray-700">Strong (≥80%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-yellow-500" />
+                <span className="text-sm text-gray-700">Moderate (50-79%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-red-500" />
+                <span className="text-sm text-gray-700">Weak (&lt;50%)</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -324,7 +396,17 @@ export default function UnifiedAnalytics() {
                     return null;
                   }}
                 />
-                <Bar dataKey="weight" fill="#8B1538" radius={[0, 8, 8, 0]}>
+                <Bar dataKey="weight" radius={[0, 8, 8, 0]}>
+                  {competencyChartData.map((entry, index) => {
+                    // Threshold-based coloring
+                    let color = "#22C55E"; // Green for ≥80%
+                    if (entry.weight < 50) {
+                      color = "#EF4444"; // Red for <50%
+                    } else if (entry.weight < 80) {
+                      color = "#EAB308"; // Yellow for 50-79%
+                    }
+                    return <Cell key={`cell-${index}`} fill={color} />;
+                  })}
                   <LabelList dataKey="weight" position="right" formatter={(value: any) => typeof value === 'number' ? `${value.toFixed(1)}%` : value} />
                 </Bar>
               </BarChart>

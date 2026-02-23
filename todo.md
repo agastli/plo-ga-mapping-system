@@ -919,3 +919,9 @@
 - [x] Add data tables below charts showing detailed GA and competency data
 - [x] Apply maroon color scheme to charts matching university branding
 - [x] Move export button to top of page near filters
+- [x] Move export button to header next to Guide and Home buttons
+- [x] Fix competency chart to show all 21 competencies in GA order (not sorted by percentage)
+- [x] Apply consistent maroon color to all competency bars
+- [x] Implement export functionality to generate analytics report
+- [x] Add color scheme legend showing GA color coding
+- [x] Apply threshold-based coloring to competency bars (Green: ≥70%, Yellow: 40-69%, Red: <40%)
