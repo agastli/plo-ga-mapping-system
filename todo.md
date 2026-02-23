@@ -926,3 +926,13 @@
 - [x] Add color scheme legend showing GA color coding
 - [x] Apply threshold-based coloring to competency bars (Green: ≥70%, Yellow: 40-69%, Red: <40%)
 - [x] Remove Total Weight column from GA and Competency data tables
+- [x] Add export dropdown menu with PNG, PDF, Word, Excel options
+- [ ] Implement PNG export for individual charts with proper titles and filenames
+- [ ] Fix competency chart to show all 21 competencies as vertical bars
+- [ ] Add GA separators in competency chart (after C1-4, C2-4, C3-3, C4-5)
+
+## Phase 56: Add Radar Chart to Unified Analytics
+- [x] Add radar chart (Graduate Attribute Coverage Profile) to unified analytics dashboard
+- [x] Display radar chart side-by-side with GA bar chart
+- [x] Ensure radar chart shows coverage rate and alignment score for all 5 GAs
+- [x] Add proper legend for radar chart

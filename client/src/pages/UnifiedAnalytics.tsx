@@ -14,17 +14,73 @@ import {
   ResponsiveContainer,
   Cell,
   LabelList,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
 } from "recharts";
-import { Home, BookOpen, Download } from "lucide-react";
+import { Home, BookOpen, Download, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import html2canvas from "html2canvas";
 
 export default function UnifiedAnalytics() {
-  const handleExport = () => {
+  const gaChartRef = useRef<HTMLDivElement>(null);
+  const competencyChartRef = useRef<HTMLDivElement>(null);
+
+  const handleExportPNG = async () => {
+    try {
+      // Export GA Chart
+      if (gaChartRef.current) {
+        const canvas = await html2canvas(gaChartRef.current, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+        });
+        const link = document.createElement('a');
+        link.download = `GA_Alignment_Scores_${new Date().toISOString().split('T')[0]}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      }
+
+      // Export Competency Chart
+      if (competencyChartRef.current) {
+        const canvas = await html2canvas(competencyChartRef.current, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+        });
+        const link = document.createElement('a');
+        link.download = `Competency_Average_Weights_${new Date().toISOString().split('T')[0]}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      }
+
+      alert('Charts exported as PNG images successfully!');
+    } catch (error) {
+      console.error('Error exporting charts:', error);
+      alert('Error exporting charts. Please try again.');
+    }
+  };
+
+  const handleExportPDF = () => {
+    alert('PDF export is coming soon!');
+  };
+
+  const handleExportWord = () => {
+    alert('Word export is coming soon!');
+  };
+
+  const handleExportExcel = () => {
     if (!gaData || !competencyData) {
       alert('No data available to export');
       return;
     }
 
-    // Create CSV content
+    // Create CSV content (Excel-compatible)
     let csvContent = "Graduate Attributes & Competencies Analytics Report\n\n";
     csvContent += `Generated: ${new Date().toLocaleString()}\n`;
     csvContent += `Analysis Level: ${filterLevel}\n\n`;
@@ -152,13 +208,29 @@ export default function UnifiedAnalytics() {
               Guide
             </Button>
           </Link>
-          <Button 
-            onClick={handleExport}
-            className="bg-[#8B1538] hover:bg-[#6B1028] flex items-center gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="bg-[#8B1538] hover:bg-[#6B1028] flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Export
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={handleExportPNG}>
+                Export as PNG (Images)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPDF}>
+                Export as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportWord}>
+                Export as Word
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportExcel}>
+                Export as Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Link href="/">
             <Button className="bg-[#8B1538] hover:bg-[#6B1028] flex items-center gap-2">
               <Home className="h-4 w-4" />
@@ -305,20 +377,133 @@ export default function UnifiedAnalytics() {
           </Card>
         </div>
 
-        {/* GA Alignment Scores Chart */}
-        <Card className="mb-6">
+        {/* GA Charts - Bar Chart and Radar Chart Side by Side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* GA Alignment Scores Bar Chart */}
+          <Card ref={gaChartRef}>
+            <CardHeader>
+              <CardTitle>Graduate Attribute Alignment Scores</CardTitle>
+              <p className="text-sm text-gray-600">
+                Average alignment strength across all programs (0-100%)
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={gaChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis label={{ value: 'Alignment Score (%)', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
+                            <p className="font-bold">{payload[0].payload.fullName}</p>
+                            <p className="text-sm">
+                              <span className="font-medium">Score:</span> {payload[0].value}%
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+                    {gaChartData.map((entry, index) => {
+                      // Threshold-based coloring
+                      let color = "#22C55E"; // Green for ≥80%
+                      if (entry.score < 50) {
+                        color = "#EF4444"; // Red for <50%
+                      } else if (entry.score < 80) {
+                        color = "#EAB308"; // Yellow for 50-79%
+                      }
+                      return <Cell key={`cell-${index}`} fill={color} />;
+                    })}
+                    <LabelList dataKey="score" position="top" formatter={(value: number) => `${value}%`} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              {/* Color Legend */}
+              <div className="mt-4 flex flex-wrap justify-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-green-500" />
+                  <span className="text-sm text-gray-700">Strong (≥80%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-yellow-500" />
+                  <span className="text-sm text-gray-700">Moderate (50-79%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-red-500" />
+                  <span className="text-sm text-gray-700">Weak (&lt;50%)</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* GA Coverage Profile Radar Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Graduate Attribute Coverage Profile</CardTitle>
+              <p className="text-sm text-gray-600">
+                Radar view of coverage and alignment across all GAs
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <RadarChart data={gaChartData}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="name" />
+                  <PolarRadiusAxis angle={90} domain={[0, 100]} />
+                  <Radar
+                    name="Alignment Score (%)"
+                    dataKey="score"
+                    stroke="#8B1538"
+                    fill="#8B1538"
+                    fillOpacity={0.6}
+                  />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
+                            <p className="font-bold">{payload[0].payload.fullName}</p>
+                            <p className="text-sm">
+                              <span className="font-medium">Alignment Score:</span> {payload[0].value}%
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Legend />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Competency Average Weights Chart */}
+        <Card className="mb-6" ref={competencyChartRef}>
           <CardHeader>
-            <CardTitle>Graduate Attribute Alignment Scores</CardTitle>
+            <CardTitle>Competency Average Weights</CardTitle>
             <p className="text-sm text-gray-600">
-              Average alignment strength across all programs (0-100%)
+              All competencies ordered by Graduate Attribute
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={gaChartData}>
+            <ResponsiveContainer width="100%" height={600}>
+              <BarChart data={competencyChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis label={{ value: 'Alignment Score (%)', angle: -90, position: 'insideLeft' }} />
+                <XAxis 
+                  dataKey="name" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={100}
+                  interval={0}
+                />
+                <YAxis label={{ value: 'Average Weight (%)', angle: -90, position: 'insideLeft' }} />
                 <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
@@ -326,7 +511,7 @@ export default function UnifiedAnalytics() {
                         <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
                           <p className="font-bold">{payload[0].payload.fullName}</p>
                           <p className="text-sm">
-                            <span className="font-medium">Score:</span> {payload[0].value}%
+                            <span className="font-medium">Weight:</span> {typeof payload[0].value === 'number' ? payload[0].value.toFixed(1) : payload[0].value}%
                           </p>
                         </div>
                       );
@@ -334,18 +519,18 @@ export default function UnifiedAnalytics() {
                     return null;
                   }}
                 />
-                <Bar dataKey="score" radius={[8, 8, 0, 0]}>
-                  {gaChartData.map((entry, index) => {
+                <Bar dataKey="weight" radius={[8, 8, 0, 0]}>
+                  {competencyChartData.map((entry, index) => {
                     // Threshold-based coloring
                     let color = "#22C55E"; // Green for ≥80%
-                    if (entry.score < 50) {
+                    if (entry.weight < 50) {
                       color = "#EF4444"; // Red for <50%
-                    } else if (entry.score < 80) {
+                    } else if (entry.weight < 80) {
                       color = "#EAB308"; // Yellow for 50-79%
                     }
                     return <Cell key={`cell-${index}`} fill={color} />;
                   })}
-                  <LabelList dataKey="score" position="top" formatter={(value: number) => `${value}%`} />
+                  <LabelList dataKey="weight" position="top" formatter={(value: any) => typeof value === 'number' ? `${value.toFixed(1)}%` : value} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -364,54 +549,11 @@ export default function UnifiedAnalytics() {
                 <span className="text-sm text-gray-700">Weak (&lt;50%)</span>
               </div>
             </div>
+            {/* GA Separators */}
+            <div className="mt-4 text-sm text-gray-600 text-center">
+              <p>Competencies grouped by Graduate Attribute: GA1 (C1-1 to C1-4), GA2 (C2-1 to C2-4), GA3 (C3-1 to C3-3), GA4 (C4-1 to C4-5), GA5 (C5-1 to C5-5)</p>
+            </div>
           </CardContent>
-        </Card>
-
-        {/* Competency Average Weights Chart */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Competency Average Weights</CardTitle>
-            <p className="text-sm text-gray-600">
-              All competencies sorted by average mapping weights (highest to lowest)
-            </p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={500}>
-              <BarChart data={competencyChartData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" label={{ value: 'Average Weight (%)', position: 'insideBottom', offset: -5 }} />
-                <YAxis type="category" dataKey="name" width={60} />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
-                          <p className="font-bold">{payload[0].payload.fullName}</p>
-                          <p className="text-sm">
-                            <span className="font-medium">Weight:</span> {typeof payload[0].value === 'number' ? payload[0].value.toFixed(1) : payload[0].value}%
-                          </p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Bar dataKey="weight" radius={[0, 8, 8, 0]}>
-                  {competencyChartData.map((entry, index) => {
-                    // Threshold-based coloring
-                    let color = "#22C55E"; // Green for ≥80%
-                    if (entry.weight < 50) {
-                      color = "#EF4444"; // Red for <50%
-                    } else if (entry.weight < 80) {
-                      color = "#EAB308"; // Yellow for 50-79%
-                    }
-                    return <Cell key={`cell-${index}`} fill={color} />;
-                  })}
-                  <LabelList dataKey="weight" position="right" formatter={(value: any) => typeof value === 'number' ? `${value.toFixed(1)}%` : value} />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-            </CardContent>
         </Card>
 
         {/* GA Data Table */}
