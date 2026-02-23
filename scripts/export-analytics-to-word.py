@@ -81,23 +81,25 @@ def create_analytics_word(data, output_path, logo_path):
         run.font.size = Pt(10)
         run.font.color.rgb = RGBColor(102, 102, 102)
     
-    # Filter context
+    # Filter context (always show College and Program)
     if 'filter_context' in data and data['filter_context']:
         filter_ctx = data['filter_context']
-        if filter_ctx.get('college_name'):
-            p = doc.add_paragraph()
-            run = p.add_run('College: ')
-            run.bold = True
-            run = p.add_run(filter_ctx['college_name'])
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            run.font.size = Pt(11)
-        if filter_ctx.get('program_name'):
-            p = doc.add_paragraph()
-            run = p.add_run('Program: ')
-            run.bold = True
-            run = p.add_run(filter_ctx['program_name'])
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            run.font.size = Pt(11)
+        college_name = filter_ctx.get('college_name', 'All')
+        program_name = filter_ctx.get('program_name', 'All')
+        
+        p = doc.add_paragraph()
+        run = p.add_run('College: ')
+        run.bold = True
+        run = p.add_run(college_name)
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run.font.size = Pt(11)
+        
+        p = doc.add_paragraph()
+        run = p.add_run('Program: ')
+        run.bold = True
+        run = p.add_run(program_name)
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run.font.size = Pt(11)
     
     doc.add_paragraph()  # Spacer
     

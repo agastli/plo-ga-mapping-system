@@ -895,3 +895,7 @@
 
 - [x] Fix file naming to reflect selected filters (All vs College vs Program)
 - [x] Ensure color legend appears in exported PDF/Word reports
+
+- [ ] Keep export title constant (no filter info in title)
+- [ ] Show College and Program as separate fields below title
+- [ ] Apply same format to both GA and Competency Analytics exports

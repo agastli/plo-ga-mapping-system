@@ -152,15 +152,15 @@ export default function GAAnalytics() {
               </Link>
               {gaData && (
                 <AnalyticsExport
-                  title={`Graduate Attributes Analytics${filterLevel === 'program' && selectedProgramId ? ` - ${colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College'} - ${programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program'}` : filterLevel === 'college' && selectedCollegeId ? ` - ${colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College'} - All Programs` : ' - All Colleges'}`}
+                  title="Graduate Attributes Analytics"
                   chartRef={chartRef}
                   data={gaData}
                   type="ga"
                   entityCode={`GA_Analytics${filterLevel === 'program' && selectedProgramId ? `_${colleges?.find(c => c.id === selectedCollegeId)?.code || 'College'}_${programs?.find(p => p.program.id === selectedProgramId)?.program.code || 'Program'}` : filterLevel === 'college' && selectedCollegeId ? `_${colleges?.find(c => c.id === selectedCollegeId)?.code || 'College'}_All_Programs` : '_All_Colleges'}`}
                   filterContext={{
                     level: filterLevel,
-                    collegeName: filterLevel === 'college' && selectedCollegeId ? colleges?.find(c => c.id === selectedCollegeId)?.nameEn : undefined,
-                    programName: filterLevel === 'program' && selectedProgramId ? programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn : undefined,
+                    collegeName: filterLevel === 'college' || filterLevel === 'program' ? (selectedCollegeId ? colleges?.find(c => c.id === selectedCollegeId)?.nameEn : 'All') : 'All',
+                    programName: filterLevel === 'program' && selectedProgramId ? programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn : 'All',
                   }}
                 />
               )}

@@ -25,6 +25,7 @@ import AnalyticsExport from "../components/AnalyticsExport";
 export default function CompetencyAnalytics() {
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>(undefined);
   const [selectedProgramId, setSelectedProgramId] = useState<number | undefined>(undefined);
+  const [filterLevel, setFilterLevel] = useState<'university' | 'college' | 'program'>('university');
   const chartRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch colleges and programs for filters
@@ -181,7 +182,12 @@ export default function CompetencyAnalytics() {
                   chartRef={chartRef}
                   data={competencyData}
                   type="competency"
-                  entityCode="Competency_Analytics"
+                  entityCode={`Competency_Analytics${filterLevel === 'program' && selectedProgramId ? `_${colleges?.find(c => c.id === selectedCollegeId)?.code || 'College'}_${programs?.find(p => p.program.id === selectedProgramId)?.program.code || 'Program'}` : filterLevel === 'college' && selectedCollegeId ? `_${colleges?.find(c => c.id === selectedCollegeId)?.code || 'College'}_All_Programs` : '_All_Colleges'}`}
+                  filterContext={{
+                    level: filterLevel,
+                    collegeName: filterLevel === 'college' || filterLevel === 'program' ? (selectedCollegeId ? colleges?.find(c => c.id === selectedCollegeId)?.nameEn : 'All') : 'All',
+                    programName: filterLevel === 'program' && selectedProgramId ? programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn : 'All',
+                  }}
                 />
               )}
             </div>
@@ -204,10 +210,12 @@ export default function CompetencyAnalytics() {
                 <label className="block text-sm font-medium mb-2">College</label>
                 <select
                   value={selectedCollegeId || ""}
-                  onChange={(e) => {
-                    setSelectedCollegeId(e.target.value ? Number(e.target.value) : undefined);
-                    setSelectedProgramId(undefined); // Reset program when college changes
-                  }}
+                onChange={(e) => {
+                  const collegeId = e.target.value ? Number(e.target.value) : undefined;
+                  setSelectedCollegeId(collegeId);
+                  setSelectedProgramId(undefined); // Reset program when college changes
+                  setFilterLevel(collegeId ? 'college' : 'university');
+                }}
                   className="w-full border border-gray-300 rounded px-3 py-2"
                 >
                   <option value="">All Colleges</option>
@@ -227,7 +235,11 @@ export default function CompetencyAnalytics() {
                   </label>
                   <select
                     value={selectedProgramId || ""}
-                    onChange={(e) => setSelectedProgramId(e.target.value ? Number(e.target.value) : undefined)}
+                    onChange={(e) => {
+                    const programId = e.target.value ? Number(e.target.value) : undefined;
+                    setSelectedProgramId(programId);
+                    setFilterLevel(programId ? 'program' : 'college');
+                  }}
                     className="w-full border border-gray-300 rounded px-3 py-2"
                   >
                     <option value="">All Programs in College</option>

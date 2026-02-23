@@ -90,7 +90,7 @@ def create_analytics_pdf(data, output_path, logo_path):
         )
         elements.append(Paragraph(f"Generated on: {data['timestamp']}", timestamp_style))
     
-    # Add filter context if provided
+    # Add filter context (always show College and Program)
     if 'filter_context' in data and data['filter_context']:
         context_style = ParagraphStyle(
             'ContextStyle',
@@ -98,13 +98,13 @@ def create_analytics_pdf(data, output_path, logo_path):
             fontSize=11,
             textColor=colors.HexColor('#333333'),
             alignment=TA_CENTER,
-            spaceAfter=10
+            spaceAfter=5
         )
         filter_ctx = data['filter_context']
-        if filter_ctx.get('college_name'):
-            elements.append(Paragraph(f"<b>College:</b> {filter_ctx['college_name']}", context_style))
-        if filter_ctx.get('program_name'):
-            elements.append(Paragraph(f"<b>Program:</b> {filter_ctx['program_name']}", context_style))
+        college_name = filter_ctx.get('college_name', 'All')
+        program_name = filter_ctx.get('program_name', 'All')
+        elements.append(Paragraph(f"<b>College:</b> {college_name}", context_style))
+        elements.append(Paragraph(f"<b>Program:</b> {program_name}", context_style))
     
     elements.append(Spacer(1, 0.3*inch))
     
