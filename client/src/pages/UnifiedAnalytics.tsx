@@ -32,6 +32,7 @@ import html2canvas from "html2canvas";
 
 export default function UnifiedAnalytics() {
   const gaChartRef = useRef<HTMLDivElement>(null);
+  const radarChartRef = useRef<HTMLDivElement>(null);
   const competencyChartRef = useRef<HTMLDivElement>(null);
 
   const exportPNG = trpc.analytics.exportAnalyticsPNG.useMutation();
@@ -70,7 +71,7 @@ export default function UnifiedAnalytics() {
   };
 
   const handleExportPNG = async () => {
-    if (!gaChartRef.current || !competencyChartRef.current) {
+    if (!gaChartRef.current || !radarChartRef.current || !competencyChartRef.current) {
       toast.error('Charts not ready for export');
       return;
     }
@@ -80,6 +81,7 @@ export default function UnifiedAnalytics() {
       
       // Capture all chart elements as base64
       const gaChartImage = await captureChartAsBase64(gaChartRef.current);
+      const radarChartImage = await captureChartAsBase64(radarChartRef.current);
       const compChartImage = await captureChartAsBase64(competencyChartRef.current);
       
       toast.info('Generating PNG files...');
@@ -87,6 +89,7 @@ export default function UnifiedAnalytics() {
       const result = await exportPNG.mutateAsync({
         chartImages: [
           { title: 'GA_Alignment_Scores', imageData: gaChartImage },
+          { title: 'GA_Coverage_Profile', imageData: radarChartImage },
           { title: 'Competency_Average_Weights', imageData: compChartImage },
         ],
       });
@@ -479,7 +482,7 @@ export default function UnifiedAnalytics() {
           </Card>
 
           {/* GA Coverage Profile Radar Chart */}
-          <Card>
+          <Card ref={radarChartRef}>
             <CardHeader>
               <CardTitle>Graduate Attribute Coverage Profile</CardTitle>
               <p className="text-sm text-gray-600">

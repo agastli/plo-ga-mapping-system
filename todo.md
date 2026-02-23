@@ -941,3 +941,4 @@
 - [x] Fix html2canvas OKLCH color parsing error in PNG export
 - [x] Ensure charts use standard color formats compatible with html2canvas
 - [x] Fix OKLCH color parsing error in html2canvas by adding onclone callback to convert colors
+- [x] Add radar chart to PNG export (should export 3 charts total)
