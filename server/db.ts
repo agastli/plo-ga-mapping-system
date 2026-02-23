@@ -232,7 +232,8 @@ export async function updateProgram(id: number, data: Partial<InsertProgram>) {
 export async function getAllPrograms() {
   const db = await getDb();
   if (!db) return [];
-  return await db
+  
+  const allPrograms = await db
     .select({
       program: programs,
       department: departments,
@@ -242,6 +243,35 @@ export async function getAllPrograms() {
     .innerJoin(departments, eq(programs.departmentId, departments.id))
     .innerJoin(colleges, eq(departments.collegeId, colleges.id))
     .orderBy(colleges.nameEn, departments.nameEn, programs.nameEn);
+  
+  // Add PLO and mapping counts for each program
+  const programsWithCounts = await Promise.all(
+    allPrograms.map(async (item) => {
+      const programPLOs = await db
+        .select({ id: plos.id })
+        .from(plos)
+        .where(eq(plos.programId, item.program.id));
+      
+      const ploIds = programPLOs.map(p => p.id);
+      
+      let mappingCount = 0;
+      if (ploIds.length > 0) {
+        const programMappings = await db
+          .select({ id: mappings.id })
+          .from(mappings)
+          .where(inArray(mappings.ploId, ploIds));
+        mappingCount = programMappings.length;
+      }
+      
+      return {
+        ...item,
+        ploCount: programPLOs.length,
+        mappingCount,
+      };
+    })
+  );
+  
+  return programsWithCounts;
 }
 
 // ============================================================================
@@ -799,6 +829,274 @@ export async function getProgramAnalytics(programId: number) {
     alignmentScore: Math.round(alignmentScore * 100) / 100,
     coverageRate: Math.round(coverageRate * 100) / 100,
     gaScores,
+  };
+}
+
+// ============================================================================
+// Data Completeness Statistics
+// ============================================================================
+
+export async function getDataCompletenessStats() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get all programs with their college and department info
+  const allPrograms = await db
+    .select({
+      programId: programs.id,
+      programName: programs.nameEn,
+      departmentId: departments.id,
+      departmentName: departments.nameEn,
+      collegeId: colleges.id,
+      collegeName: colleges.nameEn,
+    })
+    .from(programs)
+    .innerJoin(departments, eq(programs.departmentId, departments.id))
+    .innerJoin(colleges, eq(departments.collegeId, colleges.id));
+  
+  // Calculate completeness for each program
+  const programCompleteness = await Promise.all(
+    allPrograms.map(async (prog) => {
+      const programPLOs = await db
+        .select({ id: plos.id })
+        .from(plos)
+        .where(eq(plos.programId, prog.programId));
+      
+      const ploIds = programPLOs.map(p => p.id);
+      
+      let mappingCount = 0;
+      let justificationCount = 0;
+      
+      if (ploIds.length > 0) {
+        const programMappings = await db
+          .select({ id: mappings.id })
+          .from(mappings)
+          .where(inArray(mappings.ploId, ploIds));
+        mappingCount = programMappings.length;
+        
+        const programJustifications = await db
+          .select({ id: justifications.id })
+          .from(justifications)
+          .where(eq(justifications.programId, prog.programId));
+        justificationCount = programJustifications.length;
+      }
+      
+      return {
+        ...prog,
+        ploCount: programPLOs.length,
+        mappingCount,
+        justificationCount,
+        hasPLOs: programPLOs.length > 0,
+        hasMappings: mappingCount > 0,
+        hasJustifications: justificationCount > 0,
+        isComplete: programPLOs.length > 0 && mappingCount > 0,
+      };
+    })
+  );
+  
+  // Group by college
+  const collegeStats = allPrograms.reduce((acc, prog) => {
+    if (!acc[prog.collegeId]) {
+      acc[prog.collegeId] = {
+        collegeId: prog.collegeId,
+        collegeName: prog.collegeName,
+        totalPrograms: 0,
+        programsWithPLOs: 0,
+        programsWithMappings: 0,
+        programsWithJustifications: 0,
+        completePrograms: 0,
+      };
+    }
+    return acc;
+  }, {} as Record<number, any>);
+  
+  programCompleteness.forEach((prog) => {
+    const stats = collegeStats[prog.collegeId];
+    stats.totalPrograms++;
+    if (prog.hasPLOs) stats.programsWithPLOs++;
+    if (prog.hasMappings) stats.programsWithMappings++;
+    if (prog.hasJustifications) stats.programsWithJustifications++;
+    if (prog.isComplete) stats.completePrograms++;
+  });
+  
+  // Calculate overall stats
+  const totalPrograms = allPrograms.length;
+  const programsWithPLOs = programCompleteness.filter(p => p.hasPLOs).length;
+  const programsWithMappings = programCompleteness.filter(p => p.hasMappings).length;
+  const programsWithJustifications = programCompleteness.filter(p => p.hasJustifications).length;
+  const completePrograms = programCompleteness.filter(p => p.isComplete).length;
+  
+  return {
+    overall: {
+      totalPrograms,
+      programsWithPLOs,
+      programsWithMappings,
+      programsWithJustifications,
+      completePrograms,
+      ploCompletionRate: totalPrograms > 0 ? Math.round((programsWithPLOs / totalPrograms) * 100) : 0,
+      mappingCompletionRate: totalPrograms > 0 ? Math.round((programsWithMappings / totalPrograms) * 100) : 0,
+      justificationCompletionRate: totalPrograms > 0 ? Math.round((programsWithJustifications / totalPrograms) * 100) : 0,
+      overallCompletionRate: totalPrograms > 0 ? Math.round((completePrograms / totalPrograms) * 100) : 0,
+    },
+    byCollege: Object.values(collegeStats).map((stats: any) => ({
+      ...stats,
+      ploCompletionRate: stats.totalPrograms > 0 ? Math.round((stats.programsWithPLOs / stats.totalPrograms) * 100) : 0,
+      mappingCompletionRate: stats.totalPrograms > 0 ? Math.round((stats.programsWithMappings / stats.totalPrograms) * 100) : 0,
+      justificationCompletionRate: stats.totalPrograms > 0 ? Math.round((stats.programsWithJustifications / stats.totalPrograms) * 100) : 0,
+      overallCompletionRate: stats.totalPrograms > 0 ? Math.round((stats.completePrograms / stats.totalPrograms) * 100) : 0,
+    })),
+    programs: programCompleteness,
+  };
+}
+
+export async function validateAllProgramsData() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const issues: Array<{
+    severity: 'error' | 'warning' | 'info';
+    category: string;
+    programId: number;
+    programName: string;
+    collegeName: string;
+    departmentName: string;
+    issue: string;
+    details: string;
+  }> = [];
+  
+  // Get all programs with their college and department info
+  const allPrograms = await db
+    .select({
+      programId: programs.id,
+      programName: programs.nameEn,
+      programCode: programs.code,
+      departmentId: departments.id,
+      departmentName: departments.nameEn,
+      collegeId: colleges.id,
+      collegeName: colleges.nameEn,
+    })
+    .from(programs)
+    .innerJoin(departments, eq(programs.departmentId, departments.id))
+    .innerJoin(colleges, eq(departments.collegeId, colleges.id));
+  
+  // Validate each program
+  for (const prog of allPrograms) {
+    // Check for PLOs
+    const programPLOs = await db
+      .select({ id: plos.id, descriptionEn: plos.descriptionEn, sortOrder: plos.sortOrder })
+      .from(plos)
+      .where(eq(plos.programId, prog.programId));
+    
+    if (programPLOs.length === 0) {
+      issues.push({
+        severity: 'error',
+        category: 'Missing PLOs',
+        programId: prog.programId,
+        programName: prog.programName,
+        collegeName: prog.collegeName,
+        departmentName: prog.departmentName,
+        issue: 'No PLOs defined',
+        details: 'Program has no Program Learning Outcomes defined. This program will be excluded from analytics.',
+      });
+      continue; // Skip further checks if no PLOs
+    }
+    
+    // Check for mappings
+    const ploIds = programPLOs.map(p => p.id);
+    const programMappings = await db
+      .select({ id: mappings.id, ploId: mappings.ploId, weight: mappings.weight })
+      .from(mappings)
+      .where(inArray(mappings.ploId, ploIds));
+    
+    if (programMappings.length === 0) {
+      issues.push({
+        severity: 'error',
+        category: 'Missing Mappings',
+        programId: prog.programId,
+        programName: prog.programName,
+        collegeName: prog.collegeName,
+        departmentName: prog.departmentName,
+        issue: 'No competency mappings',
+        details: `Program has ${programPLOs.length} PLOs but no competency mappings defined. This program will be excluded from analytics.`,
+      });
+      continue;
+    }
+    
+    // Check for zero-weight mappings
+    const zeroWeightMappings = programMappings.filter(m => parseFloat(m.weight) === 0);
+    if (zeroWeightMappings.length > 0) {
+      issues.push({
+        severity: 'warning',
+        category: 'Zero-Weight Mappings',
+        programId: prog.programId,
+        programName: prog.programName,
+        collegeName: prog.collegeName,
+        departmentName: prog.departmentName,
+        issue: `${zeroWeightMappings.length} mappings with zero weight`,
+        details: 'Some PLO-competency mappings have zero weight, which may indicate incomplete data entry.',
+      });
+    }
+    
+    // Check for PLOs without mappings
+    const plosWithMappings = new Set(programMappings.map(m => m.ploId));
+    const plosWithoutMappings = programPLOs.filter(p => !plosWithMappings.has(p.id));
+    if (plosWithoutMappings.length > 0) {
+      issues.push({
+        severity: 'warning',
+        category: 'Unmapped PLOs',
+        programId: prog.programId,
+        programName: prog.programName,
+        collegeName: prog.collegeName,
+        departmentName: prog.departmentName,
+        issue: `${plosWithoutMappings.length} PLOs without competency mappings`,
+        details: `PLOs: ${plosWithoutMappings.map(p => `PLO${p.sortOrder}`).join(', ')}`,
+      });
+    }
+    
+    // Check for justifications
+    const programJustifications = await db
+      .select({ id: justifications.id })
+      .from(justifications)
+      .where(eq(justifications.programId, prog.programId));
+    
+    if (programJustifications.length === 0) {
+      issues.push({
+        severity: 'info',
+        category: 'Missing Justifications',
+        programId: prog.programId,
+        programName: prog.programName,
+        collegeName: prog.collegeName,
+        departmentName: prog.departmentName,
+        issue: 'No mapping justifications',
+        details: 'Program has no justifications for PLO-competency mappings. Justifications help explain the rationale for mappings.',
+      });
+    }
+  }
+  
+  // Summary statistics
+  const summary = {
+    totalPrograms: allPrograms.length,
+    programsWithErrors: new Set(issues.filter(i => i.severity === 'error').map(i => i.programId)).size,
+    programsWithWarnings: new Set(issues.filter(i => i.severity === 'warning').map(i => i.programId)).size,
+    programsWithInfo: new Set(issues.filter(i => i.severity === 'info').map(i => i.programId)).size,
+    totalErrors: issues.filter(i => i.severity === 'error').length,
+    totalWarnings: issues.filter(i => i.severity === 'warning').length,
+    totalInfo: issues.filter(i => i.severity === 'info').length,
+  };
+  
+  return {
+    summary,
+    issues: issues.sort((a, b) => {
+      // Sort by severity first (error > warning > info), then by college, then by program
+      const severityOrder = { error: 0, warning: 1, info: 2 };
+      if (severityOrder[a.severity] !== severityOrder[b.severity]) {
+        return severityOrder[a.severity] - severityOrder[b.severity];
+      }
+      if (a.collegeName !== b.collegeName) {
+        return a.collegeName.localeCompare(b.collegeName);
+      }
+      return a.programName.localeCompare(b.programName);
+    }),
   };
 }
 

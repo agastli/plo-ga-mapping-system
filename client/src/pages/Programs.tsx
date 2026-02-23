@@ -154,9 +154,28 @@ export default function Programs() {
                 className="group hover:shadow-2xl transition-all duration-300 border-2 hover:border-[#8B1538]/30 bg-gradient-to-br from-white to-slate-50"
               >
                 <CardHeader className="space-y-3">
-                  {/* Program Icon */}
-                  <div className="w-12 h-12 bg-[#8B1538]/10 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                    🎓
+                  {/* Program Icon and Status Badges */}
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 bg-[#8B1538]/10 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                      🎓
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      {item.ploCount === 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium" title="No PLOs defined">
+                          ⚠️ No PLOs
+                        </span>
+                      )}
+                      {item.ploCount > 0 && item.mappingCount === 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-medium" title="No mappings defined">
+                          ⚠️ No Mappings
+                        </span>
+                      )}
+                      {item.ploCount > 0 && item.mappingCount > 0 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium" title="Complete">
+                          ✓ Complete
+                        </span>
+                      )}
+                    </div>
                   </div>
                   
                   <CardTitle className="text-xl text-slate-900 group-hover:text-[#8B1538] transition-colors">

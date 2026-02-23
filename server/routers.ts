@@ -701,6 +701,15 @@ export const appRouter = router({
       return await db.getCompetencyByDepartmentAnalytics();
     }),
     
+    // Data Completeness
+    completenessStats: publicProcedure.query(async () => {
+      return await db.getDataCompletenessStats();
+    }),
+    
+    validateData: publicProcedure.query(async () => {
+      return await db.validateAllProgramsData();
+    }),
+    
     // Export endpoints
     exportToPDF: publicProcedure
       .input(z.object({
