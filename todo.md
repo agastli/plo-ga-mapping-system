@@ -996,3 +996,34 @@
 - [x] Update submission logic to handle programs without PLOs
 - [x] Allow form submission from Step 1 directly
 - [ ] Test creating program with only basic info and verify it works
+
+## Phase 43: Add Cluster Level to Database Schema (CAS Organizational Structure)
+- [ ] Analyze current database schema (College → Department → Program)
+- [ ] Design new schema with clusters table (College → Cluster → Department → Program)
+- [ ] Create clusters table with fields: id, name (EN/AR), college_id, description
+- [ ] Add cluster_id foreign key to departments table
+- [ ] Create migration script to add clusters table and update departments
+- [ ] Update backend database functions to handle cluster queries
+- [ ] Seed initial data for CAS clusters (SSH, LCT, SAS)
+- [ ] Update frontend dropdowns to show cluster selection
+- [ ] Update analytics to include cluster-level views
+- [ ] Test complete workflow with cluster hierarchy
+
+## Phase 44: Verify Cluster Backward Compatibility
+- [ ] Review all analytics queries to ensure they work with nullable clusterId
+- [ ] Check program view pages handle departments without clusters
+- [ ] Update frontend dropdowns to gracefully handle optional clusters
+- [ ] Test analytics with CAS (clustered) and other colleges (non-clustered)
+- [ ] Ensure program creation/editing works for both scenarios
+- [ ] Document cluster usage guidelines for administrators
+
+## Phase 45: Complete Cluster Support Implementation
+- [x] Add cluster-level analytics backend functions (getClusterAnalytics, getGAByClusterAnalytics)
+- [x] Create cluster analytics router endpoints
+- [x] Add cluster selection dropdown to AddProgram form (Step 1)
+- [ ] Add cluster selection to ProgramDetail edit mode
+- [ ] Update program view breadcrumbs to show cluster (College > Cluster > Department > Program)
+- [ ] Add cluster filter option to UnifiedAnalytics dashboard
+- [ ] Create cluster management page for admins to assign departments to clusters
+- [ ] Test cluster analytics with CAS data
+- [ ] Verify backward compatibility with non-clustered colleges

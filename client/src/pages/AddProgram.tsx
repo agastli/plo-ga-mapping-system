@@ -40,6 +40,7 @@ export default function AddProgram() {
   const [programCode, setProgramCode] = useState("");
   const [language, setLanguage] = useState<"en" | "ar" | "both">("en");
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>(undefined);
+  const [selectedClusterId, setSelectedClusterId] = useState<number | undefined>(undefined);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | undefined>(undefined);
   
   // Step 2: PLOs
@@ -53,6 +54,10 @@ export default function AddProgram() {
   
   // Queries
   const { data: colleges } = trpc.colleges.list.useQuery();
+  const { data: clusters } = trpc.clusters.listByCollege.useQuery(
+    { collegeId: selectedCollegeId! },
+    { enabled: !!selectedCollegeId }
+  );
   const { data: departments } = trpc.departments.list.useQuery();
   const { data: graduateAttributes } = trpc.graduateAttributes.list.useQuery();
   const { data: competencies } = trpc.competencies.list.useQuery();
@@ -63,8 +68,17 @@ export default function AddProgram() {
   const upsertMapping = trpc.mappings.upsert.useMutation();
   const upsertJustification = trpc.justifications.upsert.useMutation();
   
-  // Filter departments by selected college
-  const filteredDepartments = departments?.filter(d => d.collegeId === selectedCollegeId) || [];
+  // Filter departments by selected college and cluster
+  const filteredDepartments = departments?.filter(d => {
+    if (!selectedCollegeId) return false;
+    if (d.collegeId !== selectedCollegeId) return false;
+    // If college has clusters and one is selected, filter by cluster
+    if (clusters && clusters.length > 0 && selectedClusterId) {
+      return d.clusterId === selectedClusterId;
+    }
+    // If college has no clusters, show all departments
+    return true;
+  }) || [];
   
   // Group competencies by GA
   const competenciesByGA = graduateAttributes?.map(ga => ({
@@ -432,6 +446,7 @@ export default function AddProgram() {
                       value={selectedCollegeId || ""}
                       onChange={(e) => {
                         setSelectedCollegeId(parseInt(e.target.value));
+                        setSelectedClusterId(undefined);
                         setSelectedDepartmentId(undefined);
                       }}
                       className="w-full h-10 px-3 rounded-md border border-input bg-background mt-2"
@@ -444,10 +459,38 @@ export default function AddProgram() {
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <Label htmlFor="department" className="text-base font-semibold">
-                      Department *
-                    </Label>
+                  {clusters && clusters.length > 0 && (
+                    <div>
+                      <Label htmlFor="cluster" className="text-base font-semibold">
+                        Cluster *
+                      </Label>
+                      <select
+                        id="cluster"
+                        value={selectedClusterId || ""}
+                        onChange={(e) => {
+                          setSelectedClusterId(parseInt(e.target.value));
+                          setSelectedDepartmentId(undefined);
+                        }}
+                        className="w-full h-10 px-3 rounded-md border border-input bg-background mt-2"
+                        disabled={!selectedCollegeId}
+                      >
+                        <option value="">Select cluster</option>
+                        {clusters.map(cluster => (
+                          <option key={cluster.id} value={cluster.id}>
+                            {cluster.nameEn}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+                
+                {(clusters && clusters.length > 0 ? selectedClusterId : selectedCollegeId) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="department" className="text-base font-semibold">
+                        Department *
+                      </Label>
                     <select
                       id="department"
                       value={selectedDepartmentId || ""}
@@ -463,7 +506,8 @@ export default function AddProgram() {
                       ))}
                     </select>
                   </div>
-                </div>
+                  </div>
+                )}
               </div>
             )}
             

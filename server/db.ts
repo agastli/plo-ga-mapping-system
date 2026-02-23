@@ -4,6 +4,7 @@ import {
   InsertUser,
   users,
   colleges,
+  clusters,
   departments,
   programs,
   graduateAttributes,
@@ -14,6 +15,7 @@ import {
   auditLog,
   reportTemplates,
   type College,
+  type Cluster,
   type Department,
   type Program,
   type GraduateAttribute,
@@ -23,6 +25,7 @@ import {
   type Justification,
   type ReportTemplate,
   type InsertCollege,
+  type InsertCluster,
   type InsertDepartment,
   type InsertProgram,
   type InsertPLO,
@@ -145,6 +148,40 @@ export async function createCollege(data: InsertCollege) {
   const result = await db.insert(colleges).values(data);
   return Number(result[0].insertId);
 }
+
+// ============================================================================
+// Cluster Management
+// ============================================================================
+
+export async function getAllClusters() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.select().from(clusters);
+}
+
+export async function getClustersByCollege(collegeId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(clusters).where(eq(clusters.collegeId, collegeId)).orderBy(clusters.nameEn);
+}
+
+export async function getClusterById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(clusters).where(eq(clusters.id, id)).limit(1);
+  return result[0];
+}
+
+export async function createCluster(data: InsertCluster) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(clusters).values(data);
+  return Number(result[0].insertId);
+}
+
+// ============================================================================
+// Department Management
+// ============================================================================
 
 export async function getDepartmentsByCollege(collegeId: number) {
   const db = await getDb();
@@ -519,6 +556,104 @@ export async function getCollegeAnalytics(collegeId: number) {
         gaCode: ga.code,
         gaName: ga.nameEn,
         averageScore: programCount > 0 ? Math.round((totalScore / programCount) * 100) / 100 : 0,
+      };
+    })
+  );
+
+  return {
+    totalDepartments: depts.length,
+    totalPrograms,
+    totalPLOs,
+    averageAlignment: Math.round(avgAlignment * 100) / 100,
+    departments: departmentAnalytics,
+    gaBreakdown,
+  };
+}
+
+export async function getClusterAnalytics(clusterId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get cluster info
+  const cluster = await db
+    .select()
+    .from(clusters)
+    .where(eq(clusters.id, clusterId))
+    .limit(1);
+
+  if (!cluster || cluster.length === 0) {
+    throw new Error("Cluster not found");
+  }
+
+  // Get all departments in this cluster
+  const depts = await db.select().from(departments).where(eq(departments.clusterId, clusterId));
+
+  // Get analytics for each department
+  const departmentAnalytics = await Promise.all(
+    depts.map(async (dept) => {
+      const analytics = await getDepartmentAnalytics(dept.id);
+      return {
+        departmentId: dept.id,
+        departmentName: dept.nameEn,
+        departmentCode: dept.code,
+        ...analytics,
+      };
+    })
+  );
+
+  // Calculate cluster-wide metrics
+  const totalPrograms = departmentAnalytics.reduce((sum, d) => sum + d.totalPrograms, 0);
+  const totalPLOs = departmentAnalytics.reduce((sum, d) => sum + d.totalPLOs, 0);
+  const avgAlignment = departmentAnalytics.length > 0
+    ? departmentAnalytics.reduce((sum, d) => sum + d.averageAlignment, 0) / departmentAnalytics.length
+    : 0;
+
+  // Calculate GA breakdown
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.sortOrder);
+  const gaBreakdown = await Promise.all(
+    allGAs.map(async (ga) => {
+      const competenciesForGA = await db.select().from(competencies).where(eq(competencies.gaId, ga.id));
+      const competencyIds = competenciesForGA.map((c) => c.id);
+
+      const departmentIds = depts.map((d) => d.id);
+      const clusterPrograms = await db.select().from(programs).where(inArray(programs.departmentId, departmentIds));
+      const programIds = clusterPrograms.map((p) => p.id);
+
+      if (programIds.length === 0 || competencyIds.length === 0) {
+        return {
+          gaId: ga.id,
+          gaCode: ga.code,
+          gaName: ga.nameEn,
+          score: 0,
+        };
+      }
+
+      const ploList = await db.select().from(plos).where(inArray(plos.programId, programIds));
+      const ploIds = ploList.map((p) => p.id);
+
+      if (ploIds.length === 0) {
+        return {
+          gaId: ga.id,
+          gaCode: ga.code,
+          gaName: ga.nameEn,
+          score: 0,
+        };
+      }
+
+      const mappingsForGA = await db
+        .select()
+        .from(mappings)
+        .where(and(inArray(mappings.ploId, ploIds), inArray(mappings.competencyId, competencyIds)));
+
+      const totalWeight = mappingsForGA.reduce((sum, m) => sum + (parseFloat(m.weight as any) || 0), 0);
+      const maxPossibleWeight = ploIds.length * competencyIds.length;
+      const score = maxPossibleWeight > 0 ? (totalWeight / maxPossibleWeight) * 100 : 0;
+
+      return {
+        gaId: ga.id,
+        gaCode: ga.code,
+        gaName: ga.nameEn,
+        score: Math.round(score * 100) / 100,
       };
     })
   );

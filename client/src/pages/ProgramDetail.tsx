@@ -28,6 +28,7 @@ export default function ProgramDetail() {
   
   const { data: allColleges } = trpc.colleges.list.useQuery();
   const { data: allDepartments } = trpc.departments.list.useQuery();
+  const { data: allClusters } = trpc.clusters.list.useQuery();
   
   const program = matrixData?.program;
   const plos = matrixData?.plos || [];
@@ -47,6 +48,8 @@ export default function ProgramDetail() {
   const [editProgramNameEn, setEditProgramNameEn] = useState("");
   const [editProgramNameAr, setEditProgramNameAr] = useState("");
   const [editProgramCode, setEditProgramCode] = useState("");
+  const [editCollegeId, setEditCollegeId] = useState<number | undefined>(undefined);
+  const [editClusterId, setEditClusterId] = useState<number | undefined>(undefined);
   const [editDepartmentId, setEditDepartmentId] = useState<number | undefined>(undefined);
   
   // Group competencies by GA

@@ -34,11 +34,32 @@ export type College = typeof colleges.$inferSelect;
 export type InsertCollege = typeof colleges.$inferInsert;
 
 /**
- * Departments - Second level organizational unit
+ * Clusters - Organizational units within colleges (e.g., CAS has SSH, LCT, SAS)
+ * Optional - only some colleges use clusters
+ */
+export const clusters = mysqlTable("clusters", {
+  id: int("id").autoincrement().primaryKey(),
+  collegeId: int("collegeId").notNull().references(() => colleges.id, { onDelete: "cascade" }),
+  nameEn: varchar("nameEn", { length: 255 }).notNull(),
+  nameAr: varchar("nameAr", { length: 255 }),
+  code: varchar("code", { length: 50 }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  uniqueCode: unique().on(table.collegeId, table.code),
+}));
+
+export type Cluster = typeof clusters.$inferSelect;
+export type InsertCluster = typeof clusters.$inferInsert;
+
+/**
+ * Departments - Second level organizational unit (or third level if cluster exists)
  */
 export const departments = mysqlTable("departments", {
   id: int("id").autoincrement().primaryKey(),
   collegeId: int("collegeId").notNull().references(() => colleges.id, { onDelete: "cascade" }),
+  clusterId: int("clusterId").references(() => clusters.id, { onDelete: "set null" }), // Optional - null if college doesn't use clusters
   nameEn: varchar("nameEn", { length: 255 }).notNull(),
   nameAr: varchar("nameAr", { length: 255 }),
   code: varchar("code", { length: 50 }).notNull(),

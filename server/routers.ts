@@ -86,6 +86,38 @@ export const appRouter = router({
       }),
   }),
 
+  clusters: router({
+    list: publicProcedure.query(async () => {
+      return await db.getAllClusters();
+    }),
+    listByCollege: publicProcedure
+      .input(z.object({ collegeId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getClustersByCollege(input.collegeId);
+      }),
+    create: publicProcedure
+      .input(z.object({
+        collegeId: z.number(),
+        nameEn: z.string(),
+        nameAr: z.string().optional(),
+        code: z.string(),
+        description: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const id = await db.createCluster(input);
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "create",
+            entityType: "cluster",
+            entityId: id,
+            details: JSON.stringify(input),
+          });
+        }
+        return { id };
+      }),
+  }),
+
   programs: router({
     list: publicProcedure.query(async () => {
       return await db.getAllPrograms();
@@ -613,6 +645,12 @@ export const appRouter = router({
       .input(z.object({ departmentId: z.number() }))
       .query(async ({ input }) => {
         return await db.getDepartmentAnalytics(input.departmentId);
+      }),
+    
+    clusterAnalytics: publicProcedure
+      .input(z.object({ clusterId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getClusterAnalytics(input.clusterId);
       }),
     
     programAnalytics: publicProcedure

@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO clusters (collegeId, nameEn, nameAr, code, description) VALUES\n(2, 'Social Sciences and Humanities', 'العلوم الاجتماعية والإنسانية', 'SSH', 'Cluster for social sciences and humanities departments including History, Sociology, Psychology, Social Work, and related fields'),\n(2, 'Languages, Communications and Translation', 'اللغات والاتصال والترجمة', 'LCT', 'Cluster for language and communication departments including English, Arabic, Mass Communication, and related fields'),\n(2, 'Sciences and Applied Sciences', 'العلوم والعلوم التطبيقية', 'SAS', 'Cluster for science departments including Biology, Chemistry, Physics, Mathematics, Statistics, Environmental Sciences, and related fields');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute INSERT INTO clusters (collegeId, nameEn, nameAr, code, description) VALUES\n(2, 'Social Sciences and Humanities', 'العلوم الاجتماعية والإنسانية', 'SSH', 'Cluster for social sciences and humanities departments including History, Sociology, Psychology, Social Work, and related fields'),\n(2, 'Languages, Communications and Translation', 'اللغات والاتصال والترجمة', 'LCT', 'Cluster for language and communication departments including English, Arabic, Mass Communication, and related fields'),\n(2, 'Sciences and Applied Sciences', 'العلوم والعلوم التطبيقية', 'SAS', 'Cluster for science departments including Biology, Chemistry, Physics, Mathematics, Statistics, Environmental Sciences, and related fields');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1518
+}

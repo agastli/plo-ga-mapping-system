@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, code, nameEn FROM colleges WHERE code LIKE '%CAS%' OR nameEn LIKE '%Arts%Sciences%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT id, code, nameEn FROM colleges WHERE code LIKE '%CAS%' OR nameEn LIKE '%Arts%Sciences%';",
+  "rows": [
+    {
+      "id": "1",
+      "code": "CAS",
+      "nameEn": "College of Arts and Sciences"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcode\tnameEn\n1\tCAS\tCollege of Arts and Sciences\n",
+  "stderr": "",
+  "execution_time_ms": 1532
+}
