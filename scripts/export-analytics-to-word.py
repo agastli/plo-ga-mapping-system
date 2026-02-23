@@ -118,27 +118,26 @@ def create_analytics_word(data, output_path, logo_path):
         
         doc.add_paragraph()  # Spacer
     
-    # Add chart image if provided
-    if 'chart_image_data' in data and data['chart_image_data']:
-        heading = doc.add_heading('Visualization', level=2)
-        run = heading.runs[0]
-        run.font.color.rgb = RGBColor(139, 21, 56)
-        
-        try:
-            # Decode base64 image
-            image_data = data['chart_image_data'].split(',')[1]
-            image_bytes = base64.b64decode(image_data)
-            image_stream = io.BytesIO(image_bytes)
-            
-            # Add image to document
-            p = doc.add_paragraph()
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            run = p.add_run()
-            run.add_picture(image_stream, width=Inches(6.5))
-            
-            doc.add_paragraph()  # Spacer
-        except Exception as e:
-            print(f"Warning: Could not add chart image: {e}", file=sys.stderr)
+    # Add chart images if provided (each as separate section)
+    if 'chart_images' in data and len(data['chart_images']) > 0:
+        doc.add_page_break()  # Start charts on new page
+        for chart in data['chart_images']:
+            if 'path' in chart and os.path.exists(chart['path']):
+                # Add chart title
+                heading = doc.add_heading(chart.get('title', 'Chart'), level=2)
+                run = heading.runs[0]
+                run.font.color.rgb = RGBColor(139, 21, 56)
+                
+                try:
+                    # Add chart image
+                    p = doc.add_paragraph()
+                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    run = p.add_run()
+                    run.add_picture(chart['path'], width=Inches(6.5))
+                    
+                    doc.add_paragraph()  # Spacer
+                except Exception as e:
+                    print(f"Warning: Could not add chart image {chart.get('title', '')}: {e}", file=sys.stderr)
     
     # Add page break before data table
     doc.add_page_break()

@@ -87,39 +87,41 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
   const exportToPDF = async () => {
     setIsExporting(true);
     try {
-      // First capture the chart as image
-      let chartImageData = undefined;
+      // Capture each chart Card separately
+      const chartImages: Array<{ title: string; imageData: string }> = [];
       if (chartRef.current) {
-        const canvas = await html2canvas(chartRef.current, {
-          backgroundColor: "#ffffff",
-          scale: 2,
-          onclone: (clonedDoc) => {
-            // Convert all OKLCH colors to safe colors by reading computed styles
-            const allElements = clonedDoc.body.querySelectorAll('*');
-            allElements.forEach((el: any) => {
-              const computed = window.getComputedStyle(el);
-              
-              // Check computed background color
-              const bgColor = computed.backgroundColor;
-              if (bgColor && bgColor.includes('oklch')) {
-                el.style.backgroundColor = '#ffffff';
-              }
-              
-              // Check computed text color
-              const textColor = computed.color;
-              if (textColor && textColor.includes('oklch')) {
-                el.style.color = '#000000';
-              }
-              
-              // Check computed border color
-              const borderColor = computed.borderColor;
-              if (borderColor && borderColor.includes('oklch')) {
-                el.style.borderColor = '#e5e7eb';
-              }
+        const cards = chartRef.current.querySelectorAll('.mb-8'); // All chart cards have mb-8 class
+        
+        for (let i = 0; i < cards.length; i++) {
+          const card = cards[i] as HTMLElement;
+          // Get chart title from CardTitle
+          const titleElement = card.querySelector('[class*="CardTitle"]') || card.querySelector('h3');
+          const chartTitle = titleElement?.textContent || `Chart ${i + 1}`;
+          
+          try {
+            const canvas = await html2canvas(card, {
+              backgroundColor: "#ffffff",
+              scale: 2,
+              onclone: (clonedDoc) => {
+                // Convert all OKLCH colors to safe colors
+                const allElements = clonedDoc.body.querySelectorAll('*');
+                allElements.forEach((el: any) => {
+                  const computed = window.getComputedStyle(el);
+                  if (computed.backgroundColor?.includes('oklch')) el.style.backgroundColor = '#ffffff';
+                  if (computed.color?.includes('oklch')) el.style.color = '#000000';
+                  if (computed.borderColor?.includes('oklch')) el.style.borderColor = '#e5e7eb';
+                });
+              },
             });
-          },
-        });
-        chartImageData = canvas.toDataURL();
+            
+            chartImages.push({
+              title: chartTitle,
+              imageData: canvas.toDataURL()
+            });
+          } catch (error) {
+            console.error(`Failed to capture chart ${i + 1}:`, error);
+          }
+        }
       }
 
       // Prepare data for PDF export
@@ -127,7 +129,7 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
         title,
         metrics: prepareMetrics(data, type),
         table_data: prepareTableData(data, type),
-        chart_image_data: chartImageData,
+        chart_images: chartImages, // Array of {title, imageData}
         timestamp: new Date().toLocaleString('en-US', { 
           year: 'numeric', 
           month: 'long', 
@@ -202,46 +204,48 @@ export default function AnalyticsExport({ title, chartRef, data, type, entityCod
   const exportToWord = async () => {
     setIsExporting(true);
     try {
-      // Capture chart as image
-      let chartImageData = undefined;
+      // Capture each chart Card separately
+      const chartImages: Array<{ title: string; imageData: string }> = [];
       if (chartRef.current) {
-        const canvas = await html2canvas(chartRef.current, {
-          backgroundColor: "#ffffff",
-          scale: 2,
-          onclone: (clonedDoc) => {
-            // Convert all OKLCH colors to safe colors by reading computed styles
-            const allElements = clonedDoc.body.querySelectorAll('*');
-            allElements.forEach((el: any) => {
-              const computed = window.getComputedStyle(el);
-              
-              // Check computed background color
-              const bgColor = computed.backgroundColor;
-              if (bgColor && bgColor.includes('oklch')) {
-                el.style.backgroundColor = '#ffffff';
-              }
-              
-              // Check computed text color
-              const textColor = computed.color;
-              if (textColor && textColor.includes('oklch')) {
-                el.style.color = '#000000';
-              }
-              
-              // Check computed border color
-              const borderColor = computed.borderColor;
-              if (borderColor && borderColor.includes('oklch')) {
-                el.style.borderColor = '#e5e7eb';
-              }
+        const cards = chartRef.current.querySelectorAll('.mb-8'); // All chart cards have mb-8 class
+        
+        for (let i = 0; i < cards.length; i++) {
+          const card = cards[i] as HTMLElement;
+          // Get chart title from CardTitle
+          const titleElement = card.querySelector('[class*="CardTitle"]') || card.querySelector('h3');
+          const chartTitle = titleElement?.textContent || `Chart ${i + 1}`;
+          
+          try {
+            const canvas = await html2canvas(card, {
+              backgroundColor: "#ffffff",
+              scale: 2,
+              onclone: (clonedDoc) => {
+                // Convert all OKLCH colors to safe colors
+                const allElements = clonedDoc.body.querySelectorAll('*');
+                allElements.forEach((el: any) => {
+                  const computed = window.getComputedStyle(el);
+                  if (computed.backgroundColor?.includes('oklch')) el.style.backgroundColor = '#ffffff';
+                  if (computed.color?.includes('oklch')) el.style.color = '#000000';
+                  if (computed.borderColor?.includes('oklch')) el.style.borderColor = '#e5e7eb';
+                });
+              },
             });
-          },
-        });
-        chartImageData = canvas.toDataURL();
+            
+            chartImages.push({
+              title: chartTitle,
+              imageData: canvas.toDataURL()
+            });
+          } catch (error) {
+            console.error(`Failed to capture chart ${i + 1}:`, error);
+          }
+        }
       }
 
       const exportData = {
         title,
         metrics: prepareMetrics(data, type),
         table_data: prepareTableData(data, type),
-        chart_image_data: chartImageData,
+        chart_images: chartImages, // Array of {title, imageData}
         timestamp: new Date().toLocaleString('en-US', { 
           year: 'numeric', 
           month: 'long', 

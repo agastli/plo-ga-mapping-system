@@ -639,7 +639,7 @@ export const appRouter = router({
           title: z.string(),
           metrics: z.array(z.object({ label: z.string(), value: z.any() })),
           table_data: z.array(z.array(z.string())),
-          chart_image_data: z.string().optional(),
+          chart_images: z.array(z.object({ title: z.string(), imageData: z.string() })).optional(),
           timestamp: z.string().optional(),
         }),
       }))
@@ -648,18 +648,22 @@ export const appRouter = router({
         const outputPath = path.join(tmpdir(), `analytics-report-${Date.now()}.pdf`);
         const logoPath = path.join(__dirname, '../client/public/qu-logo.png');
         
-        // Save chart image if provided
-        let chartImagePath = null;
-        if (input.data.chart_image_data) {
-          chartImagePath = path.join(tmpdir(), `chart-${Date.now()}.png`);
-          const base64Data = input.data.chart_image_data.split(',')[1];
-          await writeFile(chartImagePath, Buffer.from(base64Data, 'base64'));
+        // Save chart images if provided
+        const chartImagePaths: Array<{ title: string; path: string }> = [];
+        if (input.data.chart_images && input.data.chart_images.length > 0) {
+          for (let i = 0; i < input.data.chart_images.length; i++) {
+            const chart = input.data.chart_images[i];
+            const chartImagePath = path.join(tmpdir(), `chart-${Date.now()}-${i}.png`);
+            const base64Data = chart.imageData.split(',')[1];
+            await writeFile(chartImagePath, Buffer.from(base64Data, 'base64'));
+            chartImagePaths.push({ title: chart.title, path: chartImagePath });
+          }
         }
         
         const exportData = {
           data: {
             ...input.data,
-            chart_image: chartImagePath,
+            chart_images: chartImagePaths, // Array of {title, path}
           },
           output_path: outputPath,
           logo_path: logoPath,
@@ -683,7 +687,9 @@ export const appRouter = router({
           
           // Cleanup temp files (but keep the output PDF for download)
           await unlink(tempInputFile).catch(() => {});
-          if (chartImagePath) await unlink(chartImagePath).catch(() => {});
+          for (const chart of chartImagePaths) {
+            await unlink(chart.path).catch(() => {});
+          }
           
           // Return file path for frontend to download
           return { filePath: outputPath };
@@ -746,7 +752,7 @@ export const appRouter = router({
           title: z.string(),
           metrics: z.array(z.object({ label: z.string(), value: z.any() })),
           table_data: z.array(z.array(z.string())),
-          chart_image_data: z.string().optional(),
+          chart_images: z.array(z.object({ title: z.string(), imageData: z.string() })).optional(),
           timestamp: z.string().optional(),
         }),
       }))
@@ -755,8 +761,23 @@ export const appRouter = router({
         const outputPath = path.join(tmpdir(), `analytics-report-${Date.now()}.docx`);
         const logoPath = path.join(__dirname, '../client/public/qu-logo.png');
         
+        // Save chart images if provided
+        const chartImagePaths: Array<{ title: string; path: string }> = [];
+        if (input.data.chart_images && input.data.chart_images.length > 0) {
+          for (let i = 0; i < input.data.chart_images.length; i++) {
+            const chart = input.data.chart_images[i];
+            const chartImagePath = path.join(tmpdir(), `chart-${Date.now()}-${i}.png`);
+            const base64Data = chart.imageData.split(',')[1];
+            await writeFile(chartImagePath, Buffer.from(base64Data, 'base64'));
+            chartImagePaths.push({ title: chart.title, path: chartImagePath });
+          }
+        }
+        
         const exportData = {
-          data: input.data,
+          data: {
+            ...input.data,
+            chart_images: chartImagePaths, // Array of {title, path}
+          },
           output_path: outputPath,
           logo_path: logoPath,
         };
@@ -779,6 +800,9 @@ export const appRouter = router({
           
           // Cleanup temp files (but keep the output Word doc for download)
           await unlink(tempInputFile).catch(() => {});
+          for (const chart of chartImagePaths) {
+            await unlink(chart.path).catch(() => {});
+          }
           
           // Return file path for frontend to download
           return { filePath: outputPath };

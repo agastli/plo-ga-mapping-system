@@ -885,3 +885,6 @@
 
 - [x] Fix PDF, Word, and PNG export failures - html2canvas OKLCH color parsing errors - Applied working approach from Analytics.tsx
 - [x] Fix PDF/Word/PNG exports - added onclone callback to convert computed OKLCH colors to hex
+- [ ] Redesign PDF/Word exports - capture individual charts as images and format tables properly
+- [x] Add color legends to all charts for better readability
+- [x] Add data labels on bars showing exact values

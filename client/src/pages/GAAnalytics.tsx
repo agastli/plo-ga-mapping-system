@@ -18,6 +18,7 @@ import {
   PolarRadiusAxis,
   Radar,
   Cell,
+  LabelList,
 } from "recharts";
 import { Home, BookOpen, Download, FileText, FileSpreadsheet, FileImage } from "lucide-react";
 import AnalyticsExport from "../components/AnalyticsExport";
@@ -260,6 +261,29 @@ export default function GAAnalytics() {
           </Card>
         </div>
 
+        {/* Color Legend */}
+        <Card className="mb-6 bg-gray-50">
+          <CardHeader>
+            <CardTitle className="text-base">Color Legend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded" style={{ backgroundColor: '#10b981' }}></div>
+                <span className="text-sm">High Coverage (&gt; 85%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded" style={{ backgroundColor: '#eab308' }}></div>
+                <span className="text-sm">Medium Coverage (70-85%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded" style={{ backgroundColor: '#ef4444' }}></div>
+                <span className="text-sm">Low Coverage (&lt; 70%)</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Charts Section - Wrapped for Export */}
         <div ref={chartRef} style={{ backgroundColor: '#ffffff', color: '#000000' }}>
         {/* GA Coverage Distribution */}
@@ -299,6 +323,7 @@ export default function GAAnalytics() {
                   {coverageChartDataWithColors.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
+                  <LabelList dataKey="coverage" position="top" formatter={(value: number) => `${value}%`} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -325,6 +350,7 @@ export default function GAAnalytics() {
                   {alignmentChartDataWithColors.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
+                  <LabelList dataKey="score" position="top" formatter={(value: number) => `${value}%`} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>

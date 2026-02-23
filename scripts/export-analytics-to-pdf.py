@@ -118,15 +118,20 @@ def create_analytics_pdf(data, output_path, logo_path):
         elements.append(metrics_table)
         elements.append(Spacer(1, 0.3*inch))
     
-    # Add chart image if provided
-    if 'chart_image' in data and os.path.exists(data['chart_image']):
-        elements.append(Paragraph("Visualization", heading_style))
-        try:
-            chart_img = Image(data['chart_image'], width=6.5*inch, height=4*inch, kind='proportional')
-            elements.append(chart_img)
-            elements.append(Spacer(1, 0.3*inch))
-        except Exception as e:
-            print(f"Warning: Could not add chart image: {e}", file=sys.stderr)
+    # Add chart images if provided (each as separate section)
+    if 'chart_images' in data and len(data['chart_images']) > 0:
+        elements.append(PageBreak())  # Start charts on new page
+        for chart in data['chart_images']:
+            if 'path' in chart and os.path.exists(chart['path']):
+                # Add chart title
+                elements.append(Paragraph(chart.get('title', 'Chart'), heading_style))
+                try:
+                    # Add chart image with proper sizing
+                    chart_img = Image(chart['path'], width=6.5*inch, height=4*inch, kind='proportional')
+                    elements.append(chart_img)
+                    elements.append(Spacer(1, 0.4*inch))
+                except Exception as e:
+                    print(f"Warning: Could not add chart image {chart.get('title', '')}: {e}", file=sys.stderr)
     
     # Add data table if provided
     if 'table_data' in data and len(data['table_data']) > 0:
