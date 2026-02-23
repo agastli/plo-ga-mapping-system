@@ -1,0 +1,46 @@
+{
+  "query": "SELECT COUNT(*) as total_mappings FROM mappings;\nSELECT m.id, m.ploId, m.competencyId, m.weight, c.code as compCode, c.gaId \nFROM mappings m \nJOIN competencies c ON m.competencyId = c.id \nWHERE m.weight > 0 \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT COUNT(*) as total_mappings FROM mappings;\nSELECT m.id, m.ploId, m.competencyId, m.weight, c.code as compCode, c.gaId \nFROM mappings m \nJOIN competencies c ON m.competencyId = c.id \nWHERE m.weight > 0 \nLIMIT 10;",
+  "rows": [
+    {
+      "total_mappings": "777"
+    },
+    {
+      "total_mappings": "id\tploId\tcompetencyId\tweight\tcompCode\tgaId"
+    },
+    {
+      "total_mappings": "1\t1\t1\t1.00\tC1-1\t1"
+    },
+    {
+      "total_mappings": "2\t2\t1\t0.80\tC1-1\t1"
+    },
+    {
+      "total_mappings": "3\t3\t1\t0.20\tC1-1\t1"
+    },
+    {
+      "total_mappings": "4\t4\t1\t0.20\tC1-1\t1"
+    },
+    {
+      "total_mappings": "5\t5\t1\t0.20\tC1-1\t1"
+    },
+    {
+      "total_mappings": "6\t6\t1\t0.80\tC1-1\t1"
+    },
+    {
+      "total_mappings": "7\t7\t1\t0.50\tC1-1\t1"
+    },
+    {
+      "total_mappings": "8\t1\t2\t1.00\tC1-2\t1"
+    },
+    {
+      "total_mappings": "9\t2\t2\t0.80\tC1-2\t1"
+    },
+    {
+      "total_mappings": "10\t3\t2\t0.20\tC1-2\t1"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_mappings\n777\nid\tploId\tcompetencyId\tweight\tcompCode\tgaId\n1\t1\t1\t1.00\tC1-1\t1\n2\t2\t1\t0.80\tC1-1\t1\n3\t3\t1\t0.20\tC1-1\t1\n4\t4\t1\t0.20\tC1-1\t1\n5\t5\t1\t0.20\tC1-1\t1\n6\t6\t1\t0.80\tC1-1\t1\n7\t7\t1\t0.50\tC1-1\t1\n8\t1\t2\t1.00\tC1-2\t1\n9\t2\t2\t0.80\tC1-2\t1\n10\t3\t2\t0.20\tC1-2\t1\n",
+  "stderr": "",
+  "execution_time_ms": 1759
+}

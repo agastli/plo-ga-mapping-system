@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO graduateAttributes (`id`, `code`, `nameEn`, `nameAr`, `sortOrder`) VALUES\n(1, 'GA1', 'Competent', 'الكفاءة', 1),\n(2, 'GA2', 'Life-long Learner', 'المتعلم مدى الحياة', 2),\n(3, 'GA3', 'Well Rounded', 'المتكامل', 3),\n(4, 'GA4', 'Ethically & Socially Responsible', 'المسؤول أخلاقياً واجتماعياً', 4),\n(5, 'GA5', 'Entrepreneurial', 'الريادي', 5);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute INSERT INTO graduateAttributes (`id`, `code`, `nameEn`, `nameAr`, `sortOrder`) VALUES\n(1, 'GA1', 'Competent', 'الكفاءة', 1),\n(2, 'GA2', 'Life-long Learner', 'المتعلم مدى الحياة', 2),\n(3, 'GA3', 'Well Rounded', 'المتكامل', 3),\n(4, 'GA4', 'Ethically & Socially Responsible', 'المسؤول أخلاقياً واجتماعياً', 4),\n(5, 'GA5', 'Entrepreneurial', 'الريادي', 5);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1600
+}

@@ -1,0 +1,15 @@
+{
+  "query": "SELECT COUNT(*) as plo_count, MIN(id) as min_id, MAX(id) as max_id FROM plos;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT COUNT(*) as plo_count, MIN(id) as min_id, MAX(id) as max_id FROM plos;",
+  "rows": [
+    {
+      "plo_count": "262",
+      "min_id": "8",
+      "max_id": "330"
+    }
+  ],
+  "messages": [],
+  "stdout": "plo_count\tmin_id\tmax_id\n262\t8\t330\n",
+  "stderr": "",
+  "execution_time_ms": 1577
+}

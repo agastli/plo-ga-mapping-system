@@ -1,0 +1,31 @@
+{
+  "query": "SELECT COUNT(*) as mapping_count FROM mappings;\nSELECT COUNT(*) as plo_count FROM plos;\nSELECT COUNT(*) as competency_count FROM competencies;\nSELECT COUNT(*) as ga_count FROM graduateAttributes;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT COUNT(*) as mapping_count FROM mappings;\nSELECT COUNT(*) as plo_count FROM plos;\nSELECT COUNT(*) as competency_count FROM competencies;\nSELECT COUNT(*) as ga_count FROM graduateAttributes;",
+  "rows": [
+    {
+      "mapping_count": "0"
+    },
+    {
+      "mapping_count": "plo_count"
+    },
+    {
+      "mapping_count": "0"
+    },
+    {
+      "mapping_count": "competency_count"
+    },
+    {
+      "mapping_count": "21"
+    },
+    {
+      "mapping_count": "ga_count"
+    },
+    {
+      "mapping_count": "5"
+    }
+  ],
+  "messages": [],
+  "stdout": "mapping_count\n0\nplo_count\n0\ncompetency_count\n21\nga_count\n5\n",
+  "stderr": "",
+  "execution_time_ms": 2162
+}

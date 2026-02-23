@@ -901,3 +901,5 @@
 - [ ] Apply same format to both GA and Competency Analytics exports
 - [x] Fix cascading program filter to show only selected college's programs in GA and Competency Analytics
 - [x] Fix incorrect GA alignment score calculation (showing 14.65% instead of ~67%)
+- [x] Debug GA alignment score calculation - fix not working, still showing low values
+- [x] Fix GA alignment score to average competency scores instead of individual mappings

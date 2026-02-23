@@ -1,0 +1,130 @@
+{
+  "query": "SELECT m.id, m.ploId, m.competencyId, m.weight \nFROM mappings m \nWHERE m.weight > 0 \nORDER BY m.weight DESC \nLIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT m.id, m.ploId, m.competencyId, m.weight \nFROM mappings m \nWHERE m.weight > 0 \nORDER BY m.weight DESC \nLIMIT 20;",
+  "rows": [
+    {
+      "id": "243",
+      "ploId": "10",
+      "competencyId": "21",
+      "weight": "1.00"
+    },
+    {
+      "id": "102",
+      "ploId": "4",
+      "competencyId": "15",
+      "weight": "1.00"
+    },
+    {
+      "id": "208",
+      "ploId": "10",
+      "competencyId": "14",
+      "weight": "1.00"
+    },
+    {
+      "id": "124",
+      "ploId": "5",
+      "competencyId": "19",
+      "weight": "1.00"
+    },
+    {
+      "id": "95",
+      "ploId": "4",
+      "competencyId": "14",
+      "weight": "1.00"
+    },
+    {
+      "id": "66",
+      "ploId": "3",
+      "competencyId": "10",
+      "weight": "1.00"
+    },
+    {
+      "id": "150",
+      "ploId": "12",
+      "competencyId": "2",
+      "weight": "1.00"
+    },
+    {
+      "id": "131",
+      "ploId": "5",
+      "competencyId": "20",
+      "weight": "1.00"
+    },
+    {
+      "id": "117",
+      "ploId": "5",
+      "competencyId": "18",
+      "weight": "1.00"
+    },
+    {
+      "id": "49",
+      "ploId": "7",
+      "competencyId": "7",
+      "weight": "1.00"
+    },
+    {
+      "id": "74",
+      "ploId": "4",
+      "competencyId": "11",
+      "weight": "1.00"
+    },
+    {
+      "id": "42",
+      "ploId": "7",
+      "competencyId": "6",
+      "weight": "1.00"
+    },
+    {
+      "id": "56",
+      "ploId": "7",
+      "competencyId": "8",
+      "weight": "1.00"
+    },
+    {
+      "id": "15",
+      "ploId": "1",
+      "competencyId": "3",
+      "weight": "1.00"
+    },
+    {
+      "id": "8",
+      "ploId": "1",
+      "competencyId": "2",
+      "weight": "1.00"
+    },
+    {
+      "id": "138",
+      "ploId": "5",
+      "competencyId": "21",
+      "weight": "1.00"
+    },
+    {
+      "id": "1",
+      "ploId": "1",
+      "competencyId": "1",
+      "weight": "1.00"
+    },
+    {
+      "id": "27",
+      "ploId": "6",
+      "competencyId": "4",
+      "weight": "1.00"
+    },
+    {
+      "id": "107",
+      "ploId": "2",
+      "competencyId": "17",
+      "weight": "1.00"
+    },
+    {
+      "id": "313",
+      "ploId": "15",
+      "competencyId": "14",
+      "weight": "1.00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tploId\tcompetencyId\tweight\n243\t10\t21\t1.00\n102\t4\t15\t1.00\n208\t10\t14\t1.00\n124\t5\t19\t1.00\n95\t4\t14\t1.00\n66\t3\t10\t1.00\n150\t12\t2\t1.00\n131\t5\t20\t1.00\n117\t5\t18\t1.00\n49\t7\t7\t1.00\n74\t4\t11\t1.00\n42\t7\t6\t1.00\n56\t7\t8\t1.00\n15\t1\t3\t1.00\n8\t1\t2\t1.00\n138\t5\t21\t1.00\n1\t1\t1\t1.00\n27\t6\t4\t1.00\n107\t2\t17\t1.00\n313\t15\t14\t1.00\n",
+  "stderr": "",
+  "execution_time_ms": 1506
+}
