@@ -40,6 +40,31 @@ export default function UnifiedAnalytics() {
     const canvas = await html2canvas(element, {
       backgroundColor: '#ffffff',
       scale: 2,
+      onclone: (clonedDoc) => {
+        // Convert all OKLCH colors to standard hex colors
+        const allElements = clonedDoc.querySelectorAll('*');
+        allElements.forEach((el: Element) => {
+          const htmlEl = el as HTMLElement;
+          const style = window.getComputedStyle(el);
+          
+          // Convert color properties
+          if (style.color && style.color.includes('oklch')) {
+            htmlEl.style.color = '#000000';
+          }
+          if (style.backgroundColor && style.backgroundColor.includes('oklch')) {
+            htmlEl.style.backgroundColor = '#ffffff';
+          }
+          if (style.borderColor && style.borderColor.includes('oklch')) {
+            htmlEl.style.borderColor = '#000000';
+          }
+          if (style.fill && style.fill.includes('oklch')) {
+            htmlEl.style.fill = '#000000';
+          }
+          if (style.stroke && style.stroke.includes('oklch')) {
+            htmlEl.style.stroke = '#000000';
+          }
+        });
+      },
     });
     return canvas.toDataURL('image/png');
   };
