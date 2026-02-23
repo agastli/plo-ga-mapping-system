@@ -942,3 +942,6 @@
 - [x] Ensure charts use standard color formats compatible with html2canvas
 - [x] Fix OKLCH color parsing error in html2canvas by adding onclone callback to convert colors
 - [x] Add radar chart to PNG export (should export 3 charts total)
+- [x] Update PNG file names to include analysis level context (University-wide/College/Program)
+- [x] Add colored boxes to legend (Green, Yellow, Red)
+- [x] Add College/Program context information at top of charts

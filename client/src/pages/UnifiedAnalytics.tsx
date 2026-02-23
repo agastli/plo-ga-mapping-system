@@ -86,11 +86,21 @@ export default function UnifiedAnalytics() {
       
       toast.info('Generating PNG files...');
       
+      // Build context for file naming
+      let contextPrefix = 'University-wide';
+      if (filterLevel === 'college' && selectedCollegeId) {
+        const college = colleges?.find(c => c.id === selectedCollegeId);
+        contextPrefix = college ? college.nameEn.replace(/\s+/g, '_') : 'College';
+      } else if (filterLevel === 'program' && selectedProgramId) {
+        const program = programs?.find(p => p.program.id === selectedProgramId);
+        contextPrefix = program ? program.program.nameEn.replace(/\s+/g, '_') : 'Program';
+      }
+      
       const result = await exportPNG.mutateAsync({
         chartImages: [
-          { title: 'GA_Alignment_Scores', imageData: gaChartImage },
-          { title: 'GA_Coverage_Profile', imageData: radarChartImage },
-          { title: 'Competency_Average_Weights', imageData: compChartImage },
+          { title: `${contextPrefix}_GA_Alignment_Scores`, imageData: gaChartImage },
+          { title: `${contextPrefix}_GA_Coverage_Profile`, imageData: radarChartImage },
+          { title: `${contextPrefix}_Competency_Average_Weights`, imageData: compChartImage },
         ],
       });
       
@@ -423,6 +433,14 @@ export default function UnifiedAnalytics() {
           <Card ref={gaChartRef}>
             <CardHeader>
               <CardTitle>Graduate Attribute Alignment Scores</CardTitle>
+              <p className="text-sm font-semibold text-[#8B1538] mb-1">
+                {filterLevel === 'university' ? 'University-wide' : 
+                 filterLevel === 'college' && selectedCollegeId ? 
+                   colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College' :
+                 filterLevel === 'program' && selectedProgramId ?
+                   programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program' :
+                 'All Programs'}
+              </p>
               <p className="text-sm text-gray-600">
                 Average alignment strength across all programs (0-100%)
               </p>
@@ -466,15 +484,15 @@ export default function UnifiedAnalytics() {
               {/* Color Legend */}
               <div className="mt-4 flex flex-wrap justify-center gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-green-500" />
+                  <div style={{ width: '16px', height: '16px', backgroundColor: '#22c55e', borderRadius: '4px', border: '1px solid #22c55e' }} />
                   <span className="text-sm text-gray-700">Strong (≥80%)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-yellow-500" />
+                  <div style={{ width: '16px', height: '16px', backgroundColor: '#eab308', borderRadius: '4px', border: '1px solid #eab308' }} />
                   <span className="text-sm text-gray-700">Moderate (50-79%)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-red-500" />
+                  <div style={{ width: '16px', height: '16px', backgroundColor: '#ef4444', borderRadius: '4px', border: '1px solid #ef4444' }} />
                   <span className="text-sm text-gray-700">Weak (&lt;50%)</span>
                 </div>
               </div>
@@ -485,6 +503,14 @@ export default function UnifiedAnalytics() {
           <Card ref={radarChartRef}>
             <CardHeader>
               <CardTitle>Graduate Attribute Coverage Profile</CardTitle>
+              <p className="text-sm font-semibold text-[#8B1538] mb-1">
+                {filterLevel === 'university' ? 'University-wide' : 
+                 filterLevel === 'college' && selectedCollegeId ? 
+                   colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College' :
+                 filterLevel === 'program' && selectedProgramId ?
+                   programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program' :
+                 'All Programs'}
+              </p>
               <p className="text-sm text-gray-600">
                 Radar view of coverage and alignment across all GAs
               </p>
@@ -528,6 +554,14 @@ export default function UnifiedAnalytics() {
         <Card className="mb-6" ref={competencyChartRef}>
           <CardHeader>
             <CardTitle>Competency Average Weights</CardTitle>
+            <p className="text-sm font-semibold text-[#8B1538] mb-1">
+              {filterLevel === 'university' ? 'University-wide' : 
+               filterLevel === 'college' && selectedCollegeId ? 
+                 colleges?.find(c => c.id === selectedCollegeId)?.nameEn || 'College' :
+               filterLevel === 'program' && selectedProgramId ?
+                 programs?.find(p => p.program.id === selectedProgramId)?.program.nameEn || 'Program' :
+               'All Programs'}
+            </p>
             <p className="text-sm text-gray-600">
               All competencies ordered by Graduate Attribute
             </p>
@@ -577,15 +611,15 @@ export default function UnifiedAnalytics() {
             {/* Color Legend */}
             <div className="mt-4 flex flex-wrap justify-center gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-green-500" />
+                <div style={{ width: '16px', height: '16px', backgroundColor: '#22c55e', borderRadius: '4px', border: '1px solid #22c55e' }} />
                 <span className="text-sm text-gray-700">Strong (≥80%)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-yellow-500" />
+                <div style={{ width: '16px', height: '16px', backgroundColor: '#eab308', borderRadius: '4px', border: '1px solid #eab308' }} />
                 <span className="text-sm text-gray-700">Moderate (50-79%)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-red-500" />
+                <div style={{ width: '16px', height: '16px', backgroundColor: '#ef4444', borderRadius: '4px', border: '1px solid #ef4444' }} />
                 <span className="text-sm text-gray-700">Weak (&lt;50%)</span>
               </div>
             </div>
