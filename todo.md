@@ -904,3 +904,11 @@
 - [x] Debug GA alignment score calculation - fix not working, still showing low values
 - [x] Fix GA alignment score to average competency scores instead of individual mappings
 - [x] Fix getProgramAnalytics to use same hierarchical calculation as university-wide GA analytics
+- [x] Rewrite GA calculation: competency score = SUM of weights, GA score = AVERAGE of competency scores
+- [x] Update all documentation and guides to reflect new SUM-based calculation methodology
+- [ ] Merge GA Analytics and Competency Analytics into unified dashboard
+- [ ] Combine GA and Competency charts into single page with tabs or sections
+- [ ] Update navigation to remove separate GA/Competency menu items
+- [ ] Consolidate export functionality for unified analytics
+- [ ] Update analytics guide to reflect unified dashboard
+- [ ] Remove separate GAAnalytics and CompetencyAnalytics pages

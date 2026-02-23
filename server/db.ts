@@ -606,23 +606,15 @@ export async function getProgramAnalytics(programId: number) {
       // Get mappings for this competency in this program
       const competencyMappings = programMappings.filter((m) => m.competencyId === competency.id);
       
-      // Only count non-zero weight mappings (matching competency analytics behavior)
-      const nonZeroMappings = competencyMappings.filter((m) => parseFloat(m.weight) > 0);
-      
-      if (nonZeroMappings.length > 0) {
-        const competencyWeight = nonZeroMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
-        const competencyAvg = (competencyWeight / nonZeroMappings.length) * 100;
-        competencyScores.push(competencyAvg);
-        totalWeight += competencyWeight;
-      } else {
-        // Include competencies with no mappings as 0% in the GA average
-        competencyScores.push(0);
-      }
+      // Competency score = SUM of all weights (should total to 1.0 or 0)
+      const competencyWeight = competencyMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
+      competencyScores.push(competencyWeight);
+      totalWeight += competencyWeight;
     });
     
-    // GA score = average of competency scores
+    // GA score = average of competency scores (convert to percentage)
     const score = competencyScores.length > 0
-      ? competencyScores.reduce((sum, s) => sum + s, 0) / competencyScores.length
+      ? (competencyScores.reduce((sum, s) => sum + s, 0) / competencyScores.length) * 100
       : 0;
     
     // Max weight for display purposes
@@ -766,24 +758,34 @@ export async function getGAAnalytics() {
     const competencyScores: number[] = [];
     
     gaCompetencies.forEach((competency) => {
-      // Get all mappings for this competency across all programs
-      const competencyMappings = allMappings.filter((m) => m.competencyId === competency.id);
+      // For university-wide: calculate average competency score across all programs
+      // Competency score per program = SUM of weights, then average across programs
       
-      // Only count non-zero weight mappings (matching competency analytics behavior)
-      const nonZeroMappings = competencyMappings.filter((m) => parseFloat(m.weight) > 0);
+      let competencySumAcrossPrograms = 0;
+      let programCount = 0;
       
-      if (nonZeroMappings.length > 0) {
-        const competencyWeight = nonZeroMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
-        const competencyAvg = (competencyWeight / nonZeroMappings.length) * 100;
-        competencyScores.push(competencyAvg);
+      allPrograms.forEach((program) => {
+        const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+        const programPLOIds = programPLOs.map((p) => p.id);
+        const competencyMappingsInProgram = allMappings.filter(
+          (m) => m.competencyId === competency.id && programPLOIds.includes(m.ploId)
+        );
         
-        // Track total weight and mappings for display
-        totalWeight += competencyWeight;
-        totalMappings += nonZeroMappings.length;
-      } else {
-        // Include competencies with no mappings as 0% in the GA average
-        competencyScores.push(0);
-      }
+        if (programPLOIds.length > 0) {
+          // Competency score for this program = SUM of weights
+          const competencyWeightInProgram = competencyMappingsInProgram.reduce(
+            (sum, m) => sum + parseFloat(m.weight), 0
+          );
+          competencySumAcrossPrograms += competencyWeightInProgram;
+          programCount++;
+          totalWeight += competencyWeightInProgram;
+        }
+      });
+      
+      // Average competency score across all programs
+      const avgCompetencyScore = programCount > 0 ? competencySumAcrossPrograms / programCount : 0;
+      competencyScores.push(avgCompetencyScore);
+      totalMappings += programCount;
     });
 
     // Track which programs have mappings to this GA
@@ -798,9 +800,9 @@ export async function getGAAnalytics() {
       }
     });
 
-    // Calculate GA alignment score as average of competency scores
+    // Calculate GA alignment score as average of competency scores (convert to percentage)
     const avgScore = competencyScores.length > 0 
-      ? competencyScores.reduce((sum, score) => sum + score, 0) / competencyScores.length
+      ? (competencyScores.reduce((sum, score) => sum + score, 0) / competencyScores.length) * 100
       : 0;
 
     // Calculate coverage rate (% of programs that map to this GA)
@@ -913,8 +915,8 @@ export async function getCompetencyAnalytics() {
   const competencyStats = allCompetencies.map((competency) => {
     // Count programs that have mappings to this competency
     const programsWithCompetency = new Set<number>();
-    let totalWeight = 0;
-    let mappingCount = 0;
+    let totalWeightAcrossPrograms = 0;
+    let programCount = 0;
     let justificationCount = 0;
 
     allPrograms.forEach((program) => {
@@ -923,17 +925,19 @@ export async function getCompetencyAnalytics() {
         (m) => programPLOs.some((plo) => plo.id === m.ploId) && m.competencyId === competency.id
       );
 
-      if (programMappings.length > 0 && programMappings.some((m) => parseFloat(m.weight) > 0)) {
-        programsWithCompetency.add(program.id);
-      }
-
-      programMappings.forEach((m) => {
-        const weight = parseFloat(m.weight);
-        if (weight > 0) {
-          totalWeight += weight;
-          mappingCount++;
+      if (programPLOs.length > 0) {
+        // Competency score for this program = SUM of all weights
+        const competencyWeightInProgram = programMappings.reduce(
+          (sum, m) => sum + parseFloat(m.weight), 0
+        );
+        
+        if (competencyWeightInProgram > 0) {
+          programsWithCompetency.add(program.id);
         }
-      });
+        
+        totalWeightAcrossPrograms += competencyWeightInProgram;
+        programCount++;
+      }
 
       // Count justifications for this competency in this program
       const programJustifications = allJustifications.filter(
@@ -942,8 +946,8 @@ export async function getCompetencyAnalytics() {
       justificationCount += programJustifications.length;
     });
 
-    // Calculate average weight (only for non-zero mappings)
-    const avgWeight = mappingCount > 0 ? totalWeight / mappingCount : 0;
+    // Calculate average weight per program (SUM of weights per program, then average)
+    const avgWeight = programCount > 0 ? totalWeightAcrossPrograms / programCount : 0;
 
     // Calculate coverage rate (% of programs that map to this competency)
     const coverageRate = allPrograms.length > 0 ? (programsWithCompetency.size / allPrograms.length) * 100 : 0;
@@ -961,8 +965,8 @@ export async function getCompetencyAnalytics() {
       totalPrograms: allPrograms.length,
       coverageRate: Math.round(coverageRate * 100) / 100,
       avgWeight: Math.round(avgWeight * 100) / 100,
-      totalWeight: Math.round(totalWeight * 100) / 100,
-      mappingCount,
+      totalWeight: Math.round(totalWeightAcrossPrograms * 100) / 100,
+      mappingCount: programCount,
       justificationCount,
       justificationRate: Math.round(justificationRate * 100) / 100,
     };
@@ -1088,26 +1092,34 @@ export async function getFilteredGAAnalytics(filters?: { collegeId?: number; pro
     const filteredPLOIds = filteredPLOs.map(plo => plo.id);
     
     gaCompetencies.forEach((competency) => {
-      // Get mappings for this competency from filtered programs only
-      const competencyMappings = allMappings.filter(
-        (m) => m.competencyId === competency.id && filteredPLOIds.includes(m.ploId)
-      );
+      // For filtered programs: calculate average competency score across filtered programs
+      // Competency score per program = SUM of weights, then average across programs
       
-      // Only count non-zero weight mappings (matching competency analytics behavior)
-      const nonZeroMappings = competencyMappings.filter((m) => parseFloat(m.weight) > 0);
+      let competencySumAcrossPrograms = 0;
+      let programCount = 0;
       
-      if (nonZeroMappings.length > 0) {
-        const competencyWeight = nonZeroMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
-        const competencyAvg = (competencyWeight / nonZeroMappings.length) * 100;
-        competencyScores.push(competencyAvg);
+      filteredPrograms.forEach((program) => {
+        const programPLOs = allPLOs.filter((p) => p.programId === program.id);
+        const programPLOIds = programPLOs.map((p) => p.id);
+        const competencyMappingsInProgram = allMappings.filter(
+          (m) => m.competencyId === competency.id && programPLOIds.includes(m.ploId)
+        );
         
-        // Track total weight and mappings for display
-        totalWeight += competencyWeight;
-        totalMappings += nonZeroMappings.length;
-      } else {
-        // Include competencies with no mappings as 0% in the GA average
-        competencyScores.push(0);
-      }
+        if (programPLOIds.length > 0) {
+          // Competency score for this program = SUM of weights
+          const competencyWeightInProgram = competencyMappingsInProgram.reduce(
+            (sum, m) => sum + parseFloat(m.weight), 0
+          );
+          competencySumAcrossPrograms += competencyWeightInProgram;
+          programCount++;
+          totalWeight += competencyWeightInProgram;
+        }
+      });
+      
+      // Average competency score across filtered programs
+      const avgCompetencyScore = programCount > 0 ? competencySumAcrossPrograms / programCount : 0;
+      competencyScores.push(avgCompetencyScore);
+      totalMappings += programCount;
     });
 
     // Track which programs have mappings to this GA
@@ -1122,9 +1134,9 @@ export async function getFilteredGAAnalytics(filters?: { collegeId?: number; pro
       }
     });
 
-    // Calculate GA alignment score as average of competency scores
+    // Calculate GA alignment score as average of competency scores (convert to percentage)
     const avgScore = competencyScores.length > 0 
-      ? competencyScores.reduce((sum, score) => sum + score, 0) / competencyScores.length
+      ? (competencyScores.reduce((sum, score) => sum + score, 0) / competencyScores.length) * 100
       : 0;
 
     // Calculate coverage rate (% of programs that map to this GA)
@@ -1197,18 +1209,19 @@ export async function getFilteredCompetencyAnalytics(filters?: { collegeId?: num
         (m) => programPLOs.some((plo) => plo.id === m.ploId) && m.competencyId === comp.id
       );
 
-      if (programMappings.length > 0 && programMappings.some((m) => parseFloat(m.weight) > 0)) {
-        programsWithComp.add(program.id);
-      }
-
-      // Calculate weight for this program
-      programMappings.forEach((m) => {
-        const weight = parseFloat(m.weight);
-        if (weight > 0) {
-          totalWeight += weight;
-          mappingCount++;
+      if (programPLOs.length > 0) {
+        // Competency score for this program = SUM of all weights
+        const competencyWeightInProgram = programMappings.reduce(
+          (sum, m) => sum + parseFloat(m.weight), 0
+        );
+        
+        if (competencyWeightInProgram > 0) {
+          programsWithComp.add(program.id);
         }
-      });
+        
+        totalWeight += competencyWeightInProgram;
+        mappingCount++;
+      }
 
       // Count justifications for this competency in this program
       const programJustifications = allJustifications.filter(

@@ -35,6 +35,25 @@ The PLO-GA Mapping Management System enables academic departments to:
 - Real-time alignment score calculations
 - Coverage rate analysis
 
+#### Calculation Methodology
+
+The system uses a hierarchical sum-based approach for calculating alignment scores:
+
+**Program Level:**
+- **Competency Score** = SUM of all mapping weights for that competency (0.0 to 1.0)
+- **GA Score** = AVERAGE of its competency scores × 100 (percentage)
+
+**College/University Level:**
+- **Competency Score** = AVERAGE of competency scores across all programs
+- **GA Score** = AVERAGE of its competency scores × 100 (percentage)
+
+**Example (Mechanical Engineering):**
+- C1-1 mappings: PLO1 (0.52) + PLO2 (0.20) + PLO7 (0.28) = **1.00**
+- C1-2 mappings: PLO6 (1.00) = **1.00**
+- C1-3 mappings: PLO1 (1.00) = **1.00**
+- C1-4 mappings: PLO7 (1.00) = **1.00**
+- **GA1 Score** = (1.00 + 1.00 + 1.00 + 1.00) / 4 × 100 = **100%**
+
 ### 📤 Multi-Format Export
 - **PDF**: Professional reports with QU branding
 - **Word**: Editable documents matching original templates

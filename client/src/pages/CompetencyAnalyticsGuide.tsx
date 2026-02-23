@@ -150,10 +150,17 @@ export default function CompetencyAnalyticsGuide() {
             <div>
               <h3 className="font-bold text-lg mb-2">2. Average Weight</h3>
               <p className="text-gray-700 mb-2">
-                The mean of all PLO-to-competency mapping weights for a specific competency across all programs.
+                The average competency score across all programs, calculated using a sum-based approach:
               </p>
-              <div className="bg-gray-100 p-3 rounded font-mono text-sm">
-                Avg Weight = Σ(All mapping weights for competency) / Number of non-zero mappings
+              <div className="bg-gray-100 p-4 rounded space-y-2">
+                <div className="font-mono text-sm">
+                  <strong>Per Program:</strong><br/>
+                  Competency Score = SUM of all mapping weights (0.0 to 1.0)
+                </div>
+                <div className="font-mono text-sm mt-2">
+                  <strong>Across Programs:</strong><br/>
+                  Avg Weight = AVERAGE of competency scores across all programs
+                </div>
               </div>
               <p className="text-sm text-gray-600 mt-2">
                 <strong>Interpretation:</strong> Higher weights indicate stronger emphasis on that competency in program curricula.

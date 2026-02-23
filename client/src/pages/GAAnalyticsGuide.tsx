@@ -160,13 +160,25 @@ export default function GAAnalyticsGuide() {
             <div>
               <h3 className="font-bold text-lg mb-2">2. Average Alignment Score</h3>
               <p className="text-gray-700 mb-2">
-                The mean of all PLO-to-competency mapping weights for a specific GA across all programs.
+                The GA alignment score is calculated using a hierarchical sum-based approach:
               </p>
-              <div className="bg-gray-100 p-3 rounded font-mono text-sm">
-                Avg Alignment = Σ(PLO weights for GA competencies) / Number of mappings
+              <div className="bg-gray-100 p-4 rounded space-y-2">
+                <div className="font-mono text-sm">
+                  <strong>Program Level:</strong><br/>
+                  Competency Score = SUM of all mapping weights (0.0 to 1.0)<br/>
+                  GA Score = AVERAGE of competency scores × 100%
+                </div>
+                <div className="font-mono text-sm mt-2">
+                  <strong>University/College Level:</strong><br/>
+                  Competency Score = AVERAGE of competency scores across programs<br/>
+                  GA Score = AVERAGE of competency scores × 100%
+                </div>
               </div>
               <p className="text-sm text-gray-600 mt-2">
-                <strong>Interpretation:</strong> Higher scores indicate stronger emphasis on that GA in program curricula.
+                <strong>Example:</strong> If GA1 has 4 competencies with scores 1.00, 1.00, 1.00, 1.00, then GA1 = (1.00 + 1.00 + 1.00 + 1.00) / 4 × 100 = 100%
+              </p>
+              <p className="text-sm text-gray-600 mt-2">
+                <strong>Interpretation:</strong> Higher scores (closer to 100%) indicate stronger and more complete alignment with that GA.
               </p>
             </div>
 
