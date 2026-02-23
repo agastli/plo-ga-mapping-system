@@ -106,11 +106,11 @@ def create_analytics_excel(data, output_path, logo_path):
         
         current_row += 2
     
-    # Data table
+    # GA summary table
     if 'table_data' in data and len(data['table_data']) > 0:
         ws.merge_cells(f'A{current_row}:F{current_row}')
         cell = ws[f'A{current_row}']
-        cell.value = "Detailed Data"
+        cell.value = "Graduate Attributes Summary"
         cell.font = heading_font
         current_row += 1
         
@@ -128,6 +128,40 @@ def create_analytics_excel(data, output_path, logo_path):
         
         # Data rows
         for row_data in table_data[1:]:
+            for col_idx, value in enumerate(row_data, start=1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.value = value
+                cell.border = border
+                cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+                # Alternate row colors
+                if current_row % 2 == 0:
+                    cell.fill = light_gray_fill
+            current_row += 1
+        
+        current_row += 2
+    
+    # Competency breakdown table
+    if 'competency_table_data' in data and len(data['competency_table_data']) > 0:
+        ws.merge_cells(f'A{current_row}:F{current_row}')
+        cell = ws[f'A{current_row}']
+        cell.value = "Competency Breakdown"
+        cell.font = heading_font
+        current_row += 1
+        
+        comp_table_data = data['competency_table_data']
+        
+        # Header row
+        for col_idx, header in enumerate(comp_table_data[0], start=1):
+            cell = ws.cell(row=current_row, column=col_idx)
+            cell.value = header
+            cell.fill = maroon_fill
+            cell.font = white_font
+            cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+            cell.border = border
+        current_row += 1
+        
+        # Data rows
+        for row_data in comp_table_data[1:]:
             for col_idx, value in enumerate(row_data, start=1):
                 cell = ws.cell(row=current_row, column=col_idx)
                 cell.value = value

@@ -23,6 +23,7 @@ import ReportTemplates from "./pages/ReportTemplates";
 import ClusterManagement from "./pages/ClusterManagement";
 import DataCompletenessDashboard from "./pages/DataCompletenessDashboard";
 import DataValidationTool from "./pages/DataValidationTool";
+import OrganizationalStructure from "./pages/OrganizationalStructure";
 
 function Router() {
   return (
@@ -45,6 +46,7 @@ function Router() {
       <Route path={"/admin/clusters"} component={ClusterManagement} />
       <Route path={"/admin/completeness"} component={DataCompletenessDashboard} />
       <Route path={"/admin/validation"} component={DataValidationTool} />
+      <Route path={"/admin/structure"} component={OrganizationalStructure} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

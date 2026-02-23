@@ -1006,6 +1006,7 @@ export const appRouter = router({
           imageData: z.string(),
         })),
         tableData: z.array(z.array(z.string())).optional(),
+        competencyTableData: z.array(z.array(z.string())).optional(),
         colorLegend: z.object({
           green: z.string(),
           yellow: z.string(),
@@ -1040,6 +1041,7 @@ export const appRouter = router({
             metrics: input.metrics,
             chart_images: chartImagePaths,
             table_data: input.tableData,
+            competency_table_data: input.competencyTableData,
             color_legend: input.colorLegend,
           };
           
@@ -1095,6 +1097,7 @@ export const appRouter = router({
           imageData: z.string(),
         })),
         tableData: z.array(z.array(z.string())).optional(),
+        competencyTableData: z.array(z.array(z.string())).optional(),
         colorLegend: z.object({
           green: z.string(),
           yellow: z.string(),
@@ -1128,6 +1131,7 @@ export const appRouter = router({
             metrics: input.metrics,
             chart_images: chartImagePaths,
             table_data: input.tableData,
+            competency_table_data: input.competencyTableData,
             color_legend: input.colorLegend,
           };
           
@@ -1179,6 +1183,7 @@ export const appRouter = router({
           value: z.any(),
         })),
         tableData: z.array(z.array(z.string())),
+        competencyTableData: z.array(z.array(z.string())).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const timestamp = Date.now();
@@ -1193,6 +1198,7 @@ export const appRouter = router({
             } : undefined,
             metrics: input.metrics,
             table_data: input.tableData,
+            competency_table_data: input.competencyTableData,
           };
           
           const outputPath = path.join(process.cwd(), 'temp', `analytics_${timestamp}.xlsx`);

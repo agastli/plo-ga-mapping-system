@@ -70,7 +70,9 @@ async function startServer() {
       
       // Set headers for download
       // Use custom filename from query parameter if provided, otherwise extract from path
-      const fileName = req.query.filename ? String(req.query.filename) : (filePath.split('/').pop() || 'download');
+      // Normalize path separators to handle both Unix (/) and Windows (\) paths
+      const normalizedFilePath = filePath.replace(/\\/g, '/');
+      const fileName = req.query.filename ? String(req.query.filename) : (normalizedFilePath.split('/').pop() || 'download');
       const fileExt = fileName.split('.').pop()?.toLowerCase();
       
       // Set appropriate Content-Type based on file extension

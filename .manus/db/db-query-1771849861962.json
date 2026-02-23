@@ -1,0 +1,40 @@
+{
+  "query": "SELECT * FROM clusters;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT * FROM clusters;",
+  "rows": [
+    {
+      "id": "1",
+      "collegeId": "2",
+      "nameEn": "Social Sciences and Humanities",
+      "nameAr": "العلوم الاجتماعية والإنسانية",
+      "code": "SSH",
+      "description": "Cluster for social sciences and humanities departments including History, Sociology, Psychology, Social Work, and related fields",
+      "createdAt": "2026-02-23 11:15:00",
+      "updatedAt": "2026-02-23 11:15:00"
+    },
+    {
+      "id": "2",
+      "collegeId": "2",
+      "nameEn": "Languages, Communications and Translation",
+      "nameAr": "اللغات والاتصال والترجمة",
+      "code": "LCT",
+      "description": "Cluster for language and communication departments including English, Arabic, Mass Communication, and related fields",
+      "createdAt": "2026-02-23 11:15:00",
+      "updatedAt": "2026-02-23 11:15:00"
+    },
+    {
+      "id": "3",
+      "collegeId": "2",
+      "nameEn": "Sciences and Applied Sciences",
+      "nameAr": "العلوم والعلوم التطبيقية",
+      "code": "SAS",
+      "description": "Cluster for science departments including Biology, Chemistry, Physics, Mathematics, Statistics, Environmental Sciences, and related fields",
+      "createdAt": "2026-02-23 11:15:00",
+      "updatedAt": "2026-02-23 11:15:00"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcollegeId\tnameEn\tnameAr\tcode\tdescription\tcreatedAt\tupdatedAt\n1\t2\tSocial Sciences and Humanities\tالعلوم الاجتماعية والإنسانية\tSSH\tCluster for social sciences and humanities departments including History, Sociology, Psychology, Social Work, and related fields\t2026-02-23 11:15:00\t2026-02-23 11:15:00\n2\t2\tLanguages, Communications and Translation\tاللغات والاتصال والترجمة\tLCT\tCluster for language and communication departments including English, Arabic, Mass Communication, and related fields\t2026-02-23 11:15:00\t2026-02-23 11:15:00\n3\t2\tSciences and Applied Sciences\tالعلوم والعلوم التطبيقية\tSAS\tCluster for science departments including Biology, Chemistry, Physics, Mathematics, Statistics, Environmental Sciences, and related fields\t2026-02-23 11:15:00\t2026-02-23 11:15:00\n",
+  "stderr": "",
+  "execution_time_ms": 3336
+}

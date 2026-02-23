@@ -261,9 +261,9 @@ def create_analytics_word(data, output_path, logo_path):
     # Add page break before data table
     doc.add_page_break()
     
-    # Data table
+    # GA summary table
     if 'table_data' in data and len(data['table_data']) > 0:
-        heading = doc.add_heading('Detailed Data', level=2)
+        heading = doc.add_heading('Graduate Attributes Summary', level=2)
         run = heading.runs[0]
         run.font.color.rgb = RGBColor(139, 21, 56)
         
@@ -286,6 +286,35 @@ def create_analytics_word(data, output_path, logo_path):
         for row_idx, row_data in enumerate(table_data[1:], start=1):
             for col_idx, value in enumerate(row_data):
                 cell = table.rows[row_idx].cells[col_idx]
+                cell.text = str(value)
+                cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Competency breakdown table
+    if 'competency_table_data' in data and len(data['competency_table_data']) > 0:
+        doc.add_paragraph()  # Add spacing
+        heading = doc.add_heading('Competency Breakdown', level=2)
+        run = heading.runs[0]
+        run.font.color.rgb = RGBColor(139, 21, 56)
+        
+        comp_table_data = data['competency_table_data']
+        comp_table = doc.add_table(rows=len(comp_table_data), cols=len(comp_table_data[0]))
+        comp_table.style = 'Light Grid Accent 1'
+        
+        # Header row
+        for col_idx, header in enumerate(comp_table_data[0]):
+            cell = comp_table.rows[0].cells[col_idx]
+            cell.text = header
+            cell.paragraphs[0].runs[0].font.bold = True
+            cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+            cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            shading_elm = OxmlElement('w:shd')
+            shading_elm.set(qn('w:fill'), '8B1538')
+            cell._element.get_or_add_tcPr().append(shading_elm)
+        
+        # Data rows
+        for row_idx, row_data in enumerate(comp_table_data[1:], start=1):
+            for col_idx, value in enumerate(row_data):
+                cell = comp_table.rows[row_idx].cells[col_idx]
                 cell.text = str(value)
                 cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
     

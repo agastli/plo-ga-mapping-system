@@ -1056,3 +1056,15 @@
 - [x] Create Validation Report page with detailed data quality issues
 - [x] Add export functionality for validation reports
 - [ ] Test all data completeness features
+## Phase 49: Fix Edit Functionality, Report Tables, and Export Filenames
+- [ ] Create Organizational Structure Management page for editing college/cluster/department/program names
+- [ ] Add inline editing for college names with save functionality
+- [ ] Add inline editing for cluster names with save functionality
+- [ ] Add inline editing for department names with save functionality
+- [ ] Add inline editing for program names with save functionality
+- [ ] Add route for /admin/structure in App.tsx
+- [ ] Add competency breakdown table to PDF analytics export
+- [ ] Add competency breakdown table to Word analytics export
+- [ ] Add competency breakdown table to Excel analytics export
+- [ ] Fix analytics export filenames to remove full path (use basename only)
+- [ ] Test all fixes

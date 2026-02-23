@@ -198,10 +198,20 @@ export default function UnifiedAnalytics() {
         { label: 'Average GA Score', value: `${avgGAScore.toFixed(2)}%` },
       ];
       
-      // Prepare table data
+      // Prepare GA summary table data
       const tableData = [
         ['GA Code', 'GA Name', 'Alignment Score (%)'],
         ...gaStats.map(ga => [ga.gaCode, ga.gaNameEn, ga.avgAlignmentScore.toFixed(2)]),
+      ];
+      
+      // Prepare competency breakdown table data
+      const competencyTableData = [
+        ['Competency Code', 'Competency Name', 'Average Weight (%)'],
+        ...competencyStats.map(comp => [
+          comp.competencyCode,
+          comp.competencyNameEn,
+          (comp.avgWeight * 100).toFixed(2)
+        ]),
       ];
       
       const result = await exportPDF.mutateAsync({
@@ -210,6 +220,7 @@ export default function UnifiedAnalytics() {
         metrics,
         chartImages,
         tableData,
+        competencyTableData,
         colorLegend: {
           green: 'Strong (≥80%)',
           yellow: 'Moderate (50-79%)',
@@ -292,12 +303,23 @@ export default function UnifiedAnalytics() {
         ...gaStats.map(ga => [ga.gaCode, ga.gaNameEn, ga.avgAlignmentScore.toFixed(2)]),
       ];
       
+      // Prepare competency breakdown table data
+      const competencyTableData = [
+        ['Competency Code', 'Competency Name', 'Average Weight (%)'],
+        ...competencyStats.map(comp => [
+          comp.competencyCode,
+          comp.competencyNameEn,
+          (comp.avgWeight * 100).toFixed(2)
+        ]),
+      ];
+      
       const result = await exportWord.mutateAsync({
         title: 'Graduate Attributes & Competencies Analytics',
         filterContext: { collegeName, programName },
         metrics,
         chartImages,
         tableData,
+        competencyTableData,
         colorLegend: {
           green: 'Strong (≥80%)',
           yellow: 'Moderate (50-79%)',
@@ -353,11 +375,22 @@ export default function UnifiedAnalytics() {
         ...gaStats.map(ga => [ga.gaCode, ga.gaNameEn, ga.avgAlignmentScore.toFixed(2)]),
       ];
       
+      // Prepare competency breakdown table data
+      const competencyTableData = [
+        ['Competency Code', 'Competency Name', 'Average Weight (%)'],
+        ...competencyStats.map(comp => [
+          comp.competencyCode,
+          comp.competencyNameEn,
+          (comp.avgWeight * 100).toFixed(2)
+        ]),
+      ];
+      
       const result = await exportExcel.mutateAsync({
         title: 'Graduate Attributes & Competencies Analytics',
         filterContext: { collegeName, programName },
         metrics,
         tableData,
+        competencyTableData,
       });
       
       const link = document.createElement('a');

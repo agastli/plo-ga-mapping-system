@@ -251,10 +251,10 @@ def create_analytics_pdf(data, output_path, logo_path):
                 except Exception as e:
                     print(f"Warning: Could not add chart image {chart.get('title', '')}: {e}", file=sys.stderr)
     
-    # Add data table if provided
+    # Add GA summary table if provided
     if 'table_data' in data and len(data['table_data']) > 0:
         elements.append(PageBreak())
-        elements.append(Paragraph("Detailed Data", heading_style))
+        elements.append(Paragraph("Graduate Attributes Summary", heading_style))
         
         table_data = data['table_data']
         data_table = Table(table_data, repeatRows=1)
@@ -274,6 +274,30 @@ def create_analytics_pdf(data, output_path, logo_path):
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
         ]))
         elements.append(data_table)
+    
+    # Add competency breakdown table if provided
+    if 'competency_table_data' in data and len(data['competency_table_data']) > 0:
+        elements.append(Spacer(1, 0.4*inch))
+        elements.append(Paragraph("Competency Breakdown", heading_style))
+        
+        comp_table_data = data['competency_table_data']
+        comp_table = Table(comp_table_data, repeatRows=1)
+        comp_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#8B1538')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('TOPPADDING', (0, 1), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+        ]))
+        elements.append(comp_table)
     
     # Add footer with page numbers
     def add_page_number(canvas, doc):
