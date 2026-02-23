@@ -96,7 +96,15 @@ export const appRouter = router({
     listByCollege: publicProcedure
       .input(z.object({ collegeId: z.number() }))
       .query(async ({ input }) => {
-        return await db.getClustersByCollege(input.collegeId);
+        try {
+          console.log('[clusters.listByCollege] Fetching clusters for collegeId:', input.collegeId);
+          const clusters = await db.getClustersByCollege(input.collegeId);
+          console.log('[clusters.listByCollege] Found clusters:', clusters);
+          return clusters;
+        } catch (error) {
+          console.error('[clusters.listByCollege] Error:', error);
+          throw error;
+        }
       }),
     create: publicProcedure
       .input(z.object({
