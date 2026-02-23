@@ -1037,3 +1037,11 @@
 - [x] Create ClusterManagement admin page with department assignment interface
 - [x] Add route for /admin/clusters in App.tsx
 - [ ] Test complete cluster workflow (create, view, edit, analytics, management)
+
+## Phase 47: Exclude Programs Without PLOs/Mappings from Analytics
+- [x] Update university-wide analytics to exclude programs without PLOs
+- [x] Update college-level analytics to exclude programs without PLOs
+- [x] Update cluster-level analytics to exclude programs without PLOs
+- [x] Update program-level analytics to exclude programs without mappings
+- [x] Update comparison charts to only include programs with complete data
+- [ ] Test analytics accuracy with mixed data (some programs with/without PLOs)

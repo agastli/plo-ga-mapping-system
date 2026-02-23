@@ -533,6 +533,9 @@ export async function getCollegeAnalytics(collegeId: number) {
           .from(plos)
           .where(eq(plos.programId, programId));
         
+        // Skip programs without PLOs
+        if (programPLOs.length === 0) continue;
+        
         const programMappings = await db
           .select({
             weight: mappings.weight,
@@ -541,6 +544,9 @@ export async function getCollegeAnalytics(collegeId: number) {
           .from(mappings)
           .innerJoin(plos, eq(mappings.ploId, plos.id))
           .where(eq(plos.programId, programId));
+        
+        // Skip programs without mappings
+        if (programMappings.length === 0) continue;
         
         const gaMappings = programMappings.filter(m => competencyIds.includes(m.competencyId));
         const totalWeight = gaMappings.reduce((sum, m) => sum + parseFloat(m.weight), 0);
@@ -690,16 +696,19 @@ export async function getDepartmentAnalytics(departmentId: number) {
     })
   );
 
-  const totalPLOs = programAnalytics.reduce((sum, p) => sum + p.totalPLOs, 0);
-  const avgAlignment = programAnalytics.length > 0
-    ? programAnalytics.reduce((sum, p) => sum + p.alignmentScore, 0) / programAnalytics.length
+  // Filter out programs without PLOs
+  const programsWithData = programAnalytics.filter(p => p.totalPLOs > 0);
+
+  const totalPLOs = programsWithData.reduce((sum, p) => sum + p.totalPLOs, 0);
+  const avgAlignment = programsWithData.length > 0
+    ? programsWithData.reduce((sum, p) => sum + p.alignmentScore, 0) / programsWithData.length
     : 0;
 
   return {
-    totalPrograms: progs.length,
+    totalPrograms: programsWithData.length,
     totalPLOs,
     averageAlignment: Math.round(avgAlignment * 100) / 100,
-    programs: programAnalytics,
+    programs: programsWithData,
   };
 }
 
