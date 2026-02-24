@@ -76,10 +76,18 @@ export default function ProgramDetail() {
   }));
   
   // Create a lookup map for weights: ploId_competencyId -> weight
-  const weightMap = new Map<string, string>();
+  const weightMap = new Map<string, any>();
   mappings.forEach(m => {
     weightMap.set(`${m.mapping.ploId}_${m.competency.id}`, m.mapping.weight);
   });
+  
+  // Debug logging
+  if (mappings.length > 0) {
+    console.log('[ProgramDetail] Mappings count:', mappings.length);
+    console.log('[ProgramDetail] First mapping:', mappings[0]);
+    console.log('[ProgramDetail] WeightMap size:', weightMap.size);
+    console.log('[ProgramDetail] First weight sample:', Array.from(weightMap.entries())[0]);
+  }
 
   // Handle PLO edit
   const handleEditPLO = (plo: typeof plos[0]) => {
