@@ -47,7 +47,9 @@ async function startServer() {
   // File download endpoint
   app.get("/api/download/:filePath(*)", async (req, res) => {
     try {
+      console.log('[Download] Raw params.filePath:', req.params.filePath);
       let filePath = decodeURIComponent(req.params.filePath);
+      console.log('[Download] Decoded filePath:', filePath);
       const fs = await import('fs');
       
       // Security check: only allow files with temp/temporary patterns in path
@@ -64,7 +66,11 @@ async function startServer() {
       }
       
       // Check if file exists
-      if (!fs.existsSync(filePath)) {
+      console.log('[Download] Checking if file exists:', filePath);
+      const fileExists = fs.existsSync(filePath);
+      console.log('[Download] File exists:', fileExists);
+      if (!fileExists) {
+        console.error('[Download] File not found:', filePath);
         return res.status(404).json({ error: 'File not found' });
       }
       
