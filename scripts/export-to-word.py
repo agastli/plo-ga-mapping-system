@@ -281,7 +281,8 @@ def create_mapping_document(data):
             for plo_idx, plo in enumerate(data['plos']):
                 weight = plo['mappings'].get(comp['code'], '0.00')
                 weight_cell = matrix_table.cell(row_idx, 2 + plo_idx)
-                weight_cell.text = weight
+                # Convert weight to string if it's a number
+                weight_cell.text = str(weight) if isinstance(weight, (int, float)) else weight
                 weight_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
                 weight_cell.paragraphs[0].runs[0].font.size = Pt(8)
             
