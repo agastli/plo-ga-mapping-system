@@ -423,7 +423,7 @@
 - [ ] Add filters and date range selectors
 - [x] Apply professional QU branding and styling
 - [ ] Test dashboard with real data
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 51: Fix Missing AnalyticsExport Component
 - [x] Create AnalyticsExport.tsx component file
@@ -500,7 +500,7 @@
 - [ ] Add template selector to BatchExportDialog component
 - [ ] Add "Save as Template" option in export dialogs
 - [ ] Test template creation, editing, and usage
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 59: Create Installation Documentation and Setup Scripts
 - [x] Create comprehensive INSTALLATION.md guide
@@ -641,14 +641,14 @@
 - [x] Update Word export filename to use entityCode
 - [x] Update CSV export filename to use entityCode
 - [ ] Test all export formats
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 75: Fix Program Viewer Export Access Denied Error
 - [x] Investigate download endpoint access control
 - [x] Check if recent changes broke Program Viewer exports (overly strict temp dir check)
 - [x] Fix the access denied error (use lenient temp file pattern matching)
 - [ ] Test Program Viewer exports
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 50: Graduate Attribute & Competency Analytics
 - [x] Create database queries for GA coverage statistics
@@ -758,7 +758,7 @@
 - [ ] Update parse_excel_plo_ga.py to extract actual names from Excel file
 - [ ] Display extracted names in parsing results UI for verification
 - [ ] Test with BS Chemical Engineering Excel file
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
 
 ## Phase 74: Fix Mapping Count Display and Data Replacement
 - [x] Update Upload.tsx to show "20 non-zero mappings found, 147 total mappings will be created"
@@ -1156,4 +1156,4 @@
 - [x] Update UnifiedAnalytics to filter colleges list when filterLevel is "By Cluster"
 - [x] Only show colleges that have clusters (currently only CAS)
 - [x] Test that college dropdown shows only CAS when By Cluster is selected
-- [ ] Push changes to GitHub
+- [x] Push changes to GitHub
