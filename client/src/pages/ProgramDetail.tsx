@@ -82,11 +82,18 @@ export default function ProgramDetail() {
   });
   
   // Debug logging
+  console.log('[ProgramDetail] Mappings count:', mappings.length);
+  console.log('[ProgramDetail] Competencies count:', competencies.length);
+  console.log('[ProgramDetail] Graduate Attributes count:', graduateAttributes.length);
+  console.log('[ProgramDetail] PLOs count:', plos.length);
+  console.log('[ProgramDetail] CompetenciesByGA:', competenciesByGA);
   if (mappings.length > 0) {
-    console.log('[ProgramDetail] Mappings count:', mappings.length);
     console.log('[ProgramDetail] First mapping:', mappings[0]);
     console.log('[ProgramDetail] WeightMap size:', weightMap.size);
     console.log('[ProgramDetail] First weight sample:', Array.from(weightMap.entries())[0]);
+  }
+  if (competencies.length > 0) {
+    console.log('[ProgramDetail] First competency:', competencies[0]);
   }
 
   // Handle PLO edit
