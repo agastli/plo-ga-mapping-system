@@ -152,8 +152,9 @@ export default function ProgramDetail() {
   const handleExport = async (format: 'word' | 'excel' | 'pdf') => {
     try {
       const result = await exportDocument.mutateAsync({ programId, format });
-      // Download the file
-      window.open(`/api/download/${encodeURIComponent(result.filePath)}`, '_blank');
+      // Download the file - encode each path segment separately to preserve slashes
+      const encodedPath = result.filePath.split('/').map(segment => encodeURIComponent(segment)).join('/');
+      window.open(`/api/download/${encodedPath}`, '_blank');
       toast.success(`Document exported successfully as ${format.toUpperCase()}`);
     } catch (error) {
       toast.error("Failed to export document");
