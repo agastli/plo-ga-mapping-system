@@ -1,0 +1,10 @@
+# Python dependencies for PLO-GA Mapping System
+# Install with: pip3 install -r requirements.txt
+
+# Document generation
+python-docx>=0.8.11
+reportlab>=3.6.12
+openpyxl>=3.1.2
+
+# Image processing (required by reportlab for logo handling)
+Pillow>=10.0.0
