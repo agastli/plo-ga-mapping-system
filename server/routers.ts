@@ -313,6 +313,13 @@ export const appRouter = router({
         // Get all competencies grouped by GA
         const allCompetencies = await db.getAllCompetencies();
         const allGAs = await db.getAllGraduateAttributes();
+        console.log('[getMatrix] Graduate Attributes count:', allGAs.length);
+        if (allGAs.length > 0) {
+          console.log('[getMatrix] First GA sample:', JSON.stringify(allGAs[0], null, 2));
+        } else {
+          console.log('[getMatrix] WARNING: No graduate attributes found in database!');
+        }
+        console.log('[getMatrix] Competencies count:', allCompetencies.length);
         
         // Get all mappings
         const mappingsData = await db.getMappingsByProgram(input.programId);
