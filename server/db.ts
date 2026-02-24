@@ -385,19 +385,15 @@ export async function deletePLOsByProgram(programId: number) {
 
 // ============================================================================
 // Mappings
-// ============================================================================
+// ===============================================
 
 export async function getMappingsByProgram(programId: number) {
   const db = await getDb();
-  if (!db) return [];
-  
-  // Get all PLOs for the program
-  const programPLOs = await getPLOsByProgram(programId);
-  const ploIds = programPLOs.map(p => p.id);
-  
+  if (!db) throw new Error("Database not available");
+  const programPlos = await db.select({ id: plos.id }).from(plos).where(eq(plos.programId, programId));
+  const ploIds = programPlos.map((p) => p.id);
   if (ploIds.length === 0) return [];
-  
-  return await db
+  const results = await db
     .select({
       mapping: mappings,
       plo: plos,
@@ -407,6 +403,15 @@ export async function getMappingsByProgram(programId: number) {
     .innerJoin(plos, eq(mappings.ploId, plos.id))
     .innerJoin(competencies, eq(mappings.competencyId, competencies.id))
     .where(inArray(mappings.ploId, ploIds));
+  
+  // Convert weight from string to number for Linux MySQL compatibility
+  return results.map(r => ({
+    ...r,
+    mapping: {
+      ...r.mapping,
+      weight: typeof r.mapping.weight === 'string' ? parseFloat(r.mapping.weight) : r.mapping.weight
+    }
+  }));
 }
 
 export async function createMapping(data: InsertMapping) {
