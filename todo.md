@@ -1148,6 +1148,12 @@
 ## Fix College and Program Bar Navigation
 - [x] Fix college bar clicks to set filter state (not navigate away) - stay on analytics page
 - [x] Fix program bar clicks to show program analytics dashboard (not program detail page)
-- [ ] Test college bar clicks properly filter to college analytics
-- [ ] Test program bar clicks properly filter to program analytics
-- [ ] Push fix to GitHub
+- [x] Test college bar clicks properly filter to college analytics
+- [x] Test program bar clicks properly filter to program analytics
+- [x] Push fix to GitHub
+
+## Filter College Dropdown for By Cluster Level
+- [x] Update UnifiedAnalytics to filter colleges list when filterLevel is "By Cluster"
+- [x] Only show colleges that have clusters (currently only CAS)
+- [x] Test that college dropdown shows only CAS when By Cluster is selected
+- [ ] Push changes to GitHub

@@ -457,6 +457,11 @@ export default function UnifiedAnalytics() {
     ? programs.filter((p) => p.department.collegeId === selectedCollegeId)
     : [];
 
+  // Filter colleges to show only those with clusters when filterLevel is "cluster"
+  const filteredColleges = filterLevel === "cluster" && colleges && allClusters
+    ? colleges.filter((college) => allClusters.some((cluster: any) => cluster.collegeId === college.id))
+    : colleges || [];
+
   const isLoading = gaLoading || compLoading;
 
   if (isLoading) {
@@ -625,7 +630,7 @@ export default function UnifiedAnalytics() {
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
                   >
                     <option value="">Select College</option>
-                    {colleges?.map((college) => (
+                    {filteredColleges.map((college) => (
                       <option key={college.id} value={college.id}>
                         {college.nameEn}
                       </option>
