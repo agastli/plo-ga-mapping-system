@@ -153,8 +153,11 @@ export default function ProgramDetail() {
     try {
       const result = await exportDocument.mutateAsync({ programId, format });
       // Download the file - encode each path segment separately to preserve slashes
-      const encodedPath = result.filePath.split('/').map(segment => encodeURIComponent(segment)).join('/');
-      window.open(`/api/download/${encodedPath}`, '_blank');
+      // Filter out empty segments (from leading slash) to avoid losing it
+      const segments = result.filePath.split('/').filter(s => s.length > 0);
+      const encodedPath = segments.map(segment => encodeURIComponent(segment)).join('/');
+      // Add leading slash back
+      window.open(`/api/download/${result.filePath.startsWith('/') ? '/' : ''}${encodedPath}`, '_blank');
       toast.success(`Document exported successfully as ${format.toUpperCase()}`);
     } catch (error) {
       toast.error("Failed to export document");
