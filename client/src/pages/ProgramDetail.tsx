@@ -152,12 +152,8 @@ export default function ProgramDetail() {
   const handleExport = async (format: 'word' | 'excel' | 'pdf') => {
     try {
       const result = await exportDocument.mutateAsync({ programId, format });
-      // Download the file - encode each path segment separately to preserve slashes
-      // Filter out empty segments (from leading slash) to avoid losing it
-      const segments = result.filePath.split('/').filter(s => s.length > 0);
-      const encodedPath = segments.map(segment => encodeURIComponent(segment)).join('/');
-      // Add leading slash back
-      window.open(`/api/download/${result.filePath.startsWith('/') ? '/' : ''}${encodedPath}`, '_blank');
+      // Download the file - just pass the path as-is, server will handle it
+      window.open(`/api/download${result.filePath}`, '_blank');
       toast.success(`Document exported successfully as ${format.toUpperCase()}`);
     } catch (error) {
       toast.error("Failed to export document");

@@ -49,6 +49,10 @@ async function startServer() {
     try {
       console.log('[Download] Raw params.filePath:', req.params.filePath);
       let filePath = decodeURIComponent(req.params.filePath);
+      // Add leading slash if missing (Express strips it from the route parameter)
+      if (!filePath.startsWith('/')) {
+        filePath = '/' + filePath;
+      }
       console.log('[Download] Decoded filePath:', filePath);
       const fs = await import('fs');
       
