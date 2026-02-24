@@ -316,9 +316,17 @@ export const appRouter = router({
         
         // Get all mappings
         const mappingsData = await db.getMappingsByProgram(input.programId);
+        console.log('[getMatrix] Mappings count:', mappingsData.length);
+        if (mappingsData.length > 0) {
+          console.log('[getMatrix] First mapping sample:', JSON.stringify(mappingsData[0], null, 2));
+        }
         
         // Get all justifications
         const justificationsData = await db.getJustificationsByProgram(input.programId);
+        console.log('[getMatrix] Justifications count:', justificationsData.length);
+        if (justificationsData.length > 0) {
+          console.log('[getMatrix] First justification sample:', JSON.stringify(justificationsData[0], null, 2));
+        }
         
         return {
           program,
