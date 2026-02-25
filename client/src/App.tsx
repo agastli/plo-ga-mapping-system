@@ -26,10 +26,13 @@ import ClusterManagement from "./pages/ClusterManagement";
 import DataCompletenessDashboard from "./pages/DataCompletenessDashboard";
 import DataValidationTool from "./pages/DataValidationTool";
 import OrganizationalStructure from "./pages/OrganizationalStructure";
+import UserManagement from "./pages/UserManagement";
+import Login from "./pages/Login";
 
 function Router() {
   return (
     <Switch>
+      <Route path={"/login"} component={Login} />
       <Route path={"/"} component={Home} />
       <Route path={"/upload"} component={Upload} />
       <Route path={"/programs"} component={Programs} />
@@ -51,6 +54,7 @@ function Router() {
       <Route path={"/admin/completeness"} component={DataCompletenessDashboard} />
       <Route path={"/admin/validation"} component={DataValidationTool} />
       <Route path={"/admin/structure"} component={OrganizationalStructure} />
+      <Route path={"/admin/users"} component={UserManagement} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

@@ -86,6 +86,32 @@ export const appRouter = router({
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    
+    login: publicProcedure
+      .input(z.object({
+        username: z.string().min(1),
+        password: z.string().min(1),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { authenticateUser } = await import('./auth.js');
+        const user = await authenticateUser(input.username, input.password);
+        
+        if (!user) {
+          throw new Error('Invalid username or password');
+        }
+        
+        // Create session token (simplified - using JWT or session ID)
+        const sessionToken = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
+        
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { 
+          ...cookieOptions, 
+          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+        
+        return { success: true, user };
+      }),
+    
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -1483,6 +1509,75 @@ export const appRouter = router({
         if (template.userId !== ctx.user.id) throw new Error("Unauthorized");
         
         await db.deleteReportTemplate(input.id);
+        return { success: true };
+      }),
+  }),
+
+  // User Management (Admin only)
+  users: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      // Check if user is admin
+      if (ctx.user.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      return await db.getAllUsers();
+    }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        return await db.getUserById(input.id);
+      }),
+
+    updateRole: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+        role: z.enum(['admin', 'viewer', 'editor']),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        await db.updateUserRole(input.userId, input.role);
+        return { success: true };
+      }),
+
+    createAssignment: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+        assignmentType: z.enum(['university', 'college', 'cluster', 'department']),
+        collegeId: z.number().optional(),
+        clusterId: z.number().optional(),
+        departmentId: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const assignmentId = await db.createUserAssignment(input);
+        return { success: true, assignmentId };
+      }),
+
+    deleteAssignment: protectedProcedure
+      .input(z.object({ assignmentId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        await db.deleteUserAssignment(input.assignmentId);
+        return { success: true };
+      }),
+
+    deleteAllAssignments: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        await db.deleteUserAssignments(input.userId);
         return { success: true };
       }),
   }),

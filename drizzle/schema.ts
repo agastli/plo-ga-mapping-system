@@ -5,7 +5,9 @@ import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, unique }
  */
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
+  username: varchar("username", { length: 64 }).unique(),
+  password: varchar("password", { length: 255 }), // bcrypt hash
+  openId: varchar("openId", { length: 64 }).unique(), // Optional - for OAuth
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
