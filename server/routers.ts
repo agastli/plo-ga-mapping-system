@@ -21,6 +21,69 @@ const PYTHON_CMD = 'python';
 
 export const appRouter = router({
   system: systemRouter,
+  
+  // Health check endpoint
+  health: router({
+    check: publicProcedure.query(async () => {
+      const checks = {
+        timestamp: new Date().toISOString(),
+        status: 'healthy' as 'healthy' | 'unhealthy',
+        checks: {
+          database: { status: 'unknown' as 'ok' | 'error' | 'unknown', message: '' },
+          python: { status: 'unknown' as 'ok' | 'error' | 'unknown', message: '', version: '' },
+          filesystem: { status: 'unknown' as 'ok' | 'error' | 'unknown', message: '' },
+        },
+      };
+
+      // Check database connectivity
+      try {
+        await db.getAllColleges();
+        checks.checks.database.status = 'ok';
+        checks.checks.database.message = 'Database connection successful';
+      } catch (error) {
+        checks.checks.database.status = 'error';
+        checks.checks.database.message = error instanceof Error ? error.message : 'Database connection failed';
+        checks.status = 'unhealthy';
+      }
+
+      // Check Python availability and dependencies
+      try {
+        const { stdout } = await execAsync(`${PYTHON_CMD} --version`);
+        checks.checks.python.status = 'ok';
+        checks.checks.python.version = stdout.trim();
+        
+        // Check Python packages
+        try {
+          await execAsync(`${PYTHON_CMD} -c "import docx, openpyxl, reportlab"`);
+          checks.checks.python.message = 'Python and required packages available';
+        } catch (pkgError) {
+          checks.checks.python.status = 'error';
+          checks.checks.python.message = 'Python available but missing required packages (python-docx, openpyxl, reportlab)';
+          checks.status = 'unhealthy';
+        }
+      } catch (error) {
+        checks.checks.python.status = 'error';
+        checks.checks.python.message = 'Python not available or not in PATH';
+        checks.status = 'unhealthy';
+      }
+
+      // Check filesystem permissions
+      try {
+        const testFile = path.join(tmpdir(), `health-check-${Date.now()}.txt`);
+        await writeFile(testFile, 'test');
+        await unlink(testFile);
+        checks.checks.filesystem.status = 'ok';
+        checks.checks.filesystem.message = 'Filesystem read/write permissions OK';
+      } catch (error) {
+        checks.checks.filesystem.status = 'error';
+        checks.checks.filesystem.message = 'Filesystem permission error';
+        checks.status = 'unhealthy';
+      }
+
+      return checks;
+    }),
+  }),
+  
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

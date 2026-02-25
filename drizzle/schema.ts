@@ -9,7 +9,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["admin", "viewer", "editor"]).default("viewer").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -17,6 +17,28 @@ export const users = mysqlTable("users", {
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+
+/**
+ * User Assignments - Maps users to organizational units (college, cluster, department)
+ * Determines what data a viewer/editor can access
+ */
+export const userAssignments = mysqlTable("userAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  assignmentType: mysqlEnum("assignmentType", ["university", "college", "cluster", "department"]).notNull(),
+  // Only one of these will be set based on assignmentType
+  collegeId: int("collegeId").references(() => colleges.id, { onDelete: "cascade" }),
+  clusterId: int("clusterId").references(() => clusters.id, { onDelete: "cascade" }),
+  departmentId: int("departmentId").references(() => departments.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  // Ensure user can only have one assignment per type
+  uniqueUserAssignment: unique().on(table.userId, table.assignmentType),
+}));
+
+export type UserAssignment = typeof userAssignments.$inferSelect;
+export type InsertUserAssignment = typeof userAssignments.$inferInsert;
 
 /**
  * Colleges - Top level organizational unit

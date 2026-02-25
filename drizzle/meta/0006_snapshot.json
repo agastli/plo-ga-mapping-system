@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "8fd19e12-23ef-42e0-bc7e-6fdc16b07f93",
-  "prevId": "098b8040-3f39-4d38-a9e0-146b223002f1",
+  "id": "8e222899-b7b4-4c0c-8ea6-0e598dc4be12",
+  "prevId": "8fd19e12-23ef-42e0-bc7e-6fdc16b07f93",
   "tables": {
     "auditLog": {
       "name": "auditLog",
@@ -1019,6 +1019,143 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "userAssignments": {
+      "name": "userAssignments",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "assignmentType": {
+          "name": "assignmentType",
+          "type": "enum('university','college','cluster','department')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "collegeId": {
+          "name": "collegeId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "clusterId": {
+          "name": "clusterId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "departmentId": {
+          "name": "departmentId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "userAssignments_userId_users_id_fk": {
+          "name": "userAssignments_userId_users_id_fk",
+          "tableFrom": "userAssignments",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "userAssignments_collegeId_colleges_id_fk": {
+          "name": "userAssignments_collegeId_colleges_id_fk",
+          "tableFrom": "userAssignments",
+          "tableTo": "colleges",
+          "columnsFrom": [
+            "collegeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "userAssignments_clusterId_clusters_id_fk": {
+          "name": "userAssignments_clusterId_clusters_id_fk",
+          "tableFrom": "userAssignments",
+          "tableTo": "clusters",
+          "columnsFrom": [
+            "clusterId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "userAssignments_departmentId_departments_id_fk": {
+          "name": "userAssignments_departmentId_departments_id_fk",
+          "tableFrom": "userAssignments",
+          "tableTo": "departments",
+          "columnsFrom": [
+            "departmentId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "userAssignments_id": {
+          "name": "userAssignments_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "userAssignments_userId_assignmentType_unique": {
+          "name": "userAssignments_userId_assignmentType_unique",
+          "columns": [
+            "userId",
+            "assignmentType"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
     "users": {
       "name": "users",
       "columns": {
@@ -1059,11 +1196,11 @@
         },
         "role": {
           "name": "role",
-          "type": "enum('user','admin')",
+          "type": "enum('admin','viewer','editor')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'user'"
+          "default": "'viewer'"
         },
         "createdAt": {
           "name": "createdAt",

@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
   users,
+  userAssignments,
   colleges,
   clusters,
   departments,
@@ -14,6 +15,8 @@ import {
   justifications,
   auditLog,
   reportTemplates,
+  type User,
+  type UserAssignment,
   type College,
   type Cluster,
   type Department,
@@ -31,6 +34,7 @@ import {
   type InsertPLO,
   type InsertMapping,
   type InsertJustification,
+  type InsertUserAssignment,
   type InsertAuditLog,
   type InsertReportTemplate,
 } from "../drizzle/schema";
@@ -1823,4 +1827,268 @@ export async function getFilteredCompetencyAnalytics(filters?: { collegeId?: num
     totalCompetencies: allCompetencies.length,
     totalPrograms: filteredPrograms.length,
   };
+}
+
+
+// ==================== User Management ====================
+
+/**
+ * Get all users with their assignments
+ */
+export async function getAllUsers(): Promise<(User & { assignments: UserAssignment[] })[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const allUsers = await db.select().from(users).orderBy(users.createdAt);
+  
+  const usersWithAssignments = await Promise.all(
+    allUsers.map(async (user) => {
+      const assignments = await db
+        .select()
+        .from(userAssignments)
+        .where(eq(userAssignments.userId, user.id));
+      
+      return {
+        ...user,
+        assignments,
+      };
+    })
+  );
+
+  return usersWithAssignments;
+}
+
+/**
+ * Get user by ID with assignments
+ */
+export async function getUserById(userId: number): Promise<(User & { assignments: UserAssignment[] }) | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [user] = await db.select().from(users).where(eq(users.id, userId));
+  if (!user) return null;
+
+  const assignments = await db
+    .select()
+    .from(userAssignments)
+    .where(eq(userAssignments.userId, userId));
+
+  return {
+    ...user,
+    assignments,
+  };
+}
+
+/**
+ * Update user role (admin only)
+ */
+export async function updateUserRole(userId: number, role: 'admin' | 'viewer' | 'editor'): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(users)
+    .set({ role, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+}
+
+/**
+ * Create user assignment
+ */
+export async function createUserAssignment(assignment: InsertUserAssignment): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(userAssignments).values(assignment);
+  return result[0].insertId;
+}
+
+/**
+ * Delete user assignment
+ */
+export async function deleteUserAssignment(assignmentId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(userAssignments).where(eq(userAssignments.id, assignmentId));
+}
+
+/**
+ * Delete all assignments for a user
+ */
+export async function deleteUserAssignments(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(userAssignments).where(eq(userAssignments.userId, userId));
+}
+
+/**
+ * Get user assignments by user ID
+ */
+export async function getUserAssignments(userId: number): Promise<UserAssignment[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(userAssignments)
+    .where(eq(userAssignments.userId, userId));
+}
+
+/**
+ * Check if user has access to a specific department
+ * Returns true if:
+ * - User is admin
+ * - User has university-level assignment
+ * - User has college-level assignment matching department's college
+ * - User has cluster-level assignment matching department's cluster
+ * - User has department-level assignment matching the department
+ */
+export async function userHasAccessToDepartment(userId: number, departmentId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  // Get user
+  const [user] = await db.select().from(users).where(eq(users.id, userId));
+  if (!user) return false;
+
+  // Admin has access to everything
+  if (user.role === 'admin') return true;
+
+  // Get department details
+  const [dept] = await db
+    .select()
+    .from(departments)
+    .where(eq(departments.id, departmentId));
+  if (!dept) return false;
+
+  // Get user assignments
+  const assignments = await db
+    .select()
+    .from(userAssignments)
+    .where(eq(userAssignments.userId, userId));
+
+  // Check assignments
+  for (const assignment of assignments) {
+    // University-level access
+    if (assignment.assignmentType === 'university') return true;
+
+    // College-level access
+    if (assignment.assignmentType === 'college' && assignment.collegeId === dept.collegeId) {
+      return true;
+    }
+
+    // Cluster-level access
+    if (assignment.assignmentType === 'cluster' && dept.clusterId && assignment.clusterId === dept.clusterId) {
+      return true;
+    }
+
+    // Department-level access
+    if (assignment.assignmentType === 'department' && assignment.departmentId === departmentId) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Check if user has access to a specific program
+ */
+export async function userHasAccessToProgram(userId: number, programId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  // Get program with department
+  const [program] = await db
+    .select()
+    .from(programs)
+    .where(eq(programs.id, programId));
+  
+  if (!program) return false;
+
+  return await userHasAccessToDepartment(userId, program.departmentId);
+}
+
+/**
+ * Get accessible departments for a user
+ * Returns all departments the user can view based on their assignments
+ */
+export async function getAccessibleDepartments(userId: number): Promise<Department[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get user
+  const [user] = await db.select().from(users).where(eq(users.id, userId));
+  if (!user) return [];
+
+  // Admin has access to all departments
+  if (user.role === 'admin') {
+    return await db.select().from(departments);
+  }
+
+  // Get user assignments
+  const assignments = await db
+    .select()
+    .from(userAssignments)
+    .where(eq(userAssignments.userId, userId));
+
+  if (assignments.length === 0) return [];
+
+  const accessibleDepts: Department[] = [];
+
+  for (const assignment of assignments) {
+    if (assignment.assignmentType === 'university') {
+      // University-level: all departments
+      return await db.select().from(departments);
+    } else if (assignment.assignmentType === 'college' && assignment.collegeId) {
+      // College-level: all departments in college
+      const depts = await db
+        .select()
+        .from(departments)
+        .where(eq(departments.collegeId, assignment.collegeId));
+      accessibleDepts.push(...depts);
+    } else if (assignment.assignmentType === 'cluster' && assignment.clusterId) {
+      // Cluster-level: all departments in cluster
+      const depts = await db
+        .select()
+        .from(departments)
+        .where(eq(departments.clusterId, assignment.clusterId));
+      accessibleDepts.push(...depts);
+    } else if (assignment.assignmentType === 'department' && assignment.departmentId) {
+      // Department-level: specific department
+      const [dept] = await db
+        .select()
+        .from(departments)
+        .where(eq(departments.id, assignment.departmentId));
+      if (dept) accessibleDepts.push(dept);
+    }
+  }
+
+  // Remove duplicates
+  const uniqueDepts = Array.from(
+    new Map(accessibleDepts.map(d => [d.id, d])).values()
+  );
+
+  return uniqueDepts;
+}
+
+/**
+ * Get accessible programs for a user
+ * Returns all programs the user can view based on their assignments
+ */
+export async function getAccessiblePrograms(userId: number): Promise<Program[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const accessibleDepts = await getAccessibleDepartments(userId);
+  if (accessibleDepts.length === 0) return [];
+
+  const deptIds = accessibleDepts.map(d => d.id);
+  
+  return await db
+    .select()
+    .from(programs)
+    .where(inArray(programs.departmentId, deptIds));
 }

@@ -1157,3 +1157,24 @@
 - [x] Only show colleges that have clusters (currently only CAS)
 - [x] Test that college dropdown shows only CAS when By Cluster is selected
 - [x] Push changes to GitHub
+
+
+## Documentation Enhancement (Feb 2026)
+- [x] Create HOSTINGER_ACCESS.md guide with SSH, VPS, CloudPanel, hPanel instructions
+- [x] Implement /api/health endpoint for system monitoring
+- [x] Generate deployment checklist PDF
+
+## User Roles and Permissions System
+- [x] Design database schema for user roles and permissions
+- [x] Add user_roles enum (admin, viewer, editor) to users table
+- [x] Add user_assignments table (userId, assignmentType, assignmentId)
+- [x] Add user management functions to server/db.ts
+- [ ] Implement role-based authentication middleware in backend
+- [ ] Create Admin user management interface
+- [ ] Implement Viewer role with hierarchical access (University/College/Department)
+- [ ] Implement Editor role with edit permissions for assigned department
+- [ ] Add role-based filtering to all data queries
+- [ ] Build user assignment interface for Admin
+- [ ] Update all frontend pages with role-based access control
+- [ ] Test all three roles with different access levels
+- [ ] Update documentation with user roles guide
