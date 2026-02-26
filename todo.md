@@ -54,3 +54,38 @@
 ### Frontend - Home Page Updates
 - [x] Add "User Management" button to home page (admin-only visibility)
 - [x] Use useRole() hook to conditionally show admin features
+
+## Custom Authentication System (Self-Hosted VPS)
+
+### Database Schema Updates
+- [x] Add password field to users table (hashed with bcrypt)
+- [x] Add username field (unique identifier for login)
+- [x] Remove dependency on openId field for password users
+- [x] Create database migration script
+
+### Backend Authentication
+- [x] Install bcrypt package for password hashing
+- [x] Create password hashing utility functions (passwordAuth.ts)
+- [x] Implement auth.ts module with authenticateUser function
+- [x] Implement auth.login endpoint (validate credentials, create session)
+- [x] Implement auth.logout endpoint (clear session)
+- [x] Update SDK authenticateRequest to support password-based users
+- [x] Create JWT session token generation for password users
+- [x] Add getUserByUsername and createUser to db.ts
+- [ ] Implement auth.register endpoint (admin-only UI)
+
+### Frontend Authentication UI
+- [x] Create Login.tsx page component
+- [x] Add form validation for login/register
+- [x] Add error handling and user feedback
+- [x] Login route configured in App.tsx
+- [ ] Create Register.tsx page component (admin-only)
+- [ ] Update navigation to show login/logout based on auth state
+- [ ] Add route protection (redirect to /login if not authenticated)
+
+### Testing & Deployment
+- [ ] Test login flow with username/password
+- [ ] Test session persistence across page refreshes
+- [ ] Test role-based access control with password auth
+- [ ] Deploy to VPS and verify authentication works
+- [ ] Document authentication system in README

@@ -94,19 +94,25 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const { authenticateUser } = await import('./auth.js');
+        const { createPasswordSession } = await import('./_core/passwordAuth.js');
+        
         const user = await authenticateUser(input.username, input.password);
         
         if (!user) {
           throw new Error('Invalid username or password');
         }
         
-        // Create session token (simplified - using JWT or session ID)
-        const sessionToken = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
+        // Create JWT session token for password authentication
+        const sessionToken = await createPasswordSession({
+          userId: user.id,
+          username: user.username!,
+          role: user.role,
+        });
         
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, sessionToken, { 
           ...cookieOptions, 
-          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+          maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
         });
         
         return { success: true, user };

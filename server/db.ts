@@ -141,6 +141,41 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getUserByUsername(username: string): Promise<User | undefined> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUser(data: {
+  username: string;
+  password: string;
+  email?: string | null;
+  name?: string | null;
+  role?: "admin" | "editor" | "viewer";
+  loginMethod?: string | null;
+}): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(users).values({
+    username: data.username,
+    password: data.password,
+    email: data.email || null,
+    name: data.name || null,
+    role: data.role || "viewer",
+    loginMethod: data.loginMethod || "password",
+  });
+
+  return result[0].insertId;
+}
+
 // ============================================================================
 // Organizational Structure
 // ============================================================================
@@ -1889,6 +1924,19 @@ export async function getUserById(userId: number): Promise<(User & { assignments
     ...user,
     assignments,
   };
+}
+
+/**
+ * Update user last signed in timestamp
+ */
+export async function updateUserLastSignedIn(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(users)
+    .set({ lastSignedIn: new Date() })
+    .where(eq(users.id, userId));
 }
 
 /**

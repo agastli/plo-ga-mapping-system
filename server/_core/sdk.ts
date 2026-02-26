@@ -7,6 +7,7 @@ import { SignJWT, jwtVerify } from "jose";
 import type { User } from "../../drizzle/schema";
 import * as db from "../db";
 import { ENV } from "./env";
+import { verifyPasswordSession } from "./passwordAuth";
 import type {
   ExchangeTokenRequest,
   ExchangeTokenResponse,
@@ -257,23 +258,41 @@ class SDKServer {
   }
 
   async authenticateRequest(req: Request): Promise<User> {
-    // Regular authentication flow
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);
-    const session = await this.verifySession(sessionCookie);
 
-    if (!session) {
+    if (!sessionCookie) {
+      throw ForbiddenError("No session cookie found");
+    }
+
+    // Try password authentication first
+    const passwordSession = await verifyPasswordSession(sessionCookie);
+    if (passwordSession) {
+      const userWithAssignments = await db.getUserById(passwordSession.userId);
+      if (!userWithAssignments) {
+        throw ForbiddenError("User not found");
+      }
+      // Update last signed in
+      await db.updateUserLastSignedIn(userWithAssignments.id);
+      // Return user without assignments (to match User type)
+      const { assignments, ...user } = userWithAssignments;
+      return user;
+    }
+
+    // Fall back to OAuth authentication
+    const oauthSession = await this.verifySession(sessionCookie);
+    if (!oauthSession) {
       throw ForbiddenError("Invalid session cookie");
     }
 
-    const sessionUserId = session.openId;
+    const sessionUserId = oauthSession.openId;
     const signedInAt = new Date();
     let user = await db.getUserByOpenId(sessionUserId);
 
     // If user not in DB, sync from OAuth server automatically
     if (!user) {
       try {
-        const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
+        const userInfo = await this.getUserInfoWithJwt(sessionCookie);
         await db.upsertUser({
           openId: userInfo.openId,
           name: userInfo.name || null,
