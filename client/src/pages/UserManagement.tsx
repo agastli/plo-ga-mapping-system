@@ -28,12 +28,23 @@ export default function UserManagement() {
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>();
   const [selectedClusterId, setSelectedClusterId] = useState<number | undefined>();
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | undefined>();
+  const [selectedProgramIds, setSelectedProgramIds] = useState<number[]>([]);
 
   // Queries
   const { data: users, isLoading: usersLoading, refetch: refetchUsers } = trpc.users.list.useQuery();
   const { data: colleges } = trpc.colleges.list.useQuery();
   const { data: clusters } = trpc.clusters.list.useQuery();
   const { data: departments } = trpc.departments.list.useQuery();
+  const { data: programs } = trpc.programs.list.useQuery();
+  
+  // Filtered data based on selections
+  const filteredDepartments = departments?.filter(dept => 
+    assignmentType === 'department' && selectedCollegeId ? dept.collegeId === selectedCollegeId : true
+  );
+  
+  const filteredPrograms = programs?.filter(prog => 
+    assignmentType === 'department' && selectedDepartmentId ? prog.program.departmentId === selectedDepartmentId : false
+  );
 
   // Mutations
   const updateRoleMutation = trpc.users.updateRole.useMutation({
@@ -118,15 +129,38 @@ export default function UserManagement() {
     setSelectedCollegeId(undefined);
     setSelectedClusterId(undefined);
     setSelectedDepartmentId(undefined);
+    setSelectedProgramIds([]);
   };
 
   const handleRoleChange = (userId: number, newRole: 'admin' | 'viewer' | 'editor') => {
     updateRoleMutation.mutate({ userId, role: newRole });
   };
 
-  const handleCreateAssignment = () => {
+  const handleCreateAssignment = async () => {
     if (!selectedUserId) return;
 
+    // Handle multiple program assignments
+    if (assignmentType === 'department' && selectedProgramIds.length > 0) {
+      // Create assignment for each selected program
+      try {
+        for (const programId of selectedProgramIds) {
+          await createAssignmentMutation.mutateAsync({
+            userId: selectedUserId,
+            assignmentType: 'program',
+            programId,
+          });
+        }
+        toast({ title: 'Success', description: `${selectedProgramIds.length} program assignment(s) created successfully` });
+        setIsAssignmentDialogOpen(false);
+        resetAssignmentForm();
+        refetchUsers();
+      } catch (error: any) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      }
+      return;
+    }
+
+    // Handle other assignment types
     const input: any = {
       userId: selectedUserId,
       assignmentType,
@@ -190,6 +224,10 @@ export default function UserManagement() {
     if (type === 'department') {
       const dept = departments?.find(d => d.id === assignment.departmentId);
       return `Department: ${dept?.nameEn || 'Unknown'}`;
+    }
+    if (type === 'program') {
+      const prog = programs?.find(p => p.program.id === assignment.programId);
+      return `Program: ${prog?.program.nameEn || 'Unknown'} (${prog?.program.code || ''})`;
     }
     return 'Unknown';
   };
@@ -374,24 +412,84 @@ export default function UserManagement() {
             )}
 
             {assignmentType === 'department' && (
-              <div className="space-y-2">
-                <Label>Department</Label>
-                <Select
-                  value={selectedDepartmentId?.toString()}
-                  onValueChange={(value) => setSelectedDepartmentId(parseInt(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments?.map((dept) => (
-                      <SelectItem key={dept.id} value={dept.id.toString()}>
-                        {dept.nameEn}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label>College</Label>
+                  <Select
+                    value={selectedCollegeId?.toString()}
+                    onValueChange={(value) => {
+                      setSelectedCollegeId(parseInt(value));
+                      setSelectedDepartmentId(undefined);
+                      setSelectedProgramIds([]);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select college first" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {colleges?.map((college) => (
+                        <SelectItem key={college.id} value={college.id.toString()}>
+                          {college.nameEn}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {selectedCollegeId && (
+                  <div className="space-y-2">
+                    <Label>Department</Label>
+                    <Select
+                      value={selectedDepartmentId?.toString()}
+                      onValueChange={(value) => {
+                        setSelectedDepartmentId(parseInt(value));
+                        setSelectedProgramIds([]);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredDepartments?.map((dept) => (
+                          <SelectItem key={dept.id} value={dept.id.toString()}>
+                            {dept.nameEn}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
+                {selectedDepartmentId && filteredPrograms && filteredPrograms.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Select Programs (one or more)</Label>
+                    <div className="border rounded-md p-3 max-h-60 overflow-y-auto space-y-2">
+                      {filteredPrograms.map((prog) => (
+                        <label key={prog.program.id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                          <input
+                            type="checkbox"
+                            checked={selectedProgramIds.includes(prog.program.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedProgramIds([...selectedProgramIds, prog.program.id]);
+                              } else {
+                                setSelectedProgramIds(selectedProgramIds.filter(id => id !== prog.program.id));
+                              }
+                            }}
+                            className="h-4 w-4"
+                          />
+                          <span className="text-sm">
+                            {prog.program.nameEn} ({prog.program.code})
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedProgramIds.length} program(s) selected
+                    </p>
+                  </div>
+                )}
+              </>
             )}
 
             <Button

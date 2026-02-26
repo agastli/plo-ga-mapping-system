@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, editorProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
-import { authenticateUser, createUser as createUserAuth } from "./auth";
+import { authenticateUser, createUser as createUserAuth, hashPassword } from "./auth";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { writeFile, unlink } from "fs/promises";
@@ -191,10 +191,11 @@ export const appRouter = router({
     createAssignment: adminProcedure
       .input(z.object({
         userId: z.number(),
-        assignmentType: z.enum(["university", "college", "cluster", "department"]),
+        assignmentType: z.enum(["university", "college", "cluster", "department", "program"]),
         collegeId: z.number().optional(),
         clusterId: z.number().optional(),
         departmentId: z.number().optional(),
+        programId: z.number().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const id = await db.createUserAssignment(input);
@@ -239,6 +240,61 @@ export const appRouter = router({
     getAccessiblePrograms: protectedProcedure.query(async ({ ctx }) => {
       return await db.getAccessiblePrograms(ctx.user.id);
     }),
+    
+    update: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        name: z.string().optional(),
+        email: z.string().email().optional(),
+        role: z.enum(["admin", "viewer", "editor"]).optional(),
+        password: z.string().min(6).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { userId, password, ...updateData } = input;
+        
+        // If password is provided, hash it
+        if (password) {
+          const hashedPassword = await hashPassword(password);
+          await db.updateUser(userId, { ...updateData, password: hashedPassword });
+        } else {
+          await db.updateUser(userId, updateData);
+        }
+        
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "update",
+          entityType: "user",
+          entityId: userId,
+          details: JSON.stringify({ ...updateData, passwordChanged: !!password }),
+        });
+        
+        return { success: true };
+      }),
+    
+    delete: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        // Don't allow deleting yourself
+        if (input.userId === ctx.user.id) {
+          throw new Error('Cannot delete your own account');
+        }
+        
+        // Delete user assignments first
+        await db.deleteUserAssignments(input.userId);
+        
+        // Delete the user
+        await db.deleteUser(input.userId);
+        
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "delete",
+          entityType: "user",
+          entityId: input.userId,
+          details: JSON.stringify({ deletedUserId: input.userId }),
+        });
+        
+        return { success: true };
+      }),
   }),
 
   // Organizational structure

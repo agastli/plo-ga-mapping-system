@@ -113,10 +113,10 @@ export default function OrganizationalStructure() {
 
   // Handle program edit
   const handleEditProgram = (program: any) => {
-    setEditingProgram(program.id);
-    setEditProgramNameEn(program.nameEn || "");
-    setEditProgramNameAr(program.nameAr || "");
-    setEditProgramCode(program.code || "");
+    setEditingProgram(program.program.id);
+    setEditProgramNameEn(program.program.nameEn || "");
+    setEditProgramNameAr(program.program.nameAr || "");
+    setEditProgramCode(program.program.code || "");
   };
 
   const handleSaveProgram = async (programId: number) => {
@@ -345,8 +345,8 @@ export default function OrganizationalStructure() {
           <CardContent>
             <div className="space-y-4">
               {programs?.map((program) => (
-                <div key={program.id} className="border rounded-lg p-4 bg-gray-50">
-                  {editingProgram === program.id ? (
+                <div key={program.program.id} className="border rounded-lg p-4 bg-gray-50">
+                  {editingProgram === program.program.id ? (
                     <div className="space-y-3">
                       <div className="grid grid-cols-3 gap-4">
                         <Input
@@ -367,7 +367,7 @@ export default function OrganizationalStructure() {
                         />
                       </div>
                       <div className="flex gap-2">
-                        <Button onClick={() => handleSaveProgram(program.id)} size="sm">
+                        <Button onClick={() => handleSaveProgram(program.program.id)} size="sm">
                           <Save className="h-4 w-4 mr-2" />
                           Save
                         </Button>
@@ -380,10 +380,10 @@ export default function OrganizationalStructure() {
                   ) : (
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-semibold">{program.nameEn}</p>
-                        <p className="text-sm text-gray-600" dir="rtl">{program.nameAr}</p>
+                        <p className="font-semibold">{program.program.nameEn}</p>
+                        <p className="text-sm text-gray-600" dir="rtl">{program.program.nameAr}</p>
                         <p className="text-xs text-gray-500">
-                          Code: {program.code} | Department: {departments?.find(d => d.id === program.departmentId)?.nameEn}
+                          Code: {program.program.code} | Department: {program.department.nameEn}
                         </p>
                       </div>
                       <Button onClick={() => handleEditProgram(program)} variant="outline" size="sm">

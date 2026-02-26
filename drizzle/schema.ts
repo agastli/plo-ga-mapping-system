@@ -29,17 +29,15 @@ export type InsertUser = typeof users.$inferInsert;
 export const userAssignments = mysqlTable("userAssignments", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  assignmentType: mysqlEnum("assignmentType", ["university", "college", "cluster", "department"]).notNull(),
+  assignmentType: mysqlEnum("assignmentType", ["university", "college", "cluster", "department", "program"]).notNull(),
   // Only one of these will be set based on assignmentType
   collegeId: int("collegeId").references(() => colleges.id, { onDelete: "cascade" }),
   clusterId: int("clusterId").references(() => clusters.id, { onDelete: "cascade" }),
   departmentId: int("departmentId").references(() => departments.id, { onDelete: "cascade" }),
+  programId: int("programId").references(() => programs.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-}, (table) => ({
-  // Ensure user can only have one assignment per type
-  uniqueUserAssignment: unique().on(table.userId, table.assignmentType),
-}));
+});
 
 export type UserAssignment = typeof userAssignments.$inferSelect;
 export type InsertUserAssignment = typeof userAssignments.$inferInsert;

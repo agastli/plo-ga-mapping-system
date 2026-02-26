@@ -11,6 +11,10 @@
 - [x] Add users.deleteAssignment endpoint (admin only)
 - [x] Add users.getAccessiblePrograms endpoint (for editors/viewers)
 - [ ] Update existing endpoints to use role-based access control
+- [ ] Add users.update endpoint for editing user information (admin only)
+- [ ] Add users.delete endpoint for deleting users (admin only)
+- [ ] Implement email notification system for new user creation
+- [ ] Send welcome email with login credentials and password change instructions
 
 ### Frontend - Admin User Management Interface
 - [x] Create UserManagement.tsx page component
@@ -19,6 +23,9 @@
 - [x] Add assignment management UI (assign users to colleges/departments)
 - [ ] Add user search and filtering
 - [ ] Add navigation link to User Management (admin only)
+- [ ] Add edit user functionality (update name, email, password, role)
+- [ ] Add delete user functionality with confirmation dialog
+- [ ] Add logout button to navigation header
 
 ### Frontend - Role-based Access Control
 - [x] Create useRole() hook to check current user role
@@ -89,3 +96,19 @@
 - [ ] Test role-based access control with password auth
 - [ ] Deploy to VPS and verify authentication works
 - [ ] Document authentication system in README
+
+## User Assignment Improvements
+
+### Cascading Dropdown for Department/Program Assignment
+- [x] Update user assignment UI: when "Department" is selected, show cascading dropdowns
+- [x] First dropdown: Select College
+- [x] Second dropdown: Select Department (filtered by selected college)
+- [x] Third section: Show list of programs from selected department with checkboxes
+- [x] Allow admin to select multiple programs from the same department
+- [x] Update backend schema to support multiple program assignments per user
+- [x] Add programId field to userAssignments table and 'program' to assignmentType enum
+- [x] Update access control functions to check program-level permissions
+- [x] Update createAssignment endpoint to accept program assignments
+- [x] Update getAssignmentDisplay to show program assignments
+- [x] Update userHasAccessToProgram to check program-level assignments
+- [x] Update getAccessiblePrograms to include program-level assignments

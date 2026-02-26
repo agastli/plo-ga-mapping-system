@@ -1997,6 +1997,40 @@ export async function getUserAssignments(userId: number): Promise<UserAssignment
 }
 
 /**
+ * Update user information
+ */
+export async function updateUser(userId: number, data: {
+  name?: string;
+  email?: string;
+  role?: 'admin' | 'viewer' | 'editor';
+  password?: string;
+}): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  const updateData: any = { updatedAt: new Date() };
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.email !== undefined) updateData.email = data.email;
+  if (data.role !== undefined) updateData.role = data.role;
+  if (data.password !== undefined) updateData.password = data.password;
+
+  await db
+    .update(users)
+    .set(updateData)
+    .where(eq(users.id, userId));
+}
+
+/**
+ * Delete a user by ID
+ */
+export async function deleteUser(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.delete(users).where(eq(users.id, userId));
+}
+
+/**
  * Check if user has access to a specific department
  * Returns true if:
  * - User is admin
@@ -2060,6 +2094,13 @@ export async function userHasAccessToProgram(userId: number, programId: number):
   const db = await getDb();
   if (!db) return false;
 
+  // Get user
+  const [user] = await db.select().from(users).where(eq(users.id, userId));
+  if (!user) return false;
+
+  // Admin has access to all programs
+  if (user.role === 'admin') return true;
+
   // Get program with department
   const [program] = await db
     .select()
@@ -2068,6 +2109,26 @@ export async function userHasAccessToProgram(userId: number, programId: number):
   
   if (!program) return false;
 
+  // Get user assignments
+  const assignments = await db
+    .select()
+    .from(userAssignments)
+    .where(eq(userAssignments.userId, userId));
+
+  // Check assignments
+  for (const assignment of assignments) {
+    // Program-level access: direct match
+    if (assignment.assignmentType === 'program' && assignment.programId === programId) {
+      return true;
+    }
+    
+    // Department-level access: check if program belongs to assigned department
+    if (assignment.assignmentType === 'department' && assignment.departmentId === program.departmentId) {
+      return true;
+    }
+  }
+
+  // Fall back to department-level check for other assignment types
   return await userHasAccessToDepartment(userId, program.departmentId);
 }
 
@@ -2142,13 +2203,54 @@ export async function getAccessiblePrograms(userId: number): Promise<Program[]> 
   const db = await getDb();
   if (!db) return [];
 
-  const accessibleDepts = await getAccessibleDepartments(userId);
-  if (accessibleDepts.length === 0) return [];
+  // Get user
+  const [user] = await db.select().from(users).where(eq(users.id, userId));
+  if (!user) return [];
 
-  const deptIds = accessibleDepts.map(d => d.id);
-  
-  return await db
+  // Admin has access to all programs
+  if (user.role === 'admin') {
+    return await db.select().from(programs);
+  }
+
+  // Get user assignments
+  const assignments = await db
     .select()
-    .from(programs)
-    .where(inArray(programs.departmentId, deptIds));
+    .from(userAssignments)
+    .where(eq(userAssignments.userId, userId));
+
+  if (assignments.length === 0) return [];
+
+  const accessibleProgs: Program[] = [];
+
+  for (const assignment of assignments) {
+    if (assignment.assignmentType === 'university') {
+      // University-level: all programs
+      return await db.select().from(programs);
+    } else if (assignment.assignmentType === 'program' && assignment.programId) {
+      // Program-level: specific program
+      const [prog] = await db
+        .select()
+        .from(programs)
+        .where(eq(programs.id, assignment.programId));
+      if (prog) accessibleProgs.push(prog);
+    }
+  }
+
+  // Also include programs from accessible departments
+  const accessibleDepts = await getAccessibleDepartments(userId);
+  if (accessibleDepts.length > 0) {
+    const deptIds = accessibleDepts.map(d => d.id);
+    const deptProgs = await db
+      .select()
+      .from(programs)
+      .where(inArray(programs.departmentId, deptIds));
+    accessibleProgs.push(...deptProgs);
+  }
+
+  // Remove duplicates
+  const uniqueProgs = Array.from(
+    new Map(accessibleProgs.map(p => [p.id, p])).values()
+  );
+
+  return uniqueProgs;
 }
