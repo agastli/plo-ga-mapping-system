@@ -100,9 +100,9 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
     textFields.forEach(assignNullable);
 
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
+    if (user.lastsignedin !== undefined) {
+      values.lastsignedin = user.lastsignedin;
+      updateSet.lastsignedin = user.lastsignedin;
     }
     if (user.role !== undefined) {
       values.role = user.role;
@@ -112,12 +112,12 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.role = "admin";
     }
 
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
+    if (!values.lastsignedin) {
+      values.lastsignedin = new Date();
     }
 
     if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
+      updateSet.lastsignedin = new Date();
     }
 
     await db.insert(users).values(values).onDuplicateKeyUpdate({
