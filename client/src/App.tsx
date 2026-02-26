@@ -5,6 +5,10 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import RoleBasedRedirect from "./components/RoleBasedRedirect";
+import ProtectedRoute from "./components/ProtectedRoute";
+import EditorDashboard from "./pages/EditorDashboard";
+import ViewerDashboard from "./pages/ViewerDashboard";
 import Upload from "./pages/Upload";
 import Programs from "./pages/Programs";
 import ProgramDetail from "./pages/ProgramDetail";
@@ -33,7 +37,24 @@ function Router() {
   return (
     <Switch>
       <Route path={"/login"} component={Login} />
-      <Route path={"/"} component={Home} />
+      <Route path={"/"}>  
+        <RoleBasedRedirect />
+      </Route>
+      <Route path={"/admin-dashboard"}>
+        <ProtectedRoute requireRole="admin">
+          <AdminDashboard />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/editor-dashboard"}>
+        <ProtectedRoute requireRole="editor">
+          <EditorDashboard />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/viewer-dashboard"}>
+        <ProtectedRoute requireRole="viewer">
+          <ViewerDashboard />
+        </ProtectedRoute>
+      </Route>
       <Route path={"/upload"} component={Upload} />
       <Route path={"/programs"} component={Programs} />
       <Route path={"/programs/new"} component={AddProgram} />

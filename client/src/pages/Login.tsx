@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,26 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { data: user, isLoading: checkingAuth } = trpc.auth.me.useQuery();
+
+  // Redirect already-logged-in users to their dashboard
+  useEffect(() => {
+    if (user) {
+      switch (user.role) {
+        case 'admin':
+          setLocation('/admin-dashboard');
+          break;
+        case 'editor':
+          setLocation('/editor-dashboard');
+          break;
+        case 'viewer':
+          setLocation('/viewer-dashboard');
+          break;
+        default:
+          break;
+      }
+    }
+  }, [user, setLocation]);
 
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: () => {

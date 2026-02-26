@@ -112,3 +112,38 @@
 - [x] Update getAssignmentDisplay to show program assignments
 - [x] Update userHasAccessToProgram to check program-level assignments
 - [x] Update getAccessiblePrograms to include program-level assignments
+
+## Role-Based Dashboards & Authentication Routing
+
+### Authentication Guard & Routing
+- [x] Create ProtectedRoute component to guard authenticated routes
+- [x] Redirect unauthenticated users from / to /login
+- [x] Redirect authenticated users from /login to their dashboard
+- [x] Implement role-based redirect logic on homepage
+
+### Admin Dashboard
+- [x] Create AdminDashboard.tsx with full system access
+- [x] Show statistics: total programs, users, mappings, recent activity
+- [x] Quick links to: User Management, Program Management, Analytics, Upload Documents
+- [x] Display system-wide overview and admin-only features
+
+### Editor Dashboard
+- [x] Create EditorDashboard.tsx with assigned program access
+- [x] Show list of assigned programs with edit capabilities
+- [x] Quick links to: My Programs, Upload Documents, View Analytics (for assigned programs)
+- [x] Filter all features to show only assigned programs
+
+### Viewer Dashboard
+- [x] Create ViewerDashboard.tsx with read-only access
+- [x] Show list of assigned programs (read-only)
+- [x] Quick links to: My Programs (view only), View Analytics (for assigned programs)
+- [x] Disable all edit/delete/upload functionality
+
+### Route Configuration
+- [x] Update App.tsx with role-based route protection
+- [x] Add redirect logic: / → /login (if not authenticated)
+- [x] Add redirect logic: / → /admin-dashboard (if admin)
+- [x] Add redirect logic: / → /editor-dashboard (if editor)
+- [x] Add redirect logic: / → /viewer-dashboard (if viewer)
+- [ ] Protect all management routes (require admin role)
+- [ ] Protect program edit routes (require editor or admin role)
