@@ -24,7 +24,7 @@ export type InsertUser = typeof users.$inferInsert;
  * User Assignments - Maps users to organizational units (college, cluster, department)
  * Determines what data a viewer/editor can access
  */
-export const userAssignments = mysqlTable("userassignments", {
+export const userAssignments = mysqlTable("userAssignments", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
   assignmentType: mysqlEnum("assignmentType", ["university", "college", "cluster", "department"]).notNull(),
@@ -206,7 +206,7 @@ export type InsertJustification = typeof justifications.$inferInsert;
 /**
  * Audit Log - Track all changes to mappings
  */
-export const auditLog = mysqlTable("auditlog", {
+export const auditLog = mysqlTable("auditLog", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").references(() => users.id, { onDelete: "set null" }),
   action: mysqlEnum("action", ["create", "update", "delete"]).notNull(),
@@ -222,7 +222,7 @@ export type InsertAuditLog = typeof auditLog.$inferInsert;
 /**
  * Report Templates - Custom export configurations
  */
-export const reportTemplates = mysqlTable("reporttemplates", {
+export const reportTemplates = mysqlTable("reportTemplates", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
