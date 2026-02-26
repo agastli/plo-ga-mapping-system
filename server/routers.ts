@@ -133,6 +133,43 @@ export const appRouter = router({
       return await db.getAllUsers();
     }),
     
+    create: adminProcedure
+      .input(z.object({
+        username: z.string().min(3, "Username must be at least 3 characters"),
+        password: z.string().min(6, "Password must be at least 6 characters"),
+        name: z.string().optional(),
+        email: z.string().email().optional(),
+        role: z.enum(["admin", "viewer", "editor"]).default("viewer"),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { createUser } = await import('./auth.js');
+        
+        // Check if username already exists
+        const existingUser = await db.getUserByUsername(input.username);
+        if (existingUser) {
+          throw new Error('Username already exists');
+        }
+        
+        // Create user with hashed password
+        const newUser = await createUser({
+          username: input.username,
+          password: input.password,
+          name: input.name,
+          email: input.email,
+          role: input.role,
+        });
+        
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "create",
+          entityType: "user",
+          entityId: newUser.id,
+          details: JSON.stringify({ username: input.username, role: input.role }),
+        });
+        
+        return { id: newUser.id, success: true };
+      }),
+    
     updateRole: adminProcedure
       .input(z.object({
         userId: z.number(),

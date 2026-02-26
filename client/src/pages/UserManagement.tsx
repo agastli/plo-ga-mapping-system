@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, UserPlus, Trash2, Shield, Eye, Edit } from 'lucide-react';
@@ -13,6 +14,14 @@ export default function UserManagement() {
   const { toast } = useToast();
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false);
+  const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false);
+  
+  // Create user form state
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newRole, setNewRole] = useState<'admin' | 'editor' | 'viewer'>('viewer');
   
   // Assignment form state
   const [assignmentType, setAssignmentType] = useState<'university' | 'college' | 'cluster' | 'department'>('department');
@@ -68,6 +77,41 @@ export default function UserManagement() {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
+
+  const createUserMutation = trpc.users.create.useMutation({
+    onSuccess: () => {
+      toast({ title: 'Success', description: 'User created successfully' });
+      refetchUsers();
+      setIsCreateUserDialogOpen(false);
+      resetCreateUserForm();
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const resetCreateUserForm = () => {
+    setNewUsername('');
+    setNewPassword('');
+    setNewName('');
+    setNewEmail('');
+    setNewRole('viewer');
+  };
+
+  const handleCreateUser = () => {
+    if (!newUsername || !newPassword) {
+      toast({ title: 'Error', description: 'Username and password are required', variant: 'destructive' });
+      return;
+    }
+    
+    createUserMutation.mutate({
+      username: newUsername,
+      password: newPassword,
+      name: newName || undefined,
+      email: newEmail || undefined,
+      role: newRole,
+    });
+  };
 
   const resetAssignmentForm = () => {
     setAssignmentType('department');
@@ -160,11 +204,17 @@ export default function UserManagement() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage user roles and access permissions
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">User Management</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage user roles and access permissions
+          </p>
+        </div>
+        <Button onClick={() => setIsCreateUserDialogOpen(true)}>
+          <UserPlus className="h-4 w-4 mr-2" />
+          Create User
+        </Button>
       </div>
 
       <div className="grid gap-4">
@@ -351,6 +401,87 @@ export default function UserManagement() {
             >
               {createAssignmentMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Create Assignment
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create User Dialog */}
+      <Dialog open={isCreateUserDialogOpen} onOpenChange={setIsCreateUserDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New User</DialogTitle>
+            <DialogDescription>
+              Add a new user to the system with username and password
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username *</Label>
+              <Input
+                id="username"
+                placeholder="Enter username"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">Password *</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter password (min 6 characters)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                placeholder="Enter full name (optional)"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter email (optional)"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Select
+                value={newRole}
+                onValueChange={(value) => setNewRole(value as 'admin' | 'editor' | 'viewer')}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="viewer">Viewer</SelectItem>
+                  <SelectItem value="editor">Editor</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              onClick={handleCreateUser}
+              disabled={createUserMutation.isPending}
+              className="w-full"
+            >
+              {createUserMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Create User
             </Button>
           </div>
         </DialogContent>
