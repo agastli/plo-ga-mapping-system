@@ -279,7 +279,7 @@ class SDKServer {
           name: userInfo.name || null,
           email: userInfo.email ?? null,
           loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
-          lastsignedin: signedInAt,
+          lastSignedIn: signedInAt,
         });
         user = await db.getUserByOpenId(userInfo.openId);
       } catch (error) {
@@ -294,7 +294,7 @@ class SDKServer {
 
     await db.upsertUser({
       openId: user.openId,
-      lastsignedin: signedInAt,
+      lastSignedIn: signedInAt,
     });
 
     return user;

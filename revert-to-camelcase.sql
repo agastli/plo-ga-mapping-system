@@ -1,0 +1,113 @@
+-- Revert column names back to camelCase to match local WAMP database
+-- Run this in phpMyAdmin SQL tab or via mysql command line
+
+-- Users table
+ALTER TABLE `users` 
+  CHANGE COLUMN `openid` `openId` VARCHAR(64) NULL DEFAULT NULL,
+  CHANGE COLUMN `loginmethod` `loginMethod` VARCHAR(64) NULL DEFAULT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CHANGE COLUMN `lastsignedin` `lastSignedIn` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- User Assignments table
+ALTER TABLE `userAssignments` 
+  CHANGE COLUMN `userid` `userId` INT NOT NULL,
+  CHANGE COLUMN `assignmenttype` `assignmentType` ENUM('university','college','cluster','department') NOT NULL,
+  CHANGE COLUMN `collegeid` `collegeId` INT NULL DEFAULT NULL,
+  CHANGE COLUMN `clusterid` `clusterId` INT NULL DEFAULT NULL,
+  CHANGE COLUMN `departmentid` `departmentId` INT NULL DEFAULT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Colleges table
+ALTER TABLE `colleges` 
+  CHANGE COLUMN `nameen` `nameEn` VARCHAR(255) NOT NULL,
+  CHANGE COLUMN `namear` `nameAr` VARCHAR(255) NULL DEFAULT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Clusters table
+ALTER TABLE `clusters` 
+  CHANGE COLUMN `collegeid` `collegeId` INT NOT NULL,
+  CHANGE COLUMN `nameen` `nameEn` VARCHAR(255) NOT NULL,
+  CHANGE COLUMN `namear` `nameAr` VARCHAR(255) NULL DEFAULT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Departments table
+ALTER TABLE `departments` 
+  CHANGE COLUMN `collegeid` `collegeId` INT NOT NULL,
+  CHANGE COLUMN `clusterid` `clusterId` INT NULL DEFAULT NULL,
+  CHANGE COLUMN `nameen` `nameEn` VARCHAR(255) NOT NULL,
+  CHANGE COLUMN `namear` `nameAr` VARCHAR(255) NULL DEFAULT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Programs table
+ALTER TABLE `programs` 
+  CHANGE COLUMN `departmentid` `departmentId` INT NOT NULL,
+  CHANGE COLUMN `programcode` `programCode` VARCHAR(32) NOT NULL,
+  CHANGE COLUMN `nameen` `nameEn` VARCHAR(255) NOT NULL,
+  CHANGE COLUMN `namear` `nameAr` VARCHAR(255) NULL DEFAULT NULL,
+  CHANGE COLUMN `degreelevel` `degreeLevel` ENUM('bachelor','master','phd','diploma') NOT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Graduate Attributes table
+ALTER TABLE `graduateattributes` 
+  CHANGE COLUMN `gacode` `gaCode` VARCHAR(16) NOT NULL,
+  CHANGE COLUMN `nameen` `nameEn` VARCHAR(255) NOT NULL,
+  CHANGE COLUMN `namear` `nameAr` VARCHAR(255) NULL DEFAULT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Rename table back to camelCase
+RENAME TABLE `graduateattributes` TO `graduateAttributes`;
+
+-- Competencies table
+ALTER TABLE `competencies` 
+  CHANGE COLUMN `gaid` `gaId` INT NOT NULL,
+  CHANGE COLUMN `competencycode` `competencyCode` VARCHAR(16) NOT NULL,
+  CHANGE COLUMN `nameen` `nameEn` VARCHAR(255) NOT NULL,
+  CHANGE COLUMN `namear` `nameAr` VARCHAR(255) NULL DEFAULT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- PLOs table
+ALTER TABLE `plos` 
+  CHANGE COLUMN `programid` `programId` INT NOT NULL,
+  CHANGE COLUMN `plocode` `ploCode` VARCHAR(16) NOT NULL,
+  CHANGE COLUMN `nameen` `nameEn` TEXT NOT NULL,
+  CHANGE COLUMN `namear` `nameAr` TEXT NULL DEFAULT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Mappings table
+ALTER TABLE `mappings` 
+  CHANGE COLUMN `ploid` `ploId` INT NOT NULL,
+  CHANGE COLUMN `competencyid` `competencyId` INT NOT NULL,
+  CHANGE COLUMN `weightingfactor` `weightingFactor` DECIMAL(3,2) NOT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Justifications table
+ALTER TABLE `justifications` 
+  CHANGE COLUMN `mappingid` `mappingId` INT NOT NULL,
+  CHANGE COLUMN `nameen` `nameEn` TEXT NOT NULL,
+  CHANGE COLUMN `namear` `nameAr` TEXT NULL DEFAULT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Audit Log table (if exists)
+ALTER TABLE `auditLog` 
+  CHANGE COLUMN `userid` `userId` INT NULL DEFAULT NULL,
+  CHANGE COLUMN `entitytype` `entityType` VARCHAR(64) NOT NULL,
+  CHANGE COLUMN `entityid` `entityId` INT NOT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- Report Templates table (if exists)
+ALTER TABLE `reportTemplates` 
+  CHANGE COLUMN `userid` `userId` INT NOT NULL,
+  CHANGE COLUMN `templatetype` `templateType` ENUM('english','arabic') NOT NULL,
+  CHANGE COLUMN `createdat` `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHANGE COLUMN `updatedat` `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;

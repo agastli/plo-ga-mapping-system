@@ -47,7 +47,7 @@ export async function authenticateUser(username: string, password: string): Prom
   // Update last signed in
   await db
     .update(users)
-    .set({ lastsignedin: new Date() })
+    .set({ lastSignedIn: new Date() })
     .where(eq(users.id, user.id));
 
   return user;

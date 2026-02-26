@@ -10,7 +10,7 @@ import {
   clusters,
   departments,
   programs,
-  graduateattributes,
+  graduateAttributes,
   competencies,
   plos,
   mappings,
@@ -100,9 +100,9 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
     textFields.forEach(assignNullable);
 
-    if (user.lastsignedin !== undefined) {
-      values.lastsignedin = user.lastsignedin;
-      updateSet.lastsignedin = user.lastsignedin;
+    if (user.lastSignedIn !== undefined) {
+      values.lastSignedIn = user.lastSignedIn;
+      updateSet.lastSignedIn = user.lastSignedIn;
     }
     if (user.role !== undefined) {
       values.role = user.role;
@@ -112,12 +112,12 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.role = "admin";
     }
 
-    if (!values.lastsignedin) {
-      values.lastsignedin = new Date();
+    if (!values.lastSignedIn) {
+      values.lastSignedIn = new Date();
     }
 
     if (Object.keys(updateSet).length === 0) {
-      updateSet.lastsignedin = new Date();
+      updateSet.lastSignedIn = new Date();
     }
 
     await db.insert(users).values(values).onDuplicateKeyUpdate({
@@ -326,7 +326,7 @@ export async function getAllPrograms() {
 export async function getAllGraduateAttributes() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(graduateattributes).orderBy(graduateattributes.sortOrder);
+  return await db.select().from(graduateAttributes).orderBy(graduateAttributes.sortOrder);
 }
 
 export async function getAllCompetencies() {
@@ -471,14 +471,14 @@ export async function getJustificationsByProgram(programId: number) {
   return await db
     .select({
       justification: justifications,
-      ga: graduateattributes,
+      ga: graduateAttributes,
       competency: competencies,
     })
     .from(justifications)
-    .innerJoin(graduateattributes, eq(justifications.gaid, graduateattributes.id))
+    .innerJoin(graduateAttributes, eq(justifications.gaId, graduateAttributes.id))
     .innerJoin(competencies, eq(justifications.competencyId, competencies.id))
     .where(eq(justifications.programId, programId))
-    .orderBy(graduateattributes.code, competencies.code);
+    .orderBy(graduateAttributes.code, competencies.code);
 }
 
 export async function upsertJustification(data: InsertJustification) {
@@ -591,7 +591,7 @@ export async function getCollegeAnalytics(collegeId: number) {
     : 0;
 
   // Calculate GA breakdown across all programs in this college
-  const allGAs = await db.select().from(graduateattributes).orderBy(graduateattributes.sortOrder);
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.sortOrder);
   const gaBreakdown = await Promise.all(
     allGAs.map(async (ga) => {
       const gaCompetencies = await db
@@ -695,7 +695,7 @@ export async function getClusterAnalytics(clusterId: number) {
     : 0;
 
   // Calculate GA breakdown
-  const allGAs = await db.select().from(graduateattributes).orderBy(graduateattributes.sortOrder);
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.sortOrder);
   const gaBreakdown = await Promise.all(
     allGAs.map(async (ga) => {
       const competenciesForGA = await db.select().from(competencies).where(eq(competencies.gaId, ga.id));
@@ -822,7 +822,7 @@ export async function getProgramAnalytics(programId: number) {
     .from(competencies);
 
   // Get all GAs
-  const allGAs = await db.select().from(graduateattributes);
+  const allGAs = await db.select().from(graduateAttributes);
 
   // Calculate alignment score for each GA
   const gaScores = allGAs.map((ga) => {
@@ -1228,7 +1228,7 @@ export async function getGAAnalytics() {
   if (!db) throw new Error("Database not available");
 
   // Get all GAs
-  const allGAs = await db.select().from(graduateattributes).orderBy(graduateattributes.code);
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.code);
   
   // Get all programs
   const allPrograms = await db.select().from(programs);
@@ -1335,7 +1335,7 @@ export async function getGAByCollegeAnalytics() {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const allGAs = await db.select().from(graduateattributes).orderBy(graduateattributes.code);
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.code);
   const allColleges = await db.select().from(colleges).orderBy(colleges.code);
   const allDepartments = await db.select().from(departments);
   const allPrograms = await db.select().from(programs);
@@ -1412,7 +1412,7 @@ export async function getGAByProgramAnalytics(collegeId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const allGAs = await db.select().from(graduateattributes).orderBy(graduateattributes.code);
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.code);
   const allDepartments = await db.select().from(departments).where(eq(departments.collegeId, collegeId));
   const departmentIds = allDepartments.map((d) => d.id);
   const allPrograms = await db.select().from(programs).where(inArray(programs.departmentId, departmentIds));
@@ -1618,7 +1618,7 @@ export async function getFilteredGAAnalytics(filters?: { collegeId?: number; clu
   if (!db) throw new Error("Database not available");
 
   // Get all GAs
-  const allGAs = await db.select().from(graduateattributes).orderBy(graduateattributes.code);
+  const allGAs = await db.select().from(graduateAttributes).orderBy(graduateAttributes.code);
   
   // Get filtered programs
   let filteredPrograms = await db.select().from(programs);

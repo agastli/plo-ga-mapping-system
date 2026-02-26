@@ -7,14 +7,14 @@ export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
   username: varchar("username", { length: 191 }).unique(),
   password: varchar("password", { length: 255 }), // bcrypt hash
-  openid: varchar("openid", { length: 64 }).unique(), // Optional - for OAuth
+  openId: varchar("openId", { length: 64 }).unique(), // Optional - for OAuth
   name: text("name"),
   email: varchar("email", { length: 320 }),
-  loginmethod: varchar("loginmethod", { length: 64 }),
+  loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["admin", "viewer", "editor"]).default("viewer").notNull(),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
-  lastsignedin: timestamp("lastsignedin").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -26,17 +26,17 @@ export type InsertUser = typeof users.$inferInsert;
  */
 export const userAssignments = mysqlTable("userAssignments", {
   id: int("id").autoincrement().primaryKey(),
-  userid: int("userid").notNull().references(() => users.id, { onDelete: "cascade" }),
-  assignmenttype: mysqlEnum("assignmenttype", ["university", "college", "cluster", "department"]).notNull(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  assignmentType: mysqlEnum("assignmentType", ["university", "college", "cluster", "department"]).notNull(),
   // Only one of these will be set based on assignmentType
-  collegeid: int("collegeid").references(() => colleges.id, { onDelete: "cascade" }),
-  clusterid: int("clusterid").references(() => clusters.id, { onDelete: "cascade" }),
-  departmentid: int("departmentid").references(() => departments.id, { onDelete: "cascade" }),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  collegeId: int("collegeId").references(() => colleges.id, { onDelete: "cascade" }),
+  clusterId: int("clusterId").references(() => clusters.id, { onDelete: "cascade" }),
+  departmentId: int("departmentId").references(() => departments.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   // Ensure user can only have one assignment per type
-  uniqueUserAssignment: unique().on(table.userid, table.assignmenttype),
+  uniqueUserAssignment: unique().on(table.userId, table.assignmentType),
 }));
 
 export type UserAssignment = typeof userAssignments.$inferSelect;
@@ -47,11 +47,11 @@ export type InsertUserAssignment = typeof userAssignments.$inferInsert;
  */
 export const colleges = mysqlTable("colleges", {
   id: int("id").autoincrement().primaryKey(),
-  nameen: varchar("nameen", { length: 255 }).notNull(),
-  namear: varchar("namear", { length: 255 }),
+  nameEn: varchar("nameEn", { length: 255 }).notNull(),
+  nameAr: varchar("nameAr", { length: 255 }),
   code: varchar("code", { length: 50 }).notNull().unique(),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type College = typeof colleges.$inferSelect;
@@ -63,15 +63,15 @@ export type InsertCollege = typeof colleges.$inferInsert;
  */
 export const clusters = mysqlTable("clusters", {
   id: int("id").autoincrement().primaryKey(),
-  collegeid: int("collegeid").notNull().references(() => colleges.id, { onDelete: "cascade" }),
-  nameen: varchar("nameen", { length: 255 }).notNull(),
-  namear: varchar("namear", { length: 255 }),
+  collegeId: int("collegeId").notNull().references(() => colleges.id, { onDelete: "cascade" }),
+  nameEn: varchar("nameEn", { length: 255 }).notNull(),
+  nameAr: varchar("nameAr", { length: 255 }),
   code: varchar("code", { length: 50 }).notNull(),
   description: text("description"),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  uniqueCode: unique().on(table.collegeid, table.code),
+  uniqueCode: unique().on(table.collegeId, table.code),
 }));
 
 export type Cluster = typeof clusters.$inferSelect;
@@ -82,15 +82,15 @@ export type InsertCluster = typeof clusters.$inferInsert;
  */
 export const departments = mysqlTable("departments", {
   id: int("id").autoincrement().primaryKey(),
-  collegeid: int("collegeid").notNull().references(() => colleges.id, { onDelete: "cascade" }),
-  clusterid: int("clusterid").references(() => clusters.id, { onDelete: "set null" }), // Optional - null if college doesn't use clusters
-  nameen: varchar("nameen", { length: 255 }).notNull(),
-  namear: varchar("namear", { length: 255 }),
+  collegeId: int("collegeId").notNull().references(() => colleges.id, { onDelete: "cascade" }),
+  clusterId: int("clusterId").references(() => clusters.id, { onDelete: "set null" }), // Optional - null if college doesn't use clusters
+  nameEn: varchar("nameEn", { length: 255 }).notNull(),
+  nameAr: varchar("nameAr", { length: 255 }),
   code: varchar("code", { length: 50 }).notNull(),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  uniqueCode: unique().on(table.collegeid, table.code),
+  uniqueCode: unique().on(table.collegeId, table.code),
 }));
 
 export type Department = typeof departments.$inferSelect;
@@ -101,15 +101,15 @@ export type InsertDepartment = typeof departments.$inferInsert;
  */
 export const programs = mysqlTable("programs", {
   id: int("id").autoincrement().primaryKey(),
-  departmentid: int("departmentid").notNull().references(() => departments.id, { onDelete: "cascade" }),
-  nameen: varchar("nameen", { length: 255 }).notNull(),
-  namear: varchar("namear", { length: 255 }),
+  departmentId: int("departmentId").notNull().references(() => departments.id, { onDelete: "cascade" }),
+  nameEn: varchar("nameEn", { length: 255 }).notNull(),
+  nameAr: varchar("nameAr", { length: 255 }),
   code: varchar("code", { length: 50 }).notNull(),
   language: mysqlEnum("language", ["en", "ar", "both"]).notNull().default("en"),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  uniqueCode: unique().on(table.departmentid, table.code),
+  uniqueCode: unique().on(table.departmentId, table.code),
 }));
 
 export type Program = typeof programs.$inferSelect;
@@ -118,31 +118,31 @@ export type InsertProgram = typeof programs.$inferInsert;
 /**
  * Graduate Attributes - The 5 main attributes
  */
-export const graduateattributes = mysqlTable("graduateattributes", {
+export const graduateAttributes = mysqlTable("graduateAttributes", {
   id: int("id").autoincrement().primaryKey(),
   code: varchar("code", { length: 10 }).notNull().unique(), // GA1, GA2, GA3, GA4, GA5
-  nameen: varchar("nameen", { length: 255 }).notNull(),
-  namear: varchar("namear", { length: 255 }).notNull(),
-  sortorder: int("sortorder").notNull(),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  nameEn: varchar("nameEn", { length: 255 }).notNull(),
+  nameAr: varchar("nameAr", { length: 255 }).notNull(),
+  sortOrder: int("sortOrder").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export type GraduateAttribute = typeof graduateattributes.$inferSelect;
-export type InsertGraduateAttribute = typeof graduateattributes.$inferInsert;
+export type GraduateAttribute = typeof graduateAttributes.$inferSelect;
+export type InsertGraduateAttribute = typeof graduateAttributes.$inferInsert;
 
 /**
  * Competencies - The 21 competencies under the 5 GAs
  */
 export const competencies = mysqlTable("competencies", {
   id: int("id").autoincrement().primaryKey(),
-  gaid: int("gaid").notNull().references(() => graduateattributes.id, { onDelete: "cascade" }),
+  gaId: int("gaId").notNull().references(() => graduateAttributes.id, { onDelete: "cascade" }),
   code: varchar("code", { length: 10 }).notNull().unique(), // C1-1, C1-2, etc.
-  nameen: varchar("nameen", { length: 255 }).notNull(),
-  namear: varchar("namear", { length: 255 }).notNull(),
-  sortorder: int("sortorder").notNull(),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  nameEn: varchar("nameEn", { length: 255 }).notNull(),
+  nameAr: varchar("nameAr", { length: 255 }).notNull(),
+  sortOrder: int("sortOrder").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Competency = typeof competencies.$inferSelect;
@@ -153,15 +153,15 @@ export type InsertCompetency = typeof competencies.$inferInsert;
  */
 export const plos = mysqlTable("plos", {
   id: int("id").autoincrement().primaryKey(),
-  programid: int("programid").notNull().references(() => programs.id, { onDelete: "cascade" }),
+  programId: int("programId").notNull().references(() => programs.id, { onDelete: "cascade" }),
   code: varchar("code", { length: 50 }).notNull(), // PLO1, PLO2, etc.
-  descriptionen: text("descriptionen"),
-  descriptionar: text("descriptionar"),
-  sortorder: int("sortorder").notNull(),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  descriptionEn: text("descriptionEn"),
+  descriptionAr: text("descriptionAr"),
+  sortOrder: int("sortOrder").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  uniqueCode: unique().on(table.programid, table.code),
+  uniqueCode: unique().on(table.programId, table.code),
 }));
 
 export type PLO = typeof plos.$inferSelect;
@@ -172,13 +172,13 @@ export type InsertPLO = typeof plos.$inferInsert;
  */
 export const mappings = mysqlTable("mappings", {
   id: int("id").autoincrement().primaryKey(),
-  ploid: int("ploid").notNull().references(() => plos.id, { onDelete: "cascade" }),
-  competencyid: int("competencyid").notNull().references(() => competencies.id, { onDelete: "cascade" }),
+  ploId: int("ploId").notNull().references(() => plos.id, { onDelete: "cascade" }),
+  competencyId: int("competencyId").notNull().references(() => competencies.id, { onDelete: "cascade" }),
   weight: decimal("weight", { precision: 3, scale: 2 }).notNull(), // 0.00 to 1.00
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  uniqueMapping: unique().on(table.ploid, table.competencyid),
+  uniqueMapping: unique().on(table.ploId, table.competencyId),
 }));
 
 export type Mapping = typeof mappings.$inferSelect;
@@ -189,15 +189,15 @@ export type InsertMapping = typeof mappings.$inferInsert;
  */
 export const justifications = mysqlTable("justifications", {
   id: int("id").autoincrement().primaryKey(),
-  programid: int("programid").notNull().references(() => programs.id, { onDelete: "cascade" }),
-  gaid: int("gaid").notNull().references(() => graduateattributes.id, { onDelete: "cascade" }),
-  competencyid: int("competencyid").notNull().references(() => competencies.id, { onDelete: "cascade" }),
-  texten: text("texten"),
-  textar: text("textar"),
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  programId: int("programId").notNull().references(() => programs.id, { onDelete: "cascade" }),
+  gaId: int("gaId").notNull().references(() => graduateAttributes.id, { onDelete: "cascade" }),
+  competencyId: int("competencyId").notNull().references(() => competencies.id, { onDelete: "cascade" }),
+  textEn: text("textEn"),
+  textAr: text("textAr"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  uniqueJustification: unique().on(table.programid, table.gaid, table.competencyid),
+  uniqueJustification: unique().on(table.programId, table.gaId, table.competencyId),
 }));
 
 export type Justification = typeof justifications.$inferSelect;
@@ -208,12 +208,12 @@ export type InsertJustification = typeof justifications.$inferInsert;
  */
 export const auditLog = mysqlTable("auditLog", {
   id: int("id").autoincrement().primaryKey(),
-  userid: int("userid").references(() => users.id, { onDelete: "set null" }),
+  userId: int("userId").references(() => users.id, { onDelete: "set null" }),
   action: mysqlEnum("action", ["create", "update", "delete"]).notNull(),
-  entitytype: varchar("entitytype", { length: 50 }).notNull(), // program, plo, mapping, etc.
-  entityid: int("entityid").notNull(),
+  entityType: varchar("entityType", { length: 50 }).notNull(), // program, plo, mapping, etc.
+  entityId: int("entityId").notNull(),
   details: text("details"), // JSON string with change details
-  createdat: timestamp("createdat").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
 export type AuditLog = typeof auditLog.$inferSelect;
@@ -224,15 +224,15 @@ export type InsertAuditLog = typeof auditLog.$inferInsert;
  */
 export const reportTemplates = mysqlTable("reportTemplates", {
   id: int("id").autoincrement().primaryKey(),
-  userid: int("userid").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   format: mysqlEnum("format", ["pdf", "excel", "word", "csv"]).notNull(),
   // JSON configuration for metrics, charts, branding
   config: text("config").notNull(), // JSON string
   isPublic: int("isPublic").notNull().default(0), // 0 = private, 1 = public
-  createdat: timestamp("createdat").defaultNow().notNull(),
-  updatedat: timestamp("updatedat").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type ReportTemplate = typeof reportTemplates.$inferSelect;
