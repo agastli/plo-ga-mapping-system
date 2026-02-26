@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, editorProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { exec } from "child_process";
@@ -118,6 +118,82 @@ export const appRouter = router({
       return {
         success: true,
       } as const;
+    }),
+  }),
+
+  // User Management (Admin only)
+  users: router({
+    list: adminProcedure.query(async () => {
+      return await db.getAllUsers();
+    }),
+    
+    updateRole: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        role: z.enum(["admin", "viewer", "editor"]),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await db.updateUserRole(input.userId, input.role);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "update",
+          entityType: "user",
+          entityId: input.userId,
+          details: JSON.stringify({ role: input.role }),
+        });
+        return { success: true };
+      }),
+    
+    createAssignment: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        assignmentType: z.enum(["university", "college", "cluster", "department"]),
+        collegeId: z.number().optional(),
+        clusterId: z.number().optional(),
+        departmentId: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const id = await db.createUserAssignment(input);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "create",
+          entityType: "userAssignment",
+          entityId: id,
+          details: JSON.stringify(input),
+        });
+        return { id };
+      }),
+    
+    deleteAssignment: adminProcedure
+      .input(z.object({ assignmentId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.deleteUserAssignment(input.assignmentId);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "delete",
+          entityType: "userAssignment",
+          entityId: input.assignmentId,
+          details: JSON.stringify(input),
+        });
+        return { success: true };
+      }),
+    
+    deleteAllAssignments: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.deleteUserAssignments(input.userId);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "delete",
+          entityType: "userAssignment",
+          entityId: input.userId,
+          details: JSON.stringify({ action: "deleteAll", targetUserId: input.userId }),
+        });
+        return { success: true };
+      }),
+    
+    getAccessiblePrograms: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getAccessiblePrograms(ctx.user.id);
     }),
   }),
 
