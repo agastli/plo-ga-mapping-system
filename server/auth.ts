@@ -70,6 +70,7 @@ export async function createUser(data: {
   const hashedPassword = await hashPassword(data.password);
 
   // Create user
+  const now = new Date();
   const result = await db.insert(users).values({
     username: data.username,
     password: hashedPassword,
@@ -77,6 +78,9 @@ export async function createUser(data: {
     name: data.name || null,
     role: data.role || 'viewer',
     loginMethod: 'password',
+    createdAt: now,
+    updatedAt: now,
+    lastSignedIn: now,
   });
 
   // Fetch and return created user
