@@ -1,5 +1,7 @@
 import { eq, and, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
+import * as schema from "../drizzle/schema";
 import {
   InsertUser,
   users,
@@ -41,16 +43,28 @@ import {
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _pool: mysql.Pool | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      // Add SQL mode to connection string to avoid ANSI_QUOTES
-      const connectionString = process.env.DATABASE_URL.includes('?') 
-        ? `${process.env.DATABASE_URL}&sql_mode=TRADITIONAL`
-        : `${process.env.DATABASE_URL}?sql_mode=TRADITIONAL`;
+      // Create mysql2 pool with proper configuration
+      _pool = mysql.createPool({
+        uri: process.env.DATABASE_URL,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 0,
+      });
       
-      _db = drizzle(connectionString);
+      // Set SQL mode to avoid ANSI_QUOTES on each connection
+      _pool.on('connection', (connection) => {
+        connection.query("SET SESSION sql_mode='TRADITIONAL'");
+      });
+      
+      // Initialize Drizzle with schema to ensure proper column name mapping
+      _db = drizzle(_pool, { schema, mode: 'default' });
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
