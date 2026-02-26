@@ -45,7 +45,12 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      // Add SQL mode to connection string to avoid ANSI_QUOTES
+      const connectionString = process.env.DATABASE_URL.includes('?') 
+        ? `${process.env.DATABASE_URL}&sql_mode=TRADITIONAL`
+        : `${process.env.DATABASE_URL}?sql_mode=TRADITIONAL`;
+      
+      _db = drizzle(connectionString);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
