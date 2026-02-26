@@ -74,10 +74,13 @@ export async function createUser(data: {
   const result = await db.insert(users).values({
     username: data.username,
     password: hashedPassword,
+    openId: null,
     email: data.email || null,
     name: data.name || null,
     role: data.role || 'viewer',
     loginMethod: 'password',
+    resetToken: null,
+    resetTokenExpiry: null,
     createdAt: now,
     updatedAt: now,
     lastSignedIn: now,
