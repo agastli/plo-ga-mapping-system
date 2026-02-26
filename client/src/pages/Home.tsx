@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileUp, Database, BarChart3, Globe, CheckCircle2, Sparkles } from "lucide-react";
+import { FileUp, Database, BarChart3, Globe, CheckCircle2, Sparkles, Users } from "lucide-react";
 import { Link } from "wouter";
+import { useRole } from "@/hooks/useRole";
 
 export default function Home() {
+  const { isAdmin } = useRole();
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Premium Header with QU Logo */}
@@ -18,12 +21,22 @@ export default function Home() {
                 <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
               </div>
             </div>
-            <Button variant="default" size="lg" asChild className="bg-[#8B1538] hover:bg-[#6B1028]">
-              <Link href="/admin">
-                <Database className="mr-2 h-4 w-4" />
-                Manage Programs
-              </Link>
-            </Button>
+            <div className="flex gap-3">
+              <Button variant="default" size="lg" asChild className="bg-[#8B1538] hover:bg-[#6B1028]">
+                <Link href="/admin">
+                  <Database className="mr-2 h-4 w-4" />
+                  Manage Programs
+                </Link>
+              </Button>
+              {isAdmin && (
+                <Button variant="outline" size="lg" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/5">
+                  <Link href="/admin/users">
+                    <Users className="mr-2 h-4 w-4" />
+                    User Management
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </header>

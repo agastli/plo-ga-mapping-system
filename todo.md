@@ -50,3 +50,7 @@
 - [x] Database schema (users.role enum, userAssignments table)
 - [x] Backend functions (getAllUsers, updateUserRole, access control helpers)
 - [x] Database migration script ready (0006_colorful_metal_master.sql)
+
+### Frontend - Home Page Updates
+- [x] Add "User Management" button to home page (admin-only visibility)
+- [x] Use useRole() hook to conditionally show admin features
