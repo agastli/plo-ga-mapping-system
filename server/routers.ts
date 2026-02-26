@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, editorProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
+import { authenticateUser, createUser as createUserAuth } from "./auth";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { writeFile, unlink } from "fs/promises";
@@ -93,7 +94,7 @@ export const appRouter = router({
         password: z.string().min(1),
       }))
       .mutation(async ({ input, ctx }) => {
-        const { authenticateUser } = await import('./auth.js');
+        // authenticateUser is now imported at the top
         const { createPasswordSession } = await import('./_core/passwordAuth.js');
         
         const user = await authenticateUser(input.username, input.password);
@@ -142,7 +143,7 @@ export const appRouter = router({
         role: z.enum(["admin", "viewer", "editor"]).default("viewer"),
       }))
       .mutation(async ({ input, ctx }) => {
-        const { createUser } = await import('./auth.js');
+        // createUser is now imported at the top as createUserAuth
         
         // Check if username already exists
         const existingUser = await db.getUserByUsername(input.username);
@@ -151,7 +152,7 @@ export const appRouter = router({
         }
         
         // Create user with hashed password
-        const newUser = await createUser({
+        const newUser = await createUserAuth({
           username: input.username,
           password: input.password,
           name: input.name,
