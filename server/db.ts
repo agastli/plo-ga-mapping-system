@@ -1,6 +1,6 @@
 import { eq, and, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
+import mysql from "mysql2";
 import * as schema from "../drizzle/schema";
 import {
   InsertUser,
@@ -49,17 +49,10 @@ export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
       // Create mysql2 pool with proper configuration
-      _pool = mysql.createPool({
-        uri: process.env.DATABASE_URL,
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0,
-        enableKeepAlive: true,
-        keepAliveInitialDelay: 0,
-      });
+      _pool = mysql.createPool(process.env.DATABASE_URL);
       
       // Set SQL mode to avoid ANSI_QUOTES on each connection
-      _pool.on('connection', (connection) => {
+      _pool.on('connection', (connection: any) => {
         connection.query("SET SESSION sql_mode='TRADITIONAL'");
       });
       
