@@ -243,5 +243,6 @@
 - [x] Remove Quick Actions section from EditorDashboard (redundant)
 - [x] Add college and cluster filtering to ViewerDashboard for users with broad access
 - [x] Add college and cluster filtering to EditorDashboard for users with broad access
+- [x] Filter dropdowns show only assigned colleges/clusters (not all system data)
 - [x] Keep only statistics cards, filters, and assigned programs list
 - [ ] Test both dashboards to ensure clean layout and functional filtering

@@ -20,8 +20,6 @@ export default function EditorDashboard() {
   const [, setLocation] = useLocation();
   const { data: user } = trpc.auth.me.useQuery();
   const { data: accessiblePrograms } = trpc.users.getAccessiblePrograms.useQuery();
-  const { data: colleges } = trpc.colleges.list.useQuery();
-  const { data: allClusters } = trpc.clusters.list.useQuery();
   
   const [selectedCollegeId, setSelectedCollegeId] = useState<string>("");
   const [selectedClusterId, setSelectedClusterId] = useState<string>("");
@@ -39,11 +37,25 @@ export default function EditorDashboard() {
   // Get only programs accessible to this editor
   const allMyPrograms = accessiblePrograms || [];
   
-  // Filter clusters for selected college
-  const clusters = selectedCollegeId && allClusters
-    ? allClusters.filter((c: any) => c.collegeId === parseInt(selectedCollegeId))
+  // Get unique colleges from assigned programs
+  const assignedColleges = Array.from(
+    new Map(allMyPrograms.map(p => [p.college.id, p.college])).values()
+  );
+  
+  // Get unique clusters for selected college from assigned programs
+  const departmentsWithClusters = selectedCollegeId
+    ? allMyPrograms.filter(p => p.college.id.toString() === selectedCollegeId && p.department.clusterId)
     : [];
-  const hasCluster = clusters.length > 0;
+  
+  const assignedClusters = Array.from(
+    new Map(
+      departmentsWithClusters.map(p => [
+        p.department.clusterId,
+        { id: p.department.clusterId, nameEn: `Cluster ${p.department.clusterId}`, nameAr: `مجموعة ${p.department.clusterId}` }
+      ])
+    ).values()
+  );
+  const hasCluster = assignedClusters.length > 0;
   
   // Reset cluster selection when college changes
   const handleCollegeChange = (collegeId: string) => {
@@ -158,7 +170,7 @@ export default function EditorDashboard() {
                     <SelectValue placeholder="Select a college" />
                   </SelectTrigger>
                   <SelectContent>
-                    {colleges?.map((college) => (
+                    {assignedColleges.map((college) => (
                       <SelectItem key={college.id} value={college.id.toString()}>
                         {college.nameEn}
                       </SelectItem>
@@ -177,7 +189,7 @@ export default function EditorDashboard() {
                       <SelectValue placeholder="Select a cluster" />
                     </SelectTrigger>
                     <SelectContent>
-                      {clusters.map((cluster: any) => (
+                      {assignedClusters.map((cluster: any) => (
                         <SelectItem key={cluster.id} value={cluster.id.toString()}>
                           {cluster.nameEn}
                         </SelectItem>
