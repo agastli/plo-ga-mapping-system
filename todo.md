@@ -379,3 +379,14 @@
 - [x] Update forgot username endpoint to send username reminder emails
 - [ ] Test email sending functionality on VPS
 - [ ] Verify emails are received successfully
+
+## Welcome Email for New Users
+
+- [x] Create sendWelcomeEmail function in server/email.ts
+- [x] Include user credentials (username and initial password) in email
+- [x] Add role-specific information (Admin/Viewer/Editor responsibilities)
+- [x] Include system overview and purpose of PLO-GA Mapping System
+- [x] Add instructions to change password after first login
+- [x] Include login link and getting started guide
+- [x] Update user creation endpoint to send welcome email
+- [ ] Test welcome email with different user roles on VPS

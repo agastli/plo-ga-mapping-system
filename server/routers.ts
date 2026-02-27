@@ -223,6 +223,22 @@ export const appRouter = router({
           details: JSON.stringify({ username: input.username, role: input.role }),
         });
         
+        // Send welcome email with credentials
+        if (input.email) {
+          const { sendWelcomeEmail } = await import('./email');
+          const emailSent = await sendWelcomeEmail(
+            input.email,
+            input.username,
+            input.password, // Send the plain password in the welcome email
+            input.role
+          );
+          
+          if (!emailSent) {
+            console.error(`Failed to send welcome email to ${input.email}`);
+            // Don't throw error - user is created successfully even if email fails
+          }
+        }
+        
         return { id: newUser.id, success: true };
       }),
     
