@@ -33,7 +33,7 @@ export default function UserLoginTracking() {
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col">
       {/* Header */}
-      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+      <div className="container mx-auto px-4 pt-4 max-w-6xl">
         <header className="bg-white rounded-lg shadow-md mb-6">
           <div className="px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -49,19 +49,17 @@ export default function UserLoginTracking() {
             </div>
             <div className="flex items-center gap-3">
               <Button
-                variant="outline"
                 size="sm"
                 onClick={() => setLocation('/admin-dashboard')}
-                className="gap-2"
+                className="gap-2 bg-[#8B1538] text-white hover:bg-[#6D1028]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Dashboard
               </Button>
               <Button
-                variant="outline"
                 size="sm"
                 onClick={() => refetch()}
-                className="gap-2"
+                className="gap-2 bg-[#8B1538] text-white hover:bg-[#6D1028]"
               >
                 <RefreshCw className="h-4 w-4" />
                 Refresh
@@ -71,7 +69,7 @@ export default function UserLoginTracking() {
         </header>
       </div>
       
-      <div className="container mx-auto px-4 max-w-7xl flex-1">
+      <div className="container mx-auto px-4 max-w-6xl flex-1">
 
         {/* Login History Table */}
         <Card>
@@ -168,7 +166,7 @@ export default function UserLoginTracking() {
       
       {/* Footer */}
       <footer className="bg-[#8B1538] text-white py-6 mt-8">
-        <div className="container mx-auto px-4 max-w-7xl">
+        <div className="container mx-auto px-4 max-w-6xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img 

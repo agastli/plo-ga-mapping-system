@@ -443,3 +443,18 @@
 
 - [x] Change background from white/gradient to amber-50 to match other dashboards
 - [x] Add standard footer with QU logo and copyright information
+
+## Header and Footer Width Alignment
+
+- [ ] Fix UserProfile.tsx header and footer to match content width
+- [ ] Fix UserLoginTracking.tsx header and footer to match content width
+- [ ] Check and fix all other pages with headers/footers for consistent width alignment
+
+## Header and Footer Width Alignment & Button Styling
+
+- [x] Fix UserProfile.tsx header/footer to match content container width (max-w-4xl)
+- [x] Fix UserLoginTracking.tsx header/footer to match content container width
+- [x] Fix ViewerDashboard.tsx header/footer to match content container width (already aligned at max-w-7xl)
+- [x] Fix EditorDashboard.tsx header/footer to match content container width (already aligned at max-w-7xl)
+- [x] Fix AdminDashboard.tsx header/footer to match content container width (already aligned at max-w-7xl)
+- [x] Update all header buttons (Back to Dashboard, Home, etc.) to maroon background with white text

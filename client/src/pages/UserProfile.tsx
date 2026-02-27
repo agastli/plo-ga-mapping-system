@@ -123,7 +123,7 @@ export default function UserProfile() {
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-amber-100">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <img src="/qu-logo.png" alt="QU Logo" className="h-16 w-auto" />
@@ -134,9 +134,8 @@ export default function UserProfile() {
             </div>
             <div className="flex items-center gap-4">
               <Button
-                variant="outline"
                 onClick={handleBack}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-[#8B1538] text-white hover:bg-[#6D1028]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Dashboard
@@ -342,7 +341,7 @@ export default function UserProfile() {
       {/* Footer */}
       <footer className="mt-12">
         <div className="bg-[#8B1538] py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-4">
                 <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
