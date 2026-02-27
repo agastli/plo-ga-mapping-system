@@ -341,3 +341,13 @@
 - [x] If partial program access: default to Program level
 - [x] If admin (all colleges): default to University level (already implemented)
 - [ ] Test with user assigned to full college vs specific programs
+
+## Cascading Filter Dropdowns for Analytics
+
+- [x] Add Department dropdown filter to analytics page (omitted per user request)
+- [x] Add Program dropdown filter (cascades from College)
+- [x] Cluster dropdown shows only when college has clusters
+- [x] Set 'Select' as placeholder for unselected lower-level filters
+- [x] Ensure filters cascade properly (College → Cluster → Program)
+- [x] Auto-update analysis level based on filter selections
+- [ ] Test drill-down from college level to program level using filters

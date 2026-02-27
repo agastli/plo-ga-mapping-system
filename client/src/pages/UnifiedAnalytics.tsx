@@ -655,7 +655,7 @@ export default function UnifiedAnalytics() {
             <CardTitle>Filters</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Filter Level */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -713,8 +713,8 @@ export default function UnifiedAnalytics() {
                 </div>
               )}
 
-              {/* Cluster Filter */}
-              {filterLevel === "cluster" && selectedCollegeId && (
+              {/* Cluster Filter - Always show if college has clusters */}
+              {selectedCollegeId && hasCluster && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Cluster
@@ -724,10 +724,17 @@ export default function UnifiedAnalytics() {
                     onChange={(e) => {
                       const clusterId = e.target.value ? Number(e.target.value) : undefined;
                       setSelectedClusterId(clusterId);
+                      setSelectedProgramId(undefined);
+                      // Update filter level based on selection
+                      if (clusterId) {
+                        setFilterLevel('cluster');
+                      } else if (selectedCollegeId) {
+                        setFilterLevel('college');
+                      }
                     }}
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
                   >
-                    <option value="">Select Cluster</option>
+                    <option value="">Select</option>
                     {clusters?.map((cluster: any) => (
                       <option key={cluster.id} value={cluster.id}>
                         {cluster.nameEn}
@@ -737,8 +744,8 @@ export default function UnifiedAnalytics() {
                 </div>
               )}
 
-              {/* Program Filter */}
-              {filterLevel === "program" && selectedCollegeId && (
+              {/* Program Filter - Always show when college is selected */}
+              {selectedCollegeId && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Program
@@ -748,10 +755,18 @@ export default function UnifiedAnalytics() {
                     onChange={(e) => {
                       const programId = e.target.value ? Number(e.target.value) : undefined;
                       setSelectedProgramId(programId);
+                      // Update filter level to program when selected
+                      if (programId) {
+                        setFilterLevel('program');
+                      } else if (selectedClusterId) {
+                        setFilterLevel('cluster');
+                      } else if (selectedCollegeId) {
+                        setFilterLevel('college');
+                      }
                     }}
                     className="w-full border border-gray-300 rounded-md px-3 py-2"
                   >
-                    <option value="">Select Program</option>
+                    <option value="">Select</option>
                     {filteredPrograms.map((item) => (
                       <option key={item.program.id} value={item.program.id}>
                         {item.program.nameEn}
