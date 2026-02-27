@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, UserPlus, Trash2, Shield, Eye, Edit, LogOut, Edit2 } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Shield, Eye, Edit, LogOut, Edit2, Home } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 export default function UserManagement() {
@@ -340,6 +340,10 @@ export default function UserManagement() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <Button onClick={() => setLocation('/admin-dashboard')} variant="outline" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Home
+            </Button>
             <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg">
               <Shield className="h-4 w-4 text-red-600" />
               <span className="text-sm font-medium text-red-600">Administrator</span>
@@ -808,6 +812,21 @@ export default function UserManagement() {
         </DialogContent>
       </Dialog>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-white shadow-md rounded-lg mx-4 my-4 mt-8">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <img src="/qu-logo.png" alt="QU Logo" className="h-8" />
+              <span className="text-sm text-gray-600">© 2026 Qatar University. All rights reserved.</span>
+            </div>
+            <div className="text-sm text-gray-600">
+              PLO-GA Mapping System v1.0
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -170,3 +170,8 @@
 - [x] Fix "My Programs" link on ViewerDashboard to show only assigned programs
 - [x] Fix "View Analytics" link to work correctly for viewers/editors
 - [x] Updated getAccessiblePrograms backend function to return enriched program data with counts
+
+## User Management Page Header/Footer Fix
+
+- [x] Add Home/Back button to User Management page header
+- [x] Add footer to User Management page (consistent with other admin pages)
