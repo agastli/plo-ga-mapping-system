@@ -236,3 +236,12 @@
 - [x] Add footer to Organizational Structure page
 - [x] Update User Management footer to match standard maroon format
 - [x] Test all three pages to ensure consistent branding
+
+## Viewer and Editor Dashboard Simplification
+
+- [x] Remove Quick Actions section from ViewerDashboard (redundant)
+- [x] Remove Quick Actions section from EditorDashboard (redundant)
+- [x] Add college and cluster filtering to ViewerDashboard for users with broad access
+- [x] Add college and cluster filtering to EditorDashboard for users with broad access
+- [x] Keep only statistics cards, filters, and assigned programs list
+- [ ] Test both dashboards to ensure clean layout and functional filtering

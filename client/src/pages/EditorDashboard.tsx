@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { 
   FileText, 
@@ -13,11 +14,17 @@ import {
   Home
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useState } from "react";
 
 export default function EditorDashboard() {
   const [, setLocation] = useLocation();
   const { data: user } = trpc.auth.me.useQuery();
   const { data: accessiblePrograms } = trpc.users.getAccessiblePrograms.useQuery();
+  const { data: colleges } = trpc.colleges.list.useQuery();
+  const { data: allClusters } = trpc.clusters.list.useQuery();
+  
+  const [selectedCollegeId, setSelectedCollegeId] = useState<string>("");
+  const [selectedClusterId, setSelectedClusterId] = useState<string>("");
   
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
@@ -30,55 +37,62 @@ export default function EditorDashboard() {
   };
 
   // Get only programs accessible to this editor
-  const myPrograms = accessiblePrograms || [];
+  const allMyPrograms = accessiblePrograms || [];
+  
+  // Filter clusters for selected college
+  const clusters = selectedCollegeId && allClusters
+    ? allClusters.filter((c: any) => c.collegeId === parseInt(selectedCollegeId))
+    : [];
+  const hasCluster = clusters.length > 0;
+  
+  // Reset cluster selection when college changes
+  const handleCollegeChange = (collegeId: string) => {
+    setSelectedCollegeId(collegeId);
+    setSelectedClusterId("");
+  };
+  
+  // Filter programs by college and cluster
+  const myPrograms = selectedCollegeId ? allMyPrograms.filter((item) => {
+    const matchesCollege = item.college.id.toString() === selectedCollegeId;
+    
+    // If college has clusters, require cluster selection
+    if (hasCluster && !selectedClusterId) {
+      return false;
+    }
+    
+    // If cluster is selected, filter by cluster
+    const matchesCluster = selectedClusterId 
+      ? item.department.clusterId?.toString() === selectedClusterId
+      : true;
+    
+    return matchesCollege && matchesCluster;
+  }) : allMyPrograms;
 
   const stats = [
     {
       title: "My Programs",
-      value: myPrograms.length,
+      value: allMyPrograms.length,
       icon: FileText,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
     {
       title: "Total Mappings",
-      value: myPrograms.reduce((sum, p) => sum + (p.mappingCount || 0), 0),
+      value: allMyPrograms.reduce((sum, p) => sum + (p.mappingCount || 0), 0),
       icon: BarChart3,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },
     {
       title: "Total PLOs",
-      value: myPrograms.reduce((sum, p) => sum + (p.ploCount || 0), 0),
+      value: allMyPrograms.reduce((sum, p) => sum + (p.ploCount || 0), 0),
       icon: Edit,
       color: "text-green-600",
       bgColor: "bg-green-50",
     },
   ];
 
-  const quickLinks = [
-    {
-      title: "My Programs",
-      description: "View and edit programs assigned to you",
-      icon: FileText,
-      href: "/programs",
-      color: "text-blue-600",
-    },
-    {
-      title: "Upload Documents",
-      description: "Upload and parse PLO documents",
-      href: "/upload",
-      icon: Upload,
-      color: "text-purple-600",
-    },
-    {
-      title: "View Analytics",
-      description: "Analytics for your assigned programs",
-      href: "/analytics",
-      icon: BarChart3,
-      color: "text-orange-600",
-    },
-  ];
+
 
   return (
     <div className="min-h-screen bg-amber-50">
@@ -131,31 +145,57 @@ export default function EditorDashboard() {
           ))}
         </div>
 
-        {/* Quick Links */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {quickLinks.map((link) => (
-              <Link key={link.title} href={link.href}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg bg-gray-50`}>
-                        <link.icon className={`h-6 w-6 ${link.color}`} />
-                      </div>
-                      <CardTitle className="text-lg">{link.title}</CardTitle>
-                    </div>
-                    <CardDescription className="mt-2">{link.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
+        {/* Filter Section */}
+        <Card className="shadow-md border-[#8B1538]/20 bg-white mb-6">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-shrink-0 md:w-64">
+                <label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
+                  🏛️ Filter by College
+                </label>
+                <Select value={selectedCollegeId} onValueChange={handleCollegeChange}>
+                  <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
+                    <SelectValue placeholder="Select a college" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {colleges?.map((college) => (
+                      <SelectItem key={college.id} value={college.id.toString()}>
+                        {college.nameEn}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {hasCluster && (
+                <div className="flex-shrink-0 md:w-64">
+                  <label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
+                    🔗 Filter by Cluster
+                  </label>
+                  <Select value={selectedClusterId} onValueChange={setSelectedClusterId}>
+                    <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
+                      <SelectValue placeholder="Select a cluster" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clusters.map((cluster: any) => (
+                        <SelectItem key={cluster.id} value={cluster.id.toString()}>
+                          {cluster.nameEn}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* My Programs List */}
         <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">My Assigned Programs</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            My Assigned Programs
+            {selectedCollegeId && ` - ${myPrograms.length} program${myPrograms.length !== 1 ? 's' : ''}`}
+          </h2>
           {myPrograms.length === 0 ? (
             <Card>
               <CardContent className="pt-6 text-center py-12">
