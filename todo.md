@@ -253,3 +253,21 @@
 - [x] Add "View Analytics" button to EditorDashboard filter section
 - [x] Ensure analytics remains easily accessible without redundant Quick Actions card
 - [ ] Test analytics navigation from both dashboards
+
+## Analytics Access Control Security Fix
+
+- [ ] Modify analytics page to filter all data based on user's accessible programs
+- [ ] Restrict Analysis Level dropdown to show only levels user has access to
+- [ ] Viewers/editors with single program: show only that program's analytics
+- [ ] Viewers/editors with college access: show college and program levels only
+- [ ] Admins: show all levels (university-wide, college, program)
+- [ ] Test with viewer account assigned to single program
+- [ ] Verify university-wide data is not accessible to non-admin users
+
+## Dashboard Welcome Headers
+
+- [x] Restore "Viewer Dashboard" title to ViewerDashboard page
+- [x] Restore "Welcome, [Username]" message to ViewerDashboard
+- [x] Restore "Editor Dashboard" title to EditorDashboard page  
+- [x] Restore "Welcome, [Username]" message to EditorDashboard
+- [x] Ensure consistent header format across all dashboard types

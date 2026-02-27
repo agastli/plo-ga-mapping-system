@@ -138,6 +138,12 @@ export default function EditorDashboard() {
         </header>
       </div>
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Dashboard Title and Welcome */}
+        <div className="mb-6">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Editor Dashboard</h2>
+          <p className="text-lg text-gray-600">Welcome, {user?.name || 'Editor'}</p>
+        </div>
+
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map((stat) => (

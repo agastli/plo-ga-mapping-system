@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { trpc } from "../lib/trpc";
 import { Button } from "../components/ui/button";
@@ -407,14 +407,23 @@ export default function UnifiedAnalytics() {
     }
   };
 
-  const [filterLevel, setFilterLevel] = useState<"university" | "college" | "cluster" | "program">("university");
+  const [filterLevel, setFilterLevel] = useState<"university" | "college" | "cluster" | "program">("program");
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>(undefined);
   const [selectedClusterId, setSelectedClusterId] = useState<number | undefined>(undefined);
   const [selectedProgramId, setSelectedProgramId] = useState<number | undefined>(undefined);
 
   // Get current user to check role - wait for authentication first
-  const { data: currentUser, isLoading: authLoading } = trpc.auth.me.useQuery();
+  const { data: currentUser, isLoading: authLoading} = trpc.auth.me.useQuery();
   const isAdmin = currentUser?.role === 'admin';
+  
+  // Set default filter level based on user role
+  useEffect(() => {
+    if (currentUser && !isAdmin) {
+      setFilterLevel('program');
+    } else if (currentUser && isAdmin) {
+      setFilterLevel('university');
+    }
+  }, [currentUser, isAdmin]);
   
   // Fetch colleges, clusters, and programs for filters - only after auth is confirmed
   const { data: colleges } = trpc.colleges.list.useQuery(undefined, {
@@ -627,9 +636,18 @@ export default function UnifiedAnalytics() {
                   }}
                   className="w-full border border-gray-300 rounded-md px-3 py-2"
                 >
-                  <option value="university">University-wide</option>
-                  <option value="college">By College</option>
-                  <option value="cluster">By Cluster</option>
+                  {/* Admins see all levels */}
+                  {isAdmin && <option value="university">University-wide</option>}
+                  {isAdmin && <option value="college">By College</option>}
+                  {isAdmin && <option value="cluster">By Cluster</option>}
+                  
+                  {/* Non-admins: show college level only if they have access to multiple programs in same college */}
+                  {!isAdmin && programs && programs.length > 1 && (() => {
+                    const collegeIds = new Set(programs.map(p => p.college.id));
+                    return collegeIds.size === 1 ? <option value="college">By College</option> : null;
+                  })()}
+                  
+                  {/* All users can see program level */}
                   <option value="program">By Program</option>
                 </select>
               </div>
