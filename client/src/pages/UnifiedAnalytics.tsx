@@ -417,7 +417,7 @@ export default function UnifiedAnalytics() {
   const isAdmin = currentUser?.role === 'admin';
   
   // Fetch colleges, clusters, and programs for filters - only after auth is confirmed
-  const { data: colleges } = trpc.colleges.list.useQuery(undefined, {
+  const { data: allColleges } = trpc.colleges.list.useQuery(undefined, {
     enabled: !!currentUser,
   });
   const { data: allClusters } = trpc.clusters.list.useQuery(undefined, {
@@ -433,6 +433,14 @@ export default function UnifiedAnalytics() {
   });
   
   const programs = isAdmin ? allPrograms : accessiblePrograms;
+  
+  // For non-admins, derive accessible colleges from their assigned programs
+  const colleges = isAdmin 
+    ? allColleges
+    : accessiblePrograms
+      ? Array.from(new Set(accessiblePrograms.map(p => p.college.id)))
+          .map(collegeId => accessiblePrograms.find(p => p.college.id === collegeId)!.college)
+      : [];
   
   // Set default filter level based on user role and auto-select first program for non-admins
   useEffect(() => {
