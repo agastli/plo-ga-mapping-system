@@ -176,6 +176,31 @@ export async function createUser(data: {
   return result[0].insertId;
 }
 
+export async function getUserByEmail(email: string): Promise<User | undefined> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateUserResetToken(
+  userId: number,
+  resetToken: string,
+  resetTokenExpiry: Date
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(users)
+    .set({ resetToken, resetTokenExpiry })
+    .where(eq(users.id, userId));
+}
+
 // ============================================================================
 // Organizational Structure
 // ============================================================================

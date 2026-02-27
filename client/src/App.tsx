@@ -32,11 +32,15 @@ import DataValidationTool from "./pages/DataValidationTool";
 import OrganizationalStructure from "./pages/OrganizationalStructure";
 import UserManagement from "./pages/UserManagement";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import RecoverUsername from "./pages/RecoverUsername";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/login"} component={Login} />
+      <Route path={"/forgot-password"} component={ForgotPassword} />
+      <Route path={"/recover-username"} component={RecoverUsername} />
       <Route path={"/"}>  
         <RoleBasedRedirect />
       </Route>

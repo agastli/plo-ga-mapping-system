@@ -210,3 +210,19 @@
 
 - [x] Add Home button to Report Templates page header
 - [x] Ensure consistent navigation across all pages
+
+## Forgot Password & Username Recovery
+
+- [x] Add "Forgot Password?" link to login page
+- [x] Add "Forgot Username?" link to login page
+- [x] Create ForgotPassword.tsx page component
+- [x] Create RecoverUsername.tsx page component
+- [x] Add password reset token field to users table (already existed in schema)
+- [x] Implement auth.forgotPassword backend endpoint
+- [x] Implement auth.recoverUsername backend endpoint
+- [x] Add getUserByEmail and updateUserResetToken database functions
+- [x] Test complete forgot password flow
+- [x] Test complete username recovery flow
+- [ ] Add email notification for password reset (TODO: requires email service integration)
+- [ ] Add email notification for username recovery (TODO: requires email service integration)
+- [ ] Implement auth.resetPassword endpoint with token validation (future enhancement)

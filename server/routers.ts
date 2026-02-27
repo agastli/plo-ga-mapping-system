@@ -126,6 +126,51 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+    
+    forgotPassword: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+      }))
+      .mutation(async ({ input }) => {
+        const user = await db.getUserByEmail(input.email);
+        
+        if (!user) {
+          // Don't reveal if email exists or not for security
+          return { success: true };
+        }
+        
+        // Generate reset token
+        const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+        
+        await db.updateUserResetToken(user.id, resetToken, resetTokenExpiry);
+        
+        // TODO: Send email with reset link
+        // For now, just log the token (in production, send via email)
+        console.log(`Password reset token for ${user.email}: ${resetToken}`);
+        console.log(`Reset link: /reset-password?token=${resetToken}`);
+        
+        return { success: true };
+      }),
+    
+    recoverUsername: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+      }))
+      .mutation(async ({ input }) => {
+        const user = await db.getUserByEmail(input.email);
+        
+        if (!user || !user.username) {
+          // Don't reveal if email exists or not for security
+          return { success: true };
+        }
+        
+        // TODO: Send email with username
+        // For now, just log the username (in production, send via email)
+        console.log(`Username recovery for ${user.email}: ${user.username}`);
+        
+        return { success: true };
+      }),
   }),
 
   // User Management (Admin only)

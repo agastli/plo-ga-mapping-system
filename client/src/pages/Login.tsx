@@ -113,6 +113,23 @@ export default function Login() {
                 </>
               )}
             </Button>
+            
+            <div className="mt-4 space-y-2 text-center text-sm">
+              <button
+                type="button"
+                onClick={() => setLocation('/forgot-password')}
+                className="text-[#8B1538] hover:underline block w-full"
+              >
+                Forgot Password?
+              </button>
+              <button
+                type="button"
+                onClick={() => setLocation('/recover-username')}
+                className="text-[#8B1538] hover:underline block w-full"
+              >
+                Forgot Username?
+              </button>
+            </div>
           </form>
         </CardContent>
       </Card>
