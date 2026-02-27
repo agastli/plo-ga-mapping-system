@@ -245,4 +245,11 @@
 - [x] Add college and cluster filtering to EditorDashboard for users with broad access
 - [x] Filter dropdowns show only assigned colleges/clusters (not all system data)
 - [x] Keep only statistics cards, filters, and assigned programs list
-- [ ] Test both dashboards to ensure clean layout and functional filtering
+- [x] Test both dashboards to ensure clean layout and functional filtering
+
+## Analytics Access Restoration
+
+- [x] Add "View Analytics" button to ViewerDashboard filter section
+- [x] Add "View Analytics" button to EditorDashboard filter section
+- [x] Ensure analytics remains easily accessible without redundant Quick Actions card
+- [ ] Test analytics navigation from both dashboards

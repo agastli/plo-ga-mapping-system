@@ -197,6 +197,16 @@ export default function ViewerDashboard() {
                   </Select>
                 </div>
               )}
+              
+              <div className="flex-shrink-0 md:ml-auto">
+                <label className="text-sm font-medium text-slate-700 mb-2 block">&nbsp;</label>
+                <Link href="/analytics">
+                  <Button className="w-full md:w-auto bg-[#8B1538] hover:bg-[#6d1029] text-white">
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    View Analytics
+                  </Button>
+                </Link>
+              </div>
             </div>
           </CardContent>
         </Card>
