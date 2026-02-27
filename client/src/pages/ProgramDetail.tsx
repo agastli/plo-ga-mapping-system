@@ -19,7 +19,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ArrowLeft, Edit2, Save, X, Download, ChevronDown, Home, Trash2, Plus } from "lucide-react";
+import HelpTooltip from "@/components/HelpTooltip";
+import PLOBulkImport from "@/components/PLOBulkImport";
 import Breadcrumb from "@/components/Breadcrumb";
+import MappingAuditLog from "@/components/MappingAuditLog";
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -581,7 +584,7 @@ export default function ProgramDetail() {
                 </div>
               </div>
             ) : (
-              <div className="mt-4">
+              <div className="mt-4 flex flex-wrap gap-3">
                 <Button
                   variant="outline"
                   size="sm"
@@ -591,6 +594,7 @@ export default function ProgramDetail() {
                   <Plus className="mr-2 h-4 w-4" />
                   Add New PLO
                 </Button>
+                {program && <PLOBulkImport programId={program.id} onImported={() => refetch()} />}
               </div>
             )}
           </CardContent>
@@ -599,7 +603,13 @@ export default function ProgramDetail() {
         {/* Mapping Matrix - Transposed: PLOs as columns, Competencies as rows */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>PLO-Competency Mapping Matrix</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle>PLO-Competency Mapping Matrix</CardTitle>
+              <HelpTooltip
+                side="right"
+                content="Enter a weighting factor (0.0–1.0) for each PLO–Competency cell. A value of 0 means no alignment; 1.0 means full alignment. Typical values: 0.3 (low), 0.6 (moderate), 1.0 (high). Changes are saved automatically."
+              />
+            </div>
           </CardHeader>
           <CardContent>
             {plos.length > 0 && competencies.length > 0 ? (
@@ -608,8 +618,12 @@ export default function ProgramDetail() {
                   <thead>
                     {/* Header row: Graduate Attributes + PLO codes */}
                     <tr className="bg-[#8B1538] text-white">
-                      <th className="border border-gray-300 p-2 text-left font-semibold w-48">Graduate Attributes</th>
-                      <th className="border border-gray-300 p-2 text-left font-semibold w-64">Supporting Competencies</th>
+                      <th className="border border-gray-300 p-2 text-left font-semibold w-48">
+                        <span className="flex items-center gap-1">Graduate Attributes <HelpTooltip content="The five Graduate Attributes (GAs) defined by Qatar University's quality framework. Each GA has supporting competencies that can be mapped to PLOs." /></span>
+                      </th>
+                      <th className="border border-gray-300 p-2 text-left font-semibold w-64">
+                        <span className="flex items-center gap-1">Supporting Competencies <HelpTooltip content="Specific measurable competencies under each Graduate Attribute. Enter a weight (0–1) in each cell to indicate how strongly a PLO addresses this competency." /></span>
+                      </th>
                       {plos.map(plo => (
                         <th
                           key={plo.id}
@@ -736,8 +750,15 @@ export default function ProgramDetail() {
         </Card>
       </main>
 
+      {/* Mapping Audit Log */}
+      {program && (
+        <div className="container mx-auto px-4 mt-8 max-w-7xl">
+          <MappingAuditLog programId={program.id} />
+        </div>
+      )}
+
       {/* Footer */}
-      <div className="container mx-auto px-4 pb-6 mt-20 max-w-7xl">
+      <div className="container mx-auto px-4 pb-6 mt-8 max-w-7xl">
         <footer className="bg-[#821F45] rounded-lg shadow-lg">
         <div className="px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">

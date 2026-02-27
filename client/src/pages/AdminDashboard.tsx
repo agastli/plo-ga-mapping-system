@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
+import MappingCompletenessWidget from "@/components/MappingCompletenessWidget";
 import { 
   Users, 
   Building2, 
@@ -205,6 +206,9 @@ export default function AdminDashboard() {
             </Card>
           ))}
         </div>
+
+        {/* Mapping Completeness Tracker */}
+        <MappingCompletenessWidget />
 
         {/* Quick Links */}
         <div>

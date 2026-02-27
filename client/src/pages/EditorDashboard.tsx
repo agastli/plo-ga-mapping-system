@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
+import MappingCompletenessWidget from "@/components/MappingCompletenessWidget";
 import { 
   FileText, 
   BarChart3, 
@@ -134,6 +135,9 @@ export default function EditorDashboard() {
             </Card>
           ))}
         </div>
+
+        {/* Mapping Completeness Tracker */}
+        <MappingCompletenessWidget />
 
         {/* Main Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">

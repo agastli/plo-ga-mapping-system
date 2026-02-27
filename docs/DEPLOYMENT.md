@@ -903,3 +903,57 @@ pm2 logs plo-ga-mapping-system --lines 30
 
 *Last updated: February 2026*
 *Deployment target: Ubuntu 22.04 LTS, plo-ga.gastli.org*
+
+---
+
+## 22. Automated Database Backup
+
+A nightly backup script is included at `scripts/backup-db.sh`. It uses `mysqldump`, compresses the output with `gzip`, and retains the last 7 daily backups.
+
+### One-time setup on the VPS
+
+```bash
+# 1. Make the script executable
+chmod +x /home/agastli/htdocs/plo-ga.gastli.org/scripts/backup-db.sh
+
+# 2. Test it manually first
+cd /home/agastli/htdocs/plo-ga.gastli.org
+./scripts/backup-db.sh
+
+# 3. Check that a .sql.gz file was created
+ls -lh backups/
+
+# 4. Add to crontab (runs every night at 2 AM)
+crontab -e
+# Add this line:
+# 0 2 * * * /home/agastli/htdocs/plo-ga.gastli.org/scripts/backup-db.sh >> /var/log/plo-ga-backup.log 2>&1
+```
+
+### Credential resolution
+
+The script reads credentials from `DATABASE_URL` (already set in your PM2 ecosystem file) — no extra configuration needed. Alternatively, create a `.db_password` file in the project root containing only the database password.
+
+### Restoring a backup
+
+```bash
+# Decompress and restore
+gunzip -c backups/plo_ga_backup_YYYYMMDD_HHMMSS.sql.gz | mysql -u root -p plo_ga_mapping
+```
+
+---
+
+## 23. Bulk PLO Import via CSV
+
+Editors can now import multiple PLOs at once from a CSV file directly on the Program Detail page.
+
+**CSV format (3 columns):**
+```
+code,description_en,description_ar
+PLO1,Demonstrate knowledge of fundamentals,إظهار المعرفة بالمبادئ الأساسية
+PLO2,Apply critical thinking,تطبيق التفكير النقدي
+```
+
+- The first row can be a header — it is detected and skipped automatically.
+- Only `code` is required; `description_en` and `description_ar` are optional.
+- Duplicate PLO codes (already existing in the program) are skipped silently.
+- A downloadable CSV template is available inside the import panel.

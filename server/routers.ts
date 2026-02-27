@@ -362,6 +362,25 @@ export const appRouter = router({
           entityId: id,
           details: JSON.stringify(input),
         });
+        // Send assignment notification email (fire-and-forget)
+        try {
+          const assignedUser = await db.getUserById(input.userId);
+          if (assignedUser && assignedUser.email) {
+            const { sendAssignmentNotificationEmail } = await import('./email');
+            const scopeLabel = input.programId ? `program #${input.programId}`
+              : input.departmentId ? `department #${input.departmentId}`
+              : input.collegeId ? `college #${input.collegeId}`
+              : 'the entire university';
+            await sendAssignmentNotificationEmail(
+              assignedUser.email!,
+              (assignedUser.name ?? assignedUser.username) || 'User',
+              scopeLabel,
+              input.assignmentType
+            );
+          }
+        } catch (e) {
+          console.error('[Assignment] Failed to send notification email:', e);
+        }
         return { id };
       }),
     
@@ -773,6 +792,30 @@ export const appRouter = router({
         }
         return { success: true };
       }),
+
+    bulkImport: publicProcedure
+      .input(z.object({
+        programId: z.number(),
+        rows: z.array(z.object({
+          code: z.string(),
+          descriptionEn: z.string().optional(),
+          descriptionAr: z.string().optional(),
+        })),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await requireProgramAccess(ctx, input.programId);
+        const result = await db.bulkCreatePLOs(input.programId, input.rows);
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "create",
+            entityType: "plo",
+            entityId: input.programId,
+            details: JSON.stringify({ bulkImport: true, ...result }),
+          });
+        }
+        return result;
+      }),
   }),
 
   // Mappings
@@ -842,6 +885,13 @@ export const appRouter = router({
           });
         }
         return { success: true };
+      }),
+
+    auditLog: protectedProcedure
+      .input(z.object({ programId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        await requireProgramAccess(ctx, input.programId);
+        return await db.getMappingAuditLog(input.programId);
       }),
   }),
 
@@ -1154,6 +1204,16 @@ export const appRouter = router({
 
   // Analytics
   analytics: router({
+    programCompleteness: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role === 'admin') {
+        return await db.getProgramCompleteness();
+      }
+      // Editors/viewers see only their accessible programs
+      const accessible = await db.getAccessiblePrograms(ctx.user.id);
+      const ids = accessible.map((p: any) => p.program.id);
+      return await db.getProgramCompleteness(ids);
+    }),
+
     universityOverview: protectedProcedure.query(async ({ ctx }) => {
       // Only admins can see university-wide analytics
       if (ctx.user.role !== 'admin') {

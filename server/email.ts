@@ -507,3 +507,66 @@ PLO-GA Mapping System | Academic Planning & Quality Assurance Office
     return false;
   }
 }
+
+/**
+ * Send program/scope assignment notification to an editor or viewer
+ */
+export async function sendAssignmentNotificationEmail(
+  to: string,
+  userName: string,
+  scopeLabel: string,
+  assignmentType: string
+): Promise<boolean> {
+  try {
+    const loginUrl = `https://plo-ga.gastli.org/login`;
+    const mailOptions = {
+      from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
+      to,
+      bcc: 'no-reply@gastli.org',
+      subject: 'New Assignment — PLO-GA Mapping System',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #8B1538; color: white; padding: 20px; text-align: center; }
+            .content { background-color: #f9f9f9; padding: 30px; }
+            .info-box { background: #fff; border: 2px solid #8B1538; padding: 16px 20px; margin: 20px 0; border-radius: 5px; }
+            .button { display: inline-block; background-color: #8B1538; color: white !important; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header"><h1>New Assignment</h1></div>
+            <div class="content">
+              <p>Dear <strong>${userName}</strong>,</p>
+              <p>You have been assigned access to <strong>${scopeLabel}</strong> in the PLO-GA Mapping System.</p>
+              <div class="info-box">
+                <p><strong>Assignment type:</strong> ${assignmentType}</p>
+                <p><strong>Scope:</strong> ${scopeLabel}</p>
+              </div>
+              <p>You can now log in and access the programs within your assigned scope.</p>
+              <a href="${loginUrl}" class="button">Log In Now</a>
+              <p>If you have any questions, please contact your system administrator.</p>
+            </div>
+            <div class="footer">
+              <p>PLO-GA Mapping System — Qatar University</p>
+              <p>This is an automated notification. Please do not reply to this email.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+    const transporter = getTransporter();
+    await transporter.sendMail(mailOptions);
+    console.log(`[Email] Assignment notification sent to ${to}`);
+    return true;
+  } catch (error) {
+    console.error('[Email] Failed to send assignment notification:', error);
+    return false;
+  }
+}

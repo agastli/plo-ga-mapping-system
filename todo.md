@@ -624,3 +624,38 @@
 - [ ] Add intro panel to Programs page
 - [ ] Add intro panel to Analytics/UnifiedAnalytics page
 - [ ] Add intro panel to UserManagement page
+
+## Six-Feature Sprint (Feb 2026)
+
+### 1. Mapping Completeness Tracker
+- [ ] Add tRPC procedure to compute per-program completeness (PLOs mapped / total PLOs)
+- [ ] Add completeness widget to AdminDashboard (table of programs with progress bars)
+- [ ] Add completeness widget to EditorDashboard (only assigned programs)
+
+### 2. Mapping Audit Log
+- [ ] Add mappingAuditLog table to drizzle/schema.ts
+- [ ] Run pnpm db:push for audit log table
+- [ ] Write to audit log on every mapping upsert and delete
+- [ ] Add tRPC procedure to fetch audit log for a program
+- [ ] Add Audit Log tab/panel to ProgramDetail page
+
+### 3. Email Notification on Program Assignment
+- [ ] Detect newly added program assignments in assignPrograms procedure
+- [ ] Send email to editor/viewer when a new program is assigned
+- [ ] Include program name, college, and direct link in the email
+
+### 4. In-App Help Tooltips
+- [ ] Create reusable HelpTooltip component
+- [ ] Add tooltip to weighting factor input (0-100% scale explanation)
+- [ ] Add tooltip to GA selector (Graduate Attribute descriptions)
+- [ ] Add tooltip to competency selector (competency descriptions)
+
+### 5. Automated DB Backup Script
+- [ ] Create scripts/backup-db.sh with mysqldump, timestamped filename, 7-day retention
+- [ ] Add backup cron setup instructions to docs/DEPLOYMENT.md
+
+### 6. Bulk CSV Import for PLOs
+- [ ] Add CSV upload button to ProgramDetail PLOs tab
+- [ ] Add server-side CSV parsing and bulk insert procedure
+- [ ] Skip duplicate PLOs by code, show import summary
+- [ ] Provide downloadable CSV template link

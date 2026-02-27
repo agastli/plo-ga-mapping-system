@@ -2375,3 +2375,191 @@ export async function getLoginHistoryByUser(userId: number, limit: number = 50):
 
   return results;
 }
+
+// ============================================================================
+// Mapping Completeness Tracker
+// ============================================================================
+/**
+ * Get per-program completeness: how many PLOs have at least one mapping
+ */
+export async function getProgramCompleteness(programIds?: number[]) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const allPrograms = await db
+    .select({
+      program: programs,
+      department: departments,
+      college: colleges,
+    })
+    .from(programs)
+    .innerJoin(departments, eq(programs.departmentId, departments.id))
+    .innerJoin(colleges, eq(departments.collegeId, colleges.id))
+    .orderBy(colleges.nameEn, departments.nameEn, programs.nameEn);
+
+  const filtered = programIds
+    ? allPrograms.filter(p => programIds.includes(p.program.id))
+    : allPrograms;
+
+  const result = await Promise.all(
+    filtered.map(async (item) => {
+      const programPLOs = await db
+        .select({ id: plos.id })
+        .from(plos)
+        .where(eq(plos.programId, item.program.id));
+
+      const ploIds = programPLOs.map(p => p.id);
+      let mappedPLOCount = 0;
+
+      if (ploIds.length > 0) {
+        // Count PLOs that have at least one mapping
+        const mappedPLOs = await db
+          .selectDistinct({ ploId: mappings.ploId })
+          .from(mappings)
+          .where(inArray(mappings.ploId, ploIds));
+        mappedPLOCount = mappedPLOs.length;
+      }
+
+      const totalPLOs = programPLOs.length;
+      const completenessRate = totalPLOs > 0 ? Math.round((mappedPLOCount / totalPLOs) * 100) : 0;
+
+      return {
+        programId: item.program.id,
+        programName: item.program.nameEn,
+        programCode: item.program.code,
+        collegeName: item.college.nameEn,
+        departmentName: item.department.nameEn,
+        totalPLOs,
+        mappedPLOs: mappedPLOCount,
+        unmappedPLOs: totalPLOs - mappedPLOCount,
+        completenessRate,
+        isComplete: totalPLOs > 0 && mappedPLOCount === totalPLOs,
+        hasNoPLOs: totalPLOs === 0,
+      };
+    })
+  );
+
+  return result;
+}
+
+// ============================================================================
+// Mapping Audit Log (detailed per-mapping history)
+// ============================================================================
+/**
+ * Log a mapping change with old/new weight values
+ */
+export async function logMappingAudit(data: {
+  userId: number | null;
+  programId: number;
+  ploId: number;
+  competencyId: number;
+  action: 'create' | 'update' | 'delete';
+  oldWeight?: string | null;
+  newWeight?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(auditLog).values({
+    userId: data.userId,
+    action: data.action,
+    entityType: 'mapping',
+    entityId: data.ploId,
+    details: JSON.stringify({
+      programId: data.programId,
+      ploId: data.ploId,
+      competencyId: data.competencyId,
+      oldWeight: data.oldWeight ?? null,
+      newWeight: data.newWeight ?? null,
+    }),
+  });
+}
+
+/**
+ * Get mapping audit log for a specific program
+ */
+export async function getMappingAuditLog(programId: number, limit = 100) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all PLO ids for this program
+  const programPLOs = await db
+    .select({ id: plos.id })
+    .from(plos)
+    .where(eq(plos.programId, programId));
+
+  if (programPLOs.length === 0) return [];
+
+  const ploIds = programPLOs.map(p => p.id);
+
+  // Fetch audit log entries for these PLOs (mapping type)
+  const entries = await db
+    .select({
+      id: auditLog.id,
+      userId: auditLog.userId,
+      action: auditLog.action,
+      details: auditLog.details,
+      createdAt: auditLog.createdAt,
+      userName: users.name,
+      userUsername: users.username,
+    })
+    .from(auditLog)
+    .leftJoin(users, eq(auditLog.userId, users.id))
+    .where(
+      sql`${auditLog.entityType} = 'mapping' AND JSON_EXTRACT(${auditLog.details}, '$.programId') = ${programId}`
+    )
+    .orderBy(sql`${auditLog.createdAt} DESC`)
+    .limit(limit);
+
+  return entries.map(e => ({
+    ...e,
+    details: e.details ? JSON.parse(e.details) : null,
+  }));
+}
+
+// ============================================================================
+// Bulk PLO Import
+// ============================================================================
+/**
+ * Bulk insert PLOs for a program, skipping duplicates by code
+ */
+export async function bulkCreatePLOs(programId: number, rows: Array<{
+  code: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
+}>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get existing PLO codes for this program
+  const existing = await db
+    .select({ code: plos.code })
+    .from(plos)
+    .where(eq(plos.programId, programId));
+  const existingCodes = new Set(existing.map(e => e.code.toLowerCase()));
+
+  // Get current max sortOrder
+  const maxSort = await db
+    .select({ maxSort: sql<number>`MAX(${plos.sortOrder})` })
+    .from(plos)
+    .where(eq(plos.programId, programId));
+  let nextSort = (maxSort[0]?.maxSort ?? 0) + 1;
+
+  const toInsert = rows.filter(r => !existingCodes.has(r.code.toLowerCase()));
+  const skipped = rows.length - toInsert.length;
+
+  if (toInsert.length > 0) {
+    await db.insert(plos).values(
+      toInsert.map(r => ({
+        programId,
+        code: r.code.trim(),
+        descriptionEn: r.descriptionEn?.trim() || null,
+        descriptionAr: r.descriptionAr?.trim() || null,
+        sortOrder: nextSort++,
+      }))
+    );
+  }
+
+  return { inserted: toInsert.length, skipped };
+}
+
+// getUserById already exists above (returns user with assignments)
