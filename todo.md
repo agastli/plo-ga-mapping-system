@@ -540,3 +540,8 @@
 - [ ] Add backend query to count total Competencies
 - [ ] Add GA count card to Admin Dashboard statistics section
 - [ ] Add Competency count card to Admin Dashboard statistics section
+
+## Footer Width Fine-Tuning & Deployment Documentation (Feb 27, 2026)
+
+- [ ] Fix analytics footer width to exactly match header/content container (remove max-w-7xl, use same px-6 container as content)
+- [ ] Write comprehensive DEPLOYMENT.md with installation, configuration, and troubleshooting guide

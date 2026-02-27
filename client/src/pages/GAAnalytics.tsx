@@ -533,7 +533,7 @@ export default function GAAnalytics() {
 
       </div>
       {/* Footer */}
-      <div className="container mx-auto px-6 pb-6 mt-8 max-w-7xl">
+      <div className="container mx-auto px-6 pb-6 mt-8">
         <footer className="bg-[#821F45] rounded-lg shadow-lg">
           <div className="px-6 py-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
