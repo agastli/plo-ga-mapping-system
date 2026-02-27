@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, editorProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as db from "./db";
 import { authenticateUser, createUser as createUserAuth, hashPassword } from "./auth";
@@ -973,68 +974,166 @@ export const appRouter = router({
 
   // Analytics
   analytics: router({
-    universityOverview: publicProcedure.query(async () => {
+    universityOverview: protectedProcedure.query(async ({ ctx }) => {
+      // Only admins can see university-wide analytics
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access university-wide analytics' });
+      }
       return await db.getUniversityAnalytics();
     }),
     
-    collegeAnalytics: publicProcedure
+    collegeAnalytics: protectedProcedure
       .input(z.object({ collegeId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        // Check if user has access to this college
+        if (ctx.user.role !== 'admin') {
+          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+          const hasAccess = accessiblePrograms.some(ap => ap.college.id === input.collegeId);
+          if (!hasAccess) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this college' });
+          }
+        }
         return await db.getCollegeAnalytics(input.collegeId);
       }),
     
-    departmentAnalytics: publicProcedure
+    departmentAnalytics: protectedProcedure
       .input(z.object({ departmentId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        // Check if user has access to this department
+        if (ctx.user.role !== 'admin') {
+          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+          const hasAccess = accessiblePrograms.some(ap => ap.program.departmentId === input.departmentId);
+          if (!hasAccess) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this department' });
+          }
+        }
         return await db.getDepartmentAnalytics(input.departmentId);
       }),
     
-    clusterAnalytics: publicProcedure
+    clusterAnalytics: protectedProcedure
       .input(z.object({ clusterId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        // Check if user has access to this cluster
+        if (ctx.user.role !== 'admin') {
+          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+          const hasAccess = accessiblePrograms.some(ap => ap.department.clusterId === input.clusterId);
+          if (!hasAccess) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this cluster' });
+          }
+        }
         return await db.getClusterAnalytics(input.clusterId);
       }),
     
-    programAnalytics: publicProcedure
+    programAnalytics: protectedProcedure
       .input(z.object({ programId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        // Check if user has access to this program
+        if (ctx.user.role !== 'admin') {
+          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+          const hasAccess = accessiblePrograms.some(ap => ap.program.id === input.programId);
+          if (!hasAccess) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this program' });
+          }
+        }
         return await db.getProgramAnalytics(input.programId);
       }),
     
     // Graduate Attribute Analytics
-    gaAnalytics: publicProcedure
+    gaAnalytics: protectedProcedure
       .input(z.object({
         collegeId: z.number().optional(),
         clusterId: z.number().optional(),
         programId: z.number().optional(),
       }).optional())
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
         if (!input || (!input.collegeId && !input.clusterId && !input.programId)) {
+          // University-wide - only for admins
+          if (ctx.user.role !== 'admin') {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access university-wide analytics' });
+          }
           return await db.getGAAnalytics();
+        }
+        
+        // Check access for filtered analytics
+        if (ctx.user.role !== 'admin') {
+          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+          if (input.programId) {
+            const hasAccess = accessiblePrograms.some(ap => ap.program.id === input.programId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this program' });
+            }
+          } else if (input.collegeId) {
+            const hasAccess = accessiblePrograms.some(ap => ap.college.id === input.collegeId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this college' });
+            }
+          } else if (input.clusterId) {
+            const hasAccess = accessiblePrograms.some(ap => ap.department.clusterId === input.clusterId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this cluster' });
+            }
+          }
         }
         return await db.getFilteredGAAnalytics(input);
       }),
     
-    gaByCollegeAnalytics: publicProcedure.query(async () => {
+    gaByCollegeAnalytics: protectedProcedure.query(async ({ ctx }) => {
+      // Only admins can see all colleges analytics
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access all colleges analytics' });
+      }
       return await db.getGAByCollegeAnalytics();
     }),
     
-    gaByProgramAnalytics: publicProcedure
+    gaByProgramAnalytics: protectedProcedure
       .input(z.object({ collegeId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        // Check if user has access to this college
+        if (ctx.user.role !== 'admin') {
+          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+          const hasAccess = accessiblePrograms.some(ap => ap.college.id === input.collegeId);
+          if (!hasAccess) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this college' });
+          }
+        }
         return await db.getGAByProgramAnalytics(input.collegeId);
       }),
     
     // Competency Analytics
-    competencyAnalytics: publicProcedure
+    competencyAnalytics: protectedProcedure
       .input(z.object({
         collegeId: z.number().optional(),
         clusterId: z.number().optional(),
         programId: z.number().optional(),
       }).optional())
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
         if (!input || (!input.collegeId && !input.clusterId && !input.programId)) {
+          // University-wide - only for admins
+          if (ctx.user.role !== 'admin') {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access university-wide analytics' });
+          }
           return await db.getCompetencyAnalytics();
+        }
+        
+        // Check access for filtered analytics
+        if (ctx.user.role !== 'admin') {
+          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+          if (input.programId) {
+            const hasAccess = accessiblePrograms.some(ap => ap.program.id === input.programId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this program' });
+            }
+          } else if (input.collegeId) {
+            const hasAccess = accessiblePrograms.some(ap => ap.college.id === input.collegeId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this college' });
+            }
+          } else if (input.clusterId) {
+            const hasAccess = accessiblePrograms.some(ap => ap.department.clusterId === input.clusterId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this cluster' });
+            }
+          }
         }
         return await db.getFilteredCompetencyAnalytics(input);
       }),

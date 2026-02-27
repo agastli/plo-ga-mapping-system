@@ -271,3 +271,16 @@
 - [x] Restore "Editor Dashboard" title to EditorDashboard page  
 - [x] Restore "Welcome, [Username]" message to EditorDashboard
 - [x] Ensure consistent header format across all dashboard types
+
+## Dashboard Filter-Based Design
+
+- [x] Keep college/cluster filters in ViewerDashboard (filters show only assigned colleges/clusters)
+- [x] Keep college/cluster filters in EditorDashboard (filters show only assigned colleges/clusters)
+- [x] Filters automatically limited based on user assignments
+- [x] Admin sees all colleges/clusters/programs in filters
+- [x] Viewer/Editor sees only their assigned colleges/clusters/programs in filters
+- [x] Fix analytics page to respect user's accessible programs only
+- [x] Ensure analytics doesn't show university-wide data to non-admin users
+- [x] Change all analytics endpoints from publicProcedure to protectedProcedure
+- [x] Add access control checks to all analytics endpoints
+- [ ] Test analytics with viewer account to verify access restrictions
