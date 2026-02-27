@@ -147,3 +147,15 @@
 - [x] Add redirect logic: / → /viewer-dashboard (if viewer)
 - [ ] Protect all management routes (require admin role)
 - [ ] Protect program edit routes (require editor or admin role)
+
+## User Management Page Improvements
+
+### Missing Features
+- [x] Add standard header with QU logo and logout button (consistent with other admin pages)
+- [x] Add "Edit User Information" button for each user (to change name, email, password)
+- [x] Add "Remove User" button for each user (with confirmation dialog)
+- [x] Add edit user dialog with form fields (name, email, password)
+- [x] Add delete confirmation dialog before removing users
+- [x] Update backend to support user update and delete operations (already exists)
+- [x] Ensure admin cannot delete themselves (implemented in backend)
+- [x] Add success/error toast notifications for user operations

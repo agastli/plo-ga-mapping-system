@@ -8,13 +8,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, UserPlus, Trash2, Shield, Eye, Edit } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Shield, Eye, Edit, LogOut, Edit2 } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 export default function UserManagement() {
   const { toast } = useToast();
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false);
   const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false);
+  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<number | null>(null);
   
   // Create user form state
   const [newUsername, setNewUsername] = useState('');
@@ -22,6 +26,13 @@ export default function UserManagement() {
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newRole, setNewRole] = useState<'admin' | 'editor' | 'viewer'>('viewer');
+  
+  // Edit user form state
+  const [editUserId, setEditUserId] = useState<number | null>(null);
+  const [editUsername, setEditUsername] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
   
   // Assignment form state
   const [assignmentType, setAssignmentType] = useState<'university' | 'college' | 'cluster' | 'department'>('department');
@@ -101,12 +112,75 @@ export default function UserManagement() {
     },
   });
 
+  const updateUserMutation = trpc.users.update.useMutation({
+    onSuccess: () => {
+      toast({ title: 'Success', description: 'User updated successfully' });
+      refetchUsers();
+      setIsEditUserDialogOpen(false);
+      resetEditUserForm();
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const deleteUserMutation = trpc.users.delete.useMutation({
+    onSuccess: () => {
+      toast({ title: 'Success', description: 'User deleted successfully' });
+      refetchUsers();
+      setIsDeleteConfirmOpen(false);
+      setUserToDelete(null);
+    },
+    onError: (error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const resetCreateUserForm = () => {
     setNewUsername('');
     setNewPassword('');
     setNewName('');
     setNewEmail('');
     setNewRole('viewer');
+  };
+
+  const resetEditUserForm = () => {
+    setEditUserId(null);
+    setEditUsername('');
+    setEditPassword('');
+    setEditName('');
+    setEditEmail('');
+  };
+
+  const handleEditUser = (user: any) => {
+    setEditUserId(user.id);
+    setEditUsername(user.username);
+    setEditPassword('');
+    setEditName(user.name || '');
+    setEditEmail(user.email || '');
+    setIsEditUserDialogOpen(true);
+  };
+
+  const handleUpdateUser = () => {
+    if (!editUserId) return;
+    
+    updateUserMutation.mutate({
+      userId: editUserId,
+      name: editName || undefined,
+      email: editEmail || undefined,
+      password: editPassword || undefined,
+    });
+  };
+
+  const handleDeleteUser = (userId: number) => {
+    setUserToDelete(userId);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteUser = () => {
+    if (userToDelete) {
+      deleteUserMutation.mutate({ userId: userToDelete });
+    }
   };
 
   const handleCreateUser = () => {
@@ -240,15 +314,46 @@ export default function UserManagement() {
     );
   }
 
+  const [, setLocation] = useLocation();
+  const { data: currentUser } = trpc.auth.me.useQuery();
+  
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => {
+      setLocation('/login');
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
+
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage user roles and access permissions
-          </p>
+    <div className="min-h-screen bg-amber-50">
+      {/* Header */}
+      <header className="bg-white shadow-md rounded-lg mx-4 my-4">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <img src="/qu-logo.png" alt="QU Logo" className="h-12" />
+            <div>
+              <h1 className="text-2xl font-bold text-[#8B1538]">User Management</h1>
+              <p className="text-sm text-gray-600">Manage user roles and access permissions</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg">
+              <Shield className="h-4 w-4 text-red-600" />
+              <span className="text-sm font-medium text-red-600">Administrator</span>
+            </div>
+            <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+      <div className="flex items-center justify-end">
         <Button onClick={() => setIsCreateUserDialogOpen(true)}>
           <UserPlus className="h-4 w-4 mr-2" />
           Create User
@@ -286,6 +391,23 @@ export default function UserManagement() {
                       <SelectItem value="viewer">Viewer</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEditUser(user)}
+                  >
+                    <Edit2 className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDeleteUser(user.id)}
+                    disabled={user.id === currentUser?.id}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Remove
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -584,6 +706,108 @@ export default function UserManagement() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit User Dialog */}
+      <Dialog open={isEditUserDialogOpen} onOpenChange={setIsEditUserDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit User Information</DialogTitle>
+            <DialogDescription>
+              Update user details. Leave password empty to keep current password.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-username">Username</Label>
+              <Input
+                id="edit-username"
+                value={editUsername}
+                disabled
+                className="bg-gray-100"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-password">New Password (optional)</Label>
+              <Input
+                id="edit-password"
+                type="password"
+                placeholder="Leave empty to keep current password"
+                value={editPassword}
+                onChange={(e) => setEditPassword(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Full Name</Label>
+              <Input
+                id="edit-name"
+                placeholder="Enter full name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                placeholder="Enter email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={handleUpdateUser}
+                disabled={updateUserMutation.isPending}
+                className="flex-1"
+              >
+                {updateUserMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Update User
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditUserDialogOpen(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm User Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this user? This action cannot be undone. All user data and assignments will be permanently removed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteConfirmOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteUser}
+              disabled={deleteUserMutation.isPending}
+            >
+              {deleteUserMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Delete User
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      </div>
     </div>
   );
 }
