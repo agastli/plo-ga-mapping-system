@@ -64,12 +64,20 @@ export default function ReportTemplates() {
             <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
           </div>
         </div>
-        <button
-          onClick={() => setLocation("/programs")}
-          className="bg-[#8B1538] text-white px-4 py-2 rounded hover:bg-[#6B1028] transition-colors"
-        >
-          View Programs
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setLocation("/admin-dashboard")}
+            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
+          >
+            Home
+          </button>
+          <button
+            onClick={() => setLocation("/programs")}
+            className="bg-[#8B1538] text-white px-4 py-2 rounded hover:bg-[#6B1028] transition-colors"
+          >
+            View Programs
+          </button>
+        </div>
       </div>
     </div>
   );

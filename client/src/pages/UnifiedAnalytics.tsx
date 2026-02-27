@@ -412,10 +412,27 @@ export default function UnifiedAnalytics() {
   const [selectedClusterId, setSelectedClusterId] = useState<number | undefined>(undefined);
   const [selectedProgramId, setSelectedProgramId] = useState<number | undefined>(undefined);
 
-  // Fetch colleges, clusters, and programs for filters
-  const { data: colleges } = trpc.colleges.list.useQuery();
-  const { data: allClusters } = trpc.clusters.list.useQuery();
-  const { data: programs } = trpc.programs.list.useQuery();
+  // Get current user to check role - wait for authentication first
+  const { data: currentUser, isLoading: authLoading } = trpc.auth.me.useQuery();
+  const isAdmin = currentUser?.role === 'admin';
+  
+  // Fetch colleges, clusters, and programs for filters - only after auth is confirmed
+  const { data: colleges } = trpc.colleges.list.useQuery(undefined, {
+    enabled: !!currentUser,
+  });
+  const { data: allClusters } = trpc.clusters.list.useQuery(undefined, {
+    enabled: !!currentUser,
+  });
+  
+  // Admins see all programs, viewers/editors see only assigned programs
+  const { data: allPrograms } = trpc.programs.list.useQuery(undefined, {
+    enabled: !!currentUser && isAdmin,
+  });
+  const { data: accessiblePrograms } = trpc.users.getAccessiblePrograms.useQuery(undefined, {
+    enabled: !!currentUser && !isAdmin,
+  });
+  
+  const programs = isAdmin ? allPrograms : accessiblePrograms;
   
   // Filter clusters by selected college
   const clusters = selectedCollegeId && allClusters
@@ -434,17 +451,21 @@ export default function UnifiedAnalytics() {
     ? { programId: selectedProgramId }
     : undefined;
 
-  const { data: gaData, isLoading: gaLoading } = trpc.analytics.gaAnalytics.useQuery(filterInput);
-  const { data: competencyData, isLoading: compLoading } = trpc.analytics.competencyAnalytics.useQuery(filterInput);
+  const { data: gaData, isLoading: gaLoading } = trpc.analytics.gaAnalytics.useQuery(filterInput, {
+    enabled: !!currentUser,
+  });
+  const { data: competencyData, isLoading: compLoading } = trpc.analytics.competencyAnalytics.useQuery(filterInput, {
+    enabled: !!currentUser,
+  });
   
   // Fetch comparison data based on filter level
   const { data: collegeComparisonData } = trpc.analytics.gaByCollegeAnalytics.useQuery(
     undefined,
-    { enabled: filterLevel === 'university' }
+    { enabled: !!currentUser && filterLevel === 'university' }
   );
   const { data: programComparisonData } = trpc.analytics.gaByProgramAnalytics.useQuery(
     { collegeId: selectedCollegeId! },
-    { enabled: filterLevel === 'college' && !!selectedCollegeId }
+    { enabled: !!currentUser && filterLevel === 'college' && !!selectedCollegeId }
   );
   
   const { data: clusterComparisonData } = trpc.analytics.gaByCollegeAnalytics.useQuery(
@@ -462,7 +483,7 @@ export default function UnifiedAnalytics() {
     ? colleges.filter((college) => allClusters.some((cluster: any) => cluster.collegeId === college.id))
     : colleges || [];
 
-  const isLoading = gaLoading || compLoading;
+  const isLoading = authLoading || gaLoading || compLoading;
 
   if (isLoading) {
     return (

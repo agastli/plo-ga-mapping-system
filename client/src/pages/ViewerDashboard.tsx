@@ -7,7 +7,8 @@ import {
   BarChart3, 
   Shield,
   LogOut,
-  Eye
+  Eye,
+  Home
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -72,29 +73,35 @@ export default function ViewerDashboard() {
 
   return (
     <div className="min-h-screen bg-amber-50">
-      {/* Header */}
-      <header className="bg-white shadow-md rounded-lg mx-4 my-4">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <img src="/qu-logo.png" alt="QU Logo" className="h-12" />
-            <div>
-              <h1 className="text-2xl font-bold text-[#8B1538]">Viewer Dashboard</h1>
-              <p className="text-sm text-gray-600">Welcome, {user?.name || user?.username}</p>
+      {/* Header with QU Logo */}
+      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+        <header className="bg-white rounded-lg shadow-md mb-6">
+          <div className="px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <img src="/qu-logo.png" alt="Qatar University" className="h-16 w-auto" />
+                <div className="border-l-2 border-[#8B1538] pl-4">
+                  <h1 className="text-2xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
+                  <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
+                </div>
+              </div>
+              <div className="flex gap-3 items-center">
+                <Badge variant="outline" className="border-blue-500 text-blue-600">
+                  <Shield className="w-4 h-4 mr-1" />
+                  Viewer (Read-Only)
+                </Badge>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-[#8B1538] hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-              <Shield className="h-4 w-4 text-gray-600" />
-              <span className="text-sm font-medium text-gray-600">Viewer (Read-Only)</span>
-            </div>
-            <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
-              <LogOut className="h-4 w-4" />
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
-
+        </header>
+      </div>
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -175,6 +182,23 @@ export default function ViewerDashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="container mx-auto px-4 pb-6 mt-20 max-w-7xl">
+        <footer className="bg-[#821F45] rounded-lg shadow-lg">
+          <div className="px-6 py-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-4">
+                <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
+              </div>
+              <div className="text-center md:text-right">
+                <p className="text-white font-medium">PLO-GA Mapping Management System</p>
+                <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

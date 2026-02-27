@@ -175,3 +175,38 @@
 
 - [x] Add Home/Back button to User Management page header
 - [x] Add footer to User Management page (consistent with other admin pages)
+
+## Viewer/Editor Access Control Fixes
+
+### ViewerDashboard Footer
+- [x] Add footer to ViewerDashboard page (matching User Management footer)
+- [x] Add footer to EditorDashboard page (matching User Management footer)
+
+### Programs Directory Access Control
+- [x] Filter Programs Directory (/programs) to show only assigned programs for viewers/editors
+- [x] Updated Programs.tsx to use getAccessiblePrograms for viewers/editors
+- [x] Admins continue to see all programs
+
+### Analytics Access Control
+- [x] Filter Analytics page data to show only assigned programs for viewers/editors
+- [x] Updated UnifiedAnalytics.tsx to use getAccessiblePrograms for viewers/editors
+- [x] Viewers/editors now see only analytics for their assigned programs
+
+## Standard Header/Footer Design Consistency
+
+- [x] Update ViewerDashboard to use Programs page header/footer design
+- [x] Update EditorDashboard to use Programs page header/footer design
+- [x] Header includes: QU logo, "PLO-GA Mapping System" title, subtitle, role badge, and logout button
+- [x] Footer has: full-width maroon background, white QU logo, copyright text
+
+## Analytics Page Loading Issues
+
+- [x] Fix ERR_TOO_MANY_REDIRECTS errors on analytics page for admin users
+- [x] Ensure tRPC queries wait for authentication confirmation before executing
+- [x] Add proper loading states to prevent race conditions
+- [ ] Test analytics page loads cleanly without redirect errors
+
+## Report Templates Page Header
+
+- [x] Add Home button to Report Templates page header
+- [x] Ensure consistent navigation across all pages

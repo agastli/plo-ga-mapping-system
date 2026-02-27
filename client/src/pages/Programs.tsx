@@ -12,7 +12,21 @@ export default function Programs() {
   const [selectedCollegeId, setSelectedCollegeId] = useState<string>("");
   const [selectedClusterId, setSelectedClusterId] = useState<string>("");
   
-  const { data: programs, isLoading: programsLoading } = trpc.programs.list.useQuery();
+  // Get current user to check role
+  const { data: currentUser } = trpc.auth.me.useQuery();
+  const isAdmin = currentUser?.role === 'admin';
+  
+  // Admins see all programs, viewers/editors see only assigned programs
+  const { data: allPrograms, isLoading: allProgramsLoading } = trpc.programs.list.useQuery(undefined, {
+    enabled: isAdmin,
+  });
+  const { data: accessiblePrograms, isLoading: accessibleProgramsLoading } = trpc.users.getAccessiblePrograms.useQuery(undefined, {
+    enabled: !isAdmin,
+  });
+  
+  const programs = isAdmin ? allPrograms : accessiblePrograms;
+  const programsLoading = isAdmin ? allProgramsLoading : accessibleProgramsLoading;
+  
   const { data: colleges, isLoading: collegesLoading } = trpc.colleges.list.useQuery();
   
   // Fetch clusters for selected college
