@@ -16,7 +16,7 @@ import { Link, useLocation } from "wouter";
 export default function EditorDashboard() {
   const [, setLocation] = useLocation();
   const { data: user } = trpc.auth.me.useQuery();
-  const { data: programs } = trpc.programs.list.useQuery();
+  const { data: accessiblePrograms } = trpc.users.getAccessiblePrograms.useQuery();
   
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
@@ -28,8 +28,8 @@ export default function EditorDashboard() {
     logoutMutation.mutate();
   };
 
-  // Filter programs based on user access (this will be handled by backend)
-  const myPrograms = programs || [];
+  // Get only programs accessible to this editor
+  const myPrograms = accessiblePrograms || [];
 
   const stats = [
     {

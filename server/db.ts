@@ -2199,7 +2199,7 @@ export async function getAccessibleDepartments(userId: number): Promise<Departme
  * Get accessible programs for a user
  * Returns all programs the user can view based on their assignments
  */
-export async function getAccessiblePrograms(userId: number): Promise<Program[]> {
+export async function getAccessiblePrograms(userId: number) {
   const db = await getDb();
   if (!db) return [];
 
@@ -2209,7 +2209,7 @@ export async function getAccessiblePrograms(userId: number): Promise<Program[]> 
 
   // Admin has access to all programs
   if (user.role === 'admin') {
-    return await db.select().from(programs);
+    return await getAllPrograms();
   }
 
   // Get user assignments
@@ -2220,19 +2220,15 @@ export async function getAccessiblePrograms(userId: number): Promise<Program[]> 
 
   if (assignments.length === 0) return [];
 
-  const accessibleProgs: Program[] = [];
+  const accessibleProgIds: number[] = [];
 
   for (const assignment of assignments) {
     if (assignment.assignmentType === 'university') {
       // University-level: all programs
-      return await db.select().from(programs);
+      return await getAllPrograms();
     } else if (assignment.assignmentType === 'program' && assignment.programId) {
       // Program-level: specific program
-      const [prog] = await db
-        .select()
-        .from(programs)
-        .where(eq(programs.id, assignment.programId));
-      if (prog) accessibleProgs.push(prog);
+      accessibleProgIds.push(assignment.programId);
     }
   }
 
@@ -2241,16 +2237,18 @@ export async function getAccessiblePrograms(userId: number): Promise<Program[]> 
   if (accessibleDepts.length > 0) {
     const deptIds = accessibleDepts.map(d => d.id);
     const deptProgs = await db
-      .select()
+      .select({ id: programs.id })
       .from(programs)
       .where(inArray(programs.departmentId, deptIds));
-    accessibleProgs.push(...deptProgs);
+    accessibleProgIds.push(...deptProgs.map(p => p.id));
   }
 
   // Remove duplicates
-  const uniqueProgs = Array.from(
-    new Map(accessibleProgs.map(p => [p.id, p])).values()
-  );
-
-  return uniqueProgs;
+  const uniqueProgIds = Array.from(new Set(accessibleProgIds));
+  
+  if (uniqueProgIds.length === 0) return [];
+  
+  // Get enriched program data with counts
+  const allPrograms = await getAllPrograms();
+  return allPrograms.filter(p => uniqueProgIds.includes(p.program.id));
 }

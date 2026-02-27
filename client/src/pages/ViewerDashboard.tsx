@@ -14,7 +14,7 @@ import { Link, useLocation } from "wouter";
 export default function ViewerDashboard() {
   const [, setLocation] = useLocation();
   const { data: user } = trpc.auth.me.useQuery();
-  const { data: programs } = trpc.programs.list.useQuery();
+  const { data: accessiblePrograms } = trpc.users.getAccessiblePrograms.useQuery();
   
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
@@ -26,8 +26,8 @@ export default function ViewerDashboard() {
     logoutMutation.mutate();
   };
 
-  // Filter programs based on user access (this will be handled by backend)
-  const myPrograms = programs || [];
+  // Get only programs accessible to this viewer
+  const myPrograms = accessiblePrograms || [];
 
   const stats = [
     {

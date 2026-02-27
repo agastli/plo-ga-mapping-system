@@ -62,14 +62,46 @@ function Router() {
       <Route path={"/programs/:id"} component={ProgramDetail} />
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/dashboard"} component={Dashboard} />
-      <Route path={"/analytics"} component={UnifiedAnalytics} />
-      <Route path={"/analytics/guide"} component={AnalyticsGuide} />
-      <Route path={"/analytics/ga"} component={GAAnalytics} />
-      <Route path={"/analytics/ga/guide"} component={GAAnalyticsGuide} />
-      <Route path={"/analytics/competencies"} component={CompetencyAnalytics} />
-      <Route path={"/analytics/competencies/guide"} component={CompetencyAnalyticsGuide} />
-      <Route path={"/analytics/college/:id"} component={CollegeAnalytics} />
-      <Route path={"/analytics/department/:id"} component={DepartmentAnalytics} />
+      <Route path={"/analytics"}>
+        <ProtectedRoute>
+          <UnifiedAnalytics />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/analytics/guide"}>
+        <ProtectedRoute>
+          <AnalyticsGuide />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/analytics/ga"}>
+        <ProtectedRoute>
+          <GAAnalytics />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/analytics/ga/guide"}>
+        <ProtectedRoute>
+          <GAAnalyticsGuide />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/analytics/competencies"}>
+        <ProtectedRoute>
+          <CompetencyAnalytics />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/analytics/competencies/guide"}>
+        <ProtectedRoute>
+          <CompetencyAnalyticsGuide />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/analytics/college/:id"}>
+        <ProtectedRoute>
+          <CollegeAnalytics />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/analytics/department/:id"}>
+        <ProtectedRoute>
+          <DepartmentAnalytics />
+        </ProtectedRoute>
+      </Route>
       <Route path={"/templates"} component={ReportTemplates} />
       <Route path={"/admin/clusters"} component={ClusterManagement} />
       <Route path={"/admin/completeness"} component={DataCompletenessDashboard} />

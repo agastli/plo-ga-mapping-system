@@ -159,3 +159,14 @@
 - [x] Update backend to support user update and delete operations (already exists)
 - [x] Ensure admin cannot delete themselves (implemented in backend)
 - [x] Add success/error toast notifications for user operations
+
+## Viewer/Editor Dashboard and Analytics Bug Fixes
+
+### Critical Bugs
+- [x] ViewerDashboard showing all 54 programs instead of only assigned programs
+- [x] EditorDashboard should also filter to show only assigned programs
+- [x] Analytics page showing "No data available" with API errors (ERR_TOO_MANY_REDIRECTS, TRPCClientError) - Added ProtectedRoute wrapper
+- [x] Fix statistics on ViewerDashboard to reflect only assigned programs (My Programs count, Total Mappings, Total PLOs)
+- [x] Fix "My Programs" link on ViewerDashboard to show only assigned programs
+- [x] Fix "View Analytics" link to work correctly for viewers/editors
+- [x] Updated getAccessiblePrograms backend function to return enriched program data with counts
