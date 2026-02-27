@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Home, AlertTriangle, AlertCircle, Info, CheckCircle, Download } from "lucide-react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -96,6 +97,13 @@ export default function DataValidationTool() {
       </div>
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Admin", href: "/admin" },
+            { label: "Data Validation" },
+          ]}
+        />
         <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Data Validation Tool</h1>
         <p className="text-gray-700 mb-8">
           Comprehensive data quality check across all programs

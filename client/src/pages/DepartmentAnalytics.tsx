@@ -9,6 +9,7 @@ import { ArrowLeft, GraduationCap, Target, TrendingUp, AlertCircle } from "lucid
 import AnalyticsExport from "@/components/AnalyticsExport";
 import { useRef } from "react";
 import PageFooter from "@/components/PageFooter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function DepartmentAnalytics() {
   const [, params] = useRoute("/analytics/department/:id");
@@ -105,6 +106,13 @@ export default function DepartmentAnalytics() {
         <Header />
       {/* Header with Back Button */}
       <div className="mb-8">
+        <Breadcrumb
+          className="mb-3"
+          items={[
+            { label: "Analytics", href: "/analytics" },
+            { label: "Department Analytics" },
+          ]}
+        />
         <Button
           variant="ghost"
           className="mb-4"
@@ -194,7 +202,8 @@ export default function DepartmentAnalytics() {
           <CardDescription>Alignment scores across all programs in this department</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={Math.max(300, programChartData.length * 50)}>
+          <div className="overflow-x-auto">
+          <ResponsiveContainer width="100%" height={Math.max(300, programChartData.length * 50)} minWidth={280}>
             <BarChart data={programChartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" domain={[0, 100]} />
@@ -228,6 +237,7 @@ export default function DepartmentAnalytics() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 
@@ -238,6 +248,7 @@ export default function DepartmentAnalytics() {
           <CardDescription>Detailed breakdown of all programs in this department</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -295,6 +306,7 @@ export default function DepartmentAnalytics() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
       </div>

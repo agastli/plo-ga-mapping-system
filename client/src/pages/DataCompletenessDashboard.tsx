@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Home, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 
@@ -45,6 +46,13 @@ export default function DataCompletenessDashboard() {
       </div>
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Admin", href: "/admin" },
+            { label: "Data Completeness" },
+          ]}
+        />
         <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Data Completeness Dashboard</h1>
         <p className="text-gray-700 mb-8">
           Monitor data entry progress across all programs

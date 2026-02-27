@@ -4,6 +4,7 @@ import { trpc } from "../lib/trpc";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Home, Save, X } from "lucide-react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { toast } from "sonner";
 
 export default function ClusterManagement() {
@@ -71,13 +72,13 @@ export default function ClusterManagement() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-6 bg-[#8B1538]/5 px-4 py-3 rounded-lg">
-          <Link href="/" className="hover:text-[#8B1538] transition-colors">
-            🏠 Qatar University
-          </Link>
-          <span>›</span>
-          <span className="text-[#8B1538] font-medium">Cluster Management</span>
-        </div>
+        <Breadcrumb
+          className="mb-6"
+          items={[
+            { label: "Admin", href: "/admin" },
+            { label: "Cluster Management" },
+          ]}
+        />
 
         <div className="mb-6">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Cluster Management</h2>

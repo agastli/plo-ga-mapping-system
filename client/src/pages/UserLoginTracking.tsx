@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Loader2, ArrowLeft, Activity, RefreshCw } from 'lucide-react';
+import Breadcrumb from '@/components/Breadcrumb';
 import { format } from 'date-fns';
 
 export default function UserLoginTracking() {
@@ -79,7 +80,14 @@ export default function UserLoginTracking() {
       </div>
       
       <div className="container mx-auto px-4 max-w-6xl flex-1">
-
+        {/* Breadcrumb */}
+        <Breadcrumb
+          className="mb-4 pt-2"
+          items={[
+            { label: "Admin", href: "/admin-dashboard" },
+            { label: "Login Tracking" },
+          ]}
+        />
         {/* Login History Table */}
         <Card>
           <CardHeader>

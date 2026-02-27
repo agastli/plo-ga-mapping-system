@@ -22,6 +22,7 @@ import {
 import { Home, BookOpen, Download, FileText, AlertTriangle } from "lucide-react";
 import AnalyticsExport from "../components/AnalyticsExport";
 import PageFooter from "@/components/PageFooter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function CompetencyAnalytics() {
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>(undefined);
@@ -198,6 +199,14 @@ export default function CompetencyAnalytics() {
 
       {/* Content */}
       <div className="container mx-auto px-6 py-8">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Analytics", href: "/analytics" },
+            { label: "Competencies" },
+          ]}
+        />
         {/* Filter Section */}
         <Card className="mb-8 border-2 border-[#8B1538]">
           <CardHeader>
@@ -343,8 +352,9 @@ export default function CompetencyAnalytics() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={coverageChartData}>
+            <div className="overflow-x-auto">
+            <ResponsiveContainer width="100%" height={350} minWidth={320}>
+              <BarChart data={coverageChartData} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis label={{ value: "Coverage Rate (%)", angle: -90, position: "insideLeft" }} />
@@ -375,6 +385,7 @@ export default function CompetencyAnalytics() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -387,8 +398,9 @@ export default function CompetencyAnalytics() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={avgWeightChartData}>
+            <div className="overflow-x-auto">
+            <ResponsiveContainer width="100%" height={350} minWidth={320}>
+              <BarChart data={avgWeightChartData} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis label={{ value: "Average Weight", angle: -90, position: "insideLeft" }} />
@@ -402,6 +414,7 @@ export default function CompetencyAnalytics() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 

@@ -8,6 +8,7 @@ import { ArrowLeft, Building2, GraduationCap, Target } from "lucide-react";
 import AnalyticsExport from "@/components/AnalyticsExport";
 import { useRef } from "react";
 import PageFooter from "@/components/PageFooter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function CollegeAnalytics() {
   const [, params] = useRoute("/analytics/college/:id");
@@ -107,6 +108,13 @@ export default function CollegeAnalytics() {
 
         {/* Header with Back Button */}
         <div className="mb-8">
+          <Breadcrumb
+            className="mb-3"
+            items={[
+              { label: "Analytics", href: "/analytics" },
+              { label: college?.nameEn || "College Analytics" },
+            ]}
+          />
           <Button
             variant="ghost"
             className="mb-4"
@@ -194,8 +202,9 @@ export default function CollegeAnalytics() {
               <CardDescription>PLO-GA alignment by department</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={departmentChartData}>
+              <div className="overflow-x-auto">
+              <ResponsiveContainer width="100%" height={320} minWidth={280}>
+                <BarChart data={departmentChartData} margin={{ top: 5, right: 10, left: 0, bottom: 50 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis domain={[0, 100]} />
@@ -221,6 +230,7 @@ export default function CollegeAnalytics() {
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
 

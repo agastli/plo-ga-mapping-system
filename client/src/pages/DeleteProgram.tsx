@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, ArrowLeft, Home, Trash2 } from "lucide-react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -125,6 +126,14 @@ export default function DeleteProgram() {
       </div>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Admin", href: "/admin" },
+            { label: "Delete Program" },
+          ]}
+        />
         <div className="text-center mb-8">
           <div className="w-20 h-20 mx-auto bg-red-100 rounded-2xl flex items-center justify-center mb-4">
             <Trash2 className="h-10 w-10 text-red-600" />

@@ -2,6 +2,7 @@ import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Home, ArrowLeft, BookOpen } from "lucide-react";
 import PageFooter from "@/components/PageFooter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function GAAnalyticsGuide() {
   const [, setLocation] = useLocation();
@@ -41,6 +42,14 @@ export default function GAAnalyticsGuide() {
       <div className="container mx-auto py-8">
         <Header />
 
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Analytics", href: "/analytics" },
+            { label: "Graduate Attributes", href: "/analytics/ga" },
+            { label: "Guide" },
+          ]}
+        />
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-[#8B1538] mb-2 flex items-center gap-3">
             <BookOpen className="h-10 w-10" />

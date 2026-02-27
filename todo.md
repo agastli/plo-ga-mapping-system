@@ -591,3 +591,28 @@
 - [x] Add access check to document.import procedure
 - [x] Fix frontend callers (AddProgram.tsx, ProgramDetail.tsx) to pass programId
 - [x] Zero TypeScript errors confirmed after all access control changes
+
+## Three Enhancements Sprint (Feb 27, 2026)
+
+### 1. VPS Deployment Guide with SMTP Setup
+- [x] Update docs/DEPLOYMENT.md with step-by-step SMTP_PASSWORD configuration
+- [x] Add section: "Updating an Existing Deployment" (git pull, build, pm2 restart)
+- [x] Add section: "Email Configuration" with Hostinger SMTP details and test command
+- [x] Add section: "Stopping Old PM2 Process" to handle dual-process issue
+
+### 2. Breadcrumb Navigation
+- [x] Create shared Breadcrumb component in client/src/components/Breadcrumb.tsx
+- [x] Add breadcrumbs to ProgramDetail page (Home > Programs > [Program Name])
+- [x] Add breadcrumbs to ViewProgram page (Home > Programs > [Program Name] > View)
+- [x] Add breadcrumbs to AddProgram page (Home > Programs > Add Program)
+- [x] Add breadcrumbs to DeleteProgram page (Home > Programs > Delete Program)
+- [x] Add breadcrumbs to ManualEntry page (Home > Programs > [Program] > Manual Entry)
+- [x] Add breadcrumbs to Analytics sub-pages (Home > Analytics > [Type])
+- [x] Add breadcrumbs to Admin sub-pages (Home > Admin > [Page])
+
+### 3. Mobile Responsiveness for Analytics Dashboards
+- [x] Make analytics chart containers horizontally scrollable on small screens
+- [x] Add responsive breakpoints to stat cards (stack vertically on mobile)
+- [x] Make data tables horizontally scrollable with sticky first column
+- [x] Improve sidebar/header for mobile (collapsible or hamburger menu)
+- [ ] Test on 375px (mobile) and 768px (tablet) widths (manual verification needed)

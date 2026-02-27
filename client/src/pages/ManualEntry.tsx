@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function ManualEntry() {
   return (
@@ -18,6 +19,14 @@ export default function ManualEntry() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Programs", href: "/programs" },
+            { label: "Manual Data Entry" },
+          ]}
+        />
         <h1 className="text-3xl font-bold mb-6">Manual Data Entry</h1>
 
         <Card>

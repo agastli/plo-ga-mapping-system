@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, UserPlus, Trash2, Shield, Eye, Edit, LogOut, Edit2, Home, Search, X } from 'lucide-react';
+import Breadcrumb from '@/components/Breadcrumb';
 import { useLocation } from 'wouter';
 
 export default function UserManagement() {
@@ -376,6 +377,13 @@ export default function UserManagement() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          items={[
+            { label: "Admin", href: "/admin-dashboard" },
+            { label: "User Management" },
+          ]}
+        />
       {/* Search, Filter, and Create User bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="relative flex-1 w-full">

@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import PageFooter from "@/components/PageFooter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function UnifiedAnalytics() {
   const gaChartRef = useRef<HTMLDivElement>(null);
@@ -586,7 +587,7 @@ export default function UnifiedAnalytics() {
 
   const Header = () => (
     <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center space-x-4">
           <img src="/qu-logo.png" alt="QU Logo" className="h-14" />
           <div>
@@ -640,6 +641,14 @@ export default function UnifiedAnalytics() {
       <div className="container mx-auto py-8">
         <Header />
 
+        {/* Breadcrumb */}
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Analytics", href: "/analytics" },
+            { label: "GA & Competencies" },
+          ]}
+        />
         {/* Page Title */}
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-[#8B1538] mb-2">
@@ -842,8 +851,9 @@ export default function UnifiedAnalytics() {
               </p>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={gaChartData}>
+              <div className="overflow-x-auto">
+              <ResponsiveContainer width="100%" height={350} minWidth={320}>
+                <BarChart data={gaChartData} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis label={{ value: 'Alignment Score (%)', angle: -90, position: 'insideLeft' }} />
@@ -898,6 +908,7 @@ export default function UnifiedAnalytics() {
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+              </div>
               {/* Color Legend */}
               <div className="mt-4 flex flex-wrap justify-center gap-4">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -935,7 +946,8 @@ export default function UnifiedAnalytics() {
               </p>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
+              <div className="overflow-x-auto">
+              <ResponsiveContainer width="100%" height={380} minWidth={280}>
                 <RadarChart data={gaChartData}>
                   <PolarGrid />
                   <PolarAngleAxis dataKey="name" />
@@ -965,6 +977,7 @@ export default function UnifiedAnalytics() {
                   <Legend />
                 </RadarChart>
               </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -987,7 +1000,8 @@ export default function UnifiedAnalytics() {
               </p>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
+              <div className="overflow-x-auto">
+              <ResponsiveContainer width="100%" height={350} minWidth={320}>
                 <BarChart data={
                   filterLevel === 'university' && collegeComparisonData
                     ? collegeComparisonData.heatmapData.map((college: any) => ({
@@ -1041,6 +1055,7 @@ export default function UnifiedAnalytics() {
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+              </div>
               {/* Color Legend */}
               <div className="mt-4 flex flex-wrap justify-center gap-4">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1079,7 +1094,8 @@ export default function UnifiedAnalytics() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={600}>
+            <div className="overflow-x-auto">
+            <ResponsiveContainer width="100%" height={550} minWidth={400}>
               <BarChart data={competencyChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
@@ -1141,6 +1157,7 @@ export default function UnifiedAnalytics() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
             {/* Color Legend */}
             <div className="mt-4 flex flex-wrap justify-center gap-4">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

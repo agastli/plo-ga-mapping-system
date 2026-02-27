@@ -7,6 +7,7 @@ import { Plus, Edit, Trash2, Copy, FileText, Globe, Lock } from "lucide-react";
 import { toast } from "sonner";
 import TemplateEditor from "@/components/TemplateEditor";
 import PageFooter from "@/components/PageFooter";
+import Breadcrumb from "@/components/Breadcrumb";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,6 +98,12 @@ export default function ReportTemplates() {
       <div className="container mx-auto py-8">
         <Header />
 
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Report Templates" },
+          ]}
+        />
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold text-[#8B1538]">Report Templates</h2>

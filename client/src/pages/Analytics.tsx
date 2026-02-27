@@ -7,6 +7,7 @@ import { TrendingUp, TrendingDown, Building2, GraduationCap, Target, Award } fro
 import AnalyticsExport from "@/components/AnalyticsExport";
 import { useRef } from "react";
 import PageFooter from "@/components/PageFooter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function Analytics() {
   const [, setLocation] = useLocation();
@@ -91,8 +92,15 @@ export default function Analytics() {
     <div className="min-h-screen bg-amber-50">
       <div className="container mx-auto py-8">
         <Header />
+        {/* Breadcrumb */}
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Analytics" },
+          ]}
+        />
       {/* Header */}
-      <div className="mb-8 flex justify-between items-start">
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
           <h1 className="text-4xl font-bold text-[#8B1538] mb-2">Analytics Dashboard</h1>
           <p className="text-lg text-muted-foreground">
@@ -194,8 +202,9 @@ export default function Analytics() {
           <CardDescription>PLO-GA alignment scores across all colleges</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={collegeChartData}>
+          <div className="overflow-x-auto">
+          <ResponsiveContainer width="100%" height={350} minWidth={320}>
+            <BarChart data={collegeChartData} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis domain={[0, 100]} label={{ value: 'Alignment Score (%)', angle: -90, position: 'insideLeft' }} />
@@ -221,6 +230,7 @@ export default function Analytics() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
 

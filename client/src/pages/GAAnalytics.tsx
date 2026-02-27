@@ -23,6 +23,7 @@ import {
 import { Home, BookOpen, Download, FileText, FileSpreadsheet, FileImage } from "lucide-react";
 import AnalyticsExport from "../components/AnalyticsExport";
 import PageFooter from "@/components/PageFooter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function GAAnalytics() {
   const [filterLevel, setFilterLevel] = useState<"university" | "college" | "program">("university");
@@ -166,6 +167,14 @@ export default function GAAnalytics() {
 
       {/* Content */}
       <div className="container mx-auto px-6 py-8">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Analytics", href: "/analytics" },
+            { label: "Graduate Attributes" },
+          ]}
+        />
         {/* Filter Section */}
         <Card className="mb-8 border-2 border-[#8B1538]">
           <CardHeader>
@@ -301,8 +310,9 @@ export default function GAAnalytics() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={coverageChartData}>
+            <div className="overflow-x-auto">
+            <ResponsiveContainer width="100%" height={350} minWidth={320}>
+              <BarChart data={coverageChartData} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis label={{ value: "Coverage Rate (%)", angle: -90, position: "insideLeft" }} />
@@ -333,6 +343,7 @@ export default function GAAnalytics() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -345,8 +356,9 @@ export default function GAAnalytics() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={alignmentChartData}>
+            <div className="overflow-x-auto">
+            <ResponsiveContainer width="100%" height={350} minWidth={320}>
+              <BarChart data={alignmentChartData} margin={{ top: 5, right: 10, left: 0, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis label={{ value: "Alignment Score (%)", angle: -90, position: "insideLeft" }} />
@@ -360,6 +372,7 @@ export default function GAAnalytics() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -372,7 +385,8 @@ export default function GAAnalytics() {
             </p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={500}>
+            <div className="overflow-x-auto">
+            <ResponsiveContainer width="100%" height={400} minWidth={280}>
               <RadarChart data={radarChartData}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="ga" />
@@ -395,6 +409,7 @@ export default function GAAnalytics() {
                 <Tooltip />
               </RadarChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 

@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ArrowLeft, Edit2, Save, X, Download, ChevronDown, Home, Trash2, Plus } from "lucide-react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -226,6 +227,14 @@ export default function ProgramDetail() {
       </div>
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Programs", href: "/programs" },
+            { label: program?.nameEn || program?.nameAr || `Program ${programId}` },
+          ]}
+        />
         {/* Program Information */}
         <Card className="mb-6 border-2 border-[#8B1538]/20 shadow-lg">
           <CardHeader className="bg-gradient-to-r from-[#8B1538]/10 to-white border-b">

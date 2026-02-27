@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, Plus, Trash2, Home } from "lucide-react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -338,6 +339,14 @@ export default function AddProgram() {
       </div>
       
       <main className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Programs", href: "/programs" },
+            { label: "Add New Program" },
+          ]}
+        />
         {/* Progress Indicator */}
         <div className="mb-8">
           <div className="flex justify-between items-center">

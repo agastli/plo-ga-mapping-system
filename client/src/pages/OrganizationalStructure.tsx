@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Home, Edit2, Save, X, Plus, Shield, LogOut } from "lucide-react";
+import Breadcrumb from "@/components/Breadcrumb";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -181,6 +182,13 @@ export default function OrganizationalStructure() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          items={[
+            { label: "Admin", href: "/admin-dashboard" },
+            { label: "Organizational Structure" },
+          ]}
+        />
         {/* Colleges Section */}
         <Card>
           <CardHeader>

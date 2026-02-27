@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Loader2, User, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export default function UserProfile() {
   const [, setLocation] = useLocation();
@@ -147,6 +148,12 @@ export default function UserProfile() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Breadcrumb
+          className="mb-4"
+          items={[
+            { label: "Profile" },
+          ]}
+        />
         <div className="space-y-6">
           {/* Current User Info */}
           <Card>

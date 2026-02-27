@@ -786,5 +786,120 @@ The following is a complete reference of all environment variables used by the a
 
 ---
 
+## 19. Email Configuration (SMTP)
+
+The system sends automated emails for password reset, username recovery, and new user welcome notifications. These emails are delivered via Hostinger's SMTP service using the `no-reply@gastli.org` account.
+
+### Setting the SMTP Password
+
+Add `SMTP_PASSWORD` to the application's `.env` file on the VPS:
+
+```bash
+cd /home/agastli/htdocs/plo-ga.gastli.org
+nano .env
+```
+
+Add or update the following line:
+
+```
+SMTP_PASSWORD=YourHostingerEmailPassword
+```
+
+Save and close the file, then restart the application:
+
+```bash
+pm2 restart plo-ga-mapping-system
+pm2 logs plo-ga-mapping-system --lines 20
+```
+
+Look for the line `[Email] SMTP transporter created successfully` in the logs to confirm the email service initialised correctly.
+
+### Testing Email Delivery
+
+Use the following one-liner to test SMTP connectivity from the server:
+
+```bash
+curl -v --ssl-reqd \
+  --mail-from "no-reply@gastli.org" \
+  --mail-rcpt "your-test-email@example.com" \
+  --url "smtps://smtp.hostinger.com:465" \
+  -u "no-reply@gastli.org:YourHostingerEmailPassword" \
+  -T /dev/null
+```
+
+Alternatively, trigger a password reset from the login page for a user with a known email address and verify delivery.
+
+### SMTP Settings Reference
+
+| Setting | Value |
+|---|---|
+| **Host** | `smtp.hostinger.com` |
+| **Port** | `587` (STARTTLS) |
+| **Security** | STARTTLS (`secure: false`) |
+| **Username** | `no-reply@gastli.org` |
+| **Password** | Set via `SMTP_PASSWORD` env var |
+| **BCC** | All outgoing emails are BCC'd to `no-reply@gastli.org` |
+
+> **Troubleshooting:** If emails are not delivered, check the PM2 logs for `[Email] Failed to send` messages. Common causes are an incorrect `SMTP_PASSWORD`, a firewall blocking outbound port 587, or the Hostinger email account being suspended.
+
+---
+
+## 20. Managing Multiple PM2 Processes
+
+During the initial deployment, a PM2 process named `plo-ga-mapping` (without the `-system` suffix) may have been created. Running two processes simultaneously causes port conflicts and unpredictable behaviour. Resolve this as follows:
+
+```bash
+# List all running PM2 processes
+pm2 list
+
+# Stop and delete the old process (if it exists)
+pm2 stop plo-ga-mapping
+pm2 delete plo-ga-mapping
+
+# Verify only the correct process remains
+pm2 list
+
+# Save the updated PM2 process list so it persists across reboots
+pm2 save
+```
+
+After this cleanup, only `plo-ga-mapping-system` should appear in `pm2 list`.
+
+---
+
+## 21. Updating an Existing Deployment
+
+Use this checklist every time new code is pushed to GitHub and needs to be deployed to the VPS:
+
+```bash
+cd /home/agastli/htdocs/plo-ga.gastli.org
+
+# Step 1 — Pull the latest changes from GitHub
+git pull origin main
+
+# Step 2 — Install any new npm/pnpm dependencies
+pnpm install
+
+# Step 3 — Run any new database migrations
+pnpm db:push
+
+# Step 4 — Clean stale build artifacts and rebuild
+rm -rf dist/ node_modules/.vite
+pnpm run build
+
+# Step 5 — Restart the application process
+pm2 restart plo-ga-mapping-system
+
+# Step 6 — Confirm the process is running and check for errors
+pm2 list
+pm2 logs plo-ga-mapping-system --lines 30
+```
+
+> **When to run `pnpm db:push`:** Only required when the database schema has changed (i.e., `drizzle/schema.ts` was modified in the pulled commit). It is safe to run on every deployment — it is idempotent.
+
+> **Browser Cache:** After deploying, ask users to perform a hard refresh (Ctrl+Shift+R on Windows/Linux, Cmd+Shift+R on macOS) to force the browser to load the new JavaScript bundle.
+
+---
+
 *Last updated: February 2026*
 *Deployment target: Ubuntu 22.04 LTS, plo-ga.gastli.org*

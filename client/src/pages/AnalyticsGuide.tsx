@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, Calculator, TrendingUp, Target, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageFooter from "@/components/PageFooter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function AnalyticsGuide() {
   const [, setLocation] = useLocation();
@@ -43,6 +44,13 @@ export default function AnalyticsGuide() {
 
         {/* Page Header */}
         <div className="mb-8">
+          <Breadcrumb
+            className="mb-3"
+            items={[
+              { label: "Analytics", href: "/analytics" },
+              { label: "Analytics Guide" },
+            ]}
+          />
           <Button
             variant="ghost"
             className="mb-4"
