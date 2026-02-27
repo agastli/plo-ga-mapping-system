@@ -11,7 +11,8 @@ import {
   Database,
   Shield,
   LogOut,
-  Home
+  Home,
+  User
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -131,6 +132,10 @@ export default function AdminDashboard() {
               <Shield className="h-4 w-4 text-red-600" />
               <span className="text-sm font-medium text-red-600">Administrator</span>
             </div>
+            <Button onClick={() => setLocation('/profile')} variant="outline" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Profile
+            </Button>
             <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
               <LogOut className="h-4 w-4" />
               Logout

@@ -48,6 +48,7 @@ export async function sendPasswordResetEmail(
     const mailOptions = {
       from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
       to,
+      bcc: 'no-reply@gastli.org', // BCC admin on all outgoing emails
       subject: 'Password Reset Request - PLO-GA Mapping System',
       html: `
         <!DOCTYPE html>
@@ -138,6 +139,7 @@ export async function sendUsernameReminderEmail(
     const mailOptions = {
       from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
       to,
+      bcc: 'no-reply@gastli.org', // BCC admin on all outgoing emails
       subject: 'Username Reminder - PLO-GA Mapping System',
       html: `
         <!DOCTYPE html>
@@ -289,6 +291,7 @@ export async function sendWelcomeEmail(
     const mailOptions = {
       from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
       to,
+      bcc: 'no-reply@gastli.org', // BCC admin on all outgoing emails
       subject: 'Welcome to PLO-GA Mapping System - Your Account Has Been Created',
       html: `
         <!DOCTYPE html>

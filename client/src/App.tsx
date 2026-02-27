@@ -35,6 +35,7 @@ import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import RecoverUsername from "./pages/RecoverUsername";
 import ProgramBrowser from "./pages/ProgramBrowser";
+import UserProfile from "./pages/UserProfile";
 
 function Router() {
   return (
@@ -42,6 +43,11 @@ function Router() {
       <Route path={"/login"} component={Login} />
       <Route path={"/forgot-password"} component={ForgotPassword} />
       <Route path={"/recover-username"} component={RecoverUsername} />
+      <Route path={"/profile"}>
+        <ProtectedRoute>
+          <UserProfile />
+        </ProtectedRoute>
+      </Route>
       <Route path={"/"}>  
         <RoleBasedRedirect />
       </Route>

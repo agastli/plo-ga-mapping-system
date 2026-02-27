@@ -181,6 +181,45 @@ export const appRouter = router({
         
         return { success: true };
       }),
+    
+    updateProfile: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1, "Name is required").optional(),
+        email: z.string().email("Invalid email address").optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.user!.id;
+        
+        // Update user profile
+        await db.updateUserProfile(userId, input.name, input.email);
+        
+        return { success: true, message: "Profile updated successfully" };
+      }),
+    
+    changePassword: protectedProcedure
+      .input(z.object({
+        currentPassword: z.string().min(1, "Current password is required"),
+        newPassword: z.string().min(6, "New password must be at least 6 characters"),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.user!.id;
+        const username = ctx.user!.username;
+        
+        // Verify current password
+        const user = await authenticateUser(username!, input.currentPassword);
+        if (!user) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'Current password is incorrect',
+          });
+        }
+        
+        // Hash new password and update
+        const hashedPassword = await hashPassword(input.newPassword);
+        await db.updateUserPassword(userId, hashedPassword);
+        
+        return { success: true, message: "Password changed successfully" };
+      }),
   }),
 
   // User Management (Admin only)

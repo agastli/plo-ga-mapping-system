@@ -408,3 +408,17 @@
 ## Login Page UI Improvement
 
 - [x] Remove the maroon info box from the login page (desktop view)
+
+## Email BCC to Admin
+
+- [x] Add BCC to admin email address for all outgoing system emails (welcome, password reset, username recovery)
+
+## User Profile & Password Change
+
+- [x] Create backend endpoint for updating user profile (name, email)
+- [x] Create backend endpoint for changing password (requires current password verification)
+- [x] Create UserProfile.tsx page component
+- [x] Add profile form with fields: name, email, current password, new password
+- [x] Add "Profile" navigation link to all dashboard headers
+- [x] Add /profile route to App.tsx
+- [x] Test password change functionality

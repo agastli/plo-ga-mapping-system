@@ -2046,6 +2046,36 @@ export async function updateUser(userId: number, data: {
 }
 
 /**
+ * Update user profile (name and email only)
+ */
+export async function updateUserProfile(userId: number, name?: string, email?: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  const updateData: any = { updatedAt: new Date() };
+  if (name !== undefined) updateData.name = name;
+  if (email !== undefined) updateData.email = email;
+
+  await db
+    .update(users)
+    .set(updateData)
+    .where(eq(users.id, userId));
+}
+
+/**
+ * Update user password
+ */
+export async function updateUserPassword(userId: number, hashedPassword: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db
+    .update(users)
+    .set({ password: hashedPassword, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+}
+
+/**
  * Delete a user by ID
  */
 export async function deleteUser(userId: number): Promise<void> {

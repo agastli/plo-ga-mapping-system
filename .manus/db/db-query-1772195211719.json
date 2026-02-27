@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, openId, name, email, role FROM users LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SELECT id, openId, name, email, role FROM users LIMIT 1;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "H3Z6Tw3Grhe5M2rYXzAEa7",
+      "name": "Adel Gastli",
+      "email": "adel.gastli@gmail.com",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\n1\tH3Z6Tw3Grhe5M2rYXzAEa7\tAdel Gastli\tadel.gastli@gmail.com\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 1536
+}

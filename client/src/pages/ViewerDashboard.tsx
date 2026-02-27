@@ -8,7 +8,8 @@ import {
   Shield,
   LogOut,
   Eye,
-  Search
+  Search,
+  User
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -73,6 +74,13 @@ export default function ViewerDashboard() {
                   <Shield className="w-4 h-4 mr-1" />
                   Viewer (Read-Only)
                 </Badge>
+                <button
+                  onClick={() => setLocation('/profile')}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-[#8B1538] hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Profile</span>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-[#8B1538] hover:bg-gray-100 rounded-md transition-colors"
