@@ -304,3 +304,11 @@
 - [ ] Change completenessStats and validateData from publicProcedure to protectedProcedure
 - [ ] Ensure analytics page respects user access levels (university/college/cluster/program)
 - [ ] Test analytics page loads without 403 Forbidden errors for viewers/editors
+
+## Analytics Page Default View Fix
+
+- [ ] Fix UnifiedAnalytics to detect user role on page load
+- [ ] For viewers/editors: Default to first accessible program instead of university-wide view
+- [ ] For admins: Keep university-wide view as default
+- [ ] Prevent 403 Forbidden errors when non-admins access /analytics without filters
+- [ ] Test analytics page loads successfully for viewers/editors

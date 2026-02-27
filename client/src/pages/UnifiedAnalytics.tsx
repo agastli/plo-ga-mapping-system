@@ -416,15 +416,6 @@ export default function UnifiedAnalytics() {
   const { data: currentUser, isLoading: authLoading} = trpc.auth.me.useQuery();
   const isAdmin = currentUser?.role === 'admin';
   
-  // Set default filter level based on user role
-  useEffect(() => {
-    if (currentUser && !isAdmin) {
-      setFilterLevel('program');
-    } else if (currentUser && isAdmin) {
-      setFilterLevel('university');
-    }
-  }, [currentUser, isAdmin]);
-  
   // Fetch colleges, clusters, and programs for filters - only after auth is confirmed
   const { data: colleges } = trpc.colleges.list.useQuery(undefined, {
     enabled: !!currentUser,
@@ -442,6 +433,21 @@ export default function UnifiedAnalytics() {
   });
   
   const programs = isAdmin ? allPrograms : accessiblePrograms;
+  
+  // Set default filter level based on user role and auto-select first program for non-admins
+  useEffect(() => {
+    if (currentUser && !isAdmin && accessiblePrograms && accessiblePrograms.length > 0) {
+      // For viewers/editors, default to program level with first accessible program
+      setFilterLevel('program');
+      if (!selectedProgramId) {
+        const firstProgram = accessiblePrograms[0];
+        setSelectedCollegeId(firstProgram.college.id);
+        setSelectedProgramId(firstProgram.program.id);
+      }
+    } else if (currentUser && isAdmin) {
+      setFilterLevel('university');
+    }
+  }, [currentUser, isAdmin, accessiblePrograms, selectedProgramId]);
   
   // Filter clusters by selected college
   const clusters = selectedCollegeId && allClusters
