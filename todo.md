@@ -307,8 +307,16 @@
 
 ## Analytics Page Default View Fix
 
-- [ ] Fix UnifiedAnalytics to detect user role on page load
-- [ ] For viewers/editors: Default to first accessible program instead of university-wide view
-- [ ] For admins: Keep university-wide view as default
-- [ ] Prevent 403 Forbidden errors when non-admins access /analytics without filters
+- [x] Fix UnifiedAnalytics to detect user role on page load
+- [x] For viewers/editors: Default to first accessible program instead of university-wide view
+- [x] For admins: Keep university-wide view as default
+- [x] Prevent 403 Forbidden errors when non-admins access /analytics without filters
 - [ ] Test analytics page loads successfully for viewers/editors
+
+## Header/Footer Width Consistency Fix
+
+- [x] Find all pages with full-width headers/footers
+- [x] Update headers to match main container width (max-w-7xl)
+- [x] Update footers to match main container width (max-w-7xl)
+- [x] Ensure consistent padding and alignment across all pages
+- [ ] Test visual consistency on all pages

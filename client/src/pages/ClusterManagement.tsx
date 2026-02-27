@@ -42,10 +42,11 @@ export default function ClusterManagement() {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-amber-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+        <header className="bg-white rounded-lg shadow-md mb-6">
+          <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img 
               src="/qu-logo.png" 
@@ -63,11 +64,12 @@ export default function ClusterManagement() {
               Home
             </Button>
           </Link>
-        </div>
-      </header>
+          </div>
+        </header>
+      </div>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6 bg-[#8B1538]/5 px-4 py-3 rounded-lg">
           <Link href="/" className="hover:text-[#8B1538] transition-colors">

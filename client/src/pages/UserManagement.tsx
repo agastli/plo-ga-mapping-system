@@ -330,8 +330,9 @@ export default function UserManagement() {
   return (
     <div className="min-h-screen bg-amber-50">
       {/* Header */}
-      <header className="bg-white shadow-md rounded-lg mx-4 my-4">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+        <header className="bg-white rounded-lg shadow-md mb-6">
+          <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <img src="/qu-logo.png" alt="QU Logo" className="h-12" />
             <div>
@@ -353,8 +354,9 @@ export default function UserManagement() {
               Logout
             </Button>
           </div>
-        </div>
-      </header>
+          </div>
+        </header>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-end">
@@ -814,21 +816,23 @@ export default function UserManagement() {
       </div>
 
       {/* Footer */}
-      <footer className="mt-auto bg-[#8B1538] text-white py-6">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="container mx-auto px-4 pb-6 mt-20 max-w-7xl">
+        <footer className="bg-[#821F45] rounded-lg shadow-lg">
+        <div className="px-6 py-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <img src="/qu-logo.png" alt="Qatar University" className="h-10 w-auto brightness-0 invert" />
               <div className="text-sm">
-                <p className="font-semibold">© 2026 Qatar University. All rights reserved.</p>
+                <p className="font-semibold text-white">© 2026 Qatar University. All rights reserved.</p>
               </div>
             </div>
             <div className="text-sm text-right">
-              <p>PLO-GA Mapping System v1.0</p>
+              <p className="text-white">PLO-GA Mapping System v1.0</p>
             </div>
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
