@@ -327,3 +327,9 @@
 - [x] Derive accessible colleges from user's assigned programs
 - [x] Ensure filters update when user assignments change
 - [ ] Test filter behavior after changing user assignments
+
+## Analysis Level Switching Fix
+
+- [x] Fix Analysis Level dropdown onChange to clear program selection when switching to college level
+- [x] Ensure college-level analytics display when "By College" is selected
+- [ ] Test switching between college and program levels

@@ -411,6 +411,7 @@ export default function UnifiedAnalytics() {
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>(undefined);
   const [selectedClusterId, setSelectedClusterId] = useState<number | undefined>(undefined);
   const [selectedProgramId, setSelectedProgramId] = useState<number | undefined>(undefined);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   // Get current user to check role - wait for authentication first
   const { data: currentUser, isLoading: authLoading} = trpc.auth.me.useQuery();
@@ -442,20 +443,22 @@ export default function UnifiedAnalytics() {
           .map(collegeId => accessiblePrograms.find(p => p.college.id === collegeId)!.college)
       : [];
   
-  // Set default filter level based on user role and auto-select first program for non-admins
+  // Set default filter level based on user role and auto-select first program for non-admins (only on initial load)
   useEffect(() => {
+    if (hasInitialized) return; // Skip if already initialized
+    
     if (currentUser && !isAdmin && accessiblePrograms && accessiblePrograms.length > 0) {
       // For viewers/editors, default to program level with first accessible program
       setFilterLevel('program');
-      if (!selectedProgramId) {
-        const firstProgram = accessiblePrograms[0];
-        setSelectedCollegeId(firstProgram.college.id);
-        setSelectedProgramId(firstProgram.program.id);
-      }
+      const firstProgram = accessiblePrograms[0];
+      setSelectedCollegeId(firstProgram.college.id);
+      setSelectedProgramId(firstProgram.program.id);
+      setHasInitialized(true);
     } else if (currentUser && isAdmin) {
       setFilterLevel('university');
+      setHasInitialized(true);
     }
-  }, [currentUser, isAdmin, accessiblePrograms, selectedProgramId]);
+  }, [currentUser, isAdmin, accessiblePrograms, hasInitialized]);
   
   // Filter clusters by selected college
   const clusters = selectedCollegeId && allClusters
