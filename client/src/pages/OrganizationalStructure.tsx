@@ -161,7 +161,7 @@ export default function OrganizationalStructure() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
+            <Button asChild className="bg-[#8B1538] text-white hover:bg-[#6D1028]">
               <Link href="/admin-dashboard">
                 <Home className="mr-2 h-4 w-4" />
                 Home
@@ -171,7 +171,7 @@ export default function OrganizationalStructure() {
               <Shield className="h-4 w-4 text-red-600" />
               <span className="text-sm font-medium text-red-600">Administrator</span>
             </div>
-            <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
+            <Button onClick={handleLogout} className="flex items-center gap-2 bg-[#8B1538] text-white hover:bg-[#6D1028]">
               <LogOut className="h-4 w-4" />
               Logout
             </Button>

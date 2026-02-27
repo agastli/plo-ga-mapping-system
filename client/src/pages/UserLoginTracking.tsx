@@ -17,6 +17,15 @@ export default function UserLoginTracking() {
     return format(new Date(date), 'MMM dd, yyyy HH:mm:ss');
   };
 
+  const formatIpAddress = (ip: string | null) => {
+    if (!ip) return 'Unknown';
+    // Remove IPv6 prefix for localhost
+    if (ip.startsWith('::ffff:')) {
+      return ip.replace('::ffff:', '');
+    }
+    return ip;
+  };
+
   const formatUserAgent = (userAgent: string | null) => {
     if (!userAgent) return 'Unknown';
     
@@ -110,7 +119,7 @@ export default function UserLoginTracking() {
                         <TableCell className="font-mono text-sm">{entry.userId}</TableCell>
                         <TableCell className="font-medium">{entry.username || 'N/A'}</TableCell>
                         <TableCell className="text-sm">{formatDate(entry.loginAt)}</TableCell>
-                        <TableCell className="font-mono text-sm">{entry.ipAddress || 'Unknown'}</TableCell>
+                        <TableCell className="font-mono text-sm">{formatIpAddress(entry.ipAddress)}</TableCell>
                         <TableCell className="text-sm">{formatUserAgent(entry.userAgent)}</TableCell>
                         <TableCell>
                           <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -165,8 +174,9 @@ export default function UserLoginTracking() {
       </div>
       
       {/* Footer */}
-      <footer className="bg-[#8B1538] text-white py-6 mt-8">
+      <footer className="mt-8">
         <div className="container mx-auto px-4 max-w-6xl">
+          <div className="bg-[#8B1538] text-white py-6 px-6 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img 
@@ -179,6 +189,7 @@ export default function UserLoginTracking() {
                 <p className="text-xs text-gray-300">© 2026 Qatar University. All rights reserved</p>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </footer>

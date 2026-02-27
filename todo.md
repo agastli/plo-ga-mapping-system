@@ -503,3 +503,27 @@
 - [ ] Add visible focus indicators to all interactive elements
 - [ ] Review and improve alt text for all images
 - [ ] Test keyboard navigation across all pages
+
+## Layout and Styling Fixes (Critical)
+
+- [x] Fix UserProfile page header/footer width - currently full-width but content is max-w-4xl
+- [x] Fix Login Tracking page footer width - doesn't match content container
+- [x] Fix IP address display in Login Tracking - showing "::ffff:127.0.0.1" instead of clean format
+- [x] Remove duplicate footer from Report Templates (System Settings) page
+- [x] Fix Organizational Structure page header buttons - need maroon background with white text
+- [x] Fix Analytics/View Program page footer width - currently full-width but should match content
+
+## Comprehensive Design Review - All Pages
+
+- [x] Review all remaining pages for header/footer width consistency - Fixed 16 pages total
+- [x] Review all pages for button styling consistency (maroon background, white text) - All verified
+- [x] Review all pages for background color consistency (amber-50) - All verified
+- [x] Check all pages for duplicate elements - All verified
+- [x] Verify all pages have proper spacing and alignment - All verified
+
+### Footer Width Fixes Applied (16 pages):
+- UnifiedAnalytics, AddProgram, ManualEntry, DeleteProgram, ClusterManagement
+- DataCompletenessDashboard, DataValidationTool, Analytics, CollegeAnalytics
+- DepartmentAnalytics, GAAnalytics, CompetencyAnalytics, AnalyticsGuide
+- GAAnalyticsGuide, CompetencyAnalyticsGuide
+- Plus 5 previously fixed: UserProfile, UserLoginTracking, ReportTemplates, OrganizationalStructure, ViewProgram

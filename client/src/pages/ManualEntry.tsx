@@ -5,7 +5,7 @@ import { Link } from "wouter";
 
 export default function ManualEntry() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-amber-50">
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <Button variant="ghost" asChild>
@@ -35,8 +35,8 @@ export default function ManualEntry() {
         </Card>
       </main>
       {/* Footer */}
-      <footer className="bg-[#821F45] rounded-lg shadow-lg mt-8">
-        <div className="px-6 py-6">
+      <footer className="mt-8">
+        <div className="bg-[#821F45] rounded-lg shadow-lg px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-4">
               <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />

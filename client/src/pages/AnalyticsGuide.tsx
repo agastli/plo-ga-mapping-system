@@ -280,8 +280,8 @@ export default function AnalyticsGuide() {
         <Footer />
       </div>
       {/* Footer */}
-      <footer className="bg-[#821F45] rounded-lg shadow-lg mt-8">
-        <div className="px-6 py-6">
+      <footer className="mt-8">
+        <div className="bg-[#821F45] rounded-lg shadow-lg px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-4">
               <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
