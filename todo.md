@@ -351,3 +351,20 @@
 - [x] Ensure filters cascade properly (College → Cluster → Program)
 - [x] Auto-update analysis level based on filter selections
 - [ ] Test drill-down from college level to program level using filters
+
+## Add Standard Header and Footer to All Pages
+
+### Header Status
+- [x] All 28 pages have QU logo headers (verified)
+
+### Footer Addition Tasks
+- [x] Add maroon footer to UnifiedAnalytics page
+- [x] Add footer to ClusterManagement page  
+- [x] Add footer to analytics guide pages (AnalyticsGuide, CompetencyAnalyticsGuide, GAAnalyticsGuide)
+- [x] Add footer to analytics pages (CollegeAnalytics, CompetencyAnalytics, DepartmentAnalytics, GAAnalytics, Analytics)
+- [x] Add footer to dashboard pages (Dashboard, DataCompletenessDashboard, DataValidationTool, ReportTemplates)
+- [x] Add footer to program management pages (AddProgram, DeleteProgram, ManualEntry)
+- [x] Add footer to auth pages (Login, ForgotPassword, RecoverUsername, NotFound)
+- [x] Ensure all footers match container width (max-w-7xl)
+- [x] Use consistent footer content (QU logo, copyright, version)
+- [x] All 21 pages now have standard maroon footers
