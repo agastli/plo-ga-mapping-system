@@ -61,7 +61,7 @@ export async function sendPasswordResetEmail(
             .button { 
               display: inline-block; 
               background-color: #8B1538; 
-              color: white; 
+              color: white !important; 
               padding: 12px 30px; 
               text-decoration: none; 
               border-radius: 5px;
@@ -133,7 +133,7 @@ export async function sendUsernameReminderEmail(
   username: string
 ): Promise<boolean> {
   try {
-    const loginUrl = `${process.env.VITE_OAUTH_PORTAL_URL}/login`;
+    const loginUrl = `https://plo-ga.gastli.org/login`;
     
     const mailOptions = {
       from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
@@ -160,7 +160,7 @@ export async function sendUsernameReminderEmail(
             .button { 
               display: inline-block; 
               background-color: #8B1538; 
-              color: white; 
+              color: white !important; 
               padding: 12px 30px; 
               text-decoration: none; 
               border-radius: 5px;
@@ -248,7 +248,7 @@ export async function sendWelcomeEmail(
   role: 'admin' | 'viewer' | 'editor'
 ): Promise<boolean> {
   try {
-    const loginUrl = `${process.env.VITE_OAUTH_PORTAL_URL}/login`;
+    const loginUrl = `https://plo-ga.gastli.org/login`;
     
     // Role-specific information
     const roleInfo = {
@@ -359,7 +359,7 @@ export async function sendWelcomeEmail(
             .button { 
               display: inline-block; 
               background-color: #8B1538; 
-              color: white; 
+              color: white !important; 
               padding: 12px 30px; 
               text-decoration: none; 
               border-radius: 5px;
