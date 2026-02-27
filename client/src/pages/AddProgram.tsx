@@ -267,6 +267,7 @@ export default function AddProgram() {
             ploId,
             competencyId: mapping.competencyId,
             weight: mapping.weight,
+            programId,
           });
         }
       }

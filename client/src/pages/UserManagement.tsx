@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, UserPlus, Trash2, Shield, Eye, Edit, LogOut, Edit2, Home } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Shield, Eye, Edit, LogOut, Edit2, Home, Search, X } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 export default function UserManagement() {
@@ -34,6 +34,10 @@ export default function UserManagement() {
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
   
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'editor' | 'viewer'>('all');
+
   // Assignment form state
   const [assignmentType, setAssignmentType] = useState<'university' | 'college' | 'cluster' | 'department'>('department');
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>();
@@ -48,6 +52,19 @@ export default function UserManagement() {
   const { data: departments } = trpc.departments.list.useQuery();
   const { data: programs } = trpc.programs.list.useQuery();
   
+  // Filtered users based on search query and role filter
+  const filteredUsers = useMemo(() => {
+    if (!users) return [];
+    return users.filter(user => {
+      const matchesSearch = searchQuery === '' || 
+        (user.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (user.username || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (user.email || '').toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+      return matchesSearch && matchesRole;
+    });
+  }, [users, searchQuery, roleFilter]);
+
   // Filtered data based on selections
   const filteredDepartments = departments?.filter(dept => 
     assignmentType === 'department' && selectedCollegeId ? dept.collegeId === selectedCollegeId : true
@@ -359,15 +376,64 @@ export default function UserManagement() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-center justify-end">
-        <Button onClick={() => setIsCreateUserDialogOpen(true)}>
+      {/* Search, Filter, and Create User bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search by name, username, or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as any)}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Filter by role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Roles</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="editor">Editor</SelectItem>
+            <SelectItem value="viewer">Viewer</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button onClick={() => setIsCreateUserDialogOpen(true)} className="bg-[#8B1538] hover:bg-[#6d1030] text-white whitespace-nowrap">
           <UserPlus className="h-4 w-4 mr-2" />
           Create User
         </Button>
       </div>
 
+      {/* Result count */}
+      <div className="text-sm text-gray-500">
+        Showing {filteredUsers.length} of {users?.length || 0} user{(users?.length || 0) !== 1 ? 's' : ''}
+        {(searchQuery || roleFilter !== 'all') && (
+          <button
+            onClick={() => { setSearchQuery(''); setRoleFilter('all'); }}
+            className="ml-2 text-[#8B1538] hover:underline"
+          >
+            Clear filters
+          </button>
+        )}
+      </div>
+
       <div className="grid gap-4">
-        {users?.map((user) => (
+        {filteredUsers.length === 0 && !usersLoading ? (
+          <div className="text-center py-12 text-gray-500">
+            <Search className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+            <p className="font-medium">No users found</p>
+            <p className="text-sm">Try adjusting your search or filter criteria</p>
+          </div>
+        ) : null}
+        {filteredUsers.map((user) => (
           <Card key={user.id}>
             <CardHeader>
               <div className="flex items-start justify-between">

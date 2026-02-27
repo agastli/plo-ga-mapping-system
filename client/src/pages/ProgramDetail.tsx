@@ -93,6 +93,7 @@ export default function ProgramDetail() {
     try {
       await updatePLO.mutateAsync({
         id: plo.id,
+        programId,
         descriptionEn: program?.language === "en" ? editingPLOText : undefined,
         descriptionAr: program?.language === "ar" ? editingPLOText : undefined,
       });
@@ -117,6 +118,7 @@ export default function ProgramDetail() {
         ploId,
         competencyId,
         weight: newWeight,
+        programId,
       });
       await refetch();
       toast.success("Mapping updated successfully");
@@ -759,7 +761,7 @@ export default function ProgramDetail() {
               onClick={async () => {
                 if (deletingPLO) {
                   try {
-                    await deletePLO.mutateAsync({ id: deletingPLO });
+                    await deletePLO.mutateAsync({ id: deletingPLO, programId });
                     await refetch();
                     toast.success("PLO deleted successfully");
                     setDeletingPLO(null);

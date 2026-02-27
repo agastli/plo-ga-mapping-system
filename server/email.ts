@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
+import { ENV } from './_core/env';
 
 // SMTP configuration for Hostinger
 const SMTP_CONFIG = {
@@ -8,7 +9,7 @@ const SMTP_CONFIG = {
   secure: false, // Use STARTTLS instead of SSL
   auth: {
     user: 'no-reply@gastli.org',
-    pass: process.env.SMTP_PASSWORD || process.env.DATABASE_URL?.match(/:(.*?)@/)?.[1] || '',
+    pass: ENV.smtpPassword || process.env.SMTP_PASSWORD || '',
   },
   tls: {
     rejectUnauthorized: false // Accept self-signed certificates

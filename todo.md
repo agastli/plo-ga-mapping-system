@@ -567,3 +567,27 @@
 - [x] Zero TypeScript errors confirmed with npx tsc --noEmit
 - [x] Add GA and Competency count cards to Admin Dashboard
 - [x] Add updateCluster, updateDepartment, updateCollege to db.ts and routers.ts
+
+## Phase: Email, User Search & Backend Access Control (Feb 27, 2026)
+
+### Email Notifications for Password Reset
+- [x] Check existing email.ts configuration and SMTP setup - fully implemented with Nodemailer + Hostinger SMTP
+- [x] Implement sendPasswordResetEmail function using Nodemailer - already exists in email.ts
+- [x] Connect auth.forgotPassword backend endpoint to send actual email - already wired
+- [x] Add SMTP_PASSWORD to env.ts for proper environment variable access
+
+### User Search & Filtering in User Management
+- [x] Add search input field to filter users by name, username, or email
+- [x] Add role filter dropdown (All, Admin, Editor, Viewer)
+- [x] Implement client-side filtering logic with useMemo
+- [x] Show result count and empty state when no users match
+
+### Backend Access Control Enforcement
+- [x] Add requireProgramAccess helper function to routers.ts
+- [x] Add requireEditorOrAdmin helper for admin-only operations
+- [x] Add access check to programs.update and programs.delete procedures
+- [x] Add access check to plos.create, plos.update, plos.delete procedures
+- [x] Add access check to mappings.upsert and justifications.upsert procedures
+- [x] Add access check to document.import procedure
+- [x] Fix frontend callers (AddProgram.tsx, ProgramDetail.tsx) to pass programId
+- [x] Zero TypeScript errors confirmed after all access control changes

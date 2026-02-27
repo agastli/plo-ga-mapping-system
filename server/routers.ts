@@ -21,6 +21,35 @@ const execAsync = promisify(exec);
 // Use 'python' command (works on both Windows and Unix with proper PATH setup)
 const PYTHON_CMD = 'python';
 
+/**
+ * Enforce that the current user has write access to the given program.
+ * Admins always pass. Editors/viewers must have an assignment covering the program.
+ * Throws UNAUTHORIZED if not logged in, FORBIDDEN if no access.
+ */
+async function requireProgramAccess(ctx: { user: { id: number; role: string } | null | undefined }, programId: number): Promise<void> {
+  if (!ctx.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'You must be logged in to perform this action.' });
+  }
+  if (ctx.user.role === 'admin') return; // admins always have access
+  const hasAccess = await db.userHasAccessToProgram(ctx.user.id, programId);
+  if (!hasAccess) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have permission to modify this program.' });
+  }
+}
+
+/**
+ * Enforce that the current user is authenticated and has admin or editor role.
+ * Used for program-level create/delete operations.
+ */
+function requireEditorOrAdmin(ctx: { user: { id: number; role: string } | null | undefined }): void {
+  if (!ctx.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'You must be logged in to perform this action.' });
+  }
+  if (ctx.user.role !== 'admin' && ctx.user.role !== 'editor') {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Editor or admin access required.' });
+  }
+}
+
 export const appRouter = router({
   system: systemRouter,
   
@@ -603,6 +632,7 @@ export const appRouter = router({
         language: z.enum(["en", "ar", "both"]),
       }))
       .mutation(async ({ input, ctx }) => {
+        requireEditorOrAdmin(ctx);
         const id = await db.createProgram(input);
         if (ctx.user) {
           await db.logAudit({
@@ -625,6 +655,7 @@ export const appRouter = router({
         language: z.enum(["en", "ar", "both"]).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await requireProgramAccess(ctx, input.id);
         const { id, ...data } = input;
         await db.updateProgram(id, data);
         if (ctx.user) {
@@ -641,6 +672,7 @@ export const appRouter = router({
     delete: publicProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
+        await requireProgramAccess(ctx, input.id);
         // Delete program and all related data (cascading delete)
         await db.deleteProgram(input.id);
         if (ctx.user) {
@@ -690,6 +722,7 @@ export const appRouter = router({
         sortOrder: z.number(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await requireProgramAccess(ctx, input.programId);
         const id = await db.createPLO(input);
         if (ctx.user) {
           await db.logAudit({
@@ -705,11 +738,13 @@ export const appRouter = router({
     update: publicProcedure
       .input(z.object({
         id: z.number(),
+        programId: z.number(),
         descriptionEn: z.string().optional(),
         descriptionAr: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        const { id, ...data } = input;
+        await requireProgramAccess(ctx, input.programId);
+        const { id, programId: _pid, ...data } = input;
         await db.updatePLO(id, data);
         if (ctx.user) {
           await db.logAudit({
@@ -723,8 +758,9 @@ export const appRouter = router({
         return { success: true };
       }),
     delete: publicProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.number(), programId: z.number() }))
       .mutation(async ({ input, ctx }) => {
+        await requireProgramAccess(ctx, input.programId);
         await db.deletePLO(input.id);
         if (ctx.user) {
           await db.logAudit({
@@ -791,8 +827,10 @@ export const appRouter = router({
         ploId: z.number(),
         competencyId: z.number(),
         weight: z.string(),
+        programId: z.number(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await requireProgramAccess(ctx, input.programId);
         await db.upsertMapping(input.ploId, input.competencyId, input.weight);
         if (ctx.user) {
           await db.logAudit({
@@ -823,6 +861,7 @@ export const appRouter = router({
         textAr: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
+        await requireProgramAccess(ctx, input.programId);
         await db.upsertJustification(input);
         if (ctx.user) {
           await db.logAudit({
@@ -890,6 +929,7 @@ export const appRouter = router({
         })),
       }))
       .mutation(async ({ input, ctx }) => {
+        await requireProgramAccess(ctx, input.programId);
         // Get existing PLOs for this program
         const existingPLOs = await db.getPLOsByProgram(input.programId);
         const existingPLOCodes = new Set(existingPLOs.map(p => p.code));
