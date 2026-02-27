@@ -226,3 +226,13 @@
 - [ ] Add email notification for password reset (TODO: requires email service integration)
 - [ ] Add email notification for username recovery (TODO: requires email service integration)
 - [ ] Implement auth.resetPassword endpoint with token validation (future enhancement)
+
+## Header and Footer Standardization
+
+- [x] Fix Admin Dashboard header to include Home button
+- [x] Fix Admin Dashboard header to match standard layout (logo, title, role badge, logout)
+- [x] Add footer to Admin Dashboard page
+- [x] Fix Organizational Structure header to include role badge and logout button
+- [x] Add footer to Organizational Structure page
+- [x] Update User Management footer to match standard maroon format
+- [x] Test all three pages to ensure consistent branding

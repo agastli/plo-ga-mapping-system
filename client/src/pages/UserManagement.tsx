@@ -814,15 +814,17 @@ export default function UserManagement() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white shadow-md rounded-lg mx-4 my-4 mt-8">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <img src="/qu-logo.png" alt="QU Logo" className="h-8" />
-              <span className="text-sm text-gray-600">© 2026 Qatar University. All rights reserved.</span>
+      <footer className="mt-auto bg-[#8B1538] text-white py-6">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <img src="/qu-logo.png" alt="Qatar University" className="h-10 w-auto brightness-0 invert" />
+              <div className="text-sm">
+                <p className="font-semibold">© 2026 Qatar University. All rights reserved.</p>
+              </div>
             </div>
-            <div className="text-sm text-gray-600">
-              PLO-GA Mapping System v1.0
+            <div className="text-sm text-right">
+              <p>PLO-GA Mapping System v1.0</p>
             </div>
           </div>
         </div>

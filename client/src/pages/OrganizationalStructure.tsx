@@ -1,14 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Home, Edit2, Save, X, Plus } from "lucide-react";
-import { Link } from "wouter";
+import { Home, Edit2, Save, X, Plus, Shield, LogOut } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function OrganizationalStructure() {
+  const [, setLocation] = useLocation();
+  const { data: user } = trpc.auth.me.useQuery();
   const { data: colleges, refetch: refetchColleges } = trpc.colleges.list.useQuery();
+  
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => {
+      setLocation('/login');
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
   const { data: clusters, refetch: refetchClusters } = trpc.clusters.list.useQuery();
   const { data: departments, refetch: refetchDepartments } = trpc.departments.list.useQuery();
   const { data: programs, refetch: refetchPrograms } = trpc.programs.list.useQuery();
@@ -136,7 +148,7 @@ export default function OrganizationalStructure() {
   };
 
   return (
-    <div className="min-h-screen bg-amber-50">
+    <div className="min-h-screen bg-amber-50 flex flex-col">
       {/* Header */}
       <header className="bg-white shadow-md rounded-lg mx-4 my-4">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -147,12 +159,22 @@ export default function OrganizationalStructure() {
               <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
             </div>
           </div>
-          <Link href="/">
-            <Button variant="outline" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              Home
+          <div className="flex items-center gap-3">
+            <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
+              <Link href="/admin-dashboard">
+                <Home className="mr-2 h-4 w-4" />
+                Home
+              </Link>
             </Button>
-          </Link>
+            <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg">
+              <Shield className="h-4 w-4 text-red-600" />
+              <span className="text-sm font-medium text-red-600">Administrator</span>
+            </div>
+            <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -400,9 +422,19 @@ export default function OrganizationalStructure() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-[#821F45] shadow-md rounded-lg mx-4 my-8">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-center">
-          <img src="/qu-log-white-transparent.png" alt="QU Logo" className="h-14" />
+      <footer className="mt-auto bg-[#8B1538] text-white py-6">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <img src="/qu-logo.png" alt="Qatar University" className="h-10 w-auto brightness-0 invert" />
+              <div className="text-sm">
+                <p className="font-semibold">© 2026 Qatar University. All rights reserved.</p>
+              </div>
+            </div>
+            <div className="text-sm text-right">
+              <p>PLO-GA Mapping System v1.0</p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

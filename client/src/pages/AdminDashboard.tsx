@@ -10,7 +10,8 @@ import {
   Settings,
   Database,
   Shield,
-  LogOut
+  LogOut,
+  Home
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -107,7 +108,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-amber-50">
+    <div className="min-h-screen bg-amber-50 flex flex-col">
       {/* Header */}
       <header className="bg-white shadow-md rounded-lg mx-4 my-4">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -119,6 +120,12 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
+              <Link href="/admin-dashboard">
+                <Home className="mr-2 h-4 w-4" />
+                Home
+              </Link>
+            </Button>
             <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg">
               <Shield className="h-4 w-4 text-red-600" />
               <span className="text-sm font-medium text-red-600">Administrator</span>
@@ -173,6 +180,23 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="mt-auto bg-[#8B1538] text-white py-6">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <img src="/qu-logo.png" alt="Qatar University" className="h-10 w-auto brightness-0 invert" />
+              <div className="text-sm">
+                <p className="font-semibold">© 2026 Qatar University. All rights reserved.</p>
+              </div>
+            </div>
+            <div className="text-sm text-right">
+              <p>PLO-GA Mapping System v1.0</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
