@@ -527,3 +527,9 @@
 - DepartmentAnalytics, GAAnalytics, CompetencyAnalytics, AnalyticsGuide
 - GAAnalyticsGuide, CompetencyAnalyticsGuide
 - Plus 5 previously fixed: UserProfile, UserLoginTracking, ReportTemplates, OrganizationalStructure, ViewProgram
+
+## Production Deployment Issues (Feb 27, 2026)
+
+- [x] Fix duplicate footer on Analytics Guide pages (removed from AnalyticsGuide, GAAnalyticsGuide, CompetencyAnalyticsGuide)
+- [ ] Stop old PM2 process (plo-ga-mapping) to avoid running 2 processes
+- [ ] Verify footer width fixes are visible on production after proper PM2 restart
