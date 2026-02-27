@@ -140,11 +140,11 @@ export default function AdminDashboard() {
               <Shield className="h-4 w-4 text-red-600" />
               <span className="text-sm font-medium text-red-600">Administrator</span>
             </div>
-            <Button onClick={() => setLocation('/profile')} variant="outline" className="flex items-center gap-2">
+            <Button onClick={() => setLocation('/profile')} className="flex items-center gap-2 bg-[#8B1538] text-white hover:bg-[#6B1028]">
               <User className="h-4 w-4" />
               Profile
             </Button>
-            <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
+            <Button onClick={handleLogout} className="flex items-center gap-2 bg-[#8B1538] text-white hover:bg-[#6B1028]">
               <LogOut className="h-4 w-4" />
               Logout
             </Button>

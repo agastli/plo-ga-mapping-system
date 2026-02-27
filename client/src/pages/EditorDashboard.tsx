@@ -76,14 +76,14 @@ export default function EditorDashboard() {
                 </Badge>
                 <button
                   onClick={() => setLocation('/profile')}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-[#8B1538] hover:bg-gray-100 rounded-md transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#8B1538] text-white hover:bg-[#6B1028] rounded-md transition-colors"
                 >
                   <User className="w-4 h-4" />
                   <span>Profile</span>
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-[#8B1538] hover:bg-gray-100 rounded-md transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#8B1538] text-white hover:bg-[#6B1028] rounded-md transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Logout</span>

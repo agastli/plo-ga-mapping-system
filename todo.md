@@ -432,3 +432,9 @@
 - [x] Create UserLoginTracking.tsx admin dashboard page
 - [x] Add navigation link to login tracking dashboard in admin menu
 - [x] Display login history table with: username, login time, IP address, user agent
+
+## Header Button Styling
+
+- [x] Update Profile and Logout buttons in ViewerDashboard to maroon background with white text
+- [x] Update Profile and Logout buttons in EditorDashboard to maroon background with white text
+- [x] Update Profile and Logout buttons in AdminDashboard to maroon background with white text
