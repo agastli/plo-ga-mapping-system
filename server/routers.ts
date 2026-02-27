@@ -146,10 +146,14 @@ export const appRouter = router({
         
         await db.updateUserResetToken(user.id, resetToken, resetTokenExpiry);
         
-        // TODO: Send email with reset link
-        // For now, just log the token (in production, send via email)
-        console.log(`Password reset token for ${user.email}: ${resetToken}`);
-        console.log(`Reset link: /reset-password?token=${resetToken}`);
+        // Send password reset email
+        const { sendPasswordResetEmail } = await import('./email');
+        const emailSent = await sendPasswordResetEmail(user.email!, (user.username || 'User') as string, resetToken);
+        
+        if (!emailSent) {
+          console.error(`Failed to send password reset email to ${user.email}`);
+          // Still return success for security (don't reveal if email exists)
+        }
         
         return { success: true };
       }),
@@ -166,9 +170,14 @@ export const appRouter = router({
           return { success: true };
         }
         
-        // TODO: Send email with username
-        // For now, just log the username (in production, send via email)
-        console.log(`Username recovery for ${user.email}: ${user.username}`);
+        // Send username reminder email
+        const { sendUsernameReminderEmail } = await import('./email');
+        const emailSent = await sendUsernameReminderEmail(user.email!, user.username as string);
+        
+        if (!emailSent) {
+          console.error(`Failed to send username reminder email to ${user.email}`);
+          // Still return success for security (don't reveal if email exists)
+        }
         
         return { success: true };
       }),

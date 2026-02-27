@@ -368,3 +368,14 @@
 - [x] Ensure all footers match container width (max-w-7xl)
 - [x] Use consistent footer content (QU logo, copyright, version)
 - [x] All 21 pages now have standard maroon footers
+
+## Email Sending Implementation (SMTP)
+
+- [x] Install nodemailer package
+- [x] Create email service module (server/email.ts)
+- [x] Configure Hostinger SMTP settings (smtp.hostinger.com:465)
+- [x] SMTP credentials use database password (no additional secrets needed)
+- [x] Update forgot password endpoint to send recovery emails
+- [x] Update forgot username endpoint to send username reminder emails
+- [ ] Test email sending functionality on VPS
+- [ ] Verify emails are received successfully
