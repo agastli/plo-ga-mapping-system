@@ -390,3 +390,11 @@
 - [x] Include login link and getting started guide
 - [x] Update user creation endpoint to send welcome email
 - [ ] Test welcome email with different user roles on VPS
+
+## SMTP Email Fix - Port 587 and Error Handling
+
+- [x] Update SMTP configuration to use port 587 with STARTTLS instead of port 465
+- [x] Add comprehensive try-catch error handling to prevent server crashes
+- [x] Make email sending completely non-blocking
+- [x] Add detailed error logging for SMTP issues
+- [ ] Test email sending with new configuration on VPS

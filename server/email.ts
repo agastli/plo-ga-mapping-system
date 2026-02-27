@@ -4,12 +4,18 @@ import type { Transporter } from 'nodemailer';
 // SMTP configuration for Hostinger
 const SMTP_CONFIG = {
   host: 'smtp.hostinger.com',
-  port: 465,
-  secure: true, // Use SSL
+  port: 587, // Use port 587 with STARTTLS (more reliable than 465)
+  secure: false, // Use STARTTLS instead of SSL
   auth: {
     user: 'no-reply@gastli.org',
     pass: process.env.SMTP_PASSWORD || process.env.DATABASE_URL?.match(/:(.*?)@/)?.[1] || '',
   },
+  tls: {
+    rejectUnauthorized: false // Accept self-signed certificates
+  },
+  connectionTimeout: 10000, // 10 second timeout
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 };
 
 // Create reusable transporter
@@ -17,7 +23,13 @@ let transporter: Transporter | null = null;
 
 function getTransporter(): Transporter {
   if (!transporter) {
-    transporter = nodemailer.createTransport(SMTP_CONFIG);
+    try {
+      transporter = nodemailer.createTransport(SMTP_CONFIG);
+      console.log('[Email] SMTP transporter created successfully');
+    } catch (error) {
+      console.error('[Email] Failed to create SMTP transporter:', error);
+      throw error;
+    }
   }
   return transporter as Transporter;
 }
@@ -106,7 +118,9 @@ PLO-GA Mapping System | Academic Planning & Quality Assurance Office
     console.log(`Password reset email sent to: ${to}`);
     return true;
   } catch (error) {
-    console.error('Error sending password reset email:', error);
+    console.error('[Email] Failed to send password reset email to:', to);
+    console.error('[Email] Error details:', error);
+    // Don't throw - return false to indicate failure without crashing
     return false;
   }
 }
@@ -201,7 +215,9 @@ PLO-GA Mapping System | Academic Planning & Quality Assurance Office
     console.log(`Username reminder email sent to: ${to}`);
     return true;
   } catch (error) {
-    console.error('Error sending username reminder email:', error);
+    console.error('[Email] Failed to send username reminder email to:', to);
+    console.error('[Email] Error details:', error);
+    // Don't throw - return false to indicate failure without crashing
     return false;
   }
 }
@@ -212,10 +228,12 @@ PLO-GA Mapping System | Academic Planning & Quality Assurance Office
 export async function testEmailConfig(): Promise<boolean> {
   try {
     await getTransporter().verify();
-    console.log('SMTP configuration is valid');
+    console.log('[Email] SMTP configuration is valid and connection successful');
     return true;
   } catch (error) {
-    console.error('SMTP configuration error:', error);
+    console.error('[Email] SMTP configuration test failed');
+    console.error('[Email] Error details:', error);
+    // Don't throw - return false to indicate failure without crashing
     return false;
   }
 }
@@ -479,7 +497,9 @@ PLO-GA Mapping System | Academic Planning & Quality Assurance Office
     console.log(`Welcome email sent to: ${to} (${role})`);
     return true;
   } catch (error) {
-    console.error('Error sending welcome email:', error);
+    console.error('[Email] Failed to send welcome email to:', to);
+    console.error('[Email] Error details:', error);
+    // Don't throw - return false to indicate failure without crashing
     return false;
   }
 }
