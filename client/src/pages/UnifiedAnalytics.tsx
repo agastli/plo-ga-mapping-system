@@ -425,14 +425,15 @@ export default function UnifiedAnalytics() {
     enabled: !!currentUser,
   });
   
-  // Admins see all programs, viewers/editors see only assigned programs
+  // Fetch all programs for access breadth detection (needed for both admin and non-admin)
   const { data: allPrograms } = trpc.programs.list.useQuery(undefined, {
-    enabled: !!currentUser && isAdmin,
+    enabled: !!currentUser,
   });
   const { data: accessiblePrograms } = trpc.users.getAccessiblePrograms.useQuery(undefined, {
     enabled: !!currentUser && !isAdmin,
   });
   
+  // Admins see all programs in UI, viewers/editors see only assigned programs
   const programs = isAdmin ? allPrograms : accessiblePrograms;
   
   // For non-admins, derive accessible colleges from their assigned programs
@@ -443,22 +444,39 @@ export default function UnifiedAnalytics() {
           .map(collegeId => accessiblePrograms.find(p => p.college.id === collegeId)!.college)
       : [];
   
-  // Set default filter level based on user role and auto-select first program for non-admins (only on initial load)
+  // Set default filter level based on user role and breadth of access (only on initial load)
   useEffect(() => {
     if (hasInitialized) return; // Skip if already initialized
     
-    if (currentUser && !isAdmin && accessiblePrograms && accessiblePrograms.length > 0) {
-      // For viewers/editors, default to program level with first accessible program
-      setFilterLevel('program');
-      const firstProgram = accessiblePrograms[0];
-      setSelectedCollegeId(firstProgram.college.id);
-      setSelectedProgramId(firstProgram.program.id);
+    if (currentUser && !isAdmin && accessiblePrograms && accessiblePrograms.length > 0 && allPrograms) {
+      // Detect if user has full college access
+      const userColleges = Array.from(new Set(accessiblePrograms.map(p => p.college.id)));
+      
+      // Check if user has ALL programs in at least one college
+      const hasFullCollegeAccess = userColleges.some(collegeId => {
+        const allProgramsInCollege = allPrograms.filter(p => p.department.collegeId === collegeId);
+        const userProgramsInCollege = accessiblePrograms.filter(p => p.college.id === collegeId);
+        return allProgramsInCollege.length === userProgramsInCollege.length && allProgramsInCollege.length > 0;
+      });
+      
+      if (hasFullCollegeAccess) {
+        // User has full college access → default to College level
+        setFilterLevel('college');
+        const firstCollege = userColleges[0];
+        setSelectedCollegeId(firstCollege);
+      } else {
+        // User has partial program access → default to Program level
+        setFilterLevel('program');
+        const firstProgram = accessiblePrograms[0];
+        setSelectedCollegeId(firstProgram.college.id);
+        setSelectedProgramId(firstProgram.program.id);
+      }
       setHasInitialized(true);
     } else if (currentUser && isAdmin) {
       setFilterLevel('university');
       setHasInitialized(true);
     }
-  }, [currentUser, isAdmin, accessiblePrograms, hasInitialized]);
+  }, [currentUser, isAdmin, accessiblePrograms, allPrograms, hasInitialized]);
   
   // Filter clusters by selected college
   const clusters = selectedCollegeId && allClusters

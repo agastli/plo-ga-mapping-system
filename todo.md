@@ -333,3 +333,11 @@
 - [x] Fix Analysis Level dropdown onChange to clear program selection when switching to college level
 - [x] Ensure college-level analytics display when "By College" is selected
 - [ ] Test switching between college and program levels
+
+## Smart Default Analysis Level Based on Access Breadth
+
+- [x] Detect if user has access to all programs in a college (full college access)
+- [x] If full college access: default to College level
+- [x] If partial program access: default to Program level
+- [x] If admin (all colleges): default to University level (already implemented)
+- [ ] Test with user assigned to full college vs specific programs
