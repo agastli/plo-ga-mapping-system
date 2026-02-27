@@ -31,42 +31,47 @@ export default function UserLoginTracking() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-maroon-50 to-maroon-100 p-6">
-      <div className="container max-w-7xl">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setLocation('/admin-dashboard')}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Button>
-            <div className="flex items-center gap-2">
+    <div className="min-h-screen bg-amber-50 flex flex-col">
+      {/* Header */}
+      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+        <header className="bg-white rounded-lg shadow-md mb-6">
+          <div className="px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <img 
                 src="/qu-logo.png" 
                 alt="QU Logo" 
                 className="h-12 w-auto"
               />
-              <div>
-                <h1 className="text-2xl font-bold text-[#8B1538]">User Login Tracking</h1>
+              <div className="border-l-2 border-gray-300 pl-3">
+                <h1 className="text-xl font-bold text-[#8B1538]">User Login Tracking</h1>
                 <p className="text-sm text-gray-600">Monitor user login activity</p>
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLocation('/admin-dashboard')}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                className="gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </Button>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            className="gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Refresh
-          </Button>
-        </div>
+        </header>
+      </div>
+      
+      <div className="container mx-auto px-4 max-w-7xl flex-1">
 
         {/* Login History Table */}
         <Card>
@@ -160,6 +165,25 @@ export default function UserLoginTracking() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Footer */}
+      <footer className="bg-[#8B1538] text-white py-6 mt-8">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img 
+                src="/qu-logo.png" 
+                alt="QU Logo" 
+                className="h-10 w-auto brightness-0 invert"
+              />
+              <div>
+                <p className="text-sm font-medium">PLO-GA Mapping Management System</p>
+                <p className="text-xs text-gray-300">© 2026 Qatar University. All rights reserved</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

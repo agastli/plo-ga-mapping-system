@@ -438,3 +438,8 @@
 - [x] Update Profile and Logout buttons in ViewerDashboard to maroon background with white text
 - [x] Update Profile and Logout buttons in EditorDashboard to maroon background with white text
 - [x] Update Profile and Logout buttons in AdminDashboard to maroon background with white text
+
+## Login Tracking Page Styling
+
+- [x] Change background from white/gradient to amber-50 to match other dashboards
+- [x] Add standard footer with QU logo and copyright information
