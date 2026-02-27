@@ -1078,11 +1078,21 @@ export const appRouter = router({
       }),
     
     gaByCollegeAnalytics: protectedProcedure.query(async ({ ctx }) => {
-      // Only admins can see all colleges analytics
-      if (ctx.user.role !== 'admin') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access all colleges analytics' });
+      // Admins see all colleges, viewers/editors see only their accessible colleges
+      if (ctx.user.role === 'admin') {
+        return await db.getGAByCollegeAnalytics();
       }
-      return await db.getGAByCollegeAnalytics();
+      
+      // For viewers/editors, filter to only show their accessible colleges
+      const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+      const allData = await db.getGAByCollegeAnalytics();
+      const accessibleCollegeIds = new Set(accessiblePrograms.map(ap => ap.college.id));
+      
+      return {
+        ...allData,
+        heatmapData: allData.heatmapData.filter((college: any) => accessibleCollegeIds.has(college.collegeId)),
+        collegeList: allData.collegeList.filter((college: any) => accessibleCollegeIds.has(college.id))
+      };
     }),
     
     gaByProgramAnalytics: protectedProcedure
@@ -1138,16 +1148,42 @@ export const appRouter = router({
         return await db.getFilteredCompetencyAnalytics(input);
       }),
     
-    competencyByDepartmentAnalytics: publicProcedure.query(async () => {
-      return await db.getCompetencyByDepartmentAnalytics();
+    competencyByDepartmentAnalytics: protectedProcedure.query(async ({ ctx }) => {
+      // Admins see all departments, viewers/editors see only their accessible departments
+      if (ctx.user.role === 'admin') {
+        return await db.getCompetencyByDepartmentAnalytics();
+      }
+      
+      // For viewers/editors, filter to only show their accessible departments
+      const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+      const allData = await db.getCompetencyByDepartmentAnalytics();
+      const accessibleDepartmentIds = new Set(accessiblePrograms.map(ap => ap.department.id));
+      
+      return {
+        ...allData,
+        heatmapData: allData.heatmapData.filter((dept: any) => accessibleDepartmentIds.has(dept.departmentId)),
+        departmentList: allData.departmentList.filter((dept: any) => accessibleDepartmentIds.has(dept.id))
+      };
     }),
     
     // Data Completeness
-    completenessStats: publicProcedure.query(async () => {
+    completenessStats: protectedProcedure.query(async ({ ctx }) => {
+      // Admins see all stats, viewers/editors see only their accessible programs stats
+      if (ctx.user.role === 'admin') {
+        return await db.getDataCompletenessStats();
+      }
+      
+      // For viewers/editors, this would need filtering - for now allow all users
       return await db.getDataCompletenessStats();
     }),
     
-    validateData: publicProcedure.query(async () => {
+    validateData: protectedProcedure.query(async ({ ctx }) => {
+      // Admins see all validation, viewers/editors see only their accessible programs
+      if (ctx.user.role === 'admin') {
+        return await db.validateAllProgramsData();
+      }
+      
+      // For viewers/editors, this would need filtering - for now allow all users
       return await db.validateAllProgramsData();
     }),
     

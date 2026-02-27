@@ -34,6 +34,7 @@ import UserManagement from "./pages/UserManagement";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import RecoverUsername from "./pages/RecoverUsername";
+import ProgramBrowser from "./pages/ProgramBrowser";
 
 function Router() {
   return (
@@ -57,6 +58,11 @@ function Router() {
       <Route path={"/viewer-dashboard"}>
         <ProtectedRoute requireRole="viewer">
           <ViewerDashboard />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/program-browser"}>
+        <ProtectedRoute>
+          <ProgramBrowser />
         </ProtectedRoute>
       </Route>
       <Route path={"/upload"} component={Upload} />

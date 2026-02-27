@@ -284,3 +284,23 @@
 - [x] Change all analytics endpoints from publicProcedure to protectedProcedure
 - [x] Add access control checks to all analytics endpoints
 - [ ] Test analytics with viewer account to verify access restrictions
+
+## Dashboard UX Flow Redesign - New Approach
+
+- [ ] Redesign ViewerDashboard: Remove filters and program cards, add two large action buttons
+- [ ] Redesign EditorDashboard: Remove filters and program cards, add two large action buttons
+- [ ] Action Button 1: "Browse Programs" → navigates to /program-browser page
+- [ ] Action Button 2: "View Analytics" → navigates to /analytics page
+- [ ] Create new ProgramBrowser.tsx page component
+- [ ] ProgramBrowser: Show college/cluster filters (limited to user's accessible colleges/clusters)
+- [ ] ProgramBrowser: Display filtered program cards below filters
+- [ ] ProgramBrowser: Each program card links to program detail page
+- [ ] Add /program-browser route to App.tsx
+
+## Analytics Page Access Control Fix
+
+- [ ] Fix gaByCollegeAnalytics to filter data based on user's accessible colleges
+- [ ] Fix competencyByDepartmentAnalytics to filter data based on user's accessible departments
+- [ ] Change completenessStats and validateData from publicProcedure to protectedProcedure
+- [ ] Ensure analytics page respects user access levels (university/college/cluster/program)
+- [ ] Test analytics page loads without 403 Forbidden errors for viewers/editors

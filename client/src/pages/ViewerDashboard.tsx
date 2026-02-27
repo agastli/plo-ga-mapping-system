@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { 
   FileText, 
@@ -9,18 +8,14 @@ import {
   Shield,
   LogOut,
   Eye,
-  Home
+  Search
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { useState } from "react";
 
 export default function ViewerDashboard() {
   const [, setLocation] = useLocation();
   const { data: user } = trpc.auth.me.useQuery();
   const { data: accessiblePrograms } = trpc.users.getAccessiblePrograms.useQuery();
-  
-  const [selectedCollegeId, setSelectedCollegeId] = useState<string>("");
-  const [selectedClusterId, setSelectedClusterId] = useState<string>("");
   
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
@@ -34,50 +29,6 @@ export default function ViewerDashboard() {
 
   // Get only programs accessible to this viewer
   const allMyPrograms = accessiblePrograms || [];
-  
-  // Get unique colleges from assigned programs
-  const assignedColleges = Array.from(
-    new Map(allMyPrograms.map(p => [p.college.id, p.college])).values()
-  );
-  
-  // Get unique clusters for selected college from assigned programs
-  // Note: We need to fetch cluster names from the departments that have clusters
-  const departmentsWithClusters = selectedCollegeId
-    ? allMyPrograms.filter(p => p.college.id.toString() === selectedCollegeId && p.department.clusterId)
-    : [];
-  
-  const assignedClusters = Array.from(
-    new Map(
-      departmentsWithClusters.map(p => [
-        p.department.clusterId,
-        { id: p.department.clusterId, nameEn: `Cluster ${p.department.clusterId}`, nameAr: `مجموعة ${p.department.clusterId}` }
-      ])
-    ).values()
-  );
-  const hasCluster = assignedClusters.length > 0;
-  
-  // Reset cluster selection when college changes
-  const handleCollegeChange = (collegeId: string) => {
-    setSelectedCollegeId(collegeId);
-    setSelectedClusterId("");
-  };
-  
-  // Filter programs by college and cluster
-  const myPrograms = selectedCollegeId ? allMyPrograms.filter((item) => {
-    const matchesCollege = item.college.id.toString() === selectedCollegeId;
-    
-    // If college has clusters, require cluster selection
-    if (hasCluster && !selectedClusterId) {
-      return false;
-    }
-    
-    // If cluster is selected, filter by cluster
-    const matchesCluster = selectedClusterId 
-      ? item.department.clusterId?.toString() === selectedClusterId
-      : true;
-    
-    return matchesCollege && matchesCluster;
-  }) : allMyPrograms;
 
   const stats = [
     {
@@ -102,8 +53,6 @@ export default function ViewerDashboard() {
       bgColor: "bg-green-50",
     },
   ];
-
-
 
   return (
     <div className="min-h-screen bg-amber-50">
@@ -162,101 +111,51 @@ export default function ViewerDashboard() {
           ))}
         </div>
 
-        {/* Filter Section */}
-        <Card className="shadow-md border-[#8B1538]/20 bg-white mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-shrink-0 md:w-64">
-                <label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                  🏛️ Filter by College
-                </label>
-                <Select value={selectedCollegeId} onValueChange={handleCollegeChange}>
-                  <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
-                    <SelectValue placeholder="Select a college" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {assignedColleges.map((college) => (
-                      <SelectItem key={college.id} value={college.id.toString()}>
-                        {college.nameEn}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {hasCluster && (
-                <div className="flex-shrink-0 md:w-64">
-                  <label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                    🔗 Filter by Cluster
-                  </label>
-                  <Select value={selectedClusterId} onValueChange={setSelectedClusterId}>
-                    <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
-                      <SelectValue placeholder="Select a cluster" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {assignedClusters.map((cluster: any) => (
-                        <SelectItem key={cluster.id} value={cluster.id.toString()}>
-                          {cluster.nameEn}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              
-              <div className="flex-shrink-0 md:ml-auto">
-                <label className="text-sm font-medium text-slate-700 mb-2 block">&nbsp;</label>
-                <Link href="/analytics">
-                  <Button className="w-full md:w-auto bg-[#8B1538] hover:bg-[#6d1029] text-white">
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    View Analytics
+        {/* Main Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+          <Link href="/program-browser">
+            <Card className="hover:shadow-2xl transition-all cursor-pointer border-2 border-transparent hover:border-[#8B1538]/30 h-full">
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center text-center gap-4">
+                  <div className="p-6 rounded-full bg-blue-50">
+                    <Search className="h-12 w-12 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Browse Programs</h3>
+                    <p className="text-gray-600">
+                      View and explore your assigned programs with detailed PLO and mapping information
+                    </p>
+                  </div>
+                  <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg">
+                    <Eye className="h-5 w-5 mr-2" />
+                    View Programs
                   </Button>
-                </Link>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* My Programs List */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            My Assigned Programs (Read-Only)
-            {selectedCollegeId && ` - ${myPrograms.length} program${myPrograms.length !== 1 ? 's' : ''}`}
-          </h2>
-          {myPrograms.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6 text-center py-12">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No programs assigned yet</p>
-                <p className="text-sm text-gray-500 mt-2">Contact your administrator to get program access</p>
+                </div>
               </CardContent>
             </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {myPrograms.map((program) => (
-                <Link key={program.program.id} href={`/programs/${program.program.id}`}>
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline">{program.program.code}</Badge>
-                        <Eye className="h-4 w-4 text-gray-400" />
-                      </div>
-                      <CardTitle className="text-base mt-2">{program.program.nameEn}</CardTitle>
-                      <CardDescription className="text-sm mt-1">
-                        {program.department.nameEn}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex gap-4 text-sm text-gray-600">
-                        <span>{program.ploCount || 0} PLOs</span>
-                        <span>{program.mappingCount || 0} Mappings</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          )}
+          </Link>
+
+          <Link href="/analytics">
+            <Card className="hover:shadow-2xl transition-all cursor-pointer border-2 border-transparent hover:border-[#8B1538]/30 h-full">
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center text-center gap-4">
+                  <div className="p-6 rounded-full bg-purple-50">
+                    <BarChart3 className="h-12 w-12 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">View Analytics</h3>
+                    <p className="text-gray-600">
+                      Access comprehensive analytics and statistics for your assigned programs
+                    </p>
+                  </div>
+                  <Button className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg">
+                    <BarChart3 className="h-5 w-5 mr-2" />
+                    Open Analytics
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </div>
 
