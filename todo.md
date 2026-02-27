@@ -616,3 +616,11 @@
 - [x] Make data tables horizontally scrollable with sticky first column
 - [x] Improve sidebar/header for mobile (collapsible or hamburger menu)
 - [ ] Test on 375px (mobile) and 768px (tablet) widths (manual verification needed)
+
+## Dashboard Intro Text (Feb 27, 2026)
+- [ ] Add intro panel to AdminDashboard explaining admin capabilities
+- [ ] Add intro panel to EditorDashboard explaining editor capabilities
+- [ ] Add intro panel to ViewerDashboard explaining viewer capabilities
+- [ ] Add intro panel to Programs page
+- [ ] Add intro panel to Analytics/UnifiedAnalytics page
+- [ ] Add intro panel to UserManagement page

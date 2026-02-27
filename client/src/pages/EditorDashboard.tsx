@@ -100,6 +100,22 @@ export default function EditorDashboard() {
           <p className="text-lg text-gray-600">Welcome, {user?.name || 'Editor'}</p>
         </div>
 
+        {/* Intro Panel */}
+        <div className="bg-white border-l-4 border-green-600 rounded-lg shadow-sm p-5">
+          <h2 className="text-lg font-bold text-green-700 mb-2">What can you do here?</h2>
+          <p className="text-gray-700 text-sm leading-relaxed">
+            As an <strong>Editor</strong>, you can create and manage PLO-GA mappings for the programs assigned to you. Here is what you can do:
+          </p>
+          <ul className="mt-2 text-sm text-gray-700 space-y-1 list-disc list-inside">
+            <li><strong>View Your Programs</strong> — see all academic programs assigned to you by the administrator.</li>
+            <li><strong>Edit PLOs</strong> — add, update, or remove Program Learning Outcomes for your assigned programs.</li>
+            <li><strong>Map PLOs to GAs</strong> — assign weighting factors and write justifications for each PLO-to-Graduate-Attribute mapping.</li>
+            <li><strong>Upload Documents</strong> — import PLOs and mappings from Word documents to save time.</li>
+            <li><strong>View Analytics</strong> — review alignment charts and coverage reports for your assigned programs.</li>
+          </ul>
+          <p className="mt-3 text-xs text-gray-500">You can only view and edit programs explicitly assigned to you. Contact an administrator to request access to additional programs.</p>
+        </div>
+
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map((stat) => (

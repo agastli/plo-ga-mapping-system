@@ -659,6 +659,20 @@ export default function UnifiedAnalytics() {
           </p>
         </div>
 
+        {/* Intro Panel */}
+        <div className="bg-white border-l-4 border-[#8B1538] rounded-lg shadow-sm p-5 mb-6">
+          <h2 className="text-base font-bold text-[#8B1538] mb-2">What can you do on this page?</h2>
+          <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+            <li><strong>Filter by Level</strong> — switch between University-wide, College, Cluster, or Program views using the Filters panel below.</li>
+            <li><strong>GA Alignment Chart</strong> — see average alignment scores for each Graduate Attribute as a bar chart.</li>
+            <li><strong>Radar Profile</strong> — view a radar chart showing the overall GA coverage profile for the selected scope.</li>
+            <li><strong>Comparison Chart</strong> — compare alignment scores across colleges or programs side by side.</li>
+            <li><strong>Competency Weights</strong> — explore average weighting for all 21 competencies grouped by Graduate Attribute.</li>
+            <li><strong>Data Tables</strong> — review detailed numeric data for GAs and competencies in sortable tables.</li>
+            <li><strong>Export</strong> — download all charts and tables as PNG images, PDF, Word, or Excel using the Export button in the header.</li>
+          </ul>
+        </div>
+
         {/* Filters */}
         <Card className="mb-6">
           <CardHeader>

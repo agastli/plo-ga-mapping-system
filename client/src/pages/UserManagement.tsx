@@ -384,6 +384,20 @@ export default function UserManagement() {
             { label: "User Management" },
           ]}
         />
+
+      {/* Intro Panel */}
+      <div className="bg-white border-l-4 border-[#8B1538] rounded-lg shadow-sm p-5 mb-4">
+        <h2 className="text-base font-bold text-[#8B1538] mb-2">What can you do on this page?</h2>
+        <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+          <li><strong>Create Users</strong> — add new system users with a username, password, name, email, and role.</li>
+          <li><strong>Assign Roles</strong> — set each user as Admin, Editor, or Viewer to control their level of access.</li>
+          <li><strong>Assign Programs</strong> — grant Editors and Viewers access to specific colleges, departments, or individual programs.</li>
+          <li><strong>Edit User Info</strong> — update a user’s name, email, or password at any time.</li>
+          <li><strong>Remove Users</strong> — delete accounts that are no longer needed (you cannot delete your own account).</li>
+          <li><strong>Search &amp; Filter</strong> — use the search bar or role filter to quickly find a specific user.</li>
+        </ul>
+      </div>
+
       {/* Search, Filter, and Create User bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="relative flex-1 w-full">

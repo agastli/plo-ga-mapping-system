@@ -100,6 +100,21 @@ export default function ViewerDashboard() {
           <p className="text-lg text-gray-600">Welcome, {user?.name || 'Viewer'}</p>
         </div>
 
+        {/* Intro Panel */}
+        <div className="bg-white border-l-4 border-blue-500 rounded-lg shadow-sm p-5">
+          <h2 className="text-lg font-bold text-blue-700 mb-2">What can you do here?</h2>
+          <p className="text-gray-700 text-sm leading-relaxed">
+            As a <strong>Viewer</strong>, you have read-only access to the PLO-GA Mapping System for the programs assigned to you. Here is what you can do:
+          </p>
+          <ul className="mt-2 text-sm text-gray-700 space-y-1 list-disc list-inside">
+            <li><strong>Browse Your Programs</strong> — view the academic programs and their Program Learning Outcomes (PLOs).</li>
+            <li><strong>Review Mappings</strong> — explore how each PLO is mapped to Graduate Attributes (GAs) and competencies, along with weighting factors and justifications.</li>
+            <li><strong>View Analytics</strong> — see alignment charts and coverage reports for your assigned programs.</li>
+            <li><strong>Download Reports</strong> — export mapping documents and analytics as Word, PDF, or Excel files.</li>
+          </ul>
+          <p className="mt-3 text-xs text-gray-500">You have view-only access. To make changes, contact an administrator or editor assigned to your program.</p>
+        </div>
+
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map((stat) => (

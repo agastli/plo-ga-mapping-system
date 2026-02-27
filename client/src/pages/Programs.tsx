@@ -106,9 +106,21 @@ export default function Programs() {
 
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Programs Directory</h1>
-        <p className="text-gray-700 mb-8">
+        <p className="text-gray-700 mb-4">
           Browse and manage PLO-GA mappings for academic programs
         </p>
+
+        {/* Intro Panel */}
+        <div className="bg-white border-l-4 border-[#8B1538] rounded-lg shadow-sm p-5 mb-8">
+          <h2 className="text-base font-bold text-[#8B1538] mb-2">What can you do on this page?</h2>
+          <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+            <li><strong>Search &amp; Filter</strong> — use the search bar or college/department filters to quickly find a program.</li>
+            <li><strong>Open a Program</strong> — click any program card to view its PLOs, manage mappings, and see alignment details.</li>
+            <li><strong>Add a Program</strong> — administrators and editors can create new programs using the “Add Program” button.</li>
+            <li><strong>Upload Mappings</strong> — import PLOs and GA mappings from a Word document directly from the program detail page.</li>
+            <li><strong>Export Reports</strong> — download the full PLO-GA mapping document for any program as Word or PDF.</li>
+          </ul>
+        </div>
 
         {/* Search and Filter Section */}
         <div className="mb-8">

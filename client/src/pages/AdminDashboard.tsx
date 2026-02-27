@@ -172,6 +172,21 @@ export default function AdminDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Intro Panel */}
+        <div className="bg-white border-l-4 border-[#8B1538] rounded-lg shadow-sm p-5">
+          <h2 className="text-lg font-bold text-[#8B1538] mb-2">Welcome to the Admin Dashboard</h2>
+          <p className="text-gray-700 text-sm leading-relaxed">
+            As an <strong>Administrator</strong>, you have full control over the PLO-GA Mapping System. From this dashboard you can:
+          </p>
+          <ul className="mt-2 text-sm text-gray-700 space-y-1 list-disc list-inside">
+            <li><strong>Manage Programs</strong> — add, edit, or delete academic programs and their PLOs.</li>
+            <li><strong>Map PLOs to GAs</strong> — assign weighting factors and justifications for each PLO-GA-Competency mapping.</li>
+            <li><strong>Manage Users</strong> — create accounts, assign roles (Admin / Editor / Viewer), and control program-level access.</li>
+            <li><strong>View Analytics</strong> — explore university-wide, college-level, and program-level alignment reports and charts.</li>
+            <li><strong>Export Reports</strong> — download mapping documents as Word, PDF, Excel, or PNG from the Analytics pages.</li>
+            <li><strong>Configure Structure</strong> — manage colleges, departments, clusters, and the organisational hierarchy.</li>
+          </ul>
+        </div>
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat) => (

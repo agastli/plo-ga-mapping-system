@@ -150,6 +150,19 @@ export default function Analytics() {
         </div>
       </div>
 
+      {/* Intro Panel */}
+      <div className="bg-white border-l-4 border-[#8B1538] rounded-lg shadow-sm p-5 mb-8">
+        <h2 className="text-base font-bold text-[#8B1538] mb-2">What can you do on this page?</h2>
+        <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+          <li><strong>University Overview</strong> — see key metrics: total colleges, programs, PLOs, and mappings at a glance.</li>
+          <li><strong>GA Alignment Chart</strong> — view a bar chart of average alignment scores for each Graduate Attribute across all programs.</li>
+          <li><strong>Detailed GA Analytics</strong> — click “Graduate Attributes” to drill down into per-GA and per-competency analysis with filters by college, cluster, or program.</li>
+          <li><strong>Competency Analysis</strong> — click “Competencies” for a dedicated view of competency-level coverage and weighting.</li>
+          <li><strong>Export Reports</strong> — download charts and data as PNG, PDF, Word, or Excel using the export buttons.</li>
+          <li><strong>Analytics Guide</strong> — click “Analytics Guide” for a full explanation of how scores are calculated and how to interpret results.</li>
+        </ul>
+      </div>
+
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
