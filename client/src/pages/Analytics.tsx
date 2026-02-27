@@ -322,7 +322,9 @@ export default function Analytics() {
         </Card>
       </div>
       </div>
-      <PageFooter />
+      <div className="container mx-auto">
+        <PageFooter />
+      </div>
     </div>
   );
 }

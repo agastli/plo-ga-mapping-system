@@ -650,7 +650,9 @@ export default function CompetencyAnalytics() {
         {/* End Charts Section */}
 
       </div>
-      <PageFooter />
+      <div className="container mx-auto">
+        <PageFooter />
+      </div>
 
     </div>
   );

@@ -1258,7 +1258,9 @@ export default function UnifiedAnalytics() {
           </CardContent>
         </Card>
       </div>
-      <PageFooter />
+      <div className="container mx-auto">
+        <PageFooter />
+      </div>
     </div>
   );
 }

@@ -310,7 +310,9 @@ export default function DepartmentAnalytics() {
         </CardContent>
       </Card>
       </div>
-      <PageFooter />
+      <div className="container mx-auto">
+        <PageFooter />
+      </div>
     </div>
   );
 }

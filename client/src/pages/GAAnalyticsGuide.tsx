@@ -352,7 +352,9 @@ export default function GAAnalyticsGuide() {
         </Card>
 
       </div>
-      <PageFooter />
+      <div className="container mx-auto">
+        <PageFooter />
+      </div>
 
     </div>
   );
