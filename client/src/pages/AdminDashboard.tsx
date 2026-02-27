@@ -13,7 +13,9 @@ import {
   LogOut,
   Home,
   User,
-  Activity
+  Activity,
+  Award,
+  Target
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -22,6 +24,8 @@ export default function AdminDashboard() {
   const { data: user } = trpc.auth.me.useQuery();
   const { data: programs } = trpc.programs.list.useQuery();
   const { data: users } = trpc.users.list.useQuery();
+  const { data: graduateAttributes } = trpc.graduateAttributes.list.useQuery();
+  const { data: competencies } = trpc.competencies.list.useQuery();
   
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
@@ -61,6 +65,20 @@ export default function AdminDashboard() {
       icon: BarChart3,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
+    },
+    {
+      title: "Graduate Attributes",
+      value: graduateAttributes?.length || 0,
+      icon: Award,
+      color: "text-rose-600",
+      bgColor: "bg-rose-50",
+    },
+    {
+      title: "Competencies",
+      value: competencies?.length || 0,
+      icon: Target,
+      color: "text-teal-600",
+      bgColor: "bg-teal-50",
     },
   ];
 

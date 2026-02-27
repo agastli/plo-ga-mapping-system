@@ -36,18 +36,20 @@ export default function AnalyticsGuide() {
   );
 
   const Footer = () => (
-    <div className="mt-8">
-      <div className="bg-[#821F45] rounded-lg shadow-lg px-6 py-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-4">
-            <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
-          </div>
-          <div className="text-center md:text-right">
-            <p className="text-white font-medium">PLO-GA Mapping Management System</p>
-            <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
+    <div className="container mx-auto px-4 pb-6 mt-8 max-w-5xl">
+      <footer className="bg-[#821F45] rounded-lg shadow-lg">
+        <div className="px-6 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-4">
+              <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-white font-medium">PLO-GA Mapping Management System</p>
+              <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
+            </div>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 
@@ -277,9 +279,8 @@ export default function AnalyticsGuide() {
           </CardContent>
         </Card>
 
-        <Footer />
       </div>
-
+      <Footer />
     </div>
   );
 }

@@ -533,3 +533,10 @@
 - [x] Fix duplicate footer on Analytics Guide pages (removed from AnalyticsGuide, GAAnalyticsGuide, CompetencyAnalyticsGuide)
 - [ ] Stop old PM2 process (plo-ga-mapping) to avoid running 2 processes
 - [ ] Verify footer width fixes are visible on production after proper PM2 restart
+
+## Admin Dashboard Enhancement (Feb 27, 2026)
+
+- [ ] Add backend query to count total Graduate Attributes (GAs)
+- [ ] Add backend query to count total Competencies
+- [ ] Add GA count card to Admin Dashboard statistics section
+- [ ] Add Competency count card to Admin Dashboard statistics section
