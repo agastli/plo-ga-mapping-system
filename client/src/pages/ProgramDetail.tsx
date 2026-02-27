@@ -355,7 +355,7 @@ export default function ProgramDetail() {
                 )}
               </div>
               {/* Cluster field - only show if college has clusters */}
-              {(editingProgram && allClusters?.filter(c => c.collegeId === editCollegeId).length > 0) || (!editingProgram && matrixData?.cluster) ? (
+              {(editingProgram && (allClusters?.filter(c => c.collegeId === editCollegeId)?.length ?? 0) > 0) || (!editingProgram && matrixData?.cluster) ? (
                 <div>
                   <p className="text-sm text-gray-600 font-medium mb-1">Cluster</p>
                   {editingProgram ? (

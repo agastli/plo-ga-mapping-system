@@ -228,6 +228,12 @@ export async function createCollege(data: InsertCollege) {
   return Number(result[0].insertId);
 }
 
+export async function updateCollege(id: number, data: Partial<InsertCollege>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(colleges).set(data).where(eq(colleges.id, id));
+}
+
 // ============================================================================
 // Cluster Management
 // ============================================================================
@@ -258,6 +264,12 @@ export async function createCluster(data: InsertCluster) {
   return Number(result[0].insertId);
 }
 
+export async function updateCluster(id: number, data: Partial<InsertCluster>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(clusters).set(data).where(eq(clusters.id, id));
+}
+
 // ============================================================================
 // Department Management
 // ============================================================================
@@ -286,6 +298,12 @@ export async function createDepartment(data: InsertDepartment) {
   if (!db) throw new Error("Database not available");
   const result = await db.insert(departments).values(data);
   return Number(result[0].insertId);
+}
+
+export async function updateDepartment(id: number, data: Partial<InsertDepartment>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(departments).set(data).where(eq(departments.id, id));
 }
 
 export async function getProgramsByDepartment(departmentId: number) {

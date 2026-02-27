@@ -2,6 +2,7 @@ import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calculator, TrendingUp, Target, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import PageFooter from "@/components/PageFooter";
 
 export default function AnalyticsGuide() {
   const [, setLocation] = useLocation();
@@ -32,24 +33,6 @@ export default function AnalyticsGuide() {
           </button>
         </div>
       </div>
-    </div>
-  );
-
-  const Footer = () => (
-    <div className="container mx-auto px-4 pb-6 mt-8">
-      <footer className="bg-[#821F45] rounded-lg shadow-lg">
-        <div className="px-6 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-              <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
-            </div>
-            <div className="text-center md:text-right">
-              <p className="text-white font-medium">PLO-GA Mapping Management System</p>
-              <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 
@@ -280,7 +263,7 @@ export default function AnalyticsGuide() {
         </Card>
 
       </div>
-      <Footer />
+      <PageFooter />
     </div>
   );
 }

@@ -29,6 +29,7 @@ import {
 } from "../components/ui/dropdown-menu";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
+import PageFooter from "@/components/PageFooter";
 
 export default function UnifiedAnalytics() {
   const gaChartRef = useRef<HTMLDivElement>(null);
@@ -1014,11 +1015,7 @@ export default function UnifiedAnalytics() {
                         setSelectedCollegeId(college.collegeId);
                         setSelectedClusterId(undefined);
                         setSelectedProgramId(undefined);
-                      } else if (filterLevel === 'college' && programComparisonData) {
-                        const program = programComparisonData.programData[index];
-                        setFilterLevel('program');
-                        setSelectedProgramId(program.programId);
-                      } else if (filterLevel === 'cluster' && programComparisonData) {
+                      } else if ((['college', 'cluster'] as string[]).includes(filterLevel) && programComparisonData) {
                         const program = programComparisonData.programData[index];
                         setFilterLevel('program');
                         setSelectedProgramId(program.programId);
@@ -1230,23 +1227,7 @@ export default function UnifiedAnalytics() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Footer */}
-      <div className="container mx-auto px-6 pb-6 mt-8">
-        <footer className="bg-[#821F45] rounded-lg shadow-lg">
-          <div className="px-6 py-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-4">
-                <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
-              </div>
-              <div className="text-center md:text-right">
-                <p className="text-white font-medium">PLO-GA Mapping Management System</p>
-                <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
+      <PageFooter />
     </div>
   );
 }

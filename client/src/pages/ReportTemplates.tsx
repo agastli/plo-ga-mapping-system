@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, Copy, FileText, Globe, Lock } from "lucide-react";
 import { toast } from "sonner";
 import TemplateEditor from "@/components/TemplateEditor";
+import PageFooter from "@/components/PageFooter";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,22 +78,6 @@ export default function ReportTemplates() {
           >
             View Programs
           </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const Footer = () => (
-    <div className="bg-[#821F45] rounded-lg shadow-lg mt-8">
-      <div className="px-6 py-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-4">
-            <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
-          </div>
-          <div className="text-center md:text-right">
-            <p className="text-white font-medium">PLO-GA Mapping Management System</p>
-            <p className="text-white text-sm opacity-90">© 2026 Qatar University. All rights reserved</p>
-          </div>
         </div>
       </div>
     </div>
@@ -259,7 +244,7 @@ export default function ReportTemplates() {
           </div>
         )}
 
-        <Footer />
+        <PageFooter />
       </div>
 
       {/* Delete Confirmation Dialog */}

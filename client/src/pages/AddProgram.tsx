@@ -237,7 +237,7 @@ export default function AddProgram() {
       // 1. Create program
       const programResult = await createProgram.mutateAsync({
         departmentId: selectedDepartmentId!,
-        nameEn: programNameEn.trim() || undefined,
+        nameEn: programNameEn.trim() || programCode.trim(),
         nameAr: programNameAr.trim() || undefined,
         code: programCode.trim(),
         language,
@@ -276,10 +276,11 @@ export default function AddProgram() {
         j.textEn.trim() !== "" || j.textAr.trim() !== ""
       );
       for (const just of nonEmptyJustifications) {
-        const ploId = ploIdMap.get(just.ploTempId);
-        if (ploId) {
+        const comp = competencies?.find(c => c.id === just.competencyId);
+        if (comp) {
           await upsertJustification.mutateAsync({
-            ploId,
+            programId,
+            gaId: comp.gaId,
             competencyId: just.competencyId,
             textEn: just.textEn.trim() || undefined,
             textAr: just.textAr.trim() || undefined,
@@ -611,7 +612,7 @@ export default function AddProgram() {
                               <th
                                 key={comp.id}
                                 className="border border-gray-300 px-2 py-2 text-center font-semibold text-sm"
-                                title={comp.descriptionEn || comp.descriptionAr || ""}
+                                title={comp.nameEn || comp.nameAr || ""}
                               >
                                 {comp.code}
                               </th>
@@ -688,7 +689,7 @@ export default function AddProgram() {
                               return (
                                 <div key={comp.id} className="border-l-4 border-[#8B1538] pl-4">
                                   <h4 className="font-semibold text-gray-700 mb-3">
-                                    {comp.code}: {comp.descriptionEn || comp.descriptionAr}
+                                    {comp.code}: {comp.nameEn || comp.nameAr}
                                     <span className="ml-2 text-sm text-gray-500">(Weight: {mapping.weight})</span>
                                   </h4>
                                   <div className="space-y-3">

@@ -50,7 +50,7 @@ function Router() {
         </ProtectedRoute>
       </Route>
       <Route path={"/login-tracking"}>
-        <ProtectedRoute requiredRole="admin">
+        <ProtectedRoute requireRole="admin">
           <UserLoginTracking />
         </ProtectedRoute>
       </Route>

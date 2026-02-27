@@ -429,6 +429,25 @@ export const appRouter = router({
     list: publicProcedure.query(async () => {
       return await db.getAllColleges();
     }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        nameEn: z.string().optional(),
+        nameAr: z.string().optional(),
+        code: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { id, ...data } = input;
+        await db.updateCollege(id, data);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "update",
+          entityType: "college",
+          entityId: id,
+          details: JSON.stringify(data),
+        });
+        return { success: true };
+      }),
     create: publicProcedure
       .input(z.object({
         nameEn: z.string(),
@@ -454,6 +473,26 @@ export const appRouter = router({
     list: publicProcedure.query(async () => {
       return await db.getAllDepartments();
     }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        nameEn: z.string().optional(),
+        nameAr: z.string().optional(),
+        code: z.string().optional(),
+        clusterId: z.number().nullable().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { id, ...data } = input;
+        await db.updateDepartment(id, data);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "update",
+          entityType: "department",
+          entityId: id,
+          details: JSON.stringify(data),
+        });
+        return { success: true };
+      }),
     listByCollege: publicProcedure
       .input(z.object({ collegeId: z.number() }))
       .query(async ({ input }) => {
@@ -485,6 +524,26 @@ export const appRouter = router({
     list: publicProcedure.query(async () => {
       return await db.getAllClusters();
     }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        nameEn: z.string().optional(),
+        nameAr: z.string().optional(),
+        code: z.string().optional(),
+        description: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { id, ...data } = input;
+        await db.updateCluster(id, data);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "update",
+          entityType: "cluster",
+          entityId: id,
+          details: JSON.stringify(data),
+        });
+        return { success: true };
+      }),
     listByCollege: publicProcedure
       .input(z.object({ collegeId: z.number() }))
       .query(async ({ input }) => {

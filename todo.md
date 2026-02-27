@@ -545,3 +545,25 @@
 
 - [ ] Fix analytics footer width to exactly match header/content container (remove max-w-7xl, use same px-6 container as content)
 - [ ] Write comprehensive DEPLOYMENT.md with installation, configuration, and troubleshooting guide
+
+## TypeScript Fixes & Shared Footer Component (Feb 27, 2026)
+
+- [ ] Fix TypeScript errors in OrganizationalStructure.tsx (missing update procedures for clusters/departments)
+- [ ] Fix TypeScript error in ProgramDetail.tsx (Object is possibly undefined)
+- [ ] Fix TypeScript error in UnifiedAnalytics.tsx (type comparison overlap)
+- [ ] Create shared Footer component in client/src/components/PageFooter.tsx
+- [ ] Replace all inline footer definitions across all pages with shared component
+
+## TypeScript & Shared Footer - Completed (Feb 27, 2026)
+
+- [x] Fix TypeScript errors in OrganizationalStructure.tsx - added updateCluster, updateDepartment, updateCollege procedures
+- [x] Fix TypeScript error in ProgramDetail.tsx - added optional chaining for undefined objects
+- [x] Fix TypeScript error in UnifiedAnalytics.tsx - fixed type narrowing with includes()
+- [x] Fix TypeScript errors in AddProgram.tsx - replaced descriptionEn/Ar with nameEn/Ar, fixed ploId → programId+gaId
+- [x] Fix TypeScript error in App.tsx - requiredRole → requireRole
+- [x] Fix TypeScript error in use-toast.ts - added open and onOpenChange to ToasterToast type
+- [x] Create shared PageFooter component in client/src/components/PageFooter.tsx
+- [x] Replace all inline Footer definitions with PageFooter (10 pages: Analytics, AnalyticsGuide, CollegeAnalytics, DepartmentAnalytics, ReportTemplates, GAAnalytics, CompetencyAnalytics, UnifiedAnalytics, GAAnalyticsGuide, CompetencyAnalyticsGuide)
+- [x] Zero TypeScript errors confirmed with npx tsc --noEmit
+- [x] Add GA and Competency count cards to Admin Dashboard
+- [x] Add updateCluster, updateDepartment, updateCollege to db.ts and routers.ts

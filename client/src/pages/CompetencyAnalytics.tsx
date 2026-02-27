@@ -21,6 +21,7 @@ import {
 } from "recharts";
 import { Home, BookOpen, Download, FileText, AlertTriangle } from "lucide-react";
 import AnalyticsExport from "../components/AnalyticsExport";
+import PageFooter from "@/components/PageFooter";
 
 export default function CompetencyAnalytics() {
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | undefined>(undefined);
@@ -636,22 +637,7 @@ export default function CompetencyAnalytics() {
         {/* End Charts Section */}
 
       </div>
-      {/* Footer */}
-      <div className="container mx-auto px-6 pb-6 mt-8">
-        <footer className="bg-[#821F45] rounded-lg shadow-lg">
-          <div className="px-6 py-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-4">
-                <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
-              </div>
-              <div className="text-center md:text-right">
-                <p className="text-white font-medium">PLO-GA Mapping Management System</p>
-                <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
+      <PageFooter />
 
     </div>
   );

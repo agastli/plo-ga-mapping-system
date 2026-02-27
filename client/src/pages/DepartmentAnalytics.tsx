@@ -8,6 +8,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { ArrowLeft, GraduationCap, Target, TrendingUp, AlertCircle } from "lucide-react";
 import AnalyticsExport from "@/components/AnalyticsExport";
 import { useRef } from "react";
+import PageFooter from "@/components/PageFooter";
 
 export default function DepartmentAnalytics() {
   const [, params] = useRoute("/analytics/department/:id");
@@ -50,24 +51,6 @@ export default function DepartmentAnalytics() {
     </div>
   );
 
-  const Footer = () => (
-    <div className="container mx-auto px-4 pb-6 mt-8">
-      <footer className="bg-[#821F45] rounded-lg shadow-lg">
-        <div className="px-6 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-              <img src="/qu-log-white-transparent.png" alt="Qatar University" className="h-14 w-auto" />
-            </div>
-            <div className="text-center md:text-right">
-              <p className="text-white font-medium">PLO-GA Mapping Management System</p>
-              <p className="text-white/80 text-sm">© {new Date().getFullYear()} Qatar University. All rights reserved</p>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-amber-50">
@@ -80,7 +63,7 @@ export default function DepartmentAnalytics() {
           ))}
         </div>
         <Skeleton className="h-96" />
-          <Footer />
+          <PageFooter />
         </div>
       </div>
     );
@@ -92,7 +75,7 @@ export default function DepartmentAnalytics() {
         <div className="container mx-auto py-8">
           <Header />
         <p className="text-muted-foreground">No analytics data available for this department.</p>
-          <Footer />
+          <PageFooter />
         </div>
       </div>
     );
@@ -315,7 +298,7 @@ export default function DepartmentAnalytics() {
         </CardContent>
       </Card>
       </div>
-      <Footer />
+      <PageFooter />
     </div>
   );
 }
