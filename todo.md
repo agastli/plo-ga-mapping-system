@@ -401,6 +401,10 @@
 
 ## Email Template Fixes
 
-- [ ] Change blue text color to white in email maroon box for better contrast
-- [ ] Fix login URL in emails from localhost:3000 to production domain (plo-ga.gastli.org)
+- [x] Change blue text color to white in email maroon box for better contrast
+- [x] Fix login URL in emails from localhost:3000 to production domain (plo-ga.gastli.org)
 - [ ] Test forgot password email with corrected styling and URL
+
+## Login Page UI Improvement
+
+- [x] Remove the maroon info box from the login page (desktop view)
