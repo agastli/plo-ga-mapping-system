@@ -458,3 +458,48 @@
 - [x] Fix EditorDashboard.tsx header/footer to match content container width (already aligned at max-w-7xl)
 - [x] Fix AdminDashboard.tsx header/footer to match content container width (already aligned at max-w-7xl)
 - [x] Update all header buttons (Back to Dashboard, Home, etc.) to maroon background with white text
+
+## Login Page Title Update
+
+- [x] Change title from "PLO-GA Mapping System" to "PLOs-GAs Mapping System" in Login.tsx
+
+## Design System Improvements (High Priority)
+
+### Button Standardization
+- [ ] Audit all buttons across pages and standardize variants
+- [ ] Ensure all primary action buttons use maroon background with white text
+- [ ] Ensure all secondary buttons use consistent outline style
+- [ ] Standardize button sizes (use size="default" for primary, size="sm" for secondary)
+
+### Loading States
+- [ ] Replace default gray spinners with maroon-colored spinners
+- [ ] Add skeleton loaders for data tables and cards
+- [ ] Implement progress bars for file uploads and long operations
+
+### Breadcrumb Navigation
+- [ ] Add breadcrumb component to deep pages (ProgramDetail, Analytics, etc.)
+- [ ] Show clear navigation path from dashboard → current page
+- [ ] Make breadcrumbs clickable for easy navigation back
+
+### Mobile Responsiveness
+- [ ] Fix table overflow on mobile devices (add horizontal scroll)
+- [ ] Improve mobile menu/navigation
+- [ ] Test all forms on mobile and fix layout issues
+- [ ] Ensure cards stack properly on small screens
+
+### Empty States
+- [ ] Design and implement empty state component with icon and CTA
+- [ ] Replace generic "No data" messages with helpful empty states
+- [ ] Add actionable buttons to empty states (e.g., "Add First Program")
+
+### Form Field Improvements
+- [ ] Standardize label positioning (always above input)
+- [ ] Add consistent error message styling (red text with icon)
+- [ ] Improve focus states for better keyboard navigation
+- [ ] Add helper text for complex fields
+
+### Accessibility
+- [ ] Audit color contrast ratios (aim for WCAG AA compliance)
+- [ ] Add visible focus indicators to all interactive elements
+- [ ] Review and improve alt text for all images
+- [ ] Test keyboard navigation across all pages

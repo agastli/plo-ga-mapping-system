@@ -64,7 +64,7 @@ export default function Login() {
               className="h-20 w-auto"
             />
           </div>
-          <CardTitle className="text-2xl font-bold">PLO-GA Mapping System</CardTitle>
+          <CardTitle className="text-2xl font-bold">PLOs-GAs Mapping System</CardTitle>
           <CardDescription>
             Sign in to access the system
           </CardDescription>
