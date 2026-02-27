@@ -271,7 +271,7 @@ export default function AnalyticsGuide() {
         </Card>
 
       </div>
-      <div className="container mx-auto">
+      <div className="container mx-auto max-w-5xl px-4">
         <PageFooter />
       </div>
     </div>
