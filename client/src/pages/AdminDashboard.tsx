@@ -12,7 +12,8 @@ import {
   Shield,
   LogOut,
   Home,
-  User
+  User,
+  Activity
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -105,6 +106,13 @@ export default function AdminDashboard() {
       href: "/templates",
       icon: Settings,
       color: "text-gray-600",
+    },
+    {
+      title: "Login Tracking",
+      description: "Monitor user login activity and security",
+      href: "/login-tracking",
+      icon: Activity,
+      color: "text-red-600",
     },
   ];
 

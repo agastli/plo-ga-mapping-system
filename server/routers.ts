@@ -117,6 +117,15 @@ export const appRouter = router({
           maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
         });
         
+        // Record login history
+        await db.recordLoginHistory({
+          userId: user.id,
+          username: user.username || undefined,
+          ipAddress: ctx.req.ip || ctx.req.headers['x-forwarded-for'] as string || ctx.req.socket.remoteAddress,
+          userAgent: ctx.req.headers['user-agent'],
+          loginMethod: 'password',
+        });
+        
         return { success: true, user };
       }),
     
@@ -219,6 +228,14 @@ export const appRouter = router({
         await db.updateUserPassword(userId, hashedPassword);
         
         return { success: true, message: "Password changed successfully" };
+      }),
+    
+    getLoginHistory: adminProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(500).optional().default(100),
+      }))
+      .query(async ({ input }) => {
+        return await db.getAllLoginHistory(input.limit);
       }),
   }),
 

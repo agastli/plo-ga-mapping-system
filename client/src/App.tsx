@@ -36,6 +36,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import RecoverUsername from "./pages/RecoverUsername";
 import ProgramBrowser from "./pages/ProgramBrowser";
 import UserProfile from "./pages/UserProfile";
+import UserLoginTracking from "./pages/UserLoginTracking";
 
 function Router() {
   return (
@@ -46,6 +47,11 @@ function Router() {
       <Route path={"/profile"}>
         <ProtectedRoute>
           <UserProfile />
+        </ProtectedRoute>
+      </Route>
+      <Route path={"/login-tracking"}>
+        <ProtectedRoute requiredRole="admin">
+          <UserLoginTracking />
         </ProtectedRoute>
       </Route>
       <Route path={"/"}>  

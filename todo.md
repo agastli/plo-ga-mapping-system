@@ -422,3 +422,13 @@
 - [x] Add "Profile" navigation link to all dashboard headers
 - [x] Add /profile route to App.tsx
 - [x] Test password change functionality
+
+## Password Visibility & Login Tracking
+
+- [x] Add password visibility toggle (eye icon) to login page password field
+- [x] Add password visibility toggles to profile page (current, new, confirm password fields)
+- [x] Modify profile page password fields with visibility toggles
+- [x] Create backend endpoint to retrieve user login history
+- [x] Create UserLoginTracking.tsx admin dashboard page
+- [x] Add navigation link to login tracking dashboard in admin menu
+- [x] Display login history table with: username, login time, IP address, user agent

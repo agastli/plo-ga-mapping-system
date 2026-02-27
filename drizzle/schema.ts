@@ -237,3 +237,19 @@ export const reportTemplates = mysqlTable("reportTemplates", {
 
 export type ReportTemplate = typeof reportTemplates.$inferSelect;
 export type InsertReportTemplate = typeof reportTemplates.$inferInsert;
+
+/**
+ * Login History - Track user login activity for security and auditing
+ */
+export const loginHistory = mysqlTable("loginHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  username: varchar("username", { length: 191 }), // Denormalized for easier querying
+  ipAddress: varchar("ipAddress", { length: 45 }), // IPv6 max length
+  userAgent: text("userAgent"), // Browser/device information
+  loginMethod: varchar("loginMethod", { length: 64 }), // 'password' or 'oauth'
+  loginAt: timestamp("loginAt").defaultNow().notNull(),
+});
+
+export type LoginHistory = typeof loginHistory.$inferSelect;
+export type InsertLoginHistory = typeof loginHistory.$inferInsert;

@@ -17,6 +17,7 @@ import {
   justifications,
   auditLog,
   reportTemplates,
+  loginHistory,
   type User,
   type UserAssignment,
   type College,
@@ -29,6 +30,7 @@ import {
   type Mapping,
   type Justification,
   type ReportTemplate,
+  type LoginHistory,
   type InsertCollege,
   type InsertCluster,
   type InsertDepartment,
@@ -39,6 +41,7 @@ import {
   type InsertUserAssignment,
   type InsertAuditLog,
   type InsertReportTemplate,
+  type InsertLoginHistory,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -2306,4 +2309,51 @@ export async function getAccessiblePrograms(userId: number) {
   // Get enriched program data with counts
   const allPrograms = await getAllPrograms();
   return allPrograms.filter(p => uniqueProgIds.includes(p.program.id));
+}
+
+// ========================================
+// Login History Functions
+// ========================================
+
+/**
+ * Record a user login event
+ */
+export async function recordLoginHistory(data: InsertLoginHistory): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(loginHistory).values(data);
+}
+
+/**
+ * Get all login history (admin only)
+ */
+export async function getAllLoginHistory(limit: number = 100): Promise<LoginHistory[]> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const results = await db
+    .select()
+    .from(loginHistory)
+    .orderBy(sql`${loginHistory.loginAt} DESC`)
+    .limit(limit);
+
+  return results;
+}
+
+/**
+ * Get login history for a specific user
+ */
+export async function getLoginHistoryByUser(userId: number, limit: number = 50): Promise<LoginHistory[]> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const results = await db
+    .select()
+    .from(loginHistory)
+    .where(eq(loginHistory.userId, userId))
+    .orderBy(sql`${loginHistory.loginAt} DESC`)
+    .limit(limit);
+
+  return results;
 }
