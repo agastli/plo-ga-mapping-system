@@ -320,6 +320,18 @@ export default function OrganizationalStructure() {
                         <p className="font-semibold">{college.nameEn}</p>
                         <p className="text-sm text-gray-600" dir="rtl">{college.nameAr}</p>
                         <p className="text-xs text-gray-500">Code: {college.code}</p>
+                        {(() => {
+                          const deptCount = departments?.filter(d => d.collegeId === college.id).length ?? 0;
+                          const progCount = programs?.filter(p => {
+                            const dept = departments?.find(d => d.id === p.program.departmentId);
+                            return dept?.collegeId === college.id;
+                          }).length ?? 0;
+                          return (
+                            <p className="text-xs text-[#8B1538]/70 mt-0.5 font-medium">
+                              {deptCount} {deptCount === 1 ? 'department' : 'departments'} &middot; {progCount} {progCount === 1 ? 'program' : 'programs'}
+                            </p>
+                          );
+                        })()}
                       </div>
                       <Button onClick={() => handleEditCollege(college)} variant="outline" size="sm">
                         <Edit2 className="h-4 w-4 mr-2" />Edit
@@ -420,9 +432,21 @@ export default function OrganizationalStructure() {
                           {department.clusterId && ` | Cluster: ${clusters?.find(cl => cl.id === department.clusterId)?.nameEn}`}
                         </p>
                       </div>
-                      <Button onClick={() => handleEditDepartment(department)} variant="outline" size="sm">
-                        <Edit2 className="h-4 w-4 mr-2" />Edit
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          className="border-[#8B1538]/40 text-[#8B1538] hover:bg-[#8B1538]/10 text-xs"
+                        >
+                          <Link href={`/programs?dept=${department.id}`}>
+                            Programs
+                          </Link>
+                        </Button>
+                        <Button onClick={() => handleEditDepartment(department)} variant="outline" size="sm">
+                          <Edit2 className="h-4 w-4 mr-2" />Edit
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>

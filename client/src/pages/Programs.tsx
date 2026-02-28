@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus, FileText } from "lucide-react";
+import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus, FileText, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
@@ -193,14 +193,25 @@ export default function Programs() {
                 </div>
               </div>
 
-              {/* Results Count */}
+              {/* Results Count + Clear Filter */}
               {!isLoading && (
-                <div className="mt-4 pt-4 border-t border-slate-200">
+                <div className="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between">
                   <p className="text-sm text-slate-600 flex items-center gap-2">
                     <GraduationCap className="h-4 w-4 text-[#8B1538]" />
-                    <span className="font-medium text-[#8B1538]">{filteredPrograms?.length || 0}</span> 
+                    <span className="font-medium text-[#8B1538]">{filteredPrograms?.length || 0}</span>
                     {filteredPrograms?.length === 1 ? 'program' : 'programs'} found
                   </p>
+                  {(selectedCollegeId || selectedClusterId || searchTerm) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => { setSelectedCollegeId(""); setSelectedClusterId(""); setSearchTerm(""); }}
+                      className="text-[#8B1538] border-[#8B1538] hover:bg-[#8B1538]/10 text-xs"
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      Clear filters
+                    </Button>
+                  )}
                 </div>
               )}
             </CardContent>
