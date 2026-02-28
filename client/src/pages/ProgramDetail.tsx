@@ -84,6 +84,17 @@ export default function ProgramDetail() {
   mappings.forEach(m => {
     weightMap.set(`${m.mapping.ploId}_${m.competency.id}`, m.mapping.weight);
   });
+
+  // Compute per-competency total weights across all PLOs
+  const competencyTotals = new Map<number, number>();
+  competencies.forEach(comp => {
+    const total = plos.reduce((sum, plo) => {
+      const w = weightMap.get(`${plo.id}_${comp.id}`);
+      return sum + (w !== undefined ? (typeof w === 'string' ? parseFloat(w) : Number(w)) : 0);
+    }, 0);
+    competencyTotals.set(comp.id, Math.round(total * 1000) / 1000);
+  });
+  const overloadedCompetencies = competencies.filter(c => (competencyTotals.get(c.id) ?? 0) > 1.001);
   
 
 
@@ -126,8 +137,10 @@ export default function ProgramDetail() {
       });
       await refetch();
       toast.success("Mapping updated successfully");
-    } catch (error) {
-      toast.error("Failed to update mapping");
+    } catch (error: any) {
+      // Surface the backend validation message (e.g. exceeds 100%)
+      const msg = error?.message || (error?.data?.message) || "Failed to update mapping";
+      toast.error(msg);
     }
   };
 
@@ -650,33 +663,56 @@ export default function ProgramDetail() {
                           ))}
                         </tr>
                         {/* Competency Rows */}
-                        {comps.map(comp => (
-                          <tr key={comp.id} className="hover:bg-gray-50">
-                            <td className="border border-gray-300 p-2 bg-gray-50"></td>
-                            <td className="border border-gray-300 p-2 text-sm bg-gray-50">
-                              {comp.code} – {comp.nameEn || comp.nameAr}
-                            </td>
-                            {plos.map(plo => {
-                              const weight = weightMap.get(`${plo.id}_${comp.id}`);
-                              return (
-                                <td
-                                  key={`${plo.id}-${comp.id}`}
-                                  className="border border-gray-300 p-1 text-center"
-                                >
-                                  <Input
-                                    type="number"
-                                    step="0.1"
-                                    min="0"
-                                    max="1"
-                                    value={weight || "0"}
-                                    onChange={(e) => handleWeightChange(plo.id, comp.id, e.target.value)}
-                                    className="w-16 h-8 text-center text-sm p-1"
-                                  />
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        ))}
+                        {comps.map(comp => {
+                          const compTotal = competencyTotals.get(comp.id) ?? 0;
+                          const isOver = compTotal > 1.001;
+                          return (
+                            <tr key={comp.id} className={isOver ? "bg-red-50" : "hover:bg-gray-50"}>
+                              <td className="border border-gray-300 p-2 bg-gray-50"></td>
+                              <td className="border border-gray-300 p-2 text-sm bg-gray-50">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span>{comp.code} – {comp.nameEn || comp.nameAr}</span>
+                                  {/* Per-competency total badge */}
+                                  <span
+                                    title="Sum of all PLO weights for this competency (max 1.0)"
+                                    className={`text-xs font-semibold px-1.5 py-0.5 rounded flex-shrink-0 ${
+                                      isOver
+                                        ? "bg-red-600 text-white"
+                                        : compTotal >= 0.999
+                                        ? "bg-green-600 text-white"
+                                        : compTotal > 0
+                                        ? "bg-amber-500 text-white"
+                                        : "bg-gray-200 text-gray-600"
+                                    }`}
+                                  >
+                                    Σ {(compTotal * 100).toFixed(0)}%
+                                  </span>
+                                </div>
+                              </td>
+                              {plos.map(plo => {
+                                const weight = weightMap.get(`${plo.id}_${comp.id}`);
+                                return (
+                                  <td
+                                    key={`${plo.id}-${comp.id}`}
+                                    className="border border-gray-300 p-1 text-center"
+                                  >
+                                    <Input
+                                      type="number"
+                                      step="0.1"
+                                      min="0"
+                                      max="1"
+                                      value={weight || "0"}
+                                      onChange={(e) => handleWeightChange(plo.id, comp.id, e.target.value)}
+                                      className={`w-16 h-8 text-center text-sm p-1 ${
+                                        isOver ? "border-red-400 focus:border-red-500" : ""
+                                      }`}
+                                    />
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          );
+                        })}
                       </>
                     ))}
                   </tbody>
@@ -684,6 +720,23 @@ export default function ProgramDetail() {
               </div>
             ) : (
               <p className="text-gray-600">No mapping data available</p>
+            )}
+            {/* Overload warning banner */}
+            {overloadedCompetencies.length > 0 && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-lg flex items-start gap-2">
+                <span className="text-red-600 font-bold text-lg leading-none mt-0.5">⚠</span>
+                <div>
+                  <p className="text-sm font-semibold text-red-700">
+                    {overloadedCompetencies.length} competenc{overloadedCompetencies.length === 1 ? "y" : "ies"} exceed{overloadedCompetencies.length === 1 ? "s" : ""} 100% total weight:
+                  </p>
+                  <p className="text-xs text-red-600 mt-0.5">
+                    {overloadedCompetencies.map(c => `${c.code} (${((competencyTotals.get(c.id) ?? 0) * 100).toFixed(0)}%)`).join(", ")}
+                  </p>
+                  <p className="text-xs text-red-500 mt-1">
+                    The sum of all PLO weights for each competency must not exceed 1.0 (100%). Please reduce weights in the highlighted rows.
+                  </p>
+                </div>
+              </div>
             )}
             <p className="text-gray-600 mt-4">
               Total mappings: {mappings.length}

@@ -530,10 +530,46 @@ export async function deleteMapping(id: number) {
   await db.delete(mappings).where(eq(mappings.id, id));
 }
 
+/**
+ * Returns the current sum of weights for a given competency across all PLOs,
+ * optionally excluding the PLO that is about to be updated (to allow edits).
+ */
+export async function getCompetencyTotalWeight(
+  competencyId: number,
+  excludePloId?: number
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  const rows = await db
+    .select({ weight: mappings.weight, ploId: mappings.ploId })
+    .from(mappings)
+    .where(eq(mappings.competencyId, competencyId));
+  return rows
+    .filter((r) => excludePloId === undefined || r.ploId !== excludePloId)
+    .reduce((sum, r) => sum + (typeof r.weight === 'string' ? parseFloat(r.weight) : Number(r.weight)), 0);
+}
+
 export async function upsertMapping(ploId: number, competencyId: number, weight: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
+
+  const newWeight = parseFloat(weight);
+  if (isNaN(newWeight) || newWeight < 0 || newWeight > 1) {
+    throw new Error(`Weight must be between 0 and 1 (got ${weight}).`);
+  }
+
+  // Sum of existing weights for this competency, excluding the current PLO
+  // (so an edit of an existing mapping is compared correctly)
+  const currentTotal = await getCompetencyTotalWeight(competencyId, ploId);
+  const newTotal = currentTotal + newWeight;
+  if (newTotal > 1.0 + 1e-9) {
+    throw new Error(
+      `Adding this weight (${(newWeight * 100).toFixed(0)}%) would bring the total for this competency to ${
+        (newTotal * 100).toFixed(0)
+      }%, which exceeds the maximum of 100%. Current total from other PLOs: ${(currentTotal * 100).toFixed(0)}%.`
+    );
+  }
+
   await db
     .insert(mappings)
     .values({ ploId, competencyId, weight })
