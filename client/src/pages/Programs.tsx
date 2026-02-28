@@ -3,54 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus, FileText } from "lucide-react";
-import { Link, useLocation, useSearch } from "wouter";
+import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function Programs() {
   const [, setLocation] = useLocation();
-  const searchString = useSearch();
-  const sp = new URLSearchParams(searchString);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const selectedCollegeId = sp.get('college') ?? "";
-  const selectedClusterId = sp.get('cluster') ?? "";
-
-  // On first mount with no URL params: restore from sessionStorage
-  useEffect(() => {
-    const saved = sessionStorage.getItem('programsFilter');
-    if (saved && !searchString) {
-      window.history.replaceState(null, '', '/programs?' + saved);
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Persist filter to sessionStorage whenever it changes
-  useEffect(() => {
-    const p = new URLSearchParams();
-    if (selectedCollegeId) p.set('college', selectedCollegeId);
-    if (selectedClusterId) p.set('cluster', selectedClusterId);
-    const qs = p.toString();
-    if (qs) sessionStorage.setItem('programsFilter', qs);
-    else sessionStorage.removeItem('programsFilter');
-  }, [selectedCollegeId, selectedClusterId]);
-
-  // Use pushState so each filter change creates a real history entry → Back restores it
-  const setSelectedCollegeId = (val: string) => {
-    const p = new URLSearchParams();
-    if (val) p.set('college', val);
-    const qs = p.toString();
-    window.history.pushState(null, '', '/programs' + (qs ? '?' + qs : ''));
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  };
-  const setSelectedClusterId = (val: string) => {
-    const p = new URLSearchParams(searchString);
-    if (!val) p.delete('cluster');
-    else p.set('cluster', val);
-    window.history.pushState(null, '', '/programs?' + p.toString());
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  };
+  const [selectedCollegeId, setSelectedCollegeId] = useState("");
+  const [selectedClusterId, setSelectedClusterId] = useState("");
   
   // Get current user to check role
   const { data: currentUser } = trpc.auth.me.useQuery();
@@ -78,7 +40,8 @@ export default function Programs() {
 
   // Reset cluster selection when college changes
   const handleCollegeChange = (collegeId: string) => {
-    setSelectedCollegeId(collegeId); // already clears cluster in URL
+    setSelectedCollegeId(collegeId);
+    setSelectedClusterId("");
   };
 
   const filteredPrograms = selectedCollegeId ? programs?.filter((item) => {

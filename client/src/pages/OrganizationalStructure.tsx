@@ -4,9 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Home, Edit2, Save, X, Shield, LogOut, Filter, ChevronDown } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
-import { Link, useLocation, useSearch } from "wouter";
+import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 
 export default function OrganizationalStructure() {
@@ -25,61 +25,10 @@ export default function OrganizationalStructure() {
   const updateDepartment = trpc.departments.update.useMutation();
   const updateProgram = trpc.programs.update.useMutation();
 
-  // ── Filter state (URL + sessionStorage so Back navigation restores filters) ─
-  const searchString = useSearch();
-
-  // On first mount with no URL params: restore from sessionStorage
-  useEffect(() => {
-    const saved = sessionStorage.getItem('orgStructureFilter');
-    if (saved && !searchString) {
-      window.history.replaceState(null, '', '/admin/structure?' + saved);
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const searchParams = new URLSearchParams(searchString);
-  const urlCollege = searchParams.get('college');
-  const urlCluster = searchParams.get('cluster');
-  const urlDept = searchParams.get('dept');
-
-  const selectedCollegeId: number | "all" = urlCollege ? Number(urlCollege) : "all";
-  const selectedClusterId: number | "all" = urlCluster ? Number(urlCluster) : "all";
-  const selectedDepartmentId: number | "all" = urlDept ? Number(urlDept) : "all";
-
-  // Persist filter to sessionStorage whenever it changes
-  useEffect(() => {
-    const p = new URLSearchParams();
-    if (selectedCollegeId !== "all") p.set('college', String(selectedCollegeId));
-    if (selectedClusterId !== "all") p.set('cluster', String(selectedClusterId));
-    if (selectedDepartmentId !== "all") p.set('dept', String(selectedDepartmentId));
-    const qs = p.toString();
-    if (qs) sessionStorage.setItem('orgStructureFilter', qs);
-    else sessionStorage.removeItem('orgStructureFilter');
-  }, [selectedCollegeId, selectedClusterId, selectedDepartmentId]);
-
-  // Use pushState so each filter change creates a real history entry → Back restores it
-  const setSelectedCollegeId = (val: number | "all") => {
-    const p = new URLSearchParams();
-    if (val !== "all") p.set('college', String(val));
-    const qs = p.toString();
-    window.history.pushState(null, '', '/admin/structure' + (qs ? '?' + qs : ''));
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  };
-  const setSelectedClusterId = (val: number | "all") => {
-    const p = new URLSearchParams(searchString);
-    if (val === "all") { p.delete('cluster'); p.delete('dept'); }
-    else { p.set('cluster', String(val)); p.delete('dept'); }
-    window.history.pushState(null, '', '/admin/structure?' + p.toString());
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  };
-  const setSelectedDepartmentId = (val: number | "all") => {
-    const p = new URLSearchParams(searchString);
-    if (val === "all") p.delete('dept');
-    else p.set('dept', String(val));
-    window.history.pushState(null, '', '/admin/structure?' + p.toString());
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  };
+  // ── Filter state (simple useState — reliable across all environments) ─────
+  const [selectedCollegeId, setSelectedCollegeId] = useState<number | "all">("all");
+  const [selectedClusterId, setSelectedClusterId] = useState<number | "all">("all");
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | "all">("all");
 
   // ── Editing states ────────────────────────────────────────────────────────
   const [editingCollege, setEditingCollege] = useState<number | null>(null);
