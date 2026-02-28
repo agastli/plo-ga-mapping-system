@@ -659,3 +659,8 @@
 - [ ] Add server-side CSV parsing and bulk insert procedure
 - [ ] Skip duplicate PLOs by code, show import summary
 - [ ] Provide downloadable CSV template link
+
+## Three Improvements Sprint (Feb 28, 2026)
+- [x] Update DEPLOYMENT.md section 22 with detailed cron job setup steps
+- [x] Make MappingAuditLog panel collapsible (collapsed by default, expand on click)
+- [x] Add configurable threshold alerts to MappingCompletenessWidget (warn below 50%, danger below 25%)
