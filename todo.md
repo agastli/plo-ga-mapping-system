@@ -664,3 +664,11 @@
 - [x] Update DEPLOYMENT.md section 22 with detailed cron job setup steps
 - [x] Make MappingAuditLog panel collapsible (collapsed by default, expand on click)
 - [x] Add configurable threshold alerts to MappingCompletenessWidget (warn below 50%, danger below 25%)
+
+## Documentation & Intro Text Sprint (Feb 28, 2026)
+- [ ] Add intro text to MappingCompletenessWidget (explain purpose and threshold controls)
+- [ ] Add intro text to MappingAuditLog (explain what is tracked and how to use)
+- [ ] Add intro text to PLOBulkImport (explain CSV format and workflow)
+- [ ] Write comprehensive docs/USER_MANUAL.md covering all system features
+- [ ] Create UserManual.tsx page in the app rendering the manual inline
+- [ ] Add "User Manual" link to admin navigation

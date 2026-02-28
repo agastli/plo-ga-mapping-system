@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileUp, Database, BarChart3, Globe, CheckCircle2, Sparkles, Users } from "lucide-react";
+import { FileUp, Database, BarChart3, Globe, CheckCircle2, Sparkles, Users, BookOpen } from "lucide-react";
 import { Link } from "wouter";
 import { useRole } from "@/hooks/useRole";
 
@@ -26,6 +26,12 @@ export default function Home() {
                 <Link href="/admin">
                   <Database className="mr-2 h-4 w-4" />
                   Manage Programs
+                </Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                <Link href="/manual">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  User Manual
                 </Link>
               </Button>
               {isAdmin && (

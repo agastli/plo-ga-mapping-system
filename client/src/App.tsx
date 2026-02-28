@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
+import NotFound from "./pages/NotFound";
+import UserManual from "./pages/UserManual";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -130,6 +131,7 @@ function Router() {
       <Route path={"/admin/validation"} component={DataValidationTool} />
       <Route path={"/admin/structure"} component={OrganizationalStructure} />
       <Route path={"/admin/users"} component={UserManagement} />
+      <Route path={"/manual"} component={UserManual} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

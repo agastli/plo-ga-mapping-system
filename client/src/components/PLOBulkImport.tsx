@@ -140,6 +140,13 @@ export default function PLOBulkImport({ programId, onImported }: Props) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Intro text */}
+        <p className="text-xs text-gray-600 leading-relaxed">
+          Use this tool to add multiple PLOs to this program in one step by uploading a CSV file.
+          Download the template below to get the correct column structure, fill it in, then upload it here.
+          The system will validate each row, skip any PLO codes that already exist in this program, and show you a preview before importing.
+        </p>
+
         {/* Instructions */}
         <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-xs text-amber-800 space-y-1">
           <p className="font-semibold">CSV Format (3 columns):</p>

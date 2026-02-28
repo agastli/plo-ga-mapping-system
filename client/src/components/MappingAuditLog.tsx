@@ -50,7 +50,10 @@ export default function MappingAuditLog({ programId }: Props) {
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </div>
-        <p className="text-xs text-gray-500">Recent changes to PLOs, mappings, and justifications for this program.</p>
+        <p className="text-xs text-gray-500 leading-relaxed">
+          Tracks every change made to PLOs, mapping weights, and justifications for this program — including who made the change and when.
+          Click the header or the chevron to expand and review the history. Useful for audit trails and accreditation evidence.
+        </p>
       </CardHeader>
 
       {expanded && (

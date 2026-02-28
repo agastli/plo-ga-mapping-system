@@ -181,6 +181,13 @@ export default function MappingCompletenessWidget() {
           </div>
         )}
 
+        {/* Intro text */}
+        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+          This widget shows how many PLOs in each program have been fully mapped to Graduate Attributes and competencies.
+          Use the <span className="font-medium text-gray-700">⚙ settings icon</span> to configure warning and danger thresholds.
+          Programs are sorted from least complete to most complete so the ones needing the most attention appear first.
+        </p>
+
         {/* Summary badges */}
         <div className="flex flex-wrap gap-2 mt-2">
           <Badge variant="outline" className="text-xs border-green-400 text-green-700">
