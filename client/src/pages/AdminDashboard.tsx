@@ -138,7 +138,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col">
       {/* Header */}
-      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+      <div className="max-w-screen-2xl mx-auto px-4 pt-4">
         <header className="bg-white rounded-lg shadow-md mb-6">
           <div className="px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -172,7 +172,7 @@ export default function AdminDashboard() {
         </header>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-screen-2xl mx-auto px-4 py-8 space-y-8">
         {/* Intro Panel */}
         <div className="bg-white border-l-4 border-[#8B1538] rounded-lg shadow-sm p-5">
           <h2 className="text-lg font-bold text-[#8B1538] mb-2">Welcome to the Admin Dashboard</h2>
@@ -189,17 +189,17 @@ export default function AdminDashboard() {
           </ul>
         </div>
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {stats.map((stat) => (
-            <Card key={stat.title}>
-              <CardContent className="pt-6">
+            <Card key={stat.title} className="shadow-sm">
+              <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{stat.value}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-gray-500 truncate">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
                   </div>
-                  <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                  <div className={`p-2 rounded-full ${stat.bgColor} shrink-0 ml-2`}>
+                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
                   </div>
                 </div>
               </CardContent>
