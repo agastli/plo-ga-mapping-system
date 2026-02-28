@@ -59,7 +59,7 @@ export default function EditorDashboard() {
   return (
     <div className="min-h-screen bg-amber-50">
       {/* Header with QU Logo */}
-      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+      <div className="container mx-auto px-4 pt-4 max-w-7xl w-full">
         <header className="bg-white rounded-lg shadow-md mb-6">
           <div className="px-6 py-4">
             <div className="flex justify-between items-center">
