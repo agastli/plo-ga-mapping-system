@@ -733,7 +733,7 @@ export default function ProgramDetail() {
                     {overloadedCompetencies.map(c => `${c.code} (${((competencyTotals.get(c.id) ?? 0) * 100).toFixed(0)}%)`).join(", ")}
                   </p>
                   <p className="text-xs text-red-500 mt-1">
-                    The sum of all PLO weights for each competency must not exceed 1.0 (100%). Please reduce weights in the highlighted rows.
+                    The sum of all PLO weights for each competency should not exceed 1.0 (100%). You can still adjust weights — this is a warning only.
                   </p>
                 </div>
               </div>

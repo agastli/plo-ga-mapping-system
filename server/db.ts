@@ -558,28 +558,9 @@ export async function upsertMapping(ploId: number, competencyId: number, weight:
     throw new Error(`Weight must be between 0 and 1 (got ${weight}).`);
   }
 
-  // Sum of existing weights for this competency, excluding the current PLO
-  // (so an edit of an existing mapping is compared correctly)
-  const currentTotal = await getCompetencyTotalWeight(competencyId, ploId);
-  const newTotal = currentTotal + newWeight;
-  // Allow the save if:
-  //   (a) the new total is within the 100% limit, OR
-  //   (b) the new total is LESS THAN OR EQUAL TO the current total
-  //       (user is correcting / reducing an already-over-limit competency)
-  const existingWeightForThisPlo = await (async () => {
-    const rows = await db.select({ weight: mappings.weight })
-      .from(mappings)
-      .where(and(eq(mappings.competencyId, competencyId), eq(mappings.ploId, ploId)));
-    return rows.length > 0 ? (typeof rows[0].weight === 'string' ? parseFloat(rows[0].weight as string) : Number(rows[0].weight)) : 0;
-  })();
-  const previousTotal = currentTotal + existingWeightForThisPlo;
-  if (newTotal > 1.0 + 1e-9 && newTotal > previousTotal + 1e-9) {
-    throw new Error(
-      `Adding this weight (${(newWeight * 100).toFixed(0)}%) would bring the total for this competency to ${
-        (newTotal * 100).toFixed(0)
-      }%, which exceeds the maximum of 100%. Current total from other PLOs: ${(currentTotal * 100).toFixed(0)}%.`
-    );
-  }
+  // Note: saving is always allowed regardless of total.
+  // The frontend shows a warning badge when the total exceeds 100%,
+  // but never blocks the user from adjusting weights.
 
   await db
     .insert(mappings)
