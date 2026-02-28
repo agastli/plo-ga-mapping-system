@@ -7,13 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { Loader2, UserPlus, Trash2, Shield, Eye, EyeOff, Edit, LogOut, Edit2, Home, Search, X } from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
 import { useLocation } from 'wouter';
 
 export default function UserManagement() {
-  const { toast } = useToast();
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false);
   const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false);
@@ -91,79 +90,79 @@ export default function UserManagement() {
   const updateRoleMutation = trpc.users.updateRole.useMutation({
     onSuccess: (_data, variables) => {
       const roleLabel = variables.role.charAt(0).toUpperCase() + variables.role.slice(1);
-      toast({ title: 'Role Updated', description: `User role changed to ${roleLabel} successfully.` });
+      toast.success(`User role changed to ${roleLabel} successfully.`);
       refetchUsers();
     },
     onError: (err) => {
-      toast({ title: 'Error', description: err.message || 'Failed to update role.', variant: 'destructive' });
+      toast.error(err.message || 'Failed to update role.');
     },
   });
 
   const createAssignmentMutation = trpc.users.createAssignment.useMutation({
     onSuccess: () => {
-      toast({ title: 'Success', description: 'Assignment created successfully' });
+      toast.success('Assignment created successfully');
       refetchUsers();
       setIsAssignmentDialogOpen(false);
       resetAssignmentForm();
     },
     onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     },
   });
 
   const deleteAssignmentMutation = trpc.users.deleteAssignment.useMutation({
     onSuccess: () => {
-      toast({ title: 'Success', description: 'Assignment deleted successfully' });
+      toast.success('Assignment deleted successfully');
       refetchUsers();
     },
     onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     },
   });
 
   const deleteAllAssignmentsMutation = trpc.users.deleteAllAssignments.useMutation({
     onSuccess: () => {
-      toast({ title: 'Success', description: 'All assignments deleted successfully' });
+      toast.success('All assignments deleted successfully');
       refetchUsers();
     },
     onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     },
   });
 
   const createUserMutation = trpc.users.create.useMutation({
     onSuccess: () => {
-      toast({ title: 'Success', description: 'User created successfully' });
+      toast.success('User created successfully');
       refetchUsers();
       setIsCreateUserDialogOpen(false);
       resetCreateUserForm();
     },
     onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     },
   });
 
   const updateUserMutation = trpc.users.update.useMutation({
     onSuccess: () => {
-      toast({ title: 'Success', description: 'User updated successfully' });
+      toast.success('User updated successfully');
       refetchUsers();
       setIsEditUserDialogOpen(false);
       resetEditUserForm();
     },
     onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     },
   });
 
   const deleteUserMutation = trpc.users.delete.useMutation({
     onSuccess: () => {
-      toast({ title: 'Success', description: 'User deleted successfully' });
+      toast.success('User deleted successfully');
       refetchUsers();
       setIsDeleteConfirmOpen(false);
       setUserToDelete(null);
     },
     onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast.error(error.message);
     },
   });
 
@@ -216,7 +215,7 @@ export default function UserManagement() {
 
   const handleCreateUser = () => {
     if (!newUsername || !newPassword) {
-      toast({ title: 'Error', description: 'Username and password are required', variant: 'destructive' });
+      toast.error('Username and password are required');
       return;
     }
     
@@ -255,12 +254,12 @@ export default function UserManagement() {
             programId,
           });
         }
-        toast({ title: 'Success', description: `${selectedProgramIds.length} program assignment(s) created successfully` });
+        toast.success(`${selectedProgramIds.length} program assignment(s) created successfully`);
         setIsAssignmentDialogOpen(false);
         resetAssignmentForm();
         refetchUsers();
       } catch (error: any) {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        toast.error(error.message);
       }
       return;
     }
@@ -278,7 +277,7 @@ export default function UserManagement() {
     } else if (assignmentType === 'department' && selectedDepartmentId) {
       input.departmentId = selectedDepartmentId;
     } else if (assignmentType !== 'university') {
-      toast({ title: 'Error', description: 'Please select a valid assignment', variant: 'destructive' });
+      toast.error('Please select a valid assignment');
       return;
     }
 
