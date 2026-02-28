@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, UserPlus, Trash2, Shield, Eye, Edit, LogOut, Edit2, Home, Search, X } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Shield, Eye, EyeOff, Edit, LogOut, Edit2, Home, Search, X } from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
 import { useLocation } from 'wouter';
 
@@ -35,6 +35,10 @@ export default function UserManagement() {
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
   
+  // Password visibility state
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
+
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'admin' | 'editor' | 'viewer'>('all');
@@ -742,13 +746,25 @@ export default function UserManagement() {
             
             <div className="space-y-2">
               <Label htmlFor="password">Password *</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter password (min 6 characters)"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="Enter password (min 6 characters)"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  tabIndex={-1}
+                  aria-label={showNewPassword ? "Hide password" : "Show password"}
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             
             <div className="space-y-2">
@@ -823,13 +839,25 @@ export default function UserManagement() {
             
             <div className="space-y-2">
               <Label htmlFor="edit-password">New Password (optional)</Label>
-              <Input
-                id="edit-password"
-                type="password"
-                placeholder="Leave empty to keep current password"
-                value={editPassword}
-                onChange={(e) => setEditPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="edit-password"
+                  type={showEditPassword ? "text" : "password"}
+                  placeholder="Leave empty to keep current password"
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowEditPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  tabIndex={-1}
+                  aria-label={showEditPassword ? "Hide password" : "Show password"}
+                >
+                  {showEditPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             
             <div className="space-y-2">
