@@ -46,6 +46,7 @@ export default function AdminDashboard() {
       icon: FileText,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
+      href: "/programs",
     },
     {
       title: "Total Users",
@@ -53,6 +54,7 @@ export default function AdminDashboard() {
       icon: Users,
       color: "text-green-600",
       bgColor: "bg-green-50",
+      href: "/admin/users",
     },
     {
       title: "Total Mappings",
@@ -60,6 +62,7 @@ export default function AdminDashboard() {
       icon: Database,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
+      href: "/analytics",
     },
     {
       title: "Total PLOs",
@@ -67,6 +70,7 @@ export default function AdminDashboard() {
       icon: BarChart3,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
+      href: "/programs",
     },
     {
       title: "Graduate Attributes",
@@ -74,6 +78,7 @@ export default function AdminDashboard() {
       icon: Award,
       color: "text-rose-600",
       bgColor: "bg-rose-50",
+      href: "/analytics",
     },
     {
       title: "Competencies",
@@ -81,6 +86,7 @@ export default function AdminDashboard() {
       icon: Target,
       color: "text-teal-600",
       bgColor: "bg-teal-50",
+      href: "/analytics",
     },
   ];
 
@@ -199,19 +205,21 @@ export default function AdminDashboard() {
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {stats.map((stat) => (
-            <Card key={stat.title} className="shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-gray-500 truncate">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+            <Link key={stat.title} href={stat.href}>
+              <Card className="shadow-sm hover:shadow-md hover:border-[#8B1538]/30 transition-all cursor-pointer group">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-gray-500 truncate group-hover:text-[#8B1538] transition-colors">{stat.title}</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                    </div>
+                    <div className={`p-2 rounded-full ${stat.bgColor} shrink-0 ml-2 group-hover:scale-110 transition-transform`}>
+                      <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                    </div>
                   </div>
-                  <div className={`p-2 rounded-full ${stat.bgColor} shrink-0 ml-2`}>
-                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 

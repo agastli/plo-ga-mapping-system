@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Home, Edit2, Save, X, Shield, LogOut, Filter, ChevronDown } from "lucide-react";
@@ -450,7 +451,20 @@ export default function OrganizationalStructure() {
                   ) : (
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-semibold">{department.nameEn}</p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold">{department.nameEn}</p>
+                          {(() => {
+                            const count = programs?.filter(p => p.program.departmentId === department.id).length ?? 0;
+                            return (
+                              <Badge
+                                variant="secondary"
+                                className={count > 0 ? 'bg-[#8B1538]/10 text-[#8B1538] border border-[#8B1538]/20' : 'bg-gray-100 text-gray-400 border border-gray-200'}
+                              >
+                                {count} {count === 1 ? 'program' : 'programs'}
+                              </Badge>
+                            );
+                          })()}
+                        </div>
                         <p className="text-sm text-gray-600" dir="rtl">{department.nameAr}</p>
                         <p className="text-xs text-gray-500">
                           Code: {department.code} | College: {colleges?.find(c => c.id === department.collegeId)?.nameEn}

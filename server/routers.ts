@@ -1426,6 +1426,13 @@ export const appRouter = router({
       // For viewers/editors, this would need filtering - for now allow all users
       return await db.validateAllProgramsData();
     }),
+
+    normalizeOverLimitWeights: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can normalize weights.' });
+      }
+      return await db.normalizeOverLimitWeights();
+    }),
     
     // Export endpoints
     exportToPDF: publicProcedure

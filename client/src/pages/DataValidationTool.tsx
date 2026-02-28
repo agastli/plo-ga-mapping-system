@@ -1,14 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Home, AlertTriangle, AlertCircle, Info, CheckCircle, Download } from "lucide-react";
+import { Home, AlertTriangle, AlertCircle, Info, CheckCircle, Download, Wrench } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function DataValidationTool() {
   const { data: validation, isLoading, refetch } = trpc.analytics.validateData.useQuery();
+  const normalizeMutation = trpc.analytics.normalizeOverLimitWeights.useMutation({
+    onSuccess: (result) => {
+      toast.success(
+        result.affectedPrograms > 0
+          ? `Fixed ${result.fixedCount} weight(s) across ${result.affectedPrograms} program(s). All competency totals are now ≤ 100%.`
+          : 'No over-limit weights found. Everything is already within limits.'
+      );
+      refetch();
+    },
+    onError: (err) => toast.error(err.message || 'Failed to normalize weights.'),
+  });
   const [filterSeverity, setFilterSeverity] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
 
@@ -80,6 +92,19 @@ export default function DataValidationTool() {
                     <Home className="mr-2 h-4 w-4" />
                     Home
                   </Link>
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    if (confirm('This will proportionally scale down all over-100% competency weights across all programs. Continue?')) {
+                      normalizeMutation.mutate();
+                    }
+                  }}
+                  className="bg-red-600 hover:bg-red-700"
+                  disabled={normalizeMutation.isPending || (validation?.summary.totalErrors === 0)}
+                >
+                  <Wrench className="mr-2 h-4 w-4" />
+                  {normalizeMutation.isPending ? 'Fixing...' : 'Fix All Over-Limit Weights'}
                 </Button>
                 <Button 
                   variant="default" 

@@ -1287,6 +1287,66 @@ export async function validateAllProgramsData() {
 }
 
 // ============================================================================
+// Normalize Over-Limit Competency Weights
+// ============================================================================
+export async function normalizeOverLimitWeights() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get all programs
+  const allPrograms = await db
+    .select({ id: programs.id })
+    .from(programs);
+
+  let fixedCount = 0;
+  let affectedPrograms = 0;
+
+  for (const prog of allPrograms) {
+    // Get all PLOs for this program
+    const progPLOs = await db
+      .select({ id: plos.id })
+      .from(plos)
+      .where(eq(plos.programId, prog.id));
+    if (progPLOs.length === 0) continue;
+    const ploIds = progPLOs.map(p => p.id);
+
+    // Get all competencies
+    const allComps = await db
+      .select({ id: competencies.id })
+      .from(competencies);
+
+    let programFixed = false;
+    for (const comp of allComps) {
+      // Get all mappings for this competency within this program's PLOs
+      const compMappings = await db
+        .select({ ploId: mappings.ploId, weight: mappings.weight })
+        .from(mappings)
+        .where(and(inArray(mappings.ploId, ploIds), eq(mappings.competencyId, comp.id)));
+
+      if (compMappings.length === 0) continue;
+      const total = compMappings.reduce((sum, r) => sum + parseFloat(r.weight || '0'), 0);
+      if (total <= 1.001) continue; // already within limit
+
+      // Proportionally scale all weights down so they sum to 1.0
+      for (const m of compMappings) {
+        const original = parseFloat(m.weight || '0');
+        const normalized = Math.round((original / total) * 100) / 100;
+        const normStr = normalized.toFixed(2);
+        await db
+          .update(mappings)
+          .set({ weight: normStr, updatedAt: new Date() })
+          .where(and(eq(mappings.ploId, m.ploId), eq(mappings.competencyId, comp.id)));
+        fixedCount++;
+      }
+      programFixed = true;
+    }
+    if (programFixed) affectedPrograms++;
+  }
+
+  return { fixedCount, affectedPrograms };
+}
+
+// ============================================================================
 // Report Templates
 // ============================================================================
 
