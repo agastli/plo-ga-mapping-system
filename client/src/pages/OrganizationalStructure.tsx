@@ -26,6 +26,8 @@ export default function OrganizationalStructure() {
 
   // ── Filter state ──────────────────────────────────────────────────────────
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | "all">("all");
+  const [selectedClusterId, setSelectedClusterId] = useState<number | "all">("all");
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | "all">("all");
 
   // ── Editing states ────────────────────────────────────────────────────────
   const [editingCollege, setEditingCollege] = useState<number | null>(null);
@@ -55,26 +57,41 @@ export default function OrganizationalStructure() {
     return colleges.filter(c => c.id === selectedCollegeId);
   }, [colleges, selectedCollegeId]);
 
-  const filteredClusters = useMemo(() => {
+  // Clusters available for the selected college (used to populate dropdown)
+  const availableClusters = useMemo(() => {
     if (!clusters) return [];
     if (selectedCollegeId === "all") return clusters;
     return clusters.filter(cl => cl.collegeId === selectedCollegeId);
   }, [clusters, selectedCollegeId]);
 
-  const filteredDepartments = useMemo(() => {
+  // Clusters shown in the Clusters section (filtered by cluster selection)
+  const filteredClusters = useMemo(() => {
+    if (selectedClusterId === "all") return availableClusters;
+    return availableClusters.filter(cl => cl.id === selectedClusterId);
+  }, [availableClusters, selectedClusterId]);
+
+  // Departments available for the selected college + cluster (used to populate dropdown)
+  const availableDepartments = useMemo(() => {
     if (!departments) return [];
-    if (selectedCollegeId === "all") return departments;
-    return departments.filter(d => d.collegeId === selectedCollegeId);
-  }, [departments, selectedCollegeId]);
+    let result = departments;
+    if (selectedCollegeId !== "all") result = result.filter(d => d.collegeId === selectedCollegeId);
+    if (selectedClusterId !== "all") result = result.filter(d => d.clusterId === selectedClusterId);
+    return result;
+  }, [departments, selectedCollegeId, selectedClusterId]);
+
+  // Departments shown in the Departments section (filtered by department selection)
+  const filteredDepartments = useMemo(() => {
+    if (selectedDepartmentId === "all") return availableDepartments;
+    return availableDepartments.filter(d => d.id === selectedDepartmentId);
+  }, [availableDepartments, selectedDepartmentId]);
 
   const filteredPrograms = useMemo(() => {
     if (!programs) return [];
-    if (selectedCollegeId === "all") return programs;
-    const deptIds = new Set((departments || [])
-      .filter(d => d.collegeId === selectedCollegeId)
-      .map(d => d.id));
+    const isFiltered = selectedCollegeId !== "all" || selectedClusterId !== "all" || selectedDepartmentId !== "all";
+    if (!isFiltered) return programs;
+    const deptIds = new Set(filteredDepartments.map(d => d.id));
     return programs.filter(p => deptIds.has(p.department.id));
-  }, [programs, departments, selectedCollegeId]);
+  }, [programs, filteredDepartments, selectedCollegeId, selectedClusterId, selectedDepartmentId]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleEditCollege = (college: any) => {
@@ -180,38 +197,98 @@ export default function OrganizationalStructure() {
           ]}
         />
 
-        {/* ── College Filter Bar ── */}
-        <div className="bg-white rounded-lg shadow-sm border p-4 flex flex-wrap items-center gap-3">
+        {/* ── Cascading Filter Bar ── */}
+        <div className="bg-white rounded-lg shadow-sm border p-4 space-y-3">
           <div className="flex items-center gap-2 text-[#8B1538] font-semibold">
             <Filter className="h-4 w-4" />
-            <span>Filter by College</span>
+            <span>Filter</span>
           </div>
-          <div className="relative flex-1 min-w-[220px] max-w-sm">
-            <select
-              value={selectedCollegeId}
-              onChange={e => setSelectedCollegeId(e.target.value === "all" ? "all" : Number(e.target.value))}
-              className="w-full appearance-none border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#8B1538]/40"
-            >
-              <option value="all">All Colleges ({colleges?.length ?? 0})</option>
-              {colleges?.map(c => (
-                <option key={c.id} value={c.id}>{c.nameEn} ({c.code})</option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          </div>
-          {selectedCollegeId !== "all" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedCollegeId("all")}
-              className="text-[#8B1538] border-[#8B1538] hover:bg-[#8B1538]/10"
-            >
-              <X className="h-3 w-3 mr-1" />
-              Clear filter
-            </Button>
-          )}
-          <div className="ml-auto text-xs text-gray-500">
-            Showing: {filteredColleges.length} college{filteredColleges.length !== 1 ? "s" : ""} · {filteredClusters.length} cluster{filteredClusters.length !== 1 ? "s" : ""} · {filteredDepartments.length} dept{filteredDepartments.length !== 1 ? "s" : ""} · {filteredPrograms.length} program{filteredPrograms.length !== 1 ? "s" : ""}
+          <div className="flex flex-wrap items-end gap-3">
+
+            {/* College dropdown */}
+            <div className="flex flex-col gap-1 min-w-[200px] flex-1">
+              <label className="text-xs font-medium text-gray-500">College</label>
+              <div className="relative">
+                <select
+                  value={selectedCollegeId}
+                  onChange={e => {
+                    const val = e.target.value === "all" ? "all" : Number(e.target.value);
+                    setSelectedCollegeId(val);
+                    setSelectedClusterId("all");
+                    setSelectedDepartmentId("all");
+                  }}
+                  className="w-full appearance-none border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#8B1538]/40"
+                >
+                  <option value="all">All Colleges ({colleges?.length ?? 0})</option>
+                  {colleges?.map(c => (
+                    <option key={c.id} value={c.id}>{c.nameEn} ({c.code})</option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+
+            {/* Cluster dropdown — only shown when the selected college has clusters */}
+            {availableClusters.length > 0 && (
+              <div className="flex flex-col gap-1 min-w-[200px] flex-1">
+                <label className="text-xs font-medium text-gray-500">Cluster</label>
+                <div className="relative">
+                  <select
+                    value={selectedClusterId}
+                    onChange={e => {
+                      const val = e.target.value === "all" ? "all" : Number(e.target.value);
+                      setSelectedClusterId(val);
+                      setSelectedDepartmentId("all");
+                    }}
+                    className="w-full appearance-none border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#8B1538]/40"
+                  >
+                    <option value="all">All Clusters ({availableClusters.length})</option>
+                    {availableClusters.map(cl => (
+                      <option key={cl.id} value={cl.id}>{cl.nameEn} ({cl.code})</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+            )}
+
+            {/* Department dropdown — only shown when a college (or cluster) is selected */}
+            {availableDepartments.length > 0 && (
+              <div className="flex flex-col gap-1 min-w-[200px] flex-1">
+                <label className="text-xs font-medium text-gray-500">Department</label>
+                <div className="relative">
+                  <select
+                    value={selectedDepartmentId}
+                    onChange={e => setSelectedDepartmentId(e.target.value === "all" ? "all" : Number(e.target.value))}
+                    className="w-full appearance-none border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#8B1538]/40"
+                  >
+                    <option value="all">All Departments ({availableDepartments.length})</option>
+                    {availableDepartments.map(d => (
+                      <option key={d.id} value={d.id}>{d.nameEn} ({d.code})</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+            )}
+
+            {/* Clear all + summary */}
+            <div className="flex items-center gap-3 ml-auto flex-shrink-0">
+              {(selectedCollegeId !== "all" || selectedClusterId !== "all" || selectedDepartmentId !== "all") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { setSelectedCollegeId("all"); setSelectedClusterId("all"); setSelectedDepartmentId("all"); }}
+                  className="text-[#8B1538] border-[#8B1538] hover:bg-[#8B1538]/10"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear all
+                </Button>
+              )}
+              <span className="text-xs text-gray-500 whitespace-nowrap">
+                {filteredColleges.length} college{filteredColleges.length !== 1 ? "s" : ""} · {filteredClusters.length} cluster{filteredClusters.length !== 1 ? "s" : ""} · {filteredDepartments.length} dept{filteredDepartments.length !== 1 ? "s" : ""} · {filteredPrograms.length} program{filteredPrograms.length !== 1 ? "s" : ""}
+              </span>
+            </div>
           </div>
         </div>
 
