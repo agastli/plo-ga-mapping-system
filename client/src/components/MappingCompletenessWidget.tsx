@@ -99,8 +99,11 @@ export default function MappingCompletenessWidget() {
     overallRate < dangerThreshold ? "danger" :
     overallRate < warnThreshold   ? "warn"   : "ok";
 
-  // Show top 8 programs sorted by completeness ascending (most urgent first)
-  const sorted = [...data].sort((a, b) => a.completenessRate - b.completenessRate).slice(0, 8);
+  // Show only programs that need attention: partial or no PLOs, sorted by completeness ascending
+  const needsAttention = [...data]
+    .filter(p => !p.isComplete)
+    .sort((a, b) => a.completenessRate - b.completenessRate)
+    .slice(0, 8);
 
   return (
     <Card>
@@ -185,7 +188,7 @@ export default function MappingCompletenessWidget() {
         <p className="text-xs text-gray-500 mt-1 leading-relaxed">
           This widget shows how many PLOs in each program have been fully mapped to Graduate Attributes and competencies.
           Use the <span className="font-medium text-gray-700">⚙ settings icon</span> to configure warning and danger thresholds.
-          Programs are sorted from least complete to most complete so the ones needing the most attention appear first.
+          Only programs that are partially mapped or have no PLOs are listed below — fully complete programs are hidden.
         </p>
 
         {/* Summary badges */}
@@ -207,32 +210,39 @@ export default function MappingCompletenessWidget() {
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="space-y-2">
-          {sorted.map(prog => (
-            <div key={prog.programId} className="flex items-center gap-2">
-              <StatusIcon rate={prog.completenessRate} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs font-medium text-gray-800 truncate">{prog.programCode}</span>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    {prog.completenessRate < dangerThreshold && !prog.hasNoPLOs && (
-                      <AlertTriangle className="h-3 w-3 text-red-500" aria-label="Below danger threshold" />
-                    )}
-                    {prog.completenessRate >= dangerThreshold && prog.completenessRate < warnThreshold && !prog.hasNoPLOs && (
-                      <AlertCircle className="h-3 w-3 text-yellow-500" aria-label="Below warning threshold" />
-                    )}
-                    <span className="text-xs text-gray-500">{prog.mappedPLOs}/{prog.totalPLOs}</span>
+        {needsAttention.length === 0 ? (
+          <div className="flex items-center gap-2 py-3 px-2 bg-green-50 rounded-lg">
+            <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+            <p className="text-sm text-green-700 font-medium">All programs are fully mapped — great work!</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {needsAttention.map(prog => (
+              <div key={prog.programId} className="flex items-center gap-2">
+                <StatusIcon rate={prog.completenessRate} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-xs font-medium text-gray-800 truncate">{prog.programCode}</span>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      {prog.completenessRate < dangerThreshold && !prog.hasNoPLOs && (
+                        <AlertTriangle className="h-3 w-3 text-red-500" aria-label="Below danger threshold" />
+                      )}
+                      {prog.completenessRate >= dangerThreshold && prog.completenessRate < warnThreshold && !prog.hasNoPLOs && (
+                        <AlertCircle className="h-3 w-3 text-yellow-500" aria-label="Below warning threshold" />
+                      )}
+                      <span className="text-xs text-gray-500">{prog.mappedPLOs}/{prog.totalPLOs}</span>
+                    </div>
                   </div>
+                  <ProgressBar value={prog.completenessRate} warnThreshold={warnThreshold} dangerThreshold={dangerThreshold} />
                 </div>
-                <ProgressBar value={prog.completenessRate} warnThreshold={warnThreshold} dangerThreshold={dangerThreshold} />
               </div>
-            </div>
-          ))}
-        </div>
-        {data.length > 8 && (
-          <p className="text-xs text-gray-400 mt-3 text-center">
-            Showing {Math.min(8, data.length)} of {data.length} programs (lowest first)
-          </p>
+            ))}
+            {data.filter(p => !p.isComplete).length > 8 && (
+              <p className="text-xs text-gray-400 mt-3 text-center">
+                Showing {Math.min(8, data.filter(p => !p.isComplete).length)} of {data.filter(p => !p.isComplete).length} programs needing attention
+              </p>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>
