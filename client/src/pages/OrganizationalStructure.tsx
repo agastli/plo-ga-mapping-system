@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Home, Edit2, Save, X, Shield, LogOut, Filter, ChevronDown } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function OrganizationalStructure() {
@@ -24,10 +24,35 @@ export default function OrganizationalStructure() {
   const updateDepartment = trpc.departments.update.useMutation();
   const updateProgram = trpc.programs.update.useMutation();
 
-  // ── Filter state ──────────────────────────────────────────────────────────
-  const [selectedCollegeId, setSelectedCollegeId] = useState<number | "all">("all");
-  const [selectedClusterId, setSelectedClusterId] = useState<number | "all">("all");
-  const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | "all">("all");
+  // ── Filter state (URL-synced so Back navigation restores filters) ──────────
+  const searchString = useSearch();
+  const searchParams = new URLSearchParams(searchString);
+  const urlCollege = searchParams.get('college');
+  const urlCluster = searchParams.get('cluster');
+  const urlDept = searchParams.get('dept');
+
+  const selectedCollegeId: number | "all" = urlCollege ? Number(urlCollege) : "all";
+  const selectedClusterId: number | "all" = urlCluster ? Number(urlCluster) : "all";
+  const selectedDepartmentId: number | "all" = urlDept ? Number(urlDept) : "all";
+
+  const setSelectedCollegeId = (val: number | "all") => {
+    const p = new URLSearchParams(searchString);
+    if (val === "all") { p.delete('college'); p.delete('cluster'); p.delete('dept'); }
+    else { p.set('college', String(val)); p.delete('cluster'); p.delete('dept'); }
+    setLocation('/admin/structure?' + p.toString());
+  };
+  const setSelectedClusterId = (val: number | "all") => {
+    const p = new URLSearchParams(searchString);
+    if (val === "all") { p.delete('cluster'); p.delete('dept'); }
+    else { p.set('cluster', String(val)); p.delete('dept'); }
+    setLocation('/admin/structure?' + p.toString());
+  };
+  const setSelectedDepartmentId = (val: number | "all") => {
+    const p = new URLSearchParams(searchString);
+    if (val === "all") p.delete('dept');
+    else p.set('dept', String(val));
+    setLocation('/admin/structure?' + p.toString());
+  };
 
   // ── Editing states ────────────────────────────────────────────────────────
   const [editingCollege, setEditingCollege] = useState<number | null>(null);

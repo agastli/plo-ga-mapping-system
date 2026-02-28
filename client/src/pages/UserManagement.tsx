@@ -50,6 +50,14 @@ export default function UserManagement() {
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | undefined>();
   const [selectedProgramIds, setSelectedProgramIds] = useState<number[]>([]);
 
+  // Navigation & auth — MUST be before any conditional return
+  const [, setLocation] = useLocation();
+  const { data: currentUser } = trpc.auth.me.useQuery();
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => setLocation('/login'),
+  });
+  const handleLogout = () => logoutMutation.mutate();
+
   // Queries
   const { data: users, isLoading: usersLoading, refetch: refetchUsers } = trpc.users.list.useQuery();
   const { data: colleges } = trpc.colleges.list.useQuery();
@@ -328,25 +336,12 @@ export default function UserManagement() {
     return 'Unknown';
   };
 
-  if (usersLoading) {
+   if (usersLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
-  }
-
-  const [, setLocation] = useLocation();
-  const { data: currentUser } = trpc.auth.me.useQuery();
-  
-  const logoutMutation = trpc.auth.logout.useMutation({
-    onSuccess: () => {
-      setLocation('/login');
-    },
-  });
-
-  const handleLogout = () => {
-    logoutMutation.mutate();
   };
 
   return (
