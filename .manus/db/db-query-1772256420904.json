@@ -1,0 +1,18 @@
+{
+  "query": "\nSELECT \n  m.competencyId,\n  c.code AS competencyCode,\n  c.nameEn AS competencyName,\n  p2.nameEn AS programName,\n  COUNT(m.id) AS ploCount,\n  SUM(m.weight) AS totalWeight\nFROM mappings m\nJOIN competencies c ON m.competencyId = c.id\nJOIN plos pl ON m.ploId = pl.id\nJOIN programs p2 ON pl.programId = p2.id\nGROUP BY m.competencyId, pl.programId, c.code, c.nameEn, p2.nameEn\nHAVING SUM(m.weight) > 1.001\nORDER BY totalWeight DESC;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute \nSELECT \n  m.competencyId,\n  c.code AS competencyCode,\n  c.nameEn AS competencyName,\n  p2.nameEn AS programName,\n  COUNT(m.id) AS ploCount,\n  SUM(m.weight) AS totalWeight\nFROM mappings m\nJOIN competencies c ON m.competencyId = c.id\nJOIN plos pl ON m.ploId = pl.id\nJOIN programs p2 ON pl.programId = p2.id\nGROUP BY m.competencyId, pl.programId, c.code, c.nameEn, p2.nameEn\nHAVING SUM(m.weight) > 1.001\nORDER BY totalWeight DESC;\n",
+  "rows": [
+    {
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "competencyName": "Awareness of local and international issues",
+      "programName": "Bachelor of Business Administration in Accounting",
+      "ploCount": "5",
+      "totalWeight": "1.01"
+    }
+  ],
+  "messages": [],
+  "stdout": "competencyId\tcompetencyCode\tcompetencyName\tprogramName\tploCount\ttotalWeight\n11\tC3-3\tAwareness of local and international issues\tBachelor of Business Administration in Accounting\t5\t1.01\n",
+  "stderr": "",
+  "execution_time_ms": 1737
+}

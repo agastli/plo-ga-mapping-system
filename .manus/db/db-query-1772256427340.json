@@ -1,0 +1,289 @@
+{
+  "query": "\nSELECT \n  m.id AS mappingId,\n  m.ploId,\n  pl.code AS ploCode,\n  m.competencyId,\n  c.code AS competencyCode,\n  p2.nameEn AS programName,\n  m.weight\nFROM mappings m\nJOIN competencies c ON m.competencyId = c.id\nJOIN plos pl ON m.ploId = pl.id\nJOIN programs p2 ON pl.programId = p2.id\nWHERE m.competencyId IN (\n  SELECT m2.competencyId\n  FROM mappings m2\n  JOIN plos pl2 ON m2.ploId = pl2.id\n  GROUP BY m2.competencyId, pl2.programId\n  HAVING SUM(m2.weight) > 1.001\n)\nORDER BY m.competencyId, pl.programId, m.weight DESC;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute \nSELECT \n  m.id AS mappingId,\n  m.ploId,\n  pl.code AS ploCode,\n  m.competencyId,\n  c.code AS competencyCode,\n  p2.nameEn AS programName,\n  m.weight\nFROM mappings m\nJOIN competencies c ON m.competencyId = c.id\nJOIN plos pl ON m.ploId = pl.id\nJOIN programs p2 ON pl.programId = p2.id\nWHERE m.competencyId IN (\n  SELECT m2.competencyId\n  FROM mappings m2\n  JOIN plos pl2 ON m2.ploId = pl2.id\n  GROUP BY m2.competencyId, pl2.programId\n  HAVING SUM(m2.weight) > 1.001\n)\nORDER BY m.competencyId, pl.programId, m.weight DESC;\n",
+  "rows": [
+    {
+      "mappingId": "195",
+      "ploId": "12",
+      "ploCode": "PLO5",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Accounting",
+      "weight": "0.53"
+    },
+    {
+      "mappingId": "192",
+      "ploId": "9",
+      "ploCode": "PLO2",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Accounting",
+      "weight": "0.24"
+    },
+    {
+      "mappingId": "191",
+      "ploId": "8",
+      "ploCode": "PLO1",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Accounting",
+      "weight": "0.24"
+    },
+    {
+      "mappingId": "194",
+      "ploId": "11",
+      "ploCode": "PLO4",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Accounting",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "193",
+      "ploId": "10",
+      "ploCode": "PLO3",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Accounting",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "300",
+      "ploId": "17",
+      "ploCode": "PLO5",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Economics",
+      "weight": "0.33"
+    },
+    {
+      "mappingId": "299",
+      "ploId": "16",
+      "ploCode": "PLO4",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Economics",
+      "weight": "0.25"
+    },
+    {
+      "mappingId": "298",
+      "ploId": "15",
+      "ploCode": "PLO3",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Economics",
+      "weight": "0.15"
+    },
+    {
+      "mappingId": "297",
+      "ploId": "14",
+      "ploCode": "PLO2",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Economics",
+      "weight": "0.14"
+    },
+    {
+      "mappingId": "296",
+      "ploId": "13",
+      "ploCode": "PLO1",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Economics",
+      "weight": "0.13"
+    },
+    {
+      "mappingId": "405",
+      "ploId": "22",
+      "ploCode": "PLO5",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Finance",
+      "weight": "0.64"
+    },
+    {
+      "mappingId": "402",
+      "ploId": "19",
+      "ploCode": "PLO2",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Finance",
+      "weight": "0.36"
+    },
+    {
+      "mappingId": "401",
+      "ploId": "18",
+      "ploCode": "PLO1",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Finance",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "404",
+      "ploId": "21",
+      "ploCode": "PLO4",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Finance",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "403",
+      "ploId": "20",
+      "ploCode": "PLO3",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Finance",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "510",
+      "ploId": "27",
+      "ploCode": "PLO5",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Management",
+      "weight": "0.51"
+    },
+    {
+      "mappingId": "509",
+      "ploId": "26",
+      "ploCode": "PLO4",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Management",
+      "weight": "0.49"
+    },
+    {
+      "mappingId": "508",
+      "ploId": "25",
+      "ploCode": "PLO3",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Management",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "506",
+      "ploId": "23",
+      "ploCode": "PLO1",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Management",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "626",
+      "ploId": "33",
+      "ploCode": "PLO6",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Management Information Systems",
+      "weight": "0.53"
+    },
+    {
+      "mappingId": "625",
+      "ploId": "32",
+      "ploCode": "PLO5",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Management Information Systems",
+      "weight": "0.47"
+    },
+    {
+      "mappingId": "622",
+      "ploId": "29",
+      "ploCode": "PLO2",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Management Information Systems",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "623",
+      "ploId": "30",
+      "ploCode": "PLO3",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Management Information Systems",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "621",
+      "ploId": "28",
+      "ploCode": "PLO1",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Management Information Systems",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "740",
+      "ploId": "37",
+      "ploCode": "PLO4",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Marketing",
+      "weight": "0.55"
+    },
+    {
+      "mappingId": "741",
+      "ploId": "38",
+      "ploCode": "PLO5",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Marketing",
+      "weight": "0.45"
+    },
+    {
+      "mappingId": "739",
+      "ploId": "36",
+      "ploCode": "PLO3",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Marketing",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "738",
+      "ploId": "35",
+      "ploCode": "PLO2",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Marketing",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "737",
+      "ploId": "34",
+      "ploCode": "PLO1",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Business Administration in Marketing",
+      "weight": "0.00"
+    },
+    {
+      "mappingId": "5011",
+      "ploId": "404",
+      "ploCode": "PLO4",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Science in Mechanical Engineering",
+      "weight": "0.51"
+    },
+    {
+      "mappingId": "5010",
+      "ploId": "402",
+      "ploCode": "PLO2",
+      "competencyId": "11",
+      "competencyCode": "C3-3",
+      "programName": "Bachelor of Science in Mechanical Engineering",
+      "weight": "0.49"
+    }
+  ],
+  "messages": [],
+  "stdout": "mappingId\tploId\tploCode\tcompetencyId\tcompetencyCode\tprogramName\tweight\n195\t12\tPLO5\t11\tC3-3\tBachelor of Business Administration in Accounting\t0.53\n192\t9\tPLO2\t11\tC3-3\tBachelor of Business Administration in Accounting\t0.24\n191\t8\tPLO1\t11\tC3-3\tBachelor of Business Administration in Accounting\t0.24\n194\t11\tPLO4\t11\tC3-3\tBachelor of Business Administration in Accounting\t0.00\n193\t10\tPLO3\t11\tC3-3\tBachelor of Business Administration in Accounting\t0.00\n300\t17\tPLO5\t11\tC3-3\tBachelor of Business Administration in Economics\t0.33\n299\t16\tPLO4\t11\tC3-3\tBachelor of Business Administration in Economics\t0.25\n298\t15\tPLO3\t11\tC3-3\tBachelor of Business Administration in Economics\t0.15\n297\t14\tPLO2\t11\tC3-3\tBachelor of Business Administration in Economics\t0.14\n296\t13\tPLO1\t11\tC3-3\tBachelor of Business Administration in Economics\t0.13\n405\t22\tPLO5\t11\tC3-3\tBachelor of Business Administration in Finance\t0.64\n402\t19\tPLO2\t11\tC3-3\tBachelor of Business Administration in Finance\t0.36\n401\t18\tPLO1\t11\tC3-3\tBachelor of Business Administration in Finance\t0.00\n404\t21\tPLO4\t11\tC3-3\tBachelor of Business Administration in Finance\t0.00\n403\t20\tPLO3\t11\tC3-3\tBachelor of Business Administration in Finance\t0.00\n510\t27\tPLO5\t11\tC3-3\tBachelor of Business Administration in Management\t0.51\n509\t26\tPLO4\t11\tC3-3\tBachelor of Business Administration in Management\t0.49\n508\t25\tPLO3\t11\tC3-3\tBachelor of Business Administration in Management\t0.00\n506\t23\tPLO1\t11\tC3-3\tBachelor of Business Administration in Management\t0.00\n626\t33\tPLO6\t11\tC3-3\tBachelor of Business Administration in Management Information Systems\t0.53\n625\t32\tPLO5\t11\tC3-3\tBachelor of Business Administration in Management Information Systems\t0.47\n622\t29\tPLO2\t11\tC3-3\tBachelor of Business Administration in Management Information Systems\t0.00\n623\t30\tPLO3\t11\tC3-3\tBachelor of Business Administration in Management Information Systems\t0.00\n621\t28\tPLO1\t11\tC3-3\tBachelor of Business Administration in Management Information Systems\t0.00\n740\t37\tPLO4\t11\tC3-3\tBachelor of Business Administration in Marketing\t0.55\n741\t38\tPLO5\t11\tC3-3\tBachelor of Business Administration in Marketing\t0.45\n739\t36\tPLO3\t11\tC3-3\tBachelor of Business Administration in Marketing\t0.00\n738\t35\tPLO2\t11\tC3-3\tBachelor of Business Administration in Marketing\t0.00\n737\t34\tPLO1\t11\tC3-3\tBachelor of Business Administration in Marketing\t0.00\n5011\t404\tPLO4\t11\tC3-3\tBachelor of Science in Mechanical Engineering\t0.51\n5010\t402\tPLO2\t11\tC3-3\tBachelor of Science in Mechanical Engineering\t0.49\n",
+  "stderr": "",
+  "execution_time_ms": 1498
+}
