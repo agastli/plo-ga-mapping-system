@@ -24,8 +24,19 @@ export default function OrganizationalStructure() {
   const updateDepartment = trpc.departments.update.useMutation();
   const updateProgram = trpc.programs.update.useMutation();
 
-  // ── Filter state (URL-synced so Back navigation restores filters) ──────────
+  // ── Filter state (URL + sessionStorage so Back navigation restores filters) ─
   const searchString = useSearch();
+
+  // On first mount with no URL params: restore from sessionStorage
+  useEffect(() => {
+    const saved = sessionStorage.getItem('orgStructureFilter');
+    if (saved && !searchString) {
+      window.history.replaceState(null, '', '/admin/structure?' + saved);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const searchParams = new URLSearchParams(searchString);
   const urlCollege = searchParams.get('college');
   const urlCluster = searchParams.get('cluster');
@@ -35,23 +46,38 @@ export default function OrganizationalStructure() {
   const selectedClusterId: number | "all" = urlCluster ? Number(urlCluster) : "all";
   const selectedDepartmentId: number | "all" = urlDept ? Number(urlDept) : "all";
 
+  // Persist filter to sessionStorage whenever it changes
+  useEffect(() => {
+    const p = new URLSearchParams();
+    if (selectedCollegeId !== "all") p.set('college', String(selectedCollegeId));
+    if (selectedClusterId !== "all") p.set('cluster', String(selectedClusterId));
+    if (selectedDepartmentId !== "all") p.set('dept', String(selectedDepartmentId));
+    const qs = p.toString();
+    if (qs) sessionStorage.setItem('orgStructureFilter', qs);
+    else sessionStorage.removeItem('orgStructureFilter');
+  }, [selectedCollegeId, selectedClusterId, selectedDepartmentId]);
+
+  // Use pushState so each filter change creates a real history entry → Back restores it
   const setSelectedCollegeId = (val: number | "all") => {
-    const p = new URLSearchParams(searchString);
-    if (val === "all") { p.delete('college'); p.delete('cluster'); p.delete('dept'); }
-    else { p.set('college', String(val)); p.delete('cluster'); p.delete('dept'); }
-    setLocation('/admin/structure?' + p.toString());
+    const p = new URLSearchParams();
+    if (val !== "all") p.set('college', String(val));
+    const qs = p.toString();
+    window.history.pushState(null, '', '/admin/structure' + (qs ? '?' + qs : ''));
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
   const setSelectedClusterId = (val: number | "all") => {
     const p = new URLSearchParams(searchString);
     if (val === "all") { p.delete('cluster'); p.delete('dept'); }
     else { p.set('cluster', String(val)); p.delete('dept'); }
-    setLocation('/admin/structure?' + p.toString());
+    window.history.pushState(null, '', '/admin/structure?' + p.toString());
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
   const setSelectedDepartmentId = (val: number | "all") => {
     const p = new URLSearchParams(searchString);
     if (val === "all") p.delete('dept');
     else p.set('dept', String(val));
-    setLocation('/admin/structure?' + p.toString());
+    window.history.pushState(null, '', '/admin/structure?' + p.toString());
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   // ── Editing states ────────────────────────────────────────────────────────

@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus, FileText } from "lucide-react";
 import { Link, useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Programs() {
   const [, setLocation] = useLocation();
@@ -16,17 +16,40 @@ export default function Programs() {
   const selectedCollegeId = sp.get('college') ?? "";
   const selectedClusterId = sp.get('cluster') ?? "";
 
+  // On first mount with no URL params: restore from sessionStorage
+  useEffect(() => {
+    const saved = sessionStorage.getItem('programsFilter');
+    if (saved && !searchString) {
+      window.history.replaceState(null, '', '/programs?' + saved);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist filter to sessionStorage whenever it changes
+  useEffect(() => {
+    const p = new URLSearchParams();
+    if (selectedCollegeId) p.set('college', selectedCollegeId);
+    if (selectedClusterId) p.set('cluster', selectedClusterId);
+    const qs = p.toString();
+    if (qs) sessionStorage.setItem('programsFilter', qs);
+    else sessionStorage.removeItem('programsFilter');
+  }, [selectedCollegeId, selectedClusterId]);
+
+  // Use pushState so each filter change creates a real history entry → Back restores it
   const setSelectedCollegeId = (val: string) => {
-    const p = new URLSearchParams(searchString);
-    if (!val) { p.delete('college'); p.delete('cluster'); }
-    else { p.set('college', val); p.delete('cluster'); }
-    setLocation('/programs?' + p.toString());
+    const p = new URLSearchParams();
+    if (val) p.set('college', val);
+    const qs = p.toString();
+    window.history.pushState(null, '', '/programs' + (qs ? '?' + qs : ''));
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
   const setSelectedClusterId = (val: string) => {
     const p = new URLSearchParams(searchString);
     if (!val) p.delete('cluster');
     else p.set('cluster', val);
-    setLocation('/programs?' + p.toString());
+    window.history.pushState(null, '', '/programs?' + p.toString());
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
   
   // Get current user to check role
