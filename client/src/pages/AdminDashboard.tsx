@@ -11,6 +11,7 @@ import {
   Settings,
   Database,
   Shield,
+  ShieldAlert,
   LogOut,
   Home,
   User,
@@ -132,6 +133,13 @@ export default function AdminDashboard() {
       href: "/login-tracking",
       icon: Activity,
       color: "text-red-600",
+    },
+    {
+      title: "Data Quality",
+      description: "Validate data and fix over-limit weights",
+      href: "/admin/data-validation",
+      icon: ShieldAlert,
+      color: "text-rose-600",
     },
   ];
 

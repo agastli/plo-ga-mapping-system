@@ -89,12 +89,13 @@ export default function UserManagement() {
 
   // Mutations
   const updateRoleMutation = trpc.users.updateRole.useMutation({
-    onSuccess: () => {
-      toast({ title: 'Success', description: 'User role updated successfully' });
+    onSuccess: (_data, variables) => {
+      const roleLabel = variables.role.charAt(0).toUpperCase() + variables.role.slice(1);
+      toast({ title: 'Role Updated', description: `User role changed to ${roleLabel} successfully.` });
       refetchUsers();
     },
-    onError: (error) => {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    onError: (err) => {
+      toast({ title: 'Error', description: err.message || 'Failed to update role.', variant: 'destructive' });
     },
   });
 

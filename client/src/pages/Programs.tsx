@@ -3,14 +3,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus, FileText } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 
 export default function Programs() {
+  const [, setLocation] = useLocation();
+  const searchString = useSearch();
+  const sp = new URLSearchParams(searchString);
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCollegeId, setSelectedCollegeId] = useState<string>("");
-  const [selectedClusterId, setSelectedClusterId] = useState<string>("");
+  const selectedCollegeId = sp.get('college') ?? "";
+  const selectedClusterId = sp.get('cluster') ?? "";
+
+  const setSelectedCollegeId = (val: string) => {
+    const p = new URLSearchParams(searchString);
+    if (!val) { p.delete('college'); p.delete('cluster'); }
+    else { p.set('college', val); p.delete('cluster'); }
+    setLocation('/programs?' + p.toString());
+  };
+  const setSelectedClusterId = (val: string) => {
+    const p = new URLSearchParams(searchString);
+    if (!val) p.delete('cluster');
+    else p.set('cluster', val);
+    setLocation('/programs?' + p.toString());
+  };
   
   // Get current user to check role
   const { data: currentUser } = trpc.auth.me.useQuery();
@@ -38,8 +55,7 @@ export default function Programs() {
 
   // Reset cluster selection when college changes
   const handleCollegeChange = (collegeId: string) => {
-    setSelectedCollegeId(collegeId);
-    setSelectedClusterId(""); // Reset cluster when college changes
+    setSelectedCollegeId(collegeId); // already clears cluster in URL
   };
 
   const filteredPrograms = selectedCollegeId ? programs?.filter((item) => {

@@ -129,6 +129,7 @@ function Router() {
       <Route path={"/admin/clusters"} component={ClusterManagement} />
       <Route path={"/admin/completeness"} component={DataCompletenessDashboard} />
       <Route path={"/admin/validation"} component={DataValidationTool} />
+      <Route path={"/admin/data-validation"} component={DataValidationTool} />
       <Route path={"/admin/structure"} component={OrganizationalStructure} />
       <Route path={"/admin/users"} component={UserManagement} />
       <Route path={"/manual"} component={UserManual} />

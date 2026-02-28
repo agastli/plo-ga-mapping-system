@@ -1212,6 +1212,33 @@ export async function validateAllProgramsData() {
       });
     }
     
+    // Check for over-100% competency weight totals
+    const allCompetencies = await db.select({ id: competencies.id, code: competencies.code, nameEn: competencies.nameEn }).from(competencies);
+    for (const comp of allCompetencies) {
+      const compMappings = programMappings.filter(m => {
+        // We need to join with competencies - get mappings for this competency
+        return true; // will filter below
+      });
+      // Get mappings for this competency across this program's PLOs
+      const compWeightRows = await db
+        .select({ weight: mappings.weight })
+        .from(mappings)
+        .where(and(inArray(mappings.ploId, ploIds), eq(mappings.competencyId, comp.id)));
+      const total = compWeightRows.reduce((sum, r) => sum + parseFloat(r.weight || '0'), 0);
+      if (total > 1.001) { // small epsilon for floating point
+        issues.push({
+          severity: 'error',
+          category: 'Over-Limit Competency Weights',
+          programId: prog.programId,
+          programName: prog.programName,
+          collegeName: prog.collegeName,
+          departmentName: prog.departmentName,
+          issue: `${comp.code} total weight is ${(total * 100).toFixed(1)}% (exceeds 100%)`,
+          details: `Competency "${comp.nameEn}" (${comp.code}) has a total weight of ${(total * 100).toFixed(1)}% across all PLOs in this program. The maximum allowed is 100%. Please reduce some PLO weights for this competency.`,
+        });
+      }
+    }
+
     // Check for justifications
     const programJustifications = await db
       .select({ id: justifications.id })
