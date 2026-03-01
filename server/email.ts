@@ -1,6 +1,34 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import { ENV } from './_core/env';
+import { getDb } from './db';
+import { users } from '../drizzle/schema';
+import { eq } from 'drizzle-orm';
+
+/**
+ * Fetch all admin email addresses from the database for BCC.
+ * Falls back to an empty string (no BCC) if the query fails or no admins have email set.
+ */
+async function getAdminEmails(): Promise<string> {
+  try {
+    const db = await getDb();
+    if (!db) return '';
+    const admins = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.role, 'admin'));
+    const emails = admins
+      .map((a: { email: string | null }) => a.email)
+      .filter((e: string | null): e is string => !!e && e.trim() !== '');
+    if (emails.length > 0) {
+      console.log(`[Email] BCC to admin(s): ${emails.join(', ')}`);
+    }
+    return emails.join(', ');
+  } catch (err) {
+    console.error('[Email] Failed to fetch admin emails for BCC:', err);
+    return '';
+  }
+}
 
 // SMTP configuration for Hostinger
 const SMTP_CONFIG = {
@@ -49,7 +77,7 @@ export async function sendPasswordResetEmail(
     const mailOptions = {
       from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
       to,
-      bcc: 'no-reply@gastli.org', // BCC admin on all outgoing emails
+      bcc: await getAdminEmails(),
       subject: 'Password Reset Request - PLO-GA Mapping System',
       html: `
         <!DOCTYPE html>
@@ -140,7 +168,7 @@ export async function sendUsernameReminderEmail(
     const mailOptions = {
       from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
       to,
-      bcc: 'no-reply@gastli.org', // BCC admin on all outgoing emails
+      bcc: await getAdminEmails(),
       subject: 'Username Reminder - PLO-GA Mapping System',
       html: `
         <!DOCTYPE html>
@@ -292,7 +320,7 @@ export async function sendWelcomeEmail(
     const mailOptions = {
       from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
       to,
-      bcc: 'no-reply@gastli.org', // BCC admin on all outgoing emails
+      bcc: await getAdminEmails(),
       subject: 'Welcome to PLO-GA Mapping System - Your Account Has Been Created',
       html: `
         <!DOCTYPE html>
@@ -522,7 +550,7 @@ export async function sendAssignmentNotificationEmail(
     const mailOptions = {
       from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
       to,
-      bcc: 'no-reply@gastli.org',
+      bcc: await getAdminEmails(),
       subject: 'New Assignment — PLO-GA Mapping System',
       html: `
         <!DOCTYPE html>
