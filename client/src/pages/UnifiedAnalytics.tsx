@@ -786,8 +786,8 @@ export default function UnifiedAnalytics() {
                 </div>
               )}
 
-              {/* Program Filter - Always show when college is selected */}
-              {selectedCollegeId && (
+              {/* Program Filter - Only show when By Program is selected */}
+              {filterLevel === 'program' && selectedCollegeId && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Program

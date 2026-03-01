@@ -686,3 +686,4 @@
 
 - [x] Fix: viewer assigned university-wide scope cannot see "University-wide" analysis level in Analytics page — only sees college-by-college options
 - [x] Fix: Program dropdown in Analytics shows all college programs instead of only cluster programs when a cluster is selected
+- [x] Fix: Program selector in Analytics filters should only appear when "By Program" is selected, not for By Cluster or By College
