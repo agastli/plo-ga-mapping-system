@@ -1163,16 +1163,32 @@ export async function getDataCompletenessStats() {
 
 // ── System Settings ──────────────────────────────────────────────────────────
 export async function getSystemSetting(key: string, defaultValue: string): Promise<string> {
-  const db = await getDb();
-  if (!db) return defaultValue;
-  const rows = await db.select().from(systemSettings).where(eq(systemSettings.key, key)).limit(1);
-  if (rows.length === 0) return defaultValue;
-  return rows[0].value;
+  try {
+    const db = await getDb();
+    if (!db) return defaultValue;
+    const rows = await db.select().from(systemSettings).where(eq(systemSettings.key, key)).limit(1);
+    if (rows.length === 0) return defaultValue;
+    return rows[0].value;
+  } catch {
+    // Table may not exist yet on this environment; return the default
+    return defaultValue;
+  }
 }
-
 export async function setSystemSetting(key: string, value: string, updatedBy?: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error('Database not available');
+  // Ensure the table exists before inserting
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS \`systemSettings\` (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      \`key\` VARCHAR(191) NOT NULL UNIQUE,
+      value TEXT NOT NULL,
+      description TEXT,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+      updatedBy INT,
+      FOREIGN KEY (updatedBy) REFERENCES users(id) ON DELETE SET NULL
+    )
+  `);
   await db
     .insert(systemSettings)
     .values({ key, value, updatedBy: updatedBy ?? null })
