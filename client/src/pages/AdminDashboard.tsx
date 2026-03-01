@@ -195,11 +195,16 @@ export default function AdminDashboard() {
           </p>
           <ul className="mt-2 text-sm text-gray-700 space-y-1 list-disc list-inside">
             <li><strong>Manage Programs</strong> — add, edit, or delete academic programs and their PLOs.</li>
-            <li><strong>Map PLOs to GAs</strong> — assign weighting factors and justifications for each PLO-GA-Competency mapping.</li>
-            <li><strong>Manage Users</strong> — create accounts, assign roles (Admin / Editor / Viewer), and control program-level access.</li>
-            <li><strong>View Analytics</strong> — explore university-wide, college-level, and program-level alignment reports and charts.</li>
-            <li><strong>Export Reports</strong> — download mapping documents as Word, PDF, Excel, or PNG from the Analytics pages.</li>
+            <li><strong>Map PLOs to GAs</strong> — assign weighting factors for each PLO-to-Graduate-Attribute and competency mapping.</li>
+            <li><strong>Edit Justifications</strong> — write and update the justification text for each PLO-to-GA mapping across all programs.</li>
+            <li><strong>Manage Users</strong> — create accounts, assign roles (Admin / Editor / Viewer), and control program-level access scopes.</li>
+            <li><strong>View Analytics</strong> — explore university-wide, college-level, cluster-level, and program-level GA alignment reports and charts.</li>
+            <li><strong>Export Reports</strong> — download mapping documents as Word, PDF, Excel, or PNG from the Analytics and Program pages.</li>
             <li><strong>Configure Structure</strong> — manage colleges, departments, clusters, and the organisational hierarchy.</li>
+            <li><strong>Upload Documents</strong> — import PLOs and mappings from Word documents to populate programs in bulk.</li>
+            <li><strong>Data Quality</strong> — review mapping completeness, identify programs with missing PLOs or incomplete mappings, and validate data integrity.</li>
+            <li><strong>Login Tracking</strong> — monitor user login activity, view login history, and manage or delete old records.</li>
+            <li><strong>System Settings</strong> — configure system-wide parameters such as mapping thresholds and report templates.</li>
           </ul>
         </div>
         {/* Statistics Cards */}

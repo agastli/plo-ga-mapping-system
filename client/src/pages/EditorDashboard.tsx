@@ -138,11 +138,12 @@ export default function EditorDashboard() {
             As an <strong>Editor</strong>, you can create and manage PLO-GA mappings for the programs assigned to you. Here is what you can do:
           </p>
           <ul className="mt-2 text-sm text-gray-700 space-y-1 list-disc list-inside">
-            <li><strong>View Your Programs</strong> — see all academic programs assigned to you by the administrator.</li>
+            <li><strong>View Your Programs</strong> — see all academic programs assigned to you, with PLO counts, mapping counts, completeness, and last-modified date.</li>
             <li><strong>Edit PLOs</strong> — add, update, or remove Program Learning Outcomes for your assigned programs.</li>
-            <li><strong>Map PLOs to GAs</strong> — assign weighting factors and write justifications for each PLO-to-Graduate-Attribute mapping.</li>
+            <li><strong>Map PLOs to GAs</strong> — assign and adjust weighting factors for each PLO-to-Graduate-Attribute and competency mapping.</li>
             <li><strong>Edit Justifications</strong> — write and update the justification text for each PLO-to-GA mapping in your assigned programs.</li>
-            <li><strong>View Analytics</strong> — review alignment charts and coverage reports for your assigned programs.</li>
+            <li><strong>View Analytics</strong> — review GA alignment charts, radar profiles, and coverage reports scoped to your assigned programs.</li>
+            <li><strong>Export Reports</strong> — download mapping documents and analytics as Word, PDF, or Excel files for your assigned programs.</li>
           </ul>
           <p className="mt-3 text-xs text-gray-500">You can only view and edit programs explicitly assigned to you. Contact an administrator to request access to additional programs.</p>
         </div>
@@ -237,6 +238,7 @@ export default function EditorDashboard() {
                         <th className="text-right px-4 py-3 font-semibold text-gray-600">PLOs</th>
                         <th className="text-right px-4 py-3 font-semibold text-gray-600">Mappings</th>
                         <th className="text-right px-4 py-3 font-semibold text-gray-600">Completeness</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">Last Modified</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -247,9 +249,13 @@ export default function EditorDashboard() {
                         const barColor = completeness >= 80 ? 'bg-green-500' : completeness >= 50 ? 'bg-yellow-400' : 'bg-red-400';
                         const textColor = completeness >= 80 ? 'text-green-700' : completeness >= 50 ? 'text-yellow-700' : 'text-red-600';
                         return (
-                          <tr key={p.program.id} className="border-b hover:bg-gray-50 transition-colors">
+                          <tr
+                            key={p.program.id}
+                            className="border-b hover:bg-[#8B1538]/5 transition-colors cursor-pointer"
+                            onClick={() => setLocation(`/programs/${p.program.id}`)}
+                          >
                             <td className="px-4 py-3 text-gray-400">{idx + 1}</td>
-                            <td className="px-4 py-3 font-medium text-gray-900">{p.program.nameEn}</td>
+                            <td className="px-4 py-3 font-medium text-[#8B1538] hover:underline">{p.program.nameEn}</td>
                             <td className="px-4 py-3 text-gray-600">{p.college.nameEn}</td>
                             <td className="px-4 py-3 text-right text-gray-700">{ploCount}</td>
                             <td className="px-4 py-3 text-right text-gray-700">{mappingCount}</td>
@@ -260,6 +266,9 @@ export default function EditorDashboard() {
                                 </div>
                                 <span className={`text-xs font-semibold ${textColor}`}>{completeness}%</span>
                               </div>
+                            </td>
+                            <td className="px-4 py-3 text-right text-gray-500 text-xs">
+                              {p.program.updatedAt ? new Date(p.program.updatedAt).toLocaleDateString() : '—'}
                             </td>
                           </tr>
                         );

@@ -702,3 +702,8 @@
 - [x] Show scope-aware default filter on Analytics page for college/cluster-assigned users
 - [x] Add Assigned Programs quick-list table to Viewer Dashboard (program name, college, completeness %)
 - [x] Add Assigned Programs quick-list table to Editor Dashboard (program name, college, completeness %)
+
+## Assigned Programs Table & Editor Dashboard Improvements (Mar 1, 2026)
+- [ ] Make Assigned Programs table rows clickable (navigate to program detail page)
+- [ ] Add "Last Modified" column to Assigned Programs table in Viewer and Editor Dashboards
+- [ ] Fix "Map PLOs to GAs" bullet in Editor Dashboard intro to focus on weighting only (remove overlap with "Edit Justifications")
