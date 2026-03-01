@@ -1319,9 +1319,13 @@ export const appRouter = router({
     }),
 
     universityOverview: protectedProcedure.query(async ({ ctx }) => {
-      // Only admins can see university-wide analytics
+      // Admins and users with university-level assignment can see university-wide analytics
       if (ctx.user.role !== 'admin') {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access university-wide analytics' });
+        const assignments = await db.getUserAssignments(ctx.user.id);
+        const hasUniversityAccess = assignments.some(a => a.assignmentType === 'university');
+        if (!hasUniversityAccess) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access university-wide analytics' });
+        }
       }
       return await db.getUniversityAnalytics();
     }),
@@ -1391,9 +1395,13 @@ export const appRouter = router({
       }).optional())
       .query(async ({ ctx, input }) => {
         if (!input || (!input.collegeId && !input.clusterId && !input.programId)) {
-          // University-wide - only for admins
+          // University-wide - admins or users with university-level assignment
           if (ctx.user.role !== 'admin') {
-            throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access university-wide analytics' });
+            const assignments = await db.getUserAssignments(ctx.user.id);
+            const hasUniversityAccess = assignments.some(a => a.assignmentType === 'university');
+            if (!hasUniversityAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access university-wide analytics' });
+            }
           }
           return await db.getGAAnalytics();
         }
@@ -1462,9 +1470,13 @@ export const appRouter = router({
       }).optional())
       .query(async ({ ctx, input }) => {
         if (!input || (!input.collegeId && !input.clusterId && !input.programId)) {
-          // University-wide - only for admins
+          // University-wide - admins or users with university-level assignment
           if (ctx.user.role !== 'admin') {
-            throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access university-wide analytics' });
+            const assignments = await db.getUserAssignments(ctx.user.id);
+            const hasUniversityAccess = assignments.some(a => a.assignmentType === 'university');
+            if (!hasUniversityAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can access university-wide analytics' });
+            }
           }
           return await db.getCompetencyAnalytics();
         }
