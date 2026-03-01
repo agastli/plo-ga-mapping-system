@@ -42,6 +42,7 @@ import {
   type InsertAuditLog,
   type InsertReportTemplate,
   type InsertLoginHistory,
+  systemSettings,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -1160,7 +1161,25 @@ export async function getDataCompletenessStats() {
   };
 }
 
-export async function validateAllProgramsData() {
+// ── System Settings ──────────────────────────────────────────────────────────
+export async function getSystemSetting(key: string, defaultValue: string): Promise<string> {
+  const db = await getDb();
+  if (!db) return defaultValue;
+  const rows = await db.select().from(systemSettings).where(eq(systemSettings.key, key)).limit(1);
+  if (rows.length === 0) return defaultValue;
+  return rows[0].value;
+}
+
+export async function setSystemSetting(key: string, value: string, updatedBy?: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  await db
+    .insert(systemSettings)
+    .values({ key, value, updatedBy: updatedBy ?? null })
+    .onDuplicateKeyUpdate({ set: { value, updatedBy: updatedBy ?? null } });
+}
+
+export async function validateAllProgramsData(coverageThreshold: number = 80) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
@@ -1233,24 +1252,27 @@ export async function validateAllProgramsData() {
       continue;
     }
     
-    // Check for competencies whose total weight sum across all PLOs equals zero
-    // (individual zero-weight cells are normal; only warn when the entire competency row sums to zero)
+    // Check mapping coverage: percentage of competencies with non-zero total PLO weight
+    // Warn if coverage falls below the configurable threshold (default 80%)
     const competencyWeightSums = new Map<number, number>();
     for (const m of programMappings) {
       const prev = competencyWeightSums.get(m.competencyId) ?? 0;
       competencyWeightSums.set(m.competencyId, prev + parseFloat(m.weight));
     }
-    const zeroSumCompetencies = Array.from(competencyWeightSums.entries()).filter(([, sum]) => sum === 0);
-    if (zeroSumCompetencies.length > 0) {
+    const totalCompetencies = competencyWeightSums.size;
+    const mappedCompetencies = Array.from(competencyWeightSums.values()).filter(sum => sum > 0).length;
+    const unmappedCompetencies = totalCompetencies - mappedCompetencies;
+    const coveragePercent = totalCompetencies > 0 ? (mappedCompetencies / totalCompetencies) * 100 : 100;
+    if (totalCompetencies > 0 && coveragePercent < coverageThreshold) {
       issues.push({
         severity: 'warning',
-        category: 'Zero-Weight Competencies',
+        category: 'Low Mapping Coverage',
         programId: prog.programId,
         programName: prog.programName,
         collegeName: prog.collegeName,
         departmentName: prog.departmentName,
-        issue: `${zeroSumCompetencies.length} competenc${zeroSumCompetencies.length === 1 ? 'y' : 'ies'} with total weight of zero`,
-        details: `${zeroSumCompetencies.length} competenc${zeroSumCompetencies.length === 1 ? 'y has' : 'ies have'} a total PLO weight sum of zero, meaning no PLO is mapped to ${zeroSumCompetencies.length === 1 ? 'it' : 'them'} with any weight.`,
+        issue: `Mapping coverage ${coveragePercent.toFixed(1)}% is below the ${coverageThreshold}% threshold`,
+        details: `${unmappedCompetencies} of ${totalCompetencies} competencies have a total PLO weight sum of zero. Coverage is ${coveragePercent.toFixed(1)}%, which is below the required ${coverageThreshold}% threshold.`,
       });
     }
     

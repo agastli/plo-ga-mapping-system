@@ -1491,16 +1491,26 @@ export const appRouter = router({
       return await db.getDataCompletenessStats();
     }),
     
-    validateData: protectedProcedure.query(async ({ ctx }) => {
-      // Admins see all validation, viewers/editors see only their accessible programs
-      if (ctx.user.role === 'admin') {
-        return await db.validateAllProgramsData();
-      }
-      
-      // For viewers/editors, this would need filtering - for now allow all users
-      return await db.validateAllProgramsData();
+     getThreshold: protectedProcedure.query(async () => {
+      return await db.getSystemSetting('mappingCoverageThreshold', '80');
     }),
-
+    setThreshold: protectedProcedure
+      .input(z.object({ value: z.number().min(0).max(100) }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can change system settings.' });
+        }
+        await db.setSystemSetting('mappingCoverageThreshold', String(input.value), ctx.user.id);
+        return { success: true };
+      }),
+    validateData: protectedProcedure.query(async ({ ctx }) => {
+      const thresholdStr = await db.getSystemSetting('mappingCoverageThreshold', '80');
+      const threshold = parseFloat(thresholdStr);
+      if (ctx.user.role === 'admin') {
+        return await db.validateAllProgramsData(threshold);
+      }
+      return await db.validateAllProgramsData(threshold);
+    }),
     normalizeOverLimitWeights: protectedProcedure.mutation(async ({ ctx }) => {
       if (ctx.user.role !== 'admin') {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can normalize weights.' });

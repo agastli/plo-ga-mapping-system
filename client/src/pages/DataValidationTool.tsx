@@ -1,15 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Home, AlertTriangle, AlertCircle, Info, CheckCircle, Download, Wrench, RefreshCw } from "lucide-react";
+import { Home, AlertTriangle, AlertCircle, Info, CheckCircle, Download, Wrench, RefreshCw, Settings2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function DataValidationTool() {
   const { data: validation, isLoading, refetch } = trpc.analytics.validateData.useQuery();
+  const { data: currentUser } = trpc.auth.me.useQuery();
+  const isAdmin = currentUser?.role === 'admin';
+
+  // Threshold
+  const { data: thresholdData, refetch: refetchThreshold } = trpc.analytics.getThreshold.useQuery();
+  const [thresholdInput, setThresholdInput] = useState<string>('80');
+  const setThresholdMutation = trpc.analytics.setThreshold.useMutation({
+    onSuccess: () => {
+      toast.success(`Coverage threshold updated to ${thresholdInput}%`);
+      refetchThreshold();
+      refetch();
+    },
+    onError: (err) => toast.error(err.message || 'Failed to update threshold.'),
+  });
+  useEffect(() => {
+    if (thresholdData !== undefined) setThresholdInput(String(thresholdData));
+  }, [thresholdData]);
+
   const normalizeMutation = trpc.analytics.normalizeOverLimitWeights.useMutation({
     onSuccess: (result) => {
       toast.success(
@@ -225,6 +244,56 @@ export default function DataValidationTool() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Threshold Settings */}
+        <Card className="mb-8 border-2 border-[#8B1538]/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg text-[#8B1538] flex items-center gap-2">
+              <Settings2 className="h-5 w-5" />
+              Mapping Coverage Threshold
+            </CardTitle>
+            <CardDescription>
+              Programs are flagged with a warning when the percentage of competencies with a non-zero total PLO weight falls below this threshold.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={thresholdInput}
+                  onChange={(e) => setThresholdInput(e.target.value)}
+                  className="w-24 border-[#8B1538]/30 focus:ring-[#8B1538]"
+                  disabled={!isAdmin}
+                />
+                <span className="text-slate-600 font-medium">%</span>
+              </div>
+              {isAdmin && (
+                <Button
+                  variant="default"
+                  className="bg-[#8B1538] hover:bg-[#6B1028]"
+                  disabled={setThresholdMutation.isPending}
+                  onClick={() => {
+                    const val = parseFloat(thresholdInput);
+                    if (isNaN(val) || val < 0 || val > 100) {
+                      toast.error('Threshold must be a number between 0 and 100.');
+                      return;
+                    }
+                    setThresholdMutation.mutate({ value: val });
+                  }}
+                >
+                  {setThresholdMutation.isPending ? 'Saving...' : 'Save Threshold'}
+                </Button>
+              )}
+              <p className="text-sm text-slate-500">
+                Current threshold: <strong>{thresholdData ?? '80'}%</strong>
+                {!isAdmin && <span className="ml-2 text-xs text-slate-400">(Admin only)</span>}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Filters */}
         <Card className="mb-8 border-2 border-[#8B1538]/20">

@@ -253,3 +253,18 @@ export const loginHistory = mysqlTable("loginHistory", {
 
 export type LoginHistory = typeof loginHistory.$inferSelect;
 export type InsertLoginHistory = typeof loginHistory.$inferInsert;
+
+/**
+ * System Settings - Key-value store for configurable system parameters
+ * e.g. mappingCoverageThreshold = 80 (percentage)
+ */
+export const systemSettings = mysqlTable("systemSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 191 }).notNull().unique(),
+  value: text("value").notNull(),
+  description: text("description"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedBy: int("updatedBy").references(() => users.id, { onDelete: "set null" }),
+});
+export type SystemSetting = typeof systemSettings.$inferSelect;
+export type InsertSystemSetting = typeof systemSettings.$inferInsert;
