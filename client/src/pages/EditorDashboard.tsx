@@ -10,14 +10,31 @@ import {
   LogOut,
   Edit,
   Search,
-  User
+  User,
+  Globe,
+  Building2,
+  Layers,
+  BookOpen,
+  GraduationCap
 } from "lucide-react";
+import React from "react";
 import { Link, useLocation } from "wouter";
 
 export default function EditorDashboard() {
   const [, setLocation] = useLocation();
   const { data: user } = trpc.auth.me.useQuery();
   const { data: accessiblePrograms } = trpc.users.getAccessiblePrograms.useQuery();
+  const { data: accessScope } = trpc.users.getMyAccessScope.useQuery();
+  const scopeConfig: Record<string, { icon: React.ElementType; color: string; bg: string; border: string; title: string }> = {
+    university: { icon: Globe, color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-400', title: 'University-wide Access' },
+    college:    { icon: Building2, color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-400', title: 'College Access' },
+    cluster:    { icon: Layers, color: 'text-violet-700', bg: 'bg-violet-50', border: 'border-violet-400', title: 'Cluster Access' },
+    department: { icon: BookOpen, color: 'text-orange-700', bg: 'bg-orange-50', border: 'border-orange-400', title: 'Department Access' },
+    program:    { icon: GraduationCap, color: 'text-sky-700', bg: 'bg-sky-50', border: 'border-sky-400', title: 'Program Access' },
+  };
+  const scope = accessScope?.scope ?? 'program';
+  const scopeInfo = scopeConfig[scope] ?? scopeConfig.program;
+  const ScopeIcon = scopeInfo.icon;
   
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
@@ -101,6 +118,19 @@ export default function EditorDashboard() {
           <p className="text-lg text-gray-600">Welcome, {user?.name || 'Editor'}</p>
         </div>
 
+        {/* Access Scope Badge */}
+        {accessScope && (
+          <div className={`flex items-center gap-4 p-4 rounded-lg border-l-4 ${scopeInfo.bg} ${scopeInfo.border} shadow-sm`}>
+            <div className="p-3 rounded-full bg-white shadow-sm">
+              <ScopeIcon className={`h-6 w-6 ${scopeInfo.color}`} />
+            </div>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wide ${scopeInfo.color} opacity-70`}>{scopeInfo.title}</p>
+              <p className={`text-base font-bold ${scopeInfo.color}`}>{accessScope.label}</p>
+              <p className="text-xs text-gray-500 mt-0.5">You can edit mappings and analytics within this scope.</p>
+            </div>
+          </div>
+        )}
         {/* Intro Panel */}
         <div className="bg-white border-l-4 border-green-600 rounded-lg shadow-sm p-5">
           <h2 className="text-lg font-bold text-green-700 mb-2">What can you do here?</h2>
@@ -183,10 +213,71 @@ export default function EditorDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </Link>
+           </Link>
         </div>
-      </div>
 
+        {/* Assigned Programs Quick-List */}
+        {allMyPrograms.length > 0 && (
+          <div className="mt-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Your Assigned Programs</h3>
+              <Link href="/program-browser">
+                <span className="text-sm text-[#8B1538] hover:underline font-medium cursor-pointer">View all &rarr;</span>
+              </Link>
+            </div>
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-gray-50">
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600">#</th>
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600">Program</th>
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600">College</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">PLOs</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">Mappings</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">Completeness</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allMyPrograms.slice(0, 15).map((p, idx) => {
+                        const ploCount = p.ploCount || 0;
+                        const mappingCount = p.mappingCount || 0;
+                        const completeness = ploCount > 0 ? Math.min(Math.round((mappingCount / (ploCount * 21)) * 100), 100) : 0;
+                        const barColor = completeness >= 80 ? 'bg-green-500' : completeness >= 50 ? 'bg-yellow-400' : 'bg-red-400';
+                        const textColor = completeness >= 80 ? 'text-green-700' : completeness >= 50 ? 'text-yellow-700' : 'text-red-600';
+                        return (
+                          <tr key={p.program.id} className="border-b hover:bg-gray-50 transition-colors">
+                            <td className="px-4 py-3 text-gray-400">{idx + 1}</td>
+                            <td className="px-4 py-3 font-medium text-gray-900">{p.program.nameEn}</td>
+                            <td className="px-4 py-3 text-gray-600">{p.college.nameEn}</td>
+                            <td className="px-4 py-3 text-right text-gray-700">{ploCount}</td>
+                            <td className="px-4 py-3 text-right text-gray-700">{mappingCount}</td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <div className="w-20 bg-gray-200 rounded-full h-2">
+                                  <div className={`h-2 rounded-full ${barColor}`} style={{ width: `${completeness}%` }} />
+                                </div>
+                                <span className={`text-xs font-semibold ${textColor}`}>{completeness}%</span>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {allMyPrograms.length > 15 && (
+                    <div className="px-4 py-3 text-center text-sm text-gray-500 border-t">
+                      Showing 15 of {allMyPrograms.length} programs.{' '}
+                      <Link href="/program-browser"><span className="text-[#8B1538] hover:underline cursor-pointer">View all</span></Link>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
       {/* Footer */}
       <div className="container mx-auto px-4 pb-6 mt-20 max-w-7xl">
         <footer className="bg-[#821F45] rounded-lg shadow-lg">

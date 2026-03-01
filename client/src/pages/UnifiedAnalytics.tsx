@@ -457,41 +457,59 @@ export default function UnifiedAnalytics() {
   
   // Set default filter level based on user role and breadth of access (only on initial load)
   useEffect(() => {
-    if (hasInitialized) return; // Skip if already initialized
-    
-    if (currentUser && !isAdmin && myAccessScope?.scope === 'university' && allPrograms) {
-      // Non-admin with university-wide assignment → default to university level
+    if (hasInitialized) return;
+    if (!currentUser) return;
+
+    if (isAdmin) {
       setFilterLevel('university');
       setHasInitialized(true);
-    } else if (currentUser && !isAdmin && accessiblePrograms && accessiblePrograms.length > 0 && allPrograms) {
-      // Detect if user has full college access
-      const userColleges = Array.from(new Set(accessiblePrograms.map(p => p.college.id)));
-      
-      // Check if user has ALL programs in at least one college
-      const hasFullCollegeAccess = userColleges.some(collegeId => {
-        const allProgramsInCollege = allPrograms.filter(p => p.department.collegeId === collegeId);
-        const userProgramsInCollege = accessiblePrograms.filter(p => p.college.id === collegeId);
-        return allProgramsInCollege.length === userProgramsInCollege.length && allProgramsInCollege.length > 0;
-      });
-      
-      if (hasFullCollegeAccess) {
-        // User has full college access → default to College level
+      return;
+    }
+
+    // Non-admin: use explicit scope from getMyAccessScope when available
+    if (myAccessScope) {
+      const { scope, entityId } = myAccessScope as { scope: string; label: string; entityId: number | null };
+      if (scope === 'university') {
+        setFilterLevel('university');
+        setHasInitialized(true);
+      } else if (scope === 'college' && entityId) {
         setFilterLevel('college');
-        const firstCollege = userColleges[0];
-        setSelectedCollegeId(firstCollege);
-      } else {
-        // User has partial program access → default to Program level
+        setSelectedCollegeId(entityId);
+        setHasInitialized(true);
+      } else if (scope === 'cluster' && entityId) {
+        // Find the college that owns this cluster
+        const cluster = allClusters?.find((c: any) => c.id === entityId);
+        if (cluster) setSelectedCollegeId(cluster.collegeId);
+        setFilterLevel('cluster');
+        setSelectedClusterId(entityId);
+        setHasInitialized(true);
+      } else if ((scope === 'department' || scope === 'program') && accessiblePrograms && accessiblePrograms.length > 0) {
         setFilterLevel('program');
         const firstProgram = accessiblePrograms[0];
         setSelectedCollegeId(firstProgram.college.id);
         setSelectedProgramId(firstProgram.program.id);
+        setHasInitialized(true);
+      } else if (accessiblePrograms && accessiblePrograms.length > 0 && allPrograms) {
+        // Fallback: detect college access from accessible programs
+        const userColleges = Array.from(new Set(accessiblePrograms.map(p => p.college.id)));
+        const hasFullCollegeAccess = userColleges.some(collegeId => {
+          const allInCollege = allPrograms.filter(p => p.department.collegeId === collegeId);
+          const userInCollege = accessiblePrograms.filter(p => p.college.id === collegeId);
+          return allInCollege.length === userInCollege.length && allInCollege.length > 0;
+        });
+        if (hasFullCollegeAccess) {
+          setFilterLevel('college');
+          setSelectedCollegeId(userColleges[0]);
+        } else {
+          setFilterLevel('program');
+          const firstProgram = accessiblePrograms[0];
+          setSelectedCollegeId(firstProgram.college.id);
+          setSelectedProgramId(firstProgram.program.id);
+        }
+        setHasInitialized(true);
       }
-      setHasInitialized(true);
-    } else if (currentUser && isAdmin) {
-      setFilterLevel('university');
-      setHasInitialized(true);
     }
-  }, [currentUser, isAdmin, myAccessScope, accessiblePrograms, allPrograms, hasInitialized]);
+  }, [currentUser, isAdmin, myAccessScope, accessiblePrograms, allPrograms, allClusters, hasInitialized]);
   
   // Filter clusters by selected college
   const clusters = selectedCollegeId && allClusters

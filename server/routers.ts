@@ -434,10 +434,10 @@ export const appRouter = router({
 
     getMyAccessScope: protectedProcedure.query(async ({ ctx }) => {
       // Admins always have university-wide scope
-      if (ctx.user.role === 'admin') return { scope: 'university' as const, label: 'Qatar University (All)' };
+      if (ctx.user.role === 'admin') return { scope: 'university' as const, label: 'Qatar University (All)', entityId: null as number | null };
       // For viewers/editors, return the broadest assignment type they have
       const assignments = await db.getUserAssignments(ctx.user.id);
-      if (assignments.length === 0) return { scope: 'program' as const, label: 'No assignments' };
+      if (assignments.length === 0) return { scope: 'program' as const, label: 'No assignments', entityId: null as number | null };
       const scopePriority = ['university', 'college', 'cluster', 'department', 'program'] as const;
       let broadestAssignment = assignments[0];
       for (const a of assignments) {
@@ -474,7 +474,13 @@ export const appRouter = router({
           }
         }
       } catch {}
-      return { scope: broadestAssignment.assignmentType as typeof scopePriority[number], label };
+      const entityId: number | null =
+        broadestAssignment.assignmentType === 'college' ? (broadestAssignment.collegeId ?? null) :
+        broadestAssignment.assignmentType === 'cluster' ? (broadestAssignment.clusterId ?? null) :
+        broadestAssignment.assignmentType === 'department' ? (broadestAssignment.departmentId ?? null) :
+        broadestAssignment.assignmentType === 'program' ? (broadestAssignment.programId ?? null) :
+        null;
+      return { scope: broadestAssignment.assignmentType as typeof scopePriority[number], label, entityId };
     }),
     
     update: adminProcedure

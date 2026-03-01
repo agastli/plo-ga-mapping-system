@@ -211,6 +211,68 @@ export default function ViewerDashboard() {
             </Card>
           </Link>
         </div>
+
+        {/* Assigned Programs Quick-List */}
+        {allMyPrograms.length > 0 && (
+          <div className="mt-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Your Assigned Programs</h3>
+              <Link href="/program-browser">
+                <span className="text-sm text-[#8B1538] hover:underline font-medium cursor-pointer">View all &rarr;</span>
+              </Link>
+            </div>
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-gray-50">
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600">#</th>
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600">Program</th>
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600">College</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">PLOs</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">Mappings</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">Completeness</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allMyPrograms.slice(0, 15).map((p, idx) => {
+                        const ploCount = p.ploCount || 0;
+                        const mappingCount = p.mappingCount || 0;
+                        const completeness = ploCount > 0 ? Math.min(Math.round((mappingCount / (ploCount * 21)) * 100), 100) : 0;
+                        const barColor = completeness >= 80 ? 'bg-green-500' : completeness >= 50 ? 'bg-yellow-400' : 'bg-red-400';
+                        const textColor = completeness >= 80 ? 'text-green-700' : completeness >= 50 ? 'text-yellow-700' : 'text-red-600';
+                        return (
+                          <tr key={p.program.id} className="border-b hover:bg-gray-50 transition-colors">
+                            <td className="px-4 py-3 text-gray-400">{idx + 1}</td>
+                            <td className="px-4 py-3 font-medium text-gray-900">{p.program.nameEn}</td>
+                            <td className="px-4 py-3 text-gray-600">{p.college.nameEn}</td>
+                            <td className="px-4 py-3 text-right text-gray-700">{ploCount}</td>
+                            <td className="px-4 py-3 text-right text-gray-700">{mappingCount}</td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <div className="w-20 bg-gray-200 rounded-full h-2">
+                                  <div className={`h-2 rounded-full ${barColor}`} style={{ width: `${completeness}%` }} />
+                                </div>
+                                <span className={`text-xs font-semibold ${textColor}`}>{completeness}%</span>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {allMyPrograms.length > 15 && (
+                    <div className="px-4 py-3 text-center text-sm text-gray-500 border-t">
+                      Showing 15 of {allMyPrograms.length} programs.{' '}
+                      <Link href="/program-browser"><span className="text-[#8B1538] hover:underline cursor-pointer">View all</span></Link>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
       {/* Footer */}

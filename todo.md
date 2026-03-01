@@ -696,3 +696,9 @@
 
 ## Editor Dashboard Text Fix
 - [x] Replace "Upload Documents" bullet with "Edit Justifications" in EditorDashboard intro panel
+
+## Three Dashboard & Analytics Improvements (Mar 1, 2026)
+- [x] Add Access Scope badge to Editor Dashboard (same as Viewer Dashboard)
+- [x] Show scope-aware default filter on Analytics page for college/cluster-assigned users
+- [x] Add Assigned Programs quick-list table to Viewer Dashboard (program name, college, completeness %)
+- [x] Add Assigned Programs quick-list table to Editor Dashboard (program name, college, completeness %)
