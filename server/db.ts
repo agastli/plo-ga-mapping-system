@@ -1215,7 +1215,7 @@ export async function validateAllProgramsData() {
     // Check for mappings
     const ploIds = programPLOs.map(p => p.id);
     const programMappings = await db
-      .select({ id: mappings.id, ploId: mappings.ploId, weight: mappings.weight })
+      .select({ id: mappings.id, ploId: mappings.ploId, competencyId: mappings.competencyId, weight: mappings.weight })
       .from(mappings)
       .where(inArray(mappings.ploId, ploIds));
     
@@ -1233,18 +1233,24 @@ export async function validateAllProgramsData() {
       continue;
     }
     
-    // Check for zero-weight mappings
-    const zeroWeightMappings = programMappings.filter(m => parseFloat(m.weight) === 0);
-    if (zeroWeightMappings.length > 0) {
+    // Check for competencies whose total weight sum across all PLOs equals zero
+    // (individual zero-weight cells are normal; only warn when the entire competency row sums to zero)
+    const competencyWeightSums = new Map<number, number>();
+    for (const m of programMappings) {
+      const prev = competencyWeightSums.get(m.competencyId) ?? 0;
+      competencyWeightSums.set(m.competencyId, prev + parseFloat(m.weight));
+    }
+    const zeroSumCompetencies = Array.from(competencyWeightSums.entries()).filter(([, sum]) => sum === 0);
+    if (zeroSumCompetencies.length > 0) {
       issues.push({
         severity: 'warning',
-        category: 'Zero-Weight Mappings',
+        category: 'Zero-Weight Competencies',
         programId: prog.programId,
         programName: prog.programName,
         collegeName: prog.collegeName,
         departmentName: prog.departmentName,
-        issue: `${zeroWeightMappings.length} mappings with zero weight`,
-        details: 'Some PLO-competency mappings have zero weight, which may indicate incomplete data entry.',
+        issue: `${zeroSumCompetencies.length} competenc${zeroSumCompetencies.length === 1 ? 'y' : 'ies'} with total weight of zero`,
+        details: `${zeroSumCompetencies.length} competenc${zeroSumCompetencies.length === 1 ? 'y has' : 'ies have'} a total PLO weight sum of zero, meaning no PLO is mapped to ${zeroSumCompetencies.length === 1 ? 'it' : 'them'} with any weight.`,
       });
     }
     
