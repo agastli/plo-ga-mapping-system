@@ -266,6 +266,22 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getAllLoginHistory(input.limit);
       }),
+    deleteLoginHistoryByIds: adminProcedure
+      .input(z.object({
+        ids: z.array(z.number()).min(1, "At least one ID is required"),
+      }))
+      .mutation(async ({ input }) => {
+        const deleted = await db.deleteLoginHistoryByIds(input.ids);
+        return { deleted };
+      }),
+    deleteLoginHistoryOlderThan: adminProcedure
+      .input(z.object({
+        days: z.number().min(1).max(3650),
+      }))
+      .mutation(async ({ input }) => {
+        const deleted = await db.deleteLoginHistoryOlderThan(input.days);
+        return { deleted };
+      }),
   }),
 
   // User Management (Admin only)

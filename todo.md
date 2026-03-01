@@ -672,3 +672,12 @@
 - [ ] Write comprehensive docs/USER_MANUAL.md covering all system features
 - [ ] Create UserManual.tsx page in the app rendering the manual inline
 - [ ] Add "User Manual" link to admin navigation
+
+## Login History Management
+
+- [x] Add backend tRPC procedures: loginHistory.deleteMany (deleteLoginHistoryByIds, deleteLoginHistoryOlderThan)
+- [x] Build UserLoginTracking.tsx page with selectable rows, username/method filters, and bulk delete
+- [x] Add "Delete older than N days" quick-action button
+- [x] Add explanatory card at top of Login Tracking page
+- [ ] Register /login-history route in App.tsx (admin only)
+- [ ] Add Login History link to Admin sidebar navigation

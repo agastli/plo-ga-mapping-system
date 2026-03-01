@@ -2587,6 +2587,32 @@ export async function getLoginHistoryByUser(userId: number, limit: number = 50):
   return results;
 }
 
+/**
+ * Delete specific login history records by their IDs (admin only)
+ */
+export async function deleteLoginHistoryByIds(ids: number[]): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  if (ids.length === 0) return 0;
+  const result = await db
+    .delete(loginHistory)
+    .where(inArray(loginHistory.id, ids));
+  return (result as any).affectedRows ?? 0;
+}
+
+/**
+ * Delete login history records older than a given number of days (admin only)
+ */
+export async function deleteLoginHistoryOlderThan(days: number): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const result = await db
+    .delete(loginHistory)
+    .where(sql`${loginHistory.loginAt} < ${cutoff}`);
+  return (result as any).affectedRows ?? 0;
+}
+
 // ============================================================================
 // Mapping Completeness Tracker
 // ============================================================================
