@@ -431,6 +431,20 @@ export const appRouter = router({
     getAccessiblePrograms: protectedProcedure.query(async ({ ctx }) => {
       return await db.getAccessiblePrograms(ctx.user.id);
     }),
+
+    getMyAccessScope: protectedProcedure.query(async ({ ctx }) => {
+      // Admins always have university-wide scope
+      if (ctx.user.role === 'admin') return { scope: 'university' as const };
+      // For viewers/editors, return the broadest assignment type they have
+      const assignments = await db.getUserAssignments(ctx.user.id);
+      const scopePriority = ['university', 'college', 'cluster', 'department', 'program'] as const;
+      let broadest: typeof scopePriority[number] = 'program';
+      for (const a of assignments) {
+        const idx = scopePriority.indexOf(a.assignmentType as any);
+        if (idx < scopePriority.indexOf(broadest)) broadest = a.assignmentType as any;
+      }
+      return { scope: broadest };
+    }),
     
     update: adminProcedure
       .input(z.object({

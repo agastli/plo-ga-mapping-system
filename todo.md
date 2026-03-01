@@ -681,3 +681,8 @@
 - [x] Add explanatory card at top of Login Tracking page
 - [ ] Register /login-history route in App.tsx (admin only)
 - [ ] Add Login History link to Admin sidebar navigation
+
+## Analytics Scope Bug
+
+- [x] Fix: viewer assigned university-wide scope cannot see "University-wide" analysis level in Analytics page — only sees college-by-college options
+- [x] Fix: Program dropdown in Analytics shows all college programs instead of only cluster programs when a cluster is selected

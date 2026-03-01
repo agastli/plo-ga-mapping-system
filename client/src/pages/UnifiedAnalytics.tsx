@@ -418,6 +418,15 @@ export default function UnifiedAnalytics() {
   // Get current user to check role - wait for authentication first
   const { data: currentUser, isLoading: authLoading} = trpc.auth.me.useQuery();
   const isAdmin = currentUser?.role === 'admin';
+
+  // Fetch the broadest assignment scope for non-admin users
+  const { data: myAccessScope } = trpc.users.getMyAccessScope.useQuery(undefined, {
+    enabled: !!currentUser,
+  });
+  // True when the user has university-wide access (either admin or university-level assignment)
+  const hasUniversityScope = isAdmin || myAccessScope?.scope === 'university';
+  // True when the user has at least college-level access
+  const hasCollegeScope = hasUniversityScope || myAccessScope?.scope === 'college';
   
   // Fetch colleges, clusters, and programs for filters - only after auth is confirmed
   const { data: allColleges } = trpc.colleges.list.useQuery(undefined, {
@@ -450,7 +459,11 @@ export default function UnifiedAnalytics() {
   useEffect(() => {
     if (hasInitialized) return; // Skip if already initialized
     
-    if (currentUser && !isAdmin && accessiblePrograms && accessiblePrograms.length > 0 && allPrograms) {
+    if (currentUser && !isAdmin && myAccessScope?.scope === 'university' && allPrograms) {
+      // Non-admin with university-wide assignment → default to university level
+      setFilterLevel('university');
+      setHasInitialized(true);
+    } else if (currentUser && !isAdmin && accessiblePrograms && accessiblePrograms.length > 0 && allPrograms) {
       // Detect if user has full college access
       const userColleges = Array.from(new Set(accessiblePrograms.map(p => p.college.id)));
       
@@ -478,7 +491,7 @@ export default function UnifiedAnalytics() {
       setFilterLevel('university');
       setHasInitialized(true);
     }
-  }, [currentUser, isAdmin, accessiblePrograms, allPrograms, hasInitialized]);
+  }, [currentUser, isAdmin, myAccessScope, accessiblePrograms, allPrograms, hasInitialized]);
   
   // Filter clusters by selected college
   const clusters = selectedCollegeId && allClusters
@@ -519,9 +532,14 @@ export default function UnifiedAnalytics() {
     { enabled: false } // TODO: Implement gaByClusterAnalytics endpoint
   );
 
-  // Filter programs by selected college for cascading dropdown
+  // Filter programs by selected college AND cluster (if a cluster is selected) for cascading dropdown
   const filteredPrograms = selectedCollegeId && programs
-    ? programs.filter((p) => p.department.collegeId === selectedCollegeId)
+    ? programs.filter((p) => {
+        const inCollege = p.department.collegeId === selectedCollegeId;
+        if (!inCollege) return false;
+        if (selectedClusterId) return p.department.clusterId === selectedClusterId;
+        return true;
+      })
     : [];
 
   // Filter colleges to show only those with clusters when filterLevel is "cluster"
@@ -695,13 +713,13 @@ export default function UnifiedAnalytics() {
                   }}
                   className="w-full border border-gray-300 rounded-md px-3 py-2"
                 >
-                  {/* Admins see all levels */}
-                  {isAdmin && <option value="university">University-wide</option>}
-                  {isAdmin && <option value="college">By College</option>}
-                  {isAdmin && <option value="cluster">By Cluster</option>}
+                  {/* University-wide scope: admin or viewer/editor with university assignment */}
+                  {hasUniversityScope && <option value="university">University-wide</option>}
+                  {hasCollegeScope && <option value="college">By College</option>}
+                  {hasCollegeScope && <option value="cluster">By Cluster</option>}
                   
-                  {/* Non-admins: show college level only if they have access to multiple programs in same college */}
-                  {!isAdmin && programs && programs.length > 1 && (() => {
+                  {/* Non-university-scope users: show college level only if all their programs share one college */}
+                  {!hasCollegeScope && programs && programs.length > 1 && (() => {
                     const collegeIds = new Set(programs.map(p => p.college.id));
                     return collegeIds.size === 1 ? <option value="college">By College</option> : null;
                   })()}
