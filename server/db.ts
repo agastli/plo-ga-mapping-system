@@ -355,6 +355,58 @@ export async function deleteProgram(id: number) {
   await db.delete(programs).where(eq(programs.id, id));
 }
 
+export async function deleteCollege(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Cascade: departments -> programs -> PLOs -> mappings are all ON DELETE CASCADE in schema
+  // But we also need to clean up justifications manually
+  const collegeDepts = await db.select().from(departments).where(eq(departments.collegeId, id));
+  const deptIds = collegeDepts.map(d => d.id);
+  if (deptIds.length > 0) {
+    const deptPrograms = await db.select().from(programs).where(inArray(programs.departmentId, deptIds));
+    const progIds = deptPrograms.map(p => p.id);
+    if (progIds.length > 0) {
+      await db.delete(justifications).where(inArray(justifications.programId, progIds));
+      const progPLOs = await db.select().from(plos).where(inArray(plos.programId, progIds));
+      const ploIds = progPLOs.map(p => p.id);
+      if (ploIds.length > 0) {
+        await db.delete(mappings).where(inArray(mappings.ploId, ploIds));
+        await db.delete(plos).where(inArray(plos.programId, progIds));
+      }
+      await db.delete(programs).where(inArray(programs.departmentId, deptIds));
+    }
+    await db.delete(departments).where(eq(departments.collegeId, id));
+  }
+  await db.delete(clusters).where(eq(clusters.collegeId, id));
+  await db.delete(colleges).where(eq(colleges.id, id));
+}
+
+export async function deleteCluster(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  // Set clusterId to null on departments that reference this cluster
+  await db.update(departments).set({ clusterId: null }).where(eq(departments.clusterId, id));
+  await db.delete(clusters).where(eq(clusters.id, id));
+}
+
+export async function deleteDepartment(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const deptPrograms = await db.select().from(programs).where(eq(programs.departmentId, id));
+  const progIds = deptPrograms.map(p => p.id);
+  if (progIds.length > 0) {
+    await db.delete(justifications).where(inArray(justifications.programId, progIds));
+    const progPLOs = await db.select().from(plos).where(inArray(plos.programId, progIds));
+    const ploIds = progPLOs.map(p => p.id);
+    if (ploIds.length > 0) {
+      await db.delete(mappings).where(inArray(mappings.ploId, ploIds));
+      await db.delete(plos).where(inArray(plos.programId, progIds));
+    }
+    await db.delete(programs).where(eq(programs.departmentId, id));
+  }
+  await db.delete(departments).where(eq(departments.id, id));
+}
+
 export async function getAllPrograms() {
   const db = await getDb();
   if (!db) return [];

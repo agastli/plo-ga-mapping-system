@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Home, Edit2, Save, X, Shield, LogOut, Filter, ChevronDown, Search } from "lucide-react";
+import { Home, Edit2, Save, X, Shield, LogOut, Filter, ChevronDown, Search, Plus, Trash2 } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -20,12 +20,23 @@ export default function OrganizationalStructure() {
     onSuccess: () => setLocation('/login'),
   });
 
+  // ── Mutations ─────────────────────────────────────────────────────────────
   const updateCollege = trpc.colleges.update.useMutation();
-  const updateCluster = trpc.clusters.update.useMutation();
-  const updateDepartment = trpc.departments.update.useMutation();
-  const updateProgram = trpc.programs.update.useMutation();
+  const createCollege = trpc.colleges.create.useMutation();
+  const deleteCollege = trpc.colleges.delete.useMutation();
 
-  // ── Filter state (simple useState — reliable across all environments) ─────
+  const updateCluster = trpc.clusters.update.useMutation();
+  const createCluster = trpc.clusters.create.useMutation();
+  const deleteCluster = trpc.clusters.delete.useMutation();
+
+  const updateDepartment = trpc.departments.update.useMutation();
+  const createDepartment = trpc.departments.create.useMutation();
+  const deleteDepartment = trpc.departments.delete.useMutation();
+
+  const updateProgram = trpc.programs.update.useMutation();
+  const deleteProgram = trpc.programs.delete.useMutation();
+
+  // ── Filter state ──────────────────────────────────────────────────────────
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | "all">("all");
   const [selectedClusterId, setSelectedClusterId] = useState<number | "all">("all");
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | "all">("all");
@@ -52,6 +63,30 @@ export default function OrganizationalStructure() {
   const [editProgramCode, setEditProgramCode] = useState("");
   const [programSearch, setProgramSearch] = useState("");
 
+  // ── Add form states ───────────────────────────────────────────────────────
+  const [addingCollege, setAddingCollege] = useState(false);
+  const [newCollegeNameEn, setNewCollegeNameEn] = useState("");
+  const [newCollegeNameAr, setNewCollegeNameAr] = useState("");
+  const [newCollegeCode, setNewCollegeCode] = useState("");
+
+  const [addingCluster, setAddingCluster] = useState(false);
+  const [newClusterNameEn, setNewClusterNameEn] = useState("");
+  const [newClusterNameAr, setNewClusterNameAr] = useState("");
+  const [newClusterCode, setNewClusterCode] = useState("");
+  const [newClusterCollegeId, setNewClusterCollegeId] = useState<number | "">("");
+
+  const [addingDepartment, setAddingDepartment] = useState(false);
+  const [newDeptNameEn, setNewDeptNameEn] = useState("");
+  const [newDeptNameAr, setNewDeptNameAr] = useState("");
+  const [newDeptCode, setNewDeptCode] = useState("");
+  const [newDeptCollegeId, setNewDeptCollegeId] = useState<number | "">("");
+
+  const [addingProgram, setAddingProgram] = useState(false);
+  const [newProgNameEn, setNewProgNameEn] = useState("");
+  const [newProgNameAr, setNewProgNameAr] = useState("");
+  const [newProgCode, setNewProgCode] = useState("");
+  const [newProgDeptId, setNewProgDeptId] = useState<number | "">("");
+
   // ── Derived filtered lists ────────────────────────────────────────────────
   const filteredColleges = useMemo(() => {
     if (!colleges) return [];
@@ -59,20 +94,17 @@ export default function OrganizationalStructure() {
     return colleges.filter(c => c.id === selectedCollegeId);
   }, [colleges, selectedCollegeId]);
 
-  // Clusters available for the selected college (used to populate dropdown)
   const availableClusters = useMemo(() => {
     if (!clusters) return [];
     if (selectedCollegeId === "all") return clusters;
     return clusters.filter(cl => cl.collegeId === selectedCollegeId);
   }, [clusters, selectedCollegeId]);
 
-  // Clusters shown in the Clusters section (filtered by cluster selection)
   const filteredClusters = useMemo(() => {
     if (selectedClusterId === "all") return availableClusters;
     return availableClusters.filter(cl => cl.id === selectedClusterId);
   }, [availableClusters, selectedClusterId]);
 
-  // Departments available for the selected college + cluster (used to populate dropdown)
   const availableDepartments = useMemo(() => {
     if (!departments) return [];
     let result = departments;
@@ -81,7 +113,6 @@ export default function OrganizationalStructure() {
     return result;
   }, [departments, selectedCollegeId, selectedClusterId]);
 
-  // Departments shown in the Departments section (filtered by department selection)
   const filteredDepartments = useMemo(() => {
     if (selectedDepartmentId === "all") return availableDepartments;
     return availableDepartments.filter(d => d.id === selectedDepartmentId);
@@ -95,7 +126,7 @@ export default function OrganizationalStructure() {
     return programs.filter(p => deptIds.has(p.department.id));
   }, [programs, filteredDepartments, selectedCollegeId, selectedClusterId, selectedDepartmentId]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // ── Edit handlers ─────────────────────────────────────────────────────────
   const handleEditCollege = (college: any) => {
     setEditingCollege(college.id);
     setEditCollegeNameEn(college.nameEn || "");
@@ -156,6 +187,88 @@ export default function OrganizationalStructure() {
     } catch { toast.error("Failed to update program"); }
   };
 
+  // ── Add handlers ──────────────────────────────────────────────────────────
+  const handleAddCollege = async () => {
+    if (!newCollegeNameEn.trim() || !newCollegeCode.trim()) { toast.error("English name and code are required"); return; }
+    try {
+      await createCollege.mutateAsync({ nameEn: newCollegeNameEn.trim(), nameAr: newCollegeNameAr.trim() || undefined, code: newCollegeCode.trim() });
+      await refetchColleges();
+      setAddingCollege(false);
+      setNewCollegeNameEn(""); setNewCollegeNameAr(""); setNewCollegeCode("");
+      toast.success("College added successfully");
+    } catch { toast.error("Failed to add college"); }
+  };
+
+  const handleAddCluster = async () => {
+    if (!newClusterNameEn.trim() || !newClusterCode.trim() || !newClusterCollegeId) { toast.error("English name, code, and college are required"); return; }
+    try {
+      await createCluster.mutateAsync({ nameEn: newClusterNameEn.trim(), nameAr: newClusterNameAr.trim() || undefined, code: newClusterCode.trim(), collegeId: Number(newClusterCollegeId) });
+      await refetchClusters();
+      setAddingCluster(false);
+      setNewClusterNameEn(""); setNewClusterNameAr(""); setNewClusterCode(""); setNewClusterCollegeId("");
+      toast.success("Cluster added successfully");
+    } catch { toast.error("Failed to add cluster"); }
+  };
+
+  const handleAddDepartment = async () => {
+    if (!newDeptNameEn.trim() || !newDeptCode.trim() || !newDeptCollegeId) { toast.error("English name, code, and college are required"); return; }
+    try {
+      await createDepartment.mutateAsync({ nameEn: newDeptNameEn.trim(), nameAr: newDeptNameAr.trim() || undefined, code: newDeptCode.trim(), collegeId: Number(newDeptCollegeId) });
+      await refetchDepartments();
+      setAddingDepartment(false);
+      setNewDeptNameEn(""); setNewDeptNameAr(""); setNewDeptCode(""); setNewDeptCollegeId("");
+      toast.success("Department added successfully");
+    } catch { toast.error("Failed to add department"); }
+  };
+
+
+
+  // ── Delete handlers ───────────────────────────────────────────────────────
+  const handleDeleteCollege = async (college: any) => {
+    const deptCount = departments?.filter(d => d.collegeId === college.id).length ?? 0;
+    const progCount = programs?.filter(p => { const dept = departments?.find(d => d.id === p.program.departmentId); return dept?.collegeId === college.id; }).length ?? 0;
+    const msg = deptCount > 0 || progCount > 0
+      ? `Delete "${college.nameEn}"? This will also delete ${deptCount} department(s) and ${progCount} program(s) with all their PLOs and mappings. This cannot be undone.`
+      : `Delete "${college.nameEn}"? This cannot be undone.`;
+    if (!confirm(msg)) return;
+    try {
+      await deleteCollege.mutateAsync({ id: college.id });
+      await Promise.all([refetchColleges(), refetchDepartments(), refetchClusters(), refetchPrograms()]);
+      toast.success(`College "${college.nameEn}" deleted`);
+    } catch { toast.error("Failed to delete college"); }
+  };
+
+  const handleDeleteCluster = async (cluster: any) => {
+    if (!confirm(`Delete cluster "${cluster.nameEn}"? Departments in this cluster will remain but will no longer be associated with a cluster. This cannot be undone.`)) return;
+    try {
+      await deleteCluster.mutateAsync({ id: cluster.id });
+      await Promise.all([refetchClusters(), refetchDepartments()]);
+      toast.success(`Cluster "${cluster.nameEn}" deleted`);
+    } catch { toast.error("Failed to delete cluster"); }
+  };
+
+  const handleDeleteDepartment = async (department: any) => {
+    const progCount = programs?.filter(p => p.program.departmentId === department.id).length ?? 0;
+    const msg = progCount > 0
+      ? `Delete "${department.nameEn}"? This will also delete ${progCount} program(s) with all their PLOs and mappings. This cannot be undone.`
+      : `Delete "${department.nameEn}"? This cannot be undone.`;
+    if (!confirm(msg)) return;
+    try {
+      await deleteDepartment.mutateAsync({ id: department.id });
+      await Promise.all([refetchDepartments(), refetchPrograms()]);
+      toast.success(`Department "${department.nameEn}" deleted`);
+    } catch { toast.error("Failed to delete department"); }
+  };
+
+  const handleDeleteProgram = async (program: any) => {
+    if (!confirm(`Delete program "${program.program.nameEn}"? All PLOs and mappings will be permanently deleted. This cannot be undone.`)) return;
+    try {
+      await deleteProgram.mutateAsync({ id: program.program.id });
+      await refetchPrograms();
+      toast.success(`Program "${program.program.nameEn}" deleted`);
+    } catch { toast.error("Failed to delete program"); }
+  };
+
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col">
       {/* Header */}
@@ -189,9 +302,7 @@ export default function OrganizationalStructure() {
         </header>
       </div>
 
-      {/* Main content — same container as header/footer */}
       <div className="container mx-auto px-4 py-8 space-y-8 max-w-7xl">
-        {/* Breadcrumb */}
         <Breadcrumb
           items={[
             { label: "Admin", href: "/admin-dashboard" },
@@ -206,8 +317,6 @@ export default function OrganizationalStructure() {
             <span>Filter</span>
           </div>
           <div className="flex flex-wrap items-end gap-3">
-
-            {/* College dropdown */}
             <div className="flex flex-col gap-1 min-w-[200px] flex-1">
               <label className="text-xs font-medium text-gray-500">College</label>
               <div className="relative">
@@ -230,7 +339,6 @@ export default function OrganizationalStructure() {
               </div>
             </div>
 
-            {/* Cluster dropdown — only shown when the selected college has clusters */}
             {availableClusters.length > 0 && (
               <div className="flex flex-col gap-1 min-w-[200px] flex-1">
                 <label className="text-xs font-medium text-gray-500">Cluster</label>
@@ -254,7 +362,6 @@ export default function OrganizationalStructure() {
               </div>
             )}
 
-            {/* Department dropdown — only shown when a college (or cluster) is selected */}
             {availableDepartments.length > 0 && (
               <div className="flex flex-col gap-1 min-w-[200px] flex-1">
                 <label className="text-xs font-medium text-gray-500">Department</label>
@@ -274,7 +381,6 @@ export default function OrganizationalStructure() {
               </div>
             )}
 
-            {/* Clear all + summary */}
             <div className="flex items-center gap-3 ml-auto flex-shrink-0">
               {(selectedCollegeId !== "all" || selectedClusterId !== "all" || selectedDepartmentId !== "all") && (
                 <Button
@@ -297,10 +403,38 @@ export default function OrganizationalStructure() {
         {/* ── Colleges Section ── */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#8B1538]">Colleges</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-[#8B1538]">Colleges</CardTitle>
+              <Button
+                size="sm"
+                className="bg-[#8B1538] hover:bg-[#6D1028] text-white"
+                onClick={() => { setAddingCollege(true); setNewCollegeNameEn(""); setNewCollegeNameAr(""); setNewCollegeCode(""); }}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add College
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {/* Add College Form */}
+              {addingCollege && (
+                <div className="border-2 border-[#8B1538]/30 rounded-lg p-4 bg-[#8B1538]/5 space-y-3">
+                  <p className="text-sm font-semibold text-[#8B1538]">New College</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <Input value={newCollegeNameEn} onChange={e => setNewCollegeNameEn(e.target.value)} placeholder="Name (English) *" />
+                    <Input value={newCollegeNameAr} onChange={e => setNewCollegeNameAr(e.target.value)} placeholder="Name (Arabic)" dir="rtl" />
+                    <Input value={newCollegeCode} onChange={e => setNewCollegeCode(e.target.value)} placeholder="Code (e.g. CAS) *" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={handleAddCollege} size="sm" className="bg-[#8B1538] hover:bg-[#6D1028] text-white" disabled={createCollege.isPending}>
+                      <Save className="h-4 w-4 mr-2" />{createCollege.isPending ? "Saving..." : "Save"}
+                    </Button>
+                    <Button onClick={() => setAddingCollege(false)} variant="outline" size="sm"><X className="h-4 w-4 mr-2" />Cancel</Button>
+                  </div>
+                </div>
+              )}
+
               {filteredColleges.map((college) => (
                 <div key={college.id} className="border rounded-lg p-4 bg-gray-50">
                   {editingCollege === college.id ? (
@@ -311,7 +445,7 @@ export default function OrganizationalStructure() {
                         <Input value={editCollegeCode} onChange={e => setEditCollegeCode(e.target.value)} placeholder="Code" />
                       </div>
                       <div className="flex gap-2">
-                        <Button onClick={() => handleSaveCollege(college.id)} size="sm"><Save className="h-4 w-4 mr-2" />Save</Button>
+                        <Button onClick={() => handleSaveCollege(college.id)} size="sm" className="bg-[#8B1538] hover:bg-[#6D1028] text-white"><Save className="h-4 w-4 mr-2" />Save</Button>
                         <Button onClick={() => setEditingCollege(null)} variant="outline" size="sm"><X className="h-4 w-4 mr-2" />Cancel</Button>
                       </div>
                     </div>
@@ -323,10 +457,7 @@ export default function OrganizationalStructure() {
                         <p className="text-xs text-gray-500">Code: {college.code}</p>
                         {(() => {
                           const deptCount = departments?.filter(d => d.collegeId === college.id).length ?? 0;
-                          const progCount = programs?.filter(p => {
-                            const dept = departments?.find(d => d.id === p.program.departmentId);
-                            return dept?.collegeId === college.id;
-                          }).length ?? 0;
+                          const progCount = programs?.filter(p => { const dept = departments?.find(d => d.id === p.program.departmentId); return dept?.collegeId === college.id; }).length ?? 0;
                           return (
                             <p className="text-xs text-[#8B1538]/70 mt-0.5 font-medium">
                               {deptCount} {deptCount === 1 ? 'department' : 'departments'} &middot; {progCount} {progCount === 1 ? 'program' : 'programs'}
@@ -334,14 +465,25 @@ export default function OrganizationalStructure() {
                           );
                         })()}
                       </div>
-                      <Button onClick={() => handleEditCollege(college)} variant="outline" size="sm">
-                        <Edit2 className="h-4 w-4 mr-2" />Edit
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button onClick={() => handleEditCollege(college)} variant="outline" size="sm">
+                          <Edit2 className="h-4 w-4 mr-2" />Edit
+                        </Button>
+                        <Button
+                          onClick={() => handleDeleteCollege(college)}
+                          variant="outline"
+                          size="sm"
+                          className="border-red-300 text-red-600 hover:bg-red-50"
+                          disabled={deleteCollege.isPending}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />Delete
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
               ))}
-              {filteredColleges.length === 0 && (
+              {filteredColleges.length === 0 && !addingCollege && (
                 <p className="text-sm text-gray-400 text-center py-4">No colleges to display.</p>
               )}
             </div>
@@ -349,53 +491,137 @@ export default function OrganizationalStructure() {
         </Card>
 
         {/* ── Clusters Section ── */}
-        {filteredClusters.length > 0 && (
-          <Card>
-            <CardHeader>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
               <CardTitle className="text-[#8B1538]">Clusters</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {filteredClusters.map((cluster) => (
-                  <div key={cluster.id} className="border rounded-lg p-4 bg-gray-50">
-                    {editingCluster === cluster.id ? (
-                      <div className="space-y-3">
-                        <div className="grid grid-cols-3 gap-4">
-                          <Input value={editClusterNameEn} onChange={e => setEditClusterNameEn(e.target.value)} placeholder="Name (English)" />
-                          <Input value={editClusterNameAr} onChange={e => setEditClusterNameAr(e.target.value)} placeholder="Name (Arabic)" dir="rtl" />
-                          <Input value={editClusterCode} onChange={e => setEditClusterCode(e.target.value)} placeholder="Code" />
-                        </div>
-                        <div className="flex gap-2">
-                          <Button onClick={() => handleSaveCluster(cluster.id)} size="sm"><Save className="h-4 w-4 mr-2" />Save</Button>
-                          <Button onClick={() => setEditingCluster(null)} variant="outline" size="sm"><X className="h-4 w-4 mr-2" />Cancel</Button>
-                        </div>
+              <Button
+                size="sm"
+                className="bg-[#8B1538] hover:bg-[#6D1028] text-white"
+                onClick={() => { setAddingCluster(true); setNewClusterNameEn(""); setNewClusterNameAr(""); setNewClusterCode(""); setNewClusterCollegeId(""); }}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add Cluster
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Add Cluster Form */}
+              {addingCluster && (
+                <div className="border-2 border-[#8B1538]/30 rounded-lg p-4 bg-[#8B1538]/5 space-y-3">
+                  <p className="text-sm font-semibold text-[#8B1538]">New Cluster</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input value={newClusterNameEn} onChange={e => setNewClusterNameEn(e.target.value)} placeholder="Name (English) *" />
+                    <Input value={newClusterNameAr} onChange={e => setNewClusterNameAr(e.target.value)} placeholder="Name (Arabic)" dir="rtl" />
+                    <Input value={newClusterCode} onChange={e => setNewClusterCode(e.target.value)} placeholder="Code *" />
+                    <select
+                      value={newClusterCollegeId}
+                      onChange={e => setNewClusterCollegeId(e.target.value ? Number(e.target.value) : "")}
+                      className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#8B1538]/40"
+                    >
+                      <option value="">Select College *</option>
+                      {colleges?.map(c => <option key={c.id} value={c.id}>{c.nameEn}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={handleAddCluster} size="sm" className="bg-[#8B1538] hover:bg-[#6D1028] text-white" disabled={createCluster.isPending}>
+                      <Save className="h-4 w-4 mr-2" />{createCluster.isPending ? "Saving..." : "Save"}
+                    </Button>
+                    <Button onClick={() => setAddingCluster(false)} variant="outline" size="sm"><X className="h-4 w-4 mr-2" />Cancel</Button>
+                  </div>
+                </div>
+              )}
+
+              {filteredClusters.map((cluster) => (
+                <div key={cluster.id} className="border rounded-lg p-4 bg-gray-50">
+                  {editingCluster === cluster.id ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-3 gap-4">
+                        <Input value={editClusterNameEn} onChange={e => setEditClusterNameEn(e.target.value)} placeholder="Name (English)" />
+                        <Input value={editClusterNameAr} onChange={e => setEditClusterNameAr(e.target.value)} placeholder="Name (Arabic)" dir="rtl" />
+                        <Input value={editClusterCode} onChange={e => setEditClusterCode(e.target.value)} placeholder="Code" />
                       </div>
-                    ) : (
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold">{cluster.nameEn}</p>
-                          <p className="text-sm text-gray-600" dir="rtl">{cluster.nameAr}</p>
-                          <p className="text-xs text-gray-500">Code: {cluster.code} | College: {colleges?.find(c => c.id === cluster.collegeId)?.nameEn}</p>
-                        </div>
+                      <div className="flex gap-2">
+                        <Button onClick={() => handleSaveCluster(cluster.id)} size="sm" className="bg-[#8B1538] hover:bg-[#6D1028] text-white"><Save className="h-4 w-4 mr-2" />Save</Button>
+                        <Button onClick={() => setEditingCluster(null)} variant="outline" size="sm"><X className="h-4 w-4 mr-2" />Cancel</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold">{cluster.nameEn}</p>
+                        <p className="text-sm text-gray-600" dir="rtl">{cluster.nameAr}</p>
+                        <p className="text-xs text-gray-500">Code: {cluster.code} | College: {colleges?.find(c => c.id === cluster.collegeId)?.nameEn}</p>
+                      </div>
+                      <div className="flex gap-2">
                         <Button onClick={() => handleEditCluster(cluster)} variant="outline" size="sm">
                           <Edit2 className="h-4 w-4 mr-2" />Edit
                         </Button>
+                        <Button
+                          onClick={() => handleDeleteCluster(cluster)}
+                          variant="outline"
+                          size="sm"
+                          className="border-red-300 text-red-600 hover:bg-red-50"
+                          disabled={deleteCluster.isPending}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />Delete
+                        </Button>
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {filteredClusters.length === 0 && !addingCluster && (
+                <p className="text-sm text-gray-400 text-center py-4">No clusters to display. Clusters are optional sub-groupings within a college.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* ── Departments Section ── */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#8B1538]">Departments</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-[#8B1538]">Departments</CardTitle>
+              <Button
+                size="sm"
+                className="bg-[#8B1538] hover:bg-[#6D1028] text-white"
+                onClick={() => { setAddingDepartment(true); setNewDeptNameEn(""); setNewDeptNameAr(""); setNewDeptCode(""); setNewDeptCollegeId(selectedCollegeId !== "all" ? selectedCollegeId : ""); }}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add Department
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {/* Add Department Form */}
+              {addingDepartment && (
+                <div className="border-2 border-[#8B1538]/30 rounded-lg p-4 bg-[#8B1538]/5 space-y-3">
+                  <p className="text-sm font-semibold text-[#8B1538]">New Department</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input value={newDeptNameEn} onChange={e => setNewDeptNameEn(e.target.value)} placeholder="Name (English) *" />
+                    <Input value={newDeptNameAr} onChange={e => setNewDeptNameAr(e.target.value)} placeholder="Name (Arabic)" dir="rtl" />
+                    <Input value={newDeptCode} onChange={e => setNewDeptCode(e.target.value)} placeholder="Code *" />
+                    <select
+                      value={newDeptCollegeId}
+                      onChange={e => setNewDeptCollegeId(e.target.value ? Number(e.target.value) : "")}
+                      className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#8B1538]/40"
+                    >
+                      <option value="">Select College *</option>
+                      {colleges?.map(c => <option key={c.id} value={c.id}>{c.nameEn}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={handleAddDepartment} size="sm" className="bg-[#8B1538] hover:bg-[#6D1028] text-white" disabled={createDepartment.isPending}>
+                      <Save className="h-4 w-4 mr-2" />{createDepartment.isPending ? "Saving..." : "Save"}
+                    </Button>
+                    <Button onClick={() => setAddingDepartment(false)} variant="outline" size="sm"><X className="h-4 w-4 mr-2" />Cancel</Button>
+                  </div>
+                </div>
+              )}
+
               {filteredDepartments.map((department) => (
                 <div key={department.id} className="border rounded-lg p-4 bg-gray-50">
                   {editingDepartment === department.id ? (
@@ -406,7 +632,7 @@ export default function OrganizationalStructure() {
                         <Input value={editDepartmentCode} onChange={e => setEditDepartmentCode(e.target.value)} placeholder="Code" />
                       </div>
                       <div className="flex gap-2">
-                        <Button onClick={() => handleSaveDepartment(department.id)} size="sm"><Save className="h-4 w-4 mr-2" />Save</Button>
+                        <Button onClick={() => handleSaveDepartment(department.id)} size="sm" className="bg-[#8B1538] hover:bg-[#6D1028] text-white"><Save className="h-4 w-4 mr-2" />Save</Button>
                         <Button onClick={() => setEditingDepartment(null)} variant="outline" size="sm"><X className="h-4 w-4 mr-2" />Cancel</Button>
                       </div>
                     </div>
@@ -433,7 +659,7 @@ export default function OrganizationalStructure() {
                           {department.clusterId && ` | Cluster: ${clusters?.find(cl => cl.id === department.clusterId)?.nameEn}`}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex gap-2">
                         <Button
                           variant="outline"
                           size="sm"
@@ -447,12 +673,21 @@ export default function OrganizationalStructure() {
                         <Button onClick={() => handleEditDepartment(department)} variant="outline" size="sm">
                           <Edit2 className="h-4 w-4 mr-2" />Edit
                         </Button>
+                        <Button
+                          onClick={() => handleDeleteDepartment(department)}
+                          variant="outline"
+                          size="sm"
+                          className="border-red-300 text-red-600 hover:bg-red-50"
+                          disabled={deleteDepartment.isPending}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />Delete
+                        </Button>
                       </div>
                     </div>
                   )}
                 </div>
               ))}
-              {filteredDepartments.length === 0 && (
+              {filteredDepartments.length === 0 && !addingDepartment && (
                 <p className="text-sm text-gray-400 text-center py-4">No departments for the selected college.</p>
               )}
             </div>
@@ -465,52 +700,79 @@ export default function OrganizationalStructure() {
             <div className="flex items-center justify-between gap-4">
               <CardTitle className="text-[#8B1538]">
                 Programs
-                <span className="ml-2 text-sm font-normal text-gray-500">({filteredPrograms.filter(p => !programSearch || p.program.nameEn.toLowerCase().includes(programSearch.toLowerCase()) || p.program.nameAr?.toLowerCase().includes(programSearch.toLowerCase()) || p.department.nameEn.toLowerCase().includes(programSearch.toLowerCase())).length})</span>
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  ({filteredPrograms.filter(p => !programSearch || p.program.nameEn.toLowerCase().includes(programSearch.toLowerCase()) || p.program.nameAr?.toLowerCase().includes(programSearch.toLowerCase()) || p.department.nameEn.toLowerCase().includes(programSearch.toLowerCase())).length})
+                </span>
               </CardTitle>
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  type="text"
-                  placeholder="Search programs..."
-                  value={programSearch}
-                  onChange={e => setProgramSearch(e.target.value)}
-                  className="pl-9 h-8 text-sm border-[#8B1538]/20 focus:ring-[#8B1538]"
-                />
+              <div className="flex items-center gap-3">
+                <div className="relative w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search programs..."
+                    value={programSearch}
+                    onChange={e => setProgramSearch(e.target.value)}
+                    className="pl-9 h-8 text-sm border-[#8B1538]/20 focus:ring-[#8B1538]"
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  className="bg-[#8B1538] hover:bg-[#6D1028] text-white"
+                  asChild
+                >
+                  <Link href="/programs/new">
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Program
+                  </Link>
+                </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {filteredPrograms.filter(p => !programSearch || p.program.nameEn.toLowerCase().includes(programSearch.toLowerCase()) || p.program.nameAr?.toLowerCase().includes(programSearch.toLowerCase()) || p.department.nameEn.toLowerCase().includes(programSearch.toLowerCase())).map((program) => (
-                <div key={program.program.id} className="border rounded-lg p-4 bg-gray-50">
-                  {editingProgram === program.program.id ? (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-3 gap-4">
-                        <Input value={editProgramNameEn} onChange={e => setEditProgramNameEn(e.target.value)} placeholder="Name (English)" />
-                        <Input value={editProgramNameAr} onChange={e => setEditProgramNameAr(e.target.value)} placeholder="Name (Arabic)" dir="rtl" />
-                        <Input value={editProgramCode} onChange={e => setEditProgramCode(e.target.value)} placeholder="Code" />
+              {filteredPrograms
+                .filter(p => !programSearch || p.program.nameEn.toLowerCase().includes(programSearch.toLowerCase()) || p.program.nameAr?.toLowerCase().includes(programSearch.toLowerCase()) || p.department.nameEn.toLowerCase().includes(programSearch.toLowerCase()))
+                .map((program) => (
+                  <div key={program.program.id} className="border rounded-lg p-4 bg-gray-50">
+                    {editingProgram === program.program.id ? (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-3 gap-4">
+                          <Input value={editProgramNameEn} onChange={e => setEditProgramNameEn(e.target.value)} placeholder="Name (English)" />
+                          <Input value={editProgramNameAr} onChange={e => setEditProgramNameAr(e.target.value)} placeholder="Name (Arabic)" dir="rtl" />
+                          <Input value={editProgramCode} onChange={e => setEditProgramCode(e.target.value)} placeholder="Code" />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button onClick={() => handleSaveProgram(program.program.id)} size="sm" className="bg-[#8B1538] hover:bg-[#6D1028] text-white"><Save className="h-4 w-4 mr-2" />Save</Button>
+                          <Button onClick={() => setEditingProgram(null)} variant="outline" size="sm"><X className="h-4 w-4 mr-2" />Cancel</Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button onClick={() => handleSaveProgram(program.program.id)} size="sm"><Save className="h-4 w-4 mr-2" />Save</Button>
-                        <Button onClick={() => setEditingProgram(null)} variant="outline" size="sm"><X className="h-4 w-4 mr-2" />Cancel</Button>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold">{program.program.nameEn}</p>
+                          <p className="text-sm text-gray-600" dir="rtl">{program.program.nameAr}</p>
+                          <p className="text-xs text-gray-500">
+                            Code: {program.program.code} | Department: {program.department.nameEn}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button onClick={() => handleEditProgram(program)} variant="outline" size="sm">
+                            <Edit2 className="h-4 w-4 mr-2" />Edit
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteProgram(program)}
+                            variant="outline"
+                            size="sm"
+                            className="border-red-300 text-red-600 hover:bg-red-50"
+                            disabled={deleteProgram.isPending}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />Delete
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">{program.program.nameEn}</p>
-                        <p className="text-sm text-gray-600" dir="rtl">{program.program.nameAr}</p>
-                        <p className="text-xs text-gray-500">
-                          Code: {program.program.code} | Department: {program.department.nameEn}
-                        </p>
-                      </div>
-                      <Button onClick={() => handleEditProgram(program)} variant="outline" size="sm">
-                        <Edit2 className="h-4 w-4 mr-2" />Edit
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                ))}
               {filteredPrograms.length === 0 && (
                 <p className="text-sm text-gray-400 text-center py-4">No programs for the selected college.</p>
               )}

@@ -515,8 +515,20 @@ export const appRouter = router({
         }
         return { id };
       }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.deleteCollege(input.id);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "delete",
+          entityType: "college",
+          entityId: input.id,
+          details: JSON.stringify({ id: input.id }),
+        });
+        return { success: true };
+      }),
   }),
-
   departments: router({
     list: publicProcedure.query(async () => {
       return await db.getAllDepartments();
@@ -566,8 +578,20 @@ export const appRouter = router({
         }
         return { id };
       }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.deleteDepartment(input.id);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "delete",
+          entityType: "department",
+          entityId: input.id,
+          details: JSON.stringify({ id: input.id }),
+        });
+        return { success: true };
+      }),
   }),
-
   clusters: router({
     list: publicProcedure.query(async () => {
       return await db.getAllClusters();
@@ -626,8 +650,20 @@ export const appRouter = router({
         }
         return { id };
       }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.deleteCluster(input.id);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "delete",
+          entityType: "cluster",
+          entityId: input.id,
+          details: JSON.stringify({ id: input.id }),
+        });
+        return { success: true };
+      }),
   }),
-
   programs: router({
     list: publicProcedure.query(async () => {
       return await db.getAllPrograms();
