@@ -188,6 +188,39 @@ export default function DataValidationTool() {
           </p>
         </div>
 
+        {/* Explanatory Text */}
+        <Card className="mb-8 border-l-4 border-l-[#8B1538] bg-white">
+          <CardContent className="pt-6">
+            <div className="prose prose-sm max-w-none text-slate-700 space-y-3">
+              <p>
+                This tool performs an automated quality check across all academic programs in the system.
+                It identifies three categories of issues that may affect the integrity of the PLO-GA mapping data:
+              </p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>
+                  <strong className="text-red-600">Errors</strong> — critical problems that must be resolved before the mapping data can be considered valid.
+                  These include programs with no PLOs defined, or competency weights that exceed 100% of the allowed total.
+                </li>
+                <li>
+                  <strong className="text-yellow-600">Warnings</strong> — non-critical issues that indicate potentially incomplete or inconsistent data.
+                  The primary warning is <em>Low Mapping Coverage</em>: a program is flagged when the percentage of Graduate Attribute competencies
+                  that have been assigned a non-zero total PLO weight falls below the configurable coverage threshold (default: 80%).
+                  This means that at least 80% of all competencies must be mapped to at least one PLO with a positive weight.
+                </li>
+                <li>
+                  <strong className="text-blue-600">Info</strong> — informational notices that highlight areas for review but do not necessarily indicate a problem.
+                </li>
+              </ul>
+              <p>
+                Use the <strong>Coverage Threshold</strong> setting below to adjust the minimum acceptable mapping coverage percentage.
+                Administrators can change this value; the new threshold takes effect immediately when validation is re-run.
+                Use the <strong>Refresh</strong> button to re-run the validation at any time, and the <strong>Export CSV</strong> button
+                to download a full report of all issues for offline review.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Summary Statistics */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           <Card className="border-2 border-[#8B1538]/20">
