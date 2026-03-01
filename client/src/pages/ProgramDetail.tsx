@@ -25,13 +25,22 @@ import Breadcrumb from "@/components/Breadcrumb";
 import MappingAuditLog from "@/components/MappingAuditLog";
 import { Link, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export default function ProgramDetail() {
   const { id } = useParams();
   const programId = parseInt(id || "0");
 
+  // Auto-scroll to mapping matrix if URL hash is #mapping
+  useEffect(() => {
+    if (window.location.hash === '#mapping') {
+      setTimeout(() => {
+        const el = document.getElementById('mapping');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 700);
+    }
+  }, []);
 
   const { data: matrixData, refetch } = trpc.mappings.getMatrix.useQuery({ programId });
   const updatePLO = trpc.plos.update.useMutation();
@@ -612,7 +621,7 @@ export default function ProgramDetail() {
         </Card>
 
         {/* Mapping Matrix - Transposed: PLOs as columns, Competencies as rows */}
-        <Card className="mb-6">
+        <Card id="mapping" className="mb-6 scroll-mt-6">
           <CardHeader>
             <div className="flex items-center gap-2">
               <CardTitle>PLO-Competency Mapping Matrix</CardTitle>

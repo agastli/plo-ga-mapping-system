@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus, FileText, X } from "lucide-react";
+import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus, FileText, X, Grid3X3 } from "lucide-react";
 import { Link, useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState, useEffect } from "react";
@@ -354,15 +354,28 @@ export default function Programs() {
                     </span>
                   </div>
                   
-                  <Button 
-                    asChild 
-                    className="w-full bg-[#8B1538] hover:bg-[#6B1028] group-hover:shadow-lg transition-all"
-                  >
-                    <Link href={`/programs/${item.program.id}`}>
-                      View Details
-                      <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-                    </Link>
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      asChild 
+                      className="flex-1 bg-[#8B1538] hover:bg-[#6B1028] group-hover:shadow-lg transition-all"
+                    >
+                      <Link href={`/programs/${item.program.id}`}>
+                        View Details
+                        <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10"
+                      title="View PLO-GA Mapping Matrix"
+                      disabled={item.ploCount === 0}
+                    >
+                      <Link href={`/programs/${item.program.id}#mapping`}>
+                        <Grid3X3 className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

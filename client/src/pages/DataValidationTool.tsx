@@ -5,7 +5,7 @@ import { Home, AlertTriangle, AlertCircle, Info, CheckCircle, Download, Wrench, 
 import Breadcrumb from "@/components/Breadcrumb";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 
 export default function DataValidationTool() {
@@ -23,10 +23,29 @@ export default function DataValidationTool() {
   });
   const [filterSeverity, setFilterSeverity] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterCollege, setFilterCollege] = useState<string>("all");
+  const [filterDepartment, setFilterDepartment] = useState<string>("all");
+  const [lastValidated] = useState<Date>(() => new Date());
+
+  const colleges = useMemo(() => {
+    if (!validation?.issues) return [];
+    return Array.from(new Set(validation.issues.map(i => i.collegeName))).sort();
+  }, [validation]);
+
+  const departments = useMemo(() => {
+    if (!validation?.issues) return [];
+    return Array.from(new Set(
+      validation.issues
+        .filter(i => filterCollege === 'all' || i.collegeName === filterCollege)
+        .map(i => i.departmentName)
+    )).sort();
+  }, [validation, filterCollege]);
 
   const filteredIssues = validation?.issues.filter(issue => {
     if (filterSeverity !== "all" && issue.severity !== filterSeverity) return false;
     if (filterCategory !== "all" && issue.category !== filterCategory) return false;
+    if (filterCollege !== "all" && issue.collegeName !== filterCollege) return false;
+    if (filterDepartment !== "all" && issue.departmentName !== filterDepartment) return false;
     return true;
   });
 
@@ -138,10 +157,17 @@ export default function DataValidationTool() {
             { label: "Data Validation" },
           ]}
         />
-        <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Data Validation Tool</h1>
-        <p className="text-gray-700 mb-8">
-          Comprehensive data quality check across all programs
-        </p>
+        <div className="flex items-baseline justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Data Validation Tool</h1>
+            <p className="text-gray-700">
+              Comprehensive data quality check across all programs
+            </p>
+          </div>
+          <p className="text-xs text-slate-500 whitespace-nowrap">
+            Last validated: {lastValidated.toLocaleString()}
+          </p>
+        </div>
 
         {/* Summary Statistics */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
@@ -206,8 +232,34 @@ export default function DataValidationTool() {
             <CardTitle className="text-xl text-[#8B1538]">Filter Issues</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-4">
-              <div className="flex-1">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-2 block">College</label>
+                <select
+                  value={filterCollege}
+                  onChange={(e) => { setFilterCollege(e.target.value); setFilterDepartment('all'); }}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                >
+                  <option value="all">All Colleges</option>
+                  {colleges.map(col => (
+                    <option key={col} value={col}>{col}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-2 block">Department</label>
+                <select
+                  value={filterDepartment}
+                  onChange={(e) => setFilterDepartment(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-md"
+                >
+                  <option value="all">All Departments</option>
+                  {departments.map(dep => (
+                    <option key={dep} value={dep}>{dep}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <label className="text-sm font-medium text-slate-700 mb-2 block">Severity</label>
                 <select
                   value={filterSeverity}
@@ -221,7 +273,7 @@ export default function DataValidationTool() {
                 </select>
               </div>
 
-              <div className="flex-1">
+              <div>
                 <label className="text-sm font-medium text-slate-700 mb-2 block">Category</label>
                 <select
                   value={filterCategory}
@@ -236,10 +288,18 @@ export default function DataValidationTool() {
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t">
+            <div className="mt-4 pt-4 border-t flex items-center justify-between">
               <p className="text-sm text-slate-600">
                 Showing <span className="font-bold text-[#8B1538]">{filteredIssues?.length || 0}</span> of <span className="font-bold">{validation?.issues.length || 0}</span> issues
               </p>
+              {(filterCollege !== 'all' || filterDepartment !== 'all' || filterSeverity !== 'all' || filterCategory !== 'all') && (
+                <button
+                  onClick={() => { setFilterCollege('all'); setFilterDepartment('all'); setFilterSeverity('all'); setFilterCategory('all'); }}
+                  className="text-xs text-[#8B1538] underline hover:no-underline"
+                >
+                  Clear all filters
+                </button>
+              )}
             </div>
           </CardContent>
         </Card>
