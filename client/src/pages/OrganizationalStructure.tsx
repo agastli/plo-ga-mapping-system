@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Home, Edit2, Save, X, Shield, LogOut, Filter, ChevronDown, Search, Plus, Trash2 } from "lucide-react";
+import { Home, Edit2, Save, X, Shield, LogOut, Filter, ChevronDown, Search, Plus, Trash2, ArrowRightLeft } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -35,6 +35,8 @@ export default function OrganizationalStructure() {
 
   const updateProgram = trpc.programs.update.useMutation();
   const deleteProgram = trpc.programs.delete.useMutation();
+  const moveDepartmentMutation = trpc.departments.move.useMutation();
+  const moveProgramMutation = trpc.programs.move.useMutation();
 
   // ── Filter state ──────────────────────────────────────────────────────────
   const [selectedCollegeId, setSelectedCollegeId] = useState<number | "all">("all");
@@ -86,6 +88,12 @@ export default function OrganizationalStructure() {
   const [newProgNameAr, setNewProgNameAr] = useState("");
   const [newProgCode, setNewProgCode] = useState("");
   const [newProgDeptId, setNewProgDeptId] = useState<number | "">("");
+
+  // ── Move dialog states ────────────────────────────────────────────────────
+  const [movingDepartment, setMovingDepartment] = useState<any | null>(null);
+  const [moveDeptTargetCollegeId, setMoveDeptTargetCollegeId] = useState<number | "">("");
+  const [movingProgram, setMovingProgram] = useState<any | null>(null);
+  const [moveProgTargetDeptId, setMoveProgTargetDeptId] = useState<number | "">("");
 
   // ── Derived filtered lists ────────────────────────────────────────────────
   const filteredColleges = useMemo(() => {
@@ -267,6 +275,33 @@ export default function OrganizationalStructure() {
       await refetchPrograms();
       toast.success(`Program "${program.program.nameEn}" deleted`);
     } catch { toast.error("Failed to delete program"); }
+  };
+
+  // ── Move handlers ─────────────────────────────────────────────────────
+  const handleMoveDepartment = async () => {
+    if (!movingDepartment || !moveDeptTargetCollegeId) { toast.error("Please select a target college"); return; }
+    if (moveDeptTargetCollegeId === movingDepartment.collegeId) { toast.error("Department is already in this college"); return; }
+    try {
+      await moveDepartmentMutation.mutateAsync({ id: movingDepartment.id, targetCollegeId: Number(moveDeptTargetCollegeId) });
+      await Promise.all([refetchDepartments(), refetchPrograms()]);
+      const targetCollege = colleges?.find(c => c.id === Number(moveDeptTargetCollegeId));
+      toast.success(`Department "${movingDepartment.nameEn}" moved to ${targetCollege?.nameEn}`);
+      setMovingDepartment(null);
+      setMoveDeptTargetCollegeId("");
+    } catch { toast.error("Failed to move department"); }
+  };
+
+  const handleMoveProgram = async () => {
+    if (!movingProgram || !moveProgTargetDeptId) { toast.error("Please select a target department"); return; }
+    if (Number(moveProgTargetDeptId) === movingProgram.program.departmentId) { toast.error("Program is already in this department"); return; }
+    try {
+      await moveProgramMutation.mutateAsync({ id: movingProgram.program.id, targetDepartmentId: Number(moveProgTargetDeptId) });
+      await refetchPrograms();
+      const targetDept = departments?.find(d => d.id === Number(moveProgTargetDeptId));
+      toast.success(`Program "${movingProgram.program.nameEn}" moved to ${targetDept?.nameEn}`);
+      setMovingProgram(null);
+      setMoveProgTargetDeptId("");
+    } catch { toast.error("Failed to move program"); }
   };
 
   return (
@@ -670,6 +705,14 @@ export default function OrganizationalStructure() {
                             Programs
                           </Link>
                         </Button>
+                        <Button
+                          onClick={() => { setMovingDepartment(department); setMoveDeptTargetCollegeId(department.collegeId); }}
+                          variant="outline"
+                          size="sm"
+                          className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                        >
+                          <ArrowRightLeft className="h-4 w-4 mr-2" />Move
+                        </Button>
                         <Button onClick={() => handleEditDepartment(department)} variant="outline" size="sm">
                           <Edit2 className="h-4 w-4 mr-2" />Edit
                         </Button>
@@ -756,6 +799,14 @@ export default function OrganizationalStructure() {
                           </p>
                         </div>
                         <div className="flex gap-2">
+                          <Button
+                            onClick={() => { setMovingProgram(program); setMoveProgTargetDeptId(program.program.departmentId); }}
+                            variant="outline"
+                            size="sm"
+                            className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                          >
+                            <ArrowRightLeft className="h-4 w-4 mr-2" />Move
+                          </Button>
                           <Button onClick={() => handleEditProgram(program)} variant="outline" size="sm">
                             <Edit2 className="h-4 w-4 mr-2" />Edit
                           </Button>
@@ -780,6 +831,86 @@ export default function OrganizationalStructure() {
           </CardContent>
         </Card>
       </div>
+
+      {/* ── Move Department Modal ── */}
+      {movingDepartment && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-[#8B1538]">Move Department</h2>
+              <button onClick={() => { setMovingDepartment(null); setMoveDeptTargetCollegeId(""); }} className="text-gray-400 hover:text-gray-600"><X className="h-5 w-5" /></button>
+            </div>
+            <p className="text-sm text-gray-600">Moving: <span className="font-semibold">{movingDepartment.nameEn}</span></p>
+            <p className="text-xs text-gray-500">Current college: <span className="font-medium">{colleges?.find(c => c.id === movingDepartment.collegeId)?.nameEn}</span></p>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Move to College</label>
+              <select
+                value={moveDeptTargetCollegeId}
+                onChange={e => setMoveDeptTargetCollegeId(e.target.value ? Number(e.target.value) : "")}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#8B1538]/40"
+              >
+                <option value="">Select target college...</option>
+                {colleges?.map(c => (
+                  <option key={c.id} value={c.id} disabled={c.id === movingDepartment.collegeId}>
+                    {c.nameEn} ({c.code}){c.id === movingDepartment.collegeId ? " — current" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button
+                onClick={handleMoveDepartment}
+                className="flex-1 bg-[#8B1538] hover:bg-[#6D1028] text-white"
+                disabled={!moveDeptTargetCollegeId || moveDepartmentMutation.isPending}
+              >
+                <ArrowRightLeft className="h-4 w-4 mr-2" />
+                {moveDepartmentMutation.isPending ? "Moving..." : "Move Department"}
+              </Button>
+              <Button onClick={() => { setMovingDepartment(null); setMoveDeptTargetCollegeId(""); }} variant="outline" className="flex-1">Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Move Program Modal ── */}
+      {movingProgram && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-[#8B1538]">Move Program</h2>
+              <button onClick={() => { setMovingProgram(null); setMoveProgTargetDeptId(""); }} className="text-gray-400 hover:text-gray-600"><X className="h-5 w-5" /></button>
+            </div>
+            <p className="text-sm text-gray-600">Moving: <span className="font-semibold">{movingProgram.program.nameEn}</span></p>
+            <p className="text-xs text-gray-500">Current department: <span className="font-medium">{movingProgram.department.nameEn}</span></p>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Move to Department</label>
+              <select
+                value={moveProgTargetDeptId}
+                onChange={e => setMoveProgTargetDeptId(e.target.value ? Number(e.target.value) : "")}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#8B1538]/40"
+              >
+                <option value="">Select target department...</option>
+                {departments?.map(d => (
+                  <option key={d.id} value={d.id} disabled={d.id === movingProgram.program.departmentId}>
+                    {d.nameEn} ({d.code}) — {colleges?.find(c => c.id === d.collegeId)?.code}{d.id === movingProgram.program.departmentId ? " — current" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button
+                onClick={handleMoveProgram}
+                className="flex-1 bg-[#8B1538] hover:bg-[#6D1028] text-white"
+                disabled={!moveProgTargetDeptId || moveProgramMutation.isPending}
+              >
+                <ArrowRightLeft className="h-4 w-4 mr-2" />
+                {moveProgramMutation.isPending ? "Moving..." : "Move Program"}
+              </Button>
+              <Button onClick={() => { setMovingProgram(null); setMoveProgTargetDeptId(""); }} variant="outline" className="flex-1">Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="container mx-auto px-4 pb-6 mt-20 max-w-7xl">

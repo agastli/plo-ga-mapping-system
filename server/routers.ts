@@ -539,6 +539,7 @@ export const appRouter = router({
         nameEn: z.string().optional(),
         nameAr: z.string().optional(),
         code: z.string().optional(),
+        collegeId: z.number().optional(),
         clusterId: z.number().nullable().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
@@ -550,6 +551,23 @@ export const appRouter = router({
           entityType: "department",
           entityId: id,
           details: JSON.stringify(data),
+        });
+        return { success: true };
+      }),
+    move: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        targetCollegeId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { id, targetCollegeId } = input;
+        await db.updateDepartment(id, { collegeId: targetCollegeId });
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: "update",
+          entityType: "department",
+          entityId: id,
+          details: JSON.stringify({ movedToCollegeId: targetCollegeId }),
         });
         return { success: true };
       }),
@@ -699,6 +717,26 @@ export const appRouter = router({
           });
         }
         return { id };
+      }),
+    move: publicProcedure
+      .input(z.object({
+        id: z.number(),
+        targetDepartmentId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await requireProgramAccess(ctx, input.id);
+        const { id, targetDepartmentId } = input;
+        await db.updateProgram(id, { departmentId: targetDepartmentId });
+        if (ctx.user) {
+          await db.logAudit({
+            userId: ctx.user.id,
+            action: "update",
+            entityType: "program",
+            entityId: id,
+            details: JSON.stringify({ movedToDepartmentId: targetDepartmentId }),
+          });
+        }
+        return { success: true };
       }),
     update: publicProcedure
       .input(z.object({
