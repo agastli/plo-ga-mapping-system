@@ -3,16 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus, FileText, X } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Programs() {
   const [, setLocation] = useLocation();
-
+  const searchString = useSearch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCollegeId, setSelectedCollegeId] = useState("");
   const [selectedClusterId, setSelectedClusterId] = useState("");
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
   
   // Get current user to check role
   const { data: currentUser } = trpc.auth.me.useQuery();
@@ -29,7 +30,8 @@ export default function Programs() {
   const programs = isAdmin ? allPrograms : accessiblePrograms;
   const programsLoading = isAdmin ? allProgramsLoading : accessibleProgramsLoading;
   
-  const { data: colleges, isLoading: collegesLoading } = trpc.colleges.list.useQuery();
+   const { data: colleges, isLoading: collegesLoading } = trpc.colleges.list.useQuery();
+  const { data: allDepartments } = trpc.departments.list.useQuery();
   
   // Fetch clusters for selected college
   const { data: allClusters } = trpc.clusters.list.useQuery();
@@ -38,10 +40,33 @@ export default function Programs() {
     : [];
   const hasCluster = clusters.length > 0;
 
-  // Reset cluster selection when college changes
+  // Departments for the selected college (after cluster filter if applicable)
+  const departmentsForFilter = allDepartments?.filter((d: any) => {
+    if (!selectedCollegeId) return false;
+    if (d.collegeId !== parseInt(selectedCollegeId)) return false;
+    if (hasCluster && selectedClusterId) return d.clusterId?.toString() === selectedClusterId;
+    return true;
+  }) ?? [];
+
+  // Auto-select college/cluster when dept param is in URL
+  useEffect(() => {
+    const params = new URLSearchParams(searchString);
+    const deptId = params.get('dept');
+    if (deptId && allDepartments && colleges && allClusters) {
+      const dept = allDepartments.find((d: any) => d.id.toString() === deptId);
+      if (dept) {
+        setSelectedCollegeId(dept.collegeId.toString());
+        if (dept.clusterId) setSelectedClusterId(dept.clusterId.toString());
+        setSelectedDepartmentId(deptId);
+      }
+    }
+  }, [searchString, allDepartments, colleges, allClusters]);
+
+  // Reset cluster and department selection when college changes
   const handleCollegeChange = (collegeId: string) => {
     setSelectedCollegeId(collegeId);
     setSelectedClusterId("");
+    setSelectedDepartmentId("");
   };
 
   const filteredPrograms = selectedCollegeId ? programs?.filter((item) => {
@@ -55,15 +80,20 @@ export default function Programs() {
     
     // If college has clusters, require cluster selection
     if (hasCluster && !selectedClusterId) {
-      return false; // Don't show any programs until cluster is selected
+      return false;
     }
     
     // If cluster is selected, filter by cluster
     const matchesCluster = selectedClusterId 
       ? item.department.clusterId?.toString() === selectedClusterId
       : true;
+
+    // If department is selected, filter by department
+    const matchesDepartment = selectedDepartmentId
+      ? item.program.departmentId?.toString() === selectedDepartmentId
+      : true;
     
-    return matchesSearch && matchesCollege && matchesCluster;
+    return matchesSearch && matchesCollege && matchesCluster && matchesDepartment;
   }) : [];
 
   const isLoading = programsLoading || collegesLoading;
@@ -154,6 +184,26 @@ export default function Programs() {
                   </Select>
                 </div>
 
+                {/* Department Filter - shown when a college is selected */}
+                {selectedCollegeId && departmentsForFilter.length > 0 && (
+                  <div className="flex-shrink-0 md:w-64">
+                    <label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
+                      🏢 Filter by Department
+                    </label>
+                    <Select value={selectedDepartmentId} onValueChange={setSelectedDepartmentId}>
+                      <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
+                        <SelectValue placeholder="All departments" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departmentsForFilter.map((dept: any) => (
+                          <SelectItem key={dept.id} value={dept.id.toString()}>
+                            {dept.nameEn}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 {/* Cluster Filter - Only show if selected college has clusters */}
                 {hasCluster && (
                   <div className="flex-shrink-0 md:w-64">
@@ -201,11 +251,11 @@ export default function Programs() {
                     <span className="font-medium text-[#8B1538]">{filteredPrograms?.length || 0}</span>
                     {filteredPrograms?.length === 1 ? 'program' : 'programs'} found
                   </p>
-                  {(selectedCollegeId || selectedClusterId || searchTerm) && (
+                  {(selectedCollegeId || selectedClusterId || selectedDepartmentId || searchTerm) && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => { setSelectedCollegeId(""); setSelectedClusterId(""); setSearchTerm(""); }}
+                      onClick={() => { setSelectedCollegeId(""); setSelectedClusterId(""); setSelectedDepartmentId(""); setSearchTerm(""); }}
                       className="text-[#8B1538] border-[#8B1538] hover:bg-[#8B1538]/10 text-xs"
                     >
                       <X className="h-3 w-3 mr-1" />

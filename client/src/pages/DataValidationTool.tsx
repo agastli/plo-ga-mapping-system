@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Home, AlertTriangle, AlertCircle, Info, CheckCircle, Download, Wrench } from "lucide-react";
+import { Home, AlertTriangle, AlertCircle, Info, CheckCircle, Download, Wrench, RefreshCw } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -92,6 +92,15 @@ export default function DataValidationTool() {
                     <Home className="mr-2 h-4 w-4" />
                     Home
                   </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => refetch()}
+                  className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10"
+                  disabled={isLoading}
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                  Refresh
                 </Button>
                 <Button
                   variant="default"

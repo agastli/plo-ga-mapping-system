@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Home, Edit2, Save, X, Shield, LogOut, Filter, ChevronDown } from "lucide-react";
+import { Home, Edit2, Save, X, Shield, LogOut, Filter, ChevronDown, Search } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -50,6 +50,7 @@ export default function OrganizationalStructure() {
   const [editProgramNameEn, setEditProgramNameEn] = useState("");
   const [editProgramNameAr, setEditProgramNameAr] = useState("");
   const [editProgramCode, setEditProgramCode] = useState("");
+  const [programSearch, setProgramSearch] = useState("");
 
   // ── Derived filtered lists ────────────────────────────────────────────────
   const filteredColleges = useMemo(() => {
@@ -461,14 +462,26 @@ export default function OrganizationalStructure() {
         {/* ── Programs Section ── */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#8B1538]">
-              Programs
-              <span className="ml-2 text-sm font-normal text-gray-500">({filteredPrograms.length})</span>
-            </CardTitle>
+            <div className="flex items-center justify-between gap-4">
+              <CardTitle className="text-[#8B1538]">
+                Programs
+                <span className="ml-2 text-sm font-normal text-gray-500">({filteredPrograms.filter(p => !programSearch || p.program.nameEn.toLowerCase().includes(programSearch.toLowerCase()) || p.program.nameAr?.toLowerCase().includes(programSearch.toLowerCase()) || p.department.nameEn.toLowerCase().includes(programSearch.toLowerCase())).length})</span>
+              </CardTitle>
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  type="text"
+                  placeholder="Search programs..."
+                  value={programSearch}
+                  onChange={e => setProgramSearch(e.target.value)}
+                  className="pl-9 h-8 text-sm border-[#8B1538]/20 focus:ring-[#8B1538]"
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {filteredPrograms.map((program) => (
+              {filteredPrograms.filter(p => !programSearch || p.program.nameEn.toLowerCase().includes(programSearch.toLowerCase()) || p.program.nameAr?.toLowerCase().includes(programSearch.toLowerCase()) || p.department.nameEn.toLowerCase().includes(programSearch.toLowerCase())).map((program) => (
                 <div key={program.program.id} className="border rounded-lg p-4 bg-gray-50">
                   {editingProgram === program.program.id ? (
                     <div className="space-y-3">
