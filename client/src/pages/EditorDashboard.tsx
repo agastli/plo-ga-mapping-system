@@ -111,7 +111,7 @@ export default function EditorDashboard() {
             <li><strong>View Your Programs</strong> — see all academic programs assigned to you by the administrator.</li>
             <li><strong>Edit PLOs</strong> — add, update, or remove Program Learning Outcomes for your assigned programs.</li>
             <li><strong>Map PLOs to GAs</strong> — assign weighting factors and write justifications for each PLO-to-Graduate-Attribute mapping.</li>
-            <li><strong>Upload Documents</strong> — import PLOs and mappings from Word documents to save time.</li>
+            <li><strong>Edit Justifications</strong> — write and update the justification text for each PLO-to-GA mapping in your assigned programs.</li>
             <li><strong>View Analytics</strong> — review alignment charts and coverage reports for your assigned programs.</li>
           </ul>
           <p className="mt-3 text-xs text-gray-500">You can only view and edit programs explicitly assigned to you. Contact an administrator to request access to additional programs.</p>

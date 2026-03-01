@@ -693,3 +693,6 @@
 
 - [x] Verify and fix collegeAnalytics, clusterAnalytics, departmentAnalytics, programAnalytics backend access for university-level assigned viewers
 - [x] Add "Your Access Scope" badge/card to viewer home/dashboard page showing assigned scope with icon and entity name
+
+## Editor Dashboard Text Fix
+- [x] Replace "Upload Documents" bullet with "Edit Justifications" in EditorDashboard intro panel
