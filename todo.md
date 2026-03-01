@@ -688,3 +688,8 @@
 - [x] Fix: Program dropdown in Analytics shows all college programs instead of only cluster programs when a cluster is selected
 - [x] Fix: Program selector in Analytics filters should only appear when "By Program" is selected, not for By Cluster or By College
 - [x] Fix: backend analytics procedures throw 403 "Only admins can access university-wide analytics" for viewers with university-level assignment
+
+## Access Scope Improvements
+
+- [x] Verify and fix collegeAnalytics, clusterAnalytics, departmentAnalytics, programAnalytics backend access for university-level assigned viewers
+- [x] Add "Your Access Scope" badge/card to viewer home/dashboard page showing assigned scope with icon and entity name

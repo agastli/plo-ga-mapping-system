@@ -9,7 +9,12 @@ import {
   LogOut,
   Eye,
   Search,
-  User
+  User,
+  Globe,
+  Building2,
+  Layers,
+  BookOpen,
+  GraduationCap
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -17,7 +22,19 @@ export default function ViewerDashboard() {
   const [, setLocation] = useLocation();
   const { data: user } = trpc.auth.me.useQuery();
   const { data: accessiblePrograms } = trpc.users.getAccessiblePrograms.useQuery();
-  
+  const { data: accessScope } = trpc.users.getMyAccessScope.useQuery();
+
+  const scopeConfig: Record<string, { icon: React.ElementType; color: string; bg: string; border: string; title: string }> = {
+    university: { icon: Globe, color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-400', title: 'University-wide Access' },
+    college:    { icon: Building2, color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-400', title: 'College Access' },
+    cluster:    { icon: Layers, color: 'text-violet-700', bg: 'bg-violet-50', border: 'border-violet-400', title: 'Cluster Access' },
+    department: { icon: BookOpen, color: 'text-orange-700', bg: 'bg-orange-50', border: 'border-orange-400', title: 'Department Access' },
+    program:    { icon: GraduationCap, color: 'text-sky-700', bg: 'bg-sky-50', border: 'border-sky-400', title: 'Program Access' },
+  };
+  const scope = accessScope?.scope ?? 'program';
+  const scopeInfo = scopeConfig[scope] ?? scopeConfig.program;
+  const ScopeIcon = scopeInfo.icon;
+
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
       setLocation('/login');
@@ -99,6 +116,20 @@ export default function ViewerDashboard() {
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Viewer Dashboard</h2>
           <p className="text-lg text-gray-600">Welcome, {user?.name || 'Viewer'}</p>
         </div>
+
+        {/* Access Scope Badge */}
+        {accessScope && (
+          <div className={`flex items-center gap-4 p-4 rounded-lg border-l-4 ${scopeInfo.bg} ${scopeInfo.border} shadow-sm`}>
+            <div className={`p-3 rounded-full bg-white shadow-sm`}>
+              <ScopeIcon className={`h-6 w-6 ${scopeInfo.color}`} />
+            </div>
+            <div>
+              <p className={`text-xs font-semibold uppercase tracking-wide ${scopeInfo.color} opacity-70`}>{scopeInfo.title}</p>
+              <p className={`text-base font-bold ${scopeInfo.color}`}>{accessScope.label}</p>
+              <p className="text-xs text-gray-500 mt-0.5">You can view analytics and programs within this scope.</p>
+            </div>
+          </div>
+        )}
 
         {/* Intro Panel */}
         <div className="bg-white border-l-4 border-blue-500 rounded-lg shadow-sm p-5">

@@ -434,16 +434,47 @@ export const appRouter = router({
 
     getMyAccessScope: protectedProcedure.query(async ({ ctx }) => {
       // Admins always have university-wide scope
-      if (ctx.user.role === 'admin') return { scope: 'university' as const };
+      if (ctx.user.role === 'admin') return { scope: 'university' as const, label: 'Qatar University (All)' };
       // For viewers/editors, return the broadest assignment type they have
       const assignments = await db.getUserAssignments(ctx.user.id);
+      if (assignments.length === 0) return { scope: 'program' as const, label: 'No assignments' };
       const scopePriority = ['university', 'college', 'cluster', 'department', 'program'] as const;
-      let broadest: typeof scopePriority[number] = 'program';
+      let broadestAssignment = assignments[0];
       for (const a of assignments) {
         const idx = scopePriority.indexOf(a.assignmentType as any);
-        if (idx < scopePriority.indexOf(broadest)) broadest = a.assignmentType as any;
+        if (idx < scopePriority.indexOf(broadestAssignment.assignmentType as any)) broadestAssignment = a;
       }
-      return { scope: broadest };
+      // Get the entity name for the broadest assignment
+      let label: string = broadestAssignment.assignmentType;
+      try {
+        const dbConn = await db.getDb();
+        if (dbConn) {
+          if (broadestAssignment.assignmentType === 'university') {
+            label = 'Qatar University (All)';
+          } else if (broadestAssignment.assignmentType === 'college' && broadestAssignment.collegeId) {
+            const { colleges: collegesTable } = await import('../drizzle/schema.js');
+            const { eq } = await import('drizzle-orm');
+            const [c] = await dbConn.select({ nameEn: collegesTable.nameEn }).from(collegesTable).where(eq(collegesTable.id, broadestAssignment.collegeId));
+            if (c) label = c.nameEn;
+          } else if (broadestAssignment.assignmentType === 'cluster' && broadestAssignment.clusterId) {
+            const { clusters: clustersTable } = await import('../drizzle/schema.js');
+            const { eq } = await import('drizzle-orm');
+            const [c] = await dbConn.select({ nameEn: clustersTable.nameEn }).from(clustersTable).where(eq(clustersTable.id, broadestAssignment.clusterId));
+            if (c) label = c.nameEn;
+          } else if (broadestAssignment.assignmentType === 'department' && broadestAssignment.departmentId) {
+            const { departments: depsTable } = await import('../drizzle/schema.js');
+            const { eq } = await import('drizzle-orm');
+            const [d] = await dbConn.select({ nameEn: depsTable.nameEn }).from(depsTable).where(eq(depsTable.id, broadestAssignment.departmentId));
+            if (d) label = d.nameEn;
+          } else if (broadestAssignment.assignmentType === 'program' && broadestAssignment.programId) {
+            const { programs: progsTable } = await import('../drizzle/schema.js');
+            const { eq } = await import('drizzle-orm');
+            const [p] = await dbConn.select({ nameEn: progsTable.nameEn }).from(progsTable).where(eq(progsTable.id, broadestAssignment.programId));
+            if (p) label = p.nameEn;
+          }
+        }
+      } catch {}
+      return { scope: broadestAssignment.assignmentType as typeof scopePriority[number], label };
     }),
     
     update: adminProcedure
@@ -1335,10 +1366,14 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         // Check if user has access to this college
         if (ctx.user.role !== 'admin') {
-          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
-          const hasAccess = accessiblePrograms.some(ap => ap.college.id === input.collegeId);
-          if (!hasAccess) {
-            throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this college' });
+          const assignments = await db.getUserAssignments(ctx.user.id);
+          const hasUniversityAccess = assignments.some(a => a.assignmentType === 'university');
+          if (!hasUniversityAccess) {
+            const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+            const hasAccess = accessiblePrograms.some(ap => ap.college.id === input.collegeId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this college' });
+            }
           }
         }
         return await db.getCollegeAnalytics(input.collegeId);
@@ -1349,10 +1384,14 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         // Check if user has access to this department
         if (ctx.user.role !== 'admin') {
-          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
-          const hasAccess = accessiblePrograms.some(ap => ap.program.departmentId === input.departmentId);
-          if (!hasAccess) {
-            throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this department' });
+          const assignments = await db.getUserAssignments(ctx.user.id);
+          const hasUniversityAccess = assignments.some(a => a.assignmentType === 'university');
+          if (!hasUniversityAccess) {
+            const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+            const hasAccess = accessiblePrograms.some(ap => ap.program.departmentId === input.departmentId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this department' });
+            }
           }
         }
         return await db.getDepartmentAnalytics(input.departmentId);
@@ -1363,10 +1402,14 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         // Check if user has access to this cluster
         if (ctx.user.role !== 'admin') {
-          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
-          const hasAccess = accessiblePrograms.some(ap => ap.department.clusterId === input.clusterId);
-          if (!hasAccess) {
-            throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this cluster' });
+          const assignments = await db.getUserAssignments(ctx.user.id);
+          const hasUniversityAccess = assignments.some(a => a.assignmentType === 'university');
+          if (!hasUniversityAccess) {
+            const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+            const hasAccess = accessiblePrograms.some(ap => ap.department.clusterId === input.clusterId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this cluster' });
+            }
           }
         }
         return await db.getClusterAnalytics(input.clusterId);
@@ -1377,10 +1420,14 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         // Check if user has access to this program
         if (ctx.user.role !== 'admin') {
-          const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
-          const hasAccess = accessiblePrograms.some(ap => ap.program.id === input.programId);
-          if (!hasAccess) {
-            throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this program' });
+          const assignments = await db.getUserAssignments(ctx.user.id);
+          const hasUniversityAccess = assignments.some(a => a.assignmentType === 'university');
+          if (!hasUniversityAccess) {
+            const accessiblePrograms = await db.getAccessiblePrograms(ctx.user.id);
+            const hasAccess = accessiblePrograms.some(ap => ap.program.id === input.programId);
+            if (!hasAccess) {
+              throw new TRPCError({ code: 'FORBIDDEN', message: 'You do not have access to this program' });
+            }
           }
         }
         return await db.getProgramAnalytics(input.programId);
