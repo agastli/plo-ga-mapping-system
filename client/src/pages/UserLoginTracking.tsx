@@ -8,6 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -17,7 +24,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, ArrowLeft, Activity, RefreshCw, Trash2, Info, Shield, Clock, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import {
+  Loader2, ArrowLeft, Activity, RefreshCw, Trash2, Info, Shield,
+  Clock, Search, ChevronUp, ChevronDown, ChevronsUpDown, History,
+} from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -45,11 +55,103 @@ function formatDuration(loginAt: Date, logoutAt: Date | null): string {
 }
 
 function durationMs(loginAt: Date, logoutAt: Date | null): number {
-  if (!logoutAt) return Infinity; // active sessions sort last when ascending
+  if (!logoutAt) return Infinity;
   return logoutAt.getTime() - loginAt.getTime();
 }
 
-// ── Component ──────────────────────────────────────────────────────────────────
+// ── Login History Drawer ───────────────────────────────────────────────────────
+function LoginHistoryDrawer({
+  open,
+  onClose,
+  userId,
+  username,
+  role,
+}: {
+  open: boolean;
+  onClose: () => void;
+  userId: number | null;
+  username: string;
+  role: string;
+}) {
+  const { data: history, isLoading } = trpc.auth.getLoginHistoryByUserId.useQuery(
+    { userId: userId! },
+    { enabled: open && userId !== null }
+  );
+
+  const roleColor = role === 'admin'
+    ? 'bg-purple-100 text-purple-800'
+    : role === 'editor' ? 'bg-blue-100 text-blue-800'
+    : 'bg-gray-100 text-gray-700';
+
+  return (
+    <Sheet open={open} onOpenChange={v => { if (!v) onClose(); }}>
+      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
+        <SheetHeader className="pb-4 border-b">
+          <SheetTitle className="flex items-center gap-2">
+            <History className="h-5 w-5 text-[#8B1538]" />
+            Login History
+          </SheetTitle>
+          <SheetDescription className="flex items-center gap-2 mt-1">
+            <span className="font-medium text-slate-800">{username}</span>
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${roleColor}`}>
+              {role}
+            </span>
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-4">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-7 w-7 animate-spin text-[#8B1538]" />
+            </div>
+          ) : !history || history.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-gray-400 gap-2">
+              <History className="h-10 w-10 opacity-30" />
+              <p className="text-sm">No login records found for this user.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-slate-500 mb-3">
+                {history.length} login event{history.length !== 1 ? 's' : ''} — most recent first
+              </p>
+              {history.map((entry, idx) => {
+                const dur = formatDuration(entry.loginAt, entry.logoutAt);
+                const isActive = dur === 'Active';
+                return (
+                  <div key={entry.id} className="rounded-lg border bg-white p-3 shadow-sm">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono text-gray-400 w-5 text-right">{idx + 1}</span>
+                        <div>
+                          <p className="text-sm font-medium tabular-nums">
+                            {format(entry.loginAt, 'MMM dd, yyyy  HH:mm:ss')}
+                          </p>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            IP: <span className="font-mono">{formatIpAddress(entry.ipAddress)}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium flex-shrink-0 ${isActive ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-700'}`}>
+                        {dur}
+                      </span>
+                    </div>
+                    {entry.logoutAt && (
+                      <p className="text-xs text-slate-400 mt-1.5 ml-7">
+                        Logged out: {format(entry.logoutAt, 'HH:mm:ss')}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────────
 export default function UserLoginTracking() {
   const [, setLocation] = useLocation();
   const [deleteOlderDays, setDeleteOlderDays] = useState<string>('30');
@@ -63,9 +165,11 @@ export default function UserLoginTracking() {
   const [sortKey, setSortKey] = useState<SortKey>('lastLogin');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
+  // Drawer
+  const [drawerUser, setDrawerUser] = useState<{ id: number; username: string; role: string } | null>(null);
+
   const utils = trpc.useUtils();
 
-  // Use the new getLoginHistoryWithDuration procedure (one row per login event, with logoutAt)
   const { data: allUsers, isLoading: usersLoading } = trpc.users.list.useQuery();
   const { data: historyWithDuration, isLoading: historyLoading, refetch } = trpc.auth.getLoginHistoryWithDuration.useQuery();
 
@@ -96,15 +200,10 @@ export default function UserLoginTracking() {
       : <ChevronDown className="inline h-3 w-3 ml-1 text-[#8B1538]" />;
   };
 
-  // Build a map: userId -> most recent history row (for IP, loginAt, logoutAt)
+  // Build a map: userId -> most recent history row
   const lastEventMap = useMemo(() => {
-    const map = new Map<number, {
-      ipAddress: string | null;
-      loginAt: Date;
-      logoutAt: Date | null;
-    }>();
+    const map = new Map<number, { ipAddress: string | null; loginAt: Date; logoutAt: Date | null; }>();
     if (!historyWithDuration) return map;
-    // historyWithDuration is sorted newest-first; first occurrence per userId wins
     for (const entry of historyWithDuration) {
       if (!map.has(entry.userId)) {
         map.set(entry.userId, {
@@ -120,7 +219,6 @@ export default function UserLoginTracking() {
   // Merged rows: one per registered user
   const rows = useMemo(() => {
     if (!allUsers) return [];
-
     let list = allUsers.map(u => {
       const event = lastEventMap.get(u.id);
       return {
@@ -133,7 +231,6 @@ export default function UserLoginTracking() {
       };
     });
 
-    // Inactivity filter
     if (inactivityFilter !== 'all') {
       const now = Date.now();
       list = list.filter(u => {
@@ -144,16 +241,13 @@ export default function UserLoginTracking() {
       });
     }
 
-    // Search filter
     if (searchUser.trim()) {
       const q = searchUser.toLowerCase();
       list = list.filter(u =>
-        u.username.toLowerCase().includes(q) ||
-        u.role.toLowerCase().includes(q)
+        u.username.toLowerCase().includes(q) || u.role.toLowerCase().includes(q)
       );
     }
 
-    // Sort
     return [...list].sort((a, b) => {
       let av: string | number = 0, bv: string | number = 0;
       if (sortKey === 'username') { av = a.username; bv = b.username; }
@@ -214,7 +308,7 @@ export default function UserLoginTracking() {
             <p>
               This page shows the most recent login event for each registered user — including their role, last login
               timestamp, IP address, and session duration. Sessions expire automatically after 2 hours of inactivity.
-              Use the filters and sort controls to identify inactive accounts.
+              Click a username to view the full login history for that user.
             </p>
             <div className="grid sm:grid-cols-3 gap-3 pt-1">
               <div className="flex items-start gap-2 bg-slate-50 rounded-md p-3">
@@ -222,7 +316,7 @@ export default function UserLoginTracking() {
                 <div>
                   <p className="font-semibold text-slate-800">One Row per User</p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Each row shows the most recent login event. Duration is the time between login and logout (or "Active" for open sessions).
+                    Each row shows the most recent login. Click a username to view the full audit trail.
                   </p>
                 </div>
               </div>
@@ -284,7 +378,7 @@ export default function UserLoginTracking() {
                 <Badge variant="secondary" className="ml-2">{rows.length} user{rows.length !== 1 ? 's' : ''}</Badge>
               )}
             </CardTitle>
-            <CardDescription>One row per registered user — showing their most recent login event. Click column headers to sort.</CardDescription>
+            <CardDescription>One row per registered user — most recent login. Click a username to view full history.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             {isLoading ? (
@@ -327,9 +421,17 @@ export default function UserLoginTracking() {
                       const dur = u.lastLoginAt ? formatDuration(u.lastLoginAt, u.logoutAt) : '—';
                       const isActive = dur === 'Active';
                       return (
-                        <TableRow key={u.id}>
+                        <TableRow key={u.id} className="hover:bg-slate-50">
                           <TableCell className="pl-4 text-gray-400">{idx + 1}</TableCell>
-                          <TableCell className="font-medium">{u.username}</TableCell>
+                          <TableCell>
+                            <button
+                              className="font-medium text-[#8B1538] hover:underline flex items-center gap-1.5 group"
+                              onClick={() => setDrawerUser({ id: u.id, username: u.username, role: u.role })}
+                            >
+                              {u.username}
+                              <History className="h-3.5 w-3.5 opacity-0 group-hover:opacity-60 transition-opacity" />
+                            </button>
+                          </TableCell>
                           <TableCell>
                             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${roleColor}`}>
                               {u.role}
@@ -358,6 +460,15 @@ export default function UserLoginTracking() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Login History Drawer */}
+      <LoginHistoryDrawer
+        open={drawerUser !== null}
+        onClose={() => setDrawerUser(null)}
+        userId={drawerUser?.id ?? null}
+        username={drawerUser?.username ?? ''}
+        role={drawerUser?.role ?? ''}
+      />
 
       {/* Confirm: Delete Older Than */}
       <AlertDialog open={showDeleteOlderDialog} onOpenChange={setShowDeleteOlderDialog}>

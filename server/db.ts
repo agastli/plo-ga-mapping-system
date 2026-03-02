@@ -2740,6 +2740,32 @@ export async function getLoginHistoryWithDuration(limit: number = 500): Promise<
 }
 
 // ============================================================================
+export async function getLoginHistoryByUserId(userId: number, limit: number = 100): Promise<{
+  id: number;
+  ipAddress: string | null;
+  loginMethod: string | null;
+  loginAt: Date;
+  logoutAt: Date | null;
+}[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.execute(
+    sql`SELECT id, ipAddress, loginMethod, loginAt, logoutAt
+        FROM loginHistory
+        WHERE userId = ${userId}
+        ORDER BY loginAt DESC
+        LIMIT ${limit}`
+  ) as any;
+  const result = Array.isArray(rows[0]) ? rows[0] : rows;
+  return result.map((r: any) => ({
+    id: r.id,
+    ipAddress: r.ipAddress ?? null,
+    loginMethod: r.loginMethod ?? null,
+    loginAt: r.loginAt instanceof Date ? r.loginAt : new Date(r.loginAt),
+    logoutAt: r.logoutAt ? (r.logoutAt instanceof Date ? r.logoutAt : new Date(r.logoutAt)) : null,
+  }));
+}
+
 // Mapping Completeness Tracker
 // ============================================================================
 /**

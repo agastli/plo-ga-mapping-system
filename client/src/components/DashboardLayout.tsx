@@ -22,7 +22,7 @@ import {
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
 import { useSessionHeartbeat } from "@/hooks/useSessionHeartbeat";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { AlertTriangle, LayoutDashboard, LogOut, PanelLeft, Users, X } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -112,7 +112,7 @@ function DashboardLayoutContent({
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   // Send heartbeat every 2 min; auto-logout on inactivity expiry
-  useSessionHeartbeat();
+  const { warningVisible, secondsRemaining, stayLoggedIn } = useSessionHeartbeat();
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
@@ -246,6 +246,37 @@ function DashboardLayoutContent({
       </div>
 
       <SidebarInset>
+        {/* Session expiry warning banner */}
+        {warningVisible && (
+          <div className="sticky top-0 z-50 flex items-center justify-between gap-3 bg-amber-50 border-b border-amber-200 px-4 py-2.5 text-sm">
+            <div className="flex items-center gap-2 text-amber-800">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0 text-amber-600" />
+              <span>
+                Your session will expire in{' '}
+                <strong>
+                  {Math.floor(secondsRemaining / 60)}:{String(secondsRemaining % 60).padStart(2, '0')}
+                </strong>
+                {' '}due to inactivity.
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                className="h-7 bg-amber-600 hover:bg-amber-700 text-white text-xs px-3"
+                onClick={stayLoggedIn}
+              >
+                Stay logged in
+              </Button>
+              <button
+                onClick={stayLoggedIn}
+                className="text-amber-600 hover:text-amber-800 transition-colors"
+                aria-label="Dismiss"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
         {isMobile && (
           <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
             <div className="flex items-center gap-2">

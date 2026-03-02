@@ -726,3 +726,7 @@
 - [ ] Add "Days Since Last Login" inactivity filter to Login Tracking page
 - [ ] Persist sort preference in localStorage for Assigned Programs tables (Editor + Viewer Dashboards)
 - [x] Merge the two Login Tracking tables into one unified per-user last-login table (username, role, last login, method, IP, device, status)
+
+## Session Warning & Login History Drawer Sprint
+- [x] Add 5-minute countdown warning banner before session expiry with "Stay logged in" button
+- [x] Add Login History detail drawer per user on Login Tracking page

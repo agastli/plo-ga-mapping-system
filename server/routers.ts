@@ -279,6 +279,11 @@ export const appRouter = router({
     getLoginHistoryWithDuration: adminProcedure.query(async () => {
       return await db.getLoginHistoryWithDuration(500);
     }),
+    getLoginHistoryByUserId: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getLoginHistoryByUserId(input.userId, 100);
+      }),
     heartbeat: protectedProcedure.mutation(async ({ ctx }) => {
       await db.heartbeatSession(ctx.user.id);
       return { ok: true };
