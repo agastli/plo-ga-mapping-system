@@ -719,3 +719,10 @@
 - [x] Add sortable column headers (Program, College, Completeness, Last Modified) to Assigned Programs table in Viewer Dashboard
 - [x] Add Programs Below Threshold summary table to Admin Dashboard (below the alert banner, shows name, college, completeness %)
 - [x] Add Last Login summary view to Login Tracking page (per-user most-recent-login table alongside the event log)
+
+## Sprint #3 (Mar 2, 2026)
+- [ ] Fix Login Tracking discrepancy: derive Last Login per User from loginHistory records (not users.lastSignedIn)
+- [ ] Add Export to CSV button for Programs Below Threshold table on Admin Dashboard
+- [ ] Add "Days Since Last Login" inactivity filter to Login Tracking page
+- [ ] Persist sort preference in localStorage for Assigned Programs tables (Editor + Viewer Dashboards)
+- [x] Merge the two Login Tracking tables into one unified per-user last-login table (username, role, last login, method, IP, device, status)

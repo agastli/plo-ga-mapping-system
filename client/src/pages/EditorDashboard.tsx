@@ -57,14 +57,25 @@ export default function EditorDashboard() {
   // Quick Jump search state
   const [programSearch, setProgramSearch] = useState('');
 
-  // Sort state
+  // Sort state — persisted in localStorage
   type SortKey = 'name' | 'college' | 'completeness' | 'updatedAt';
-  const [sortKey, setSortKey] = useState<SortKey>('name');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [sortKey, setSortKey] = useState<SortKey>(() => {
+    try { return (localStorage.getItem('editor_programs_sortKey') as SortKey) || 'name'; } catch { return 'name'; }
+  });
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>(() => {
+    try { return (localStorage.getItem('editor_programs_sortDir') as 'asc' | 'desc') || 'asc'; } catch { return 'asc'; }
+  });
 
   const handleSort = (key: SortKey) => {
-    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
-    else { setSortKey(key); setSortDir('asc'); }
+    if (sortKey === key) {
+      const next = sortDir === 'asc' ? 'desc' : 'asc';
+      setSortDir(next);
+      try { localStorage.setItem('editor_programs_sortDir', next); } catch {}
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+      try { localStorage.setItem('editor_programs_sortKey', key); localStorage.setItem('editor_programs_sortDir', 'asc'); } catch {}
+    }
   };
 
   const SortIcon = ({ col }: { col: SortKey }) => {

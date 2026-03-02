@@ -266,6 +266,10 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getAllLoginHistory(input.limit);
       }),
+
+    getLoginHistorySummaryPerUser: adminProcedure.query(async () => {
+      return await db.getLoginHistorySummaryPerUser();
+    }),
     deleteLoginHistoryByIds: adminProcedure
       .input(z.object({
         ids: z.array(z.number()).min(1, "At least one ID is required"),

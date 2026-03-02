@@ -2613,6 +2613,34 @@ export async function deleteLoginHistoryOlderThan(days: number): Promise<number>
   return (result as any).affectedRows ?? 0;
 }
 
+/**
+ * Get the most recent login event per user from loginHistory.
+ * Returns one row per userId with the latest loginAt, username, and loginMethod.
+ */
+export async function getLoginHistorySummaryPerUser(): Promise<
+  { userId: number; username: string | null; lastLoginAt: Date; loginMethod: string | null }[]
+> {
+  const db = await getDb();
+  if (!db) return [];
+  // Use raw SQL subquery to get max loginAt per userId
+  const rows = await db.execute(
+    sql`SELECT userId, username, loginMethod, MAX(loginAt) AS lastLoginAt
+        FROM loginHistory
+        GROUP BY userId, username, loginMethod
+        HAVING MAX(loginAt) = (
+          SELECT MAX(loginAt) FROM loginHistory lh2 WHERE lh2.userId = loginHistory.userId
+        )
+        ORDER BY lastLoginAt DESC`
+  ) as any;
+  const result = Array.isArray(rows[0]) ? rows[0] : rows;
+  return result.map((r: any) => ({
+    userId: r.userId,
+    username: r.username ?? null,
+    lastLoginAt: r.lastLoginAt instanceof Date ? r.lastLoginAt : new Date(r.lastLoginAt),
+    loginMethod: r.loginMethod ?? null,
+  }));
+}
+
 // ============================================================================
 // Mapping Completeness Tracker
 // ============================================================================

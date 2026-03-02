@@ -4,7 +4,6 @@ import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -18,138 +17,56 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, ArrowLeft, Activity, RefreshCw, Trash2, Info, Shield, Clock, Search, Users, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { Loader2, ArrowLeft, Activity, RefreshCw, Trash2, Info, Shield, Clock, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
+// ── Types ──────────────────────────────────────────────────────────────────────
+type SortKey = 'username' | 'role' | 'lastLogin' | 'method' | 'ip' | 'device';
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function formatIpAddress(ip: string | null) {
+  if (!ip) return '—';
+  return ip.startsWith('::ffff:') ? ip.replace('::ffff:', '') : ip;
+}
+
+function formatUserAgent(userAgent: string | null) {
+  if (!userAgent) return '—';
+  const browserMatch = userAgent.match(/(Chrome|Firefox|Safari|Edge|Opera)\/[\d.]+/);
+  const osMatch = userAgent.match(/(Windows|Mac OS X|Linux|Android|iOS)/);
+  return `${browserMatch ? browserMatch[1] : 'Unknown'} on ${osMatch ? osMatch[1] : 'Unknown'}`;
+}
+
+// ── Component ──────────────────────────────────────────────────────────────────
 export default function UserLoginTracking() {
   const [, setLocation] = useLocation();
-  const [limit, setLimit] = useState(200);
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [searchUser, setSearchUser] = useState('');
-  const [filterMethod, setFilterMethod] = useState<'all' | 'password' | 'oauth'>('all');
   const [deleteOlderDays, setDeleteOlderDays] = useState<string>('30');
-  const [showDeleteSelectedDialog, setShowDeleteSelectedDialog] = useState(false);
   const [showDeleteOlderDialog, setShowDeleteOlderDialog] = useState(false);
 
+  // Filters
+  const [searchUser, setSearchUser] = useState('');
+  const [inactivityFilter, setInactivityFilter] = useState<'all' | '7' | '30' | '90' | 'never'>('all');
+
+  // Sort
+  const [sortKey, setSortKey] = useState<SortKey>('lastLogin');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
   const utils = trpc.useUtils();
-  const { data: loginHistory, isLoading, refetch } = trpc.auth.getLoginHistory.useQuery({ limit });
-  const { data: allUsers } = trpc.users.list.useQuery();
+  const { data: allUsers, isLoading: usersLoading } = trpc.users.list.useQuery();
+  const { data: loginSummaryRaw, isLoading: summaryLoading, refetch } = trpc.auth.getLoginHistorySummaryPerUser.useQuery();
 
-  // Per-user last login summary (derived from users.lastSignedIn)
-  type UserSummarySortKey = 'username' | 'role' | 'lastLogin';
-  const [summarySortKey, setSummarySortKey] = useState<UserSummarySortKey>('lastLogin');
-  const [summarySortDir, setSummarySortDir] = useState<'asc' | 'desc'>('desc');
-  const [summarySearch, setSummarySearch] = useState('');
-
-  const handleSummarySort = (key: UserSummarySortKey) => {
-    if (summarySortKey === key) setSummarySortDir(d => d === 'asc' ? 'desc' : 'asc');
-    else { setSummarySortKey(key); setSummarySortDir(key === 'lastLogin' ? 'desc' : 'asc'); }
-  };
-
-  const SummarySortIcon = ({ col }: { col: UserSummarySortKey }) => {
-    if (summarySortKey !== col) return <ChevronsUpDown className="inline h-3 w-3 ml-1 text-gray-400" />;
-    return summarySortDir === 'asc'
-      ? <ChevronUp className="inline h-3 w-3 ml-1 text-[#8B1538]" />
-      : <ChevronDown className="inline h-3 w-3 ml-1 text-[#8B1538]" />;
-  };
-
-  const userSummaryRows = useMemo(() => {
-    if (!allUsers) return [];
-    let list = allUsers;
-    if (summarySearch.trim()) {
-      const q = summarySearch.toLowerCase();
-      list = list.filter(u => (u.username || '').toLowerCase().includes(q) || (u.role || '').toLowerCase().includes(q));
-    }
-    return [...list].sort((a, b) => {
-      let av: string | number = 0, bv: string | number = 0;
-      if (summarySortKey === 'username') { av = a.username || ''; bv = b.username || ''; }
-      else if (summarySortKey === 'role') { av = a.role || ''; bv = b.role || ''; }
-      else if (summarySortKey === 'lastLogin') {
-        av = a.lastSignedIn ? new Date(a.lastSignedIn).getTime() : 0;
-        bv = b.lastSignedIn ? new Date(b.lastSignedIn).getTime() : 0;
-      }
-      if (av < bv) return summarySortDir === 'asc' ? -1 : 1;
-      if (av > bv) return summarySortDir === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [allUsers, summarySearch, summarySortKey, summarySortDir]);
-
-  const deleteByIds = trpc.auth.deleteLoginHistoryByIds.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Deleted ${data.deleted} login record(s).`);
-      setSelectedIds(new Set());
-      utils.auth.getLoginHistory.invalidate();
-    },
-    onError: (err) => toast.error(err.message || 'Failed to delete records.'),
-  });
+  // We also need the full loginHistory to get IP / device for each user's last login
+  const { data: loginHistory } = trpc.auth.getLoginHistory.useQuery({ limit: 500 });
 
   const deleteOlderThan = trpc.auth.deleteLoginHistoryOlderThan.useMutation({
     onSuccess: (data) => {
       toast.success(`Deleted ${data.deleted} record(s) older than ${deleteOlderDays} days.`);
-      setSelectedIds(new Set());
       utils.auth.getLoginHistory.invalidate();
+      utils.auth.getLoginHistorySummaryPerUser.invalidate();
     },
     onError: (err) => toast.error(err.message || 'Failed to delete old records.'),
   });
-
-  const formatDate = (date: Date) => format(new Date(date), 'MMM dd, yyyy HH:mm:ss');
-
-  const formatIpAddress = (ip: string | null) => {
-    if (!ip) return 'Unknown';
-    return ip.startsWith('::ffff:') ? ip.replace('::ffff:', '') : ip;
-  };
-
-  const formatUserAgent = (userAgent: string | null) => {
-    if (!userAgent) return 'Unknown';
-    const browserMatch = userAgent.match(/(Chrome|Firefox|Safari|Edge|Opera)\/[\d.]+/);
-    const osMatch = userAgent.match(/(Windows|Mac OS X|Linux|Android|iOS)/);
-    return `${browserMatch ? browserMatch[1] : 'Unknown'} on ${osMatch ? osMatch[1] : 'Unknown'}`;
-  };
-
-  const filteredHistory = useMemo(() => {
-    if (!loginHistory) return [];
-    return loginHistory.filter((entry) => {
-      const matchesUser =
-        searchUser === '' ||
-        (entry.username || '').toLowerCase().includes(searchUser.toLowerCase());
-      const matchesMethod = filterMethod === 'all' || entry.loginMethod === filterMethod;
-      return matchesUser && matchesMethod;
-    });
-  }, [loginHistory, searchUser, filterMethod]);
-
-  const allVisibleSelected =
-    filteredHistory.length > 0 && filteredHistory.every((e) => selectedIds.has(e.id));
-
-  const toggleSelectAll = () => {
-    if (allVisibleSelected) {
-      setSelectedIds((prev) => {
-        const next = new Set(prev);
-        filteredHistory.forEach((e) => next.delete(e.id));
-        return next;
-      });
-    } else {
-      setSelectedIds((prev) => {
-        const next = new Set(prev);
-        filteredHistory.forEach((e) => next.add(e.id));
-        return next;
-      });
-    }
-  };
-
-  const toggleRow = (id: number) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
-
-  const handleDeleteSelected = () => {
-    deleteByIds.mutate({ ids: Array.from(selectedIds) });
-    setShowDeleteSelectedDialog(false);
-  };
 
   const handleDeleteOlder = () => {
     const days = parseInt(deleteOlderDays, 10);
@@ -157,6 +74,101 @@ export default function UserLoginTracking() {
     deleteOlderThan.mutate({ days });
     setShowDeleteOlderDialog(false);
   };
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir(key === 'lastLogin' ? 'desc' : 'asc'); }
+  };
+
+  const SortIcon = ({ col }: { col: SortKey }) => {
+    if (sortKey !== col) return <ChevronsUpDown className="inline h-3 w-3 ml-1 text-gray-400" />;
+    return sortDir === 'asc'
+      ? <ChevronUp className="inline h-3 w-3 ml-1 text-[#8B1538]" />
+      : <ChevronDown className="inline h-3 w-3 ml-1 text-[#8B1538]" />;
+  };
+
+  // Build a map: userId -> most recent full loginHistory row (for IP + device)
+  const lastEventMap = useMemo(() => {
+    const map = new Map<number, { ipAddress: string | null; userAgent: string | null; loginMethod: string | null; loginAt: Date }>();
+    if (!loginHistory) return map;
+    // loginHistory is sorted newest-first by the server; first occurrence per userId wins
+    for (const entry of loginHistory) {
+      if (!map.has(entry.userId)) {
+        map.set(entry.userId, {
+          ipAddress: entry.ipAddress ?? null,
+          userAgent: entry.userAgent ?? null,
+          loginMethod: entry.loginMethod ?? null,
+          loginAt: new Date(entry.loginAt),
+        });
+      }
+    }
+    return map;
+  }, [loginHistory]);
+
+  // Merged rows: one per registered user
+  const rows = useMemo(() => {
+    if (!allUsers) return [];
+
+    // Build lastLogin map from loginSummaryRaw
+    const summaryMap = new Map<number, Date>();
+    if (loginSummaryRaw) {
+      for (const row of loginSummaryRaw) {
+        summaryMap.set(row.userId, new Date(row.lastLoginAt));
+      }
+    }
+
+    let list = allUsers.map(u => {
+      const event = lastEventMap.get(u.id);
+      const lastLoginAt = summaryMap.get(u.id) ?? null;
+      return {
+        id: u.id,
+        username: u.username ?? '—',
+        role: u.role,
+        lastLoginAt,
+        loginMethod: event?.loginMethod ?? null,
+        ipAddress: event?.ipAddress ?? null,
+        userAgent: event?.userAgent ?? null,
+      };
+    });
+
+    // Inactivity filter
+    if (inactivityFilter !== 'all') {
+      const now = Date.now();
+      list = list.filter(u => {
+        if (inactivityFilter === 'never') return u.lastLoginAt === null;
+        const days = parseInt(inactivityFilter, 10);
+        if (u.lastLoginAt === null) return true;
+        return Math.floor((now - u.lastLoginAt.getTime()) / 86400000) > days;
+      });
+    }
+
+    // Search filter
+    if (searchUser.trim()) {
+      const q = searchUser.toLowerCase();
+      list = list.filter(u =>
+        u.username.toLowerCase().includes(q) ||
+        u.role.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    return [...list].sort((a, b) => {
+      let av: string | number = 0, bv: string | number = 0;
+      if (sortKey === 'username') { av = a.username; bv = b.username; }
+      else if (sortKey === 'role') { av = a.role; bv = b.role; }
+      else if (sortKey === 'lastLogin') {
+        av = a.lastLoginAt ? a.lastLoginAt.getTime() : 0;
+        bv = b.lastLoginAt ? b.lastLoginAt.getTime() : 0;
+      } else if (sortKey === 'method') { av = a.loginMethod ?? ''; bv = b.loginMethod ?? ''; }
+      else if (sortKey === 'ip') { av = formatIpAddress(a.ipAddress); bv = formatIpAddress(b.ipAddress); }
+      else if (sortKey === 'device') { av = formatUserAgent(a.userAgent); bv = formatUserAgent(b.userAgent); }
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [allUsers, loginSummaryRaw, lastEventMap, inactivityFilter, searchUser, sortKey, sortDir]);
+
+  const isLoading = usersLoading || summaryLoading;
 
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col">
@@ -196,17 +208,17 @@ export default function UserLoginTracking() {
           </CardHeader>
           <CardContent className="text-sm text-slate-700 space-y-3">
             <p>
-              This page provides a complete audit trail of all user login events recorded by the PLO-GA Mapping System.
-              Each row represents a single successful login attempt and captures the username, timestamp, IP address,
-              browser/device information, and authentication method used.
+              This page shows the most recent login event for each registered user — including their role, last login
+              timestamp, IP address, browser/device, and authentication method. Use the filters and sort controls to
+              identify inactive accounts.
             </p>
             <div className="grid sm:grid-cols-3 gap-3 pt-1">
               <div className="flex items-start gap-2 bg-slate-50 rounded-md p-3">
                 <Shield className="h-4 w-4 text-[#8B1538] mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-semibold text-slate-800">Select &amp; Delete</p>
+                  <p className="font-semibold text-slate-800">One Row per User</p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Tick the checkbox on any row — or use the header checkbox to select all visible rows — then click <strong>Delete Selected</strong> to remove those records permanently.
+                    Each row summarises the most recent login event for that user. IP address and device reflect that last event.
                   </p>
                 </div>
               </div>
@@ -215,7 +227,7 @@ export default function UserLoginTracking() {
                 <div>
                   <p className="font-semibold text-slate-800">Delete by Age</p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Use the <strong>Delete Older Than</strong> quick action to purge all records beyond a chosen number of days in a single operation.
+                    Use <strong>Delete Older Than</strong> to purge all login history records beyond a chosen number of days.
                   </p>
                 </div>
               </div>
@@ -224,7 +236,7 @@ export default function UserLoginTracking() {
                 <div>
                   <p className="font-semibold text-slate-800">Filter &amp; Search</p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Use the search box to find records by username and the method filter to narrow results to password or OAuth logins.
+                    Use the inactivity dropdown to surface dormant accounts and the search box to find a specific user.
                   </p>
                 </div>
               </div>
@@ -236,31 +248,21 @@ export default function UserLoginTracking() {
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <div className="relative flex-1 min-w-[180px]">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search by username..." value={searchUser} onChange={(e) => setSearchUser(e.target.value)} className="pl-8 h-9" />
+            <Input placeholder="Search by username or role…" value={searchUser} onChange={e => setSearchUser(e.target.value)} className="pl-8 h-9" />
           </div>
-          <Select value={filterMethod} onValueChange={(v) => setFilterMethod(v as any)}>
-            <SelectTrigger className="h-9 w-40"><SelectValue placeholder="All methods" /></SelectTrigger>
+          <Select value={inactivityFilter} onValueChange={v => setInactivityFilter(v as any)}>
+            <SelectTrigger className="h-9 w-48"><SelectValue placeholder="All users" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All methods</SelectItem>
-              <SelectItem value="password">Password</SelectItem>
-              <SelectItem value="oauth">OAuth</SelectItem>
+              <SelectItem value="all">All users</SelectItem>
+              <SelectItem value="7">Inactive &gt; 7 days</SelectItem>
+              <SelectItem value="30">Inactive &gt; 30 days</SelectItem>
+              <SelectItem value="90">Inactive &gt; 90 days</SelectItem>
+              <SelectItem value="never">Never logged in</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={String(limit)} onValueChange={(v) => setLimit(Number(v))}>
-            <SelectTrigger className="h-9 w-32"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="50">Show 50</SelectItem>
-              <SelectItem value="100">Show 100</SelectItem>
-              <SelectItem value="200">Show 200</SelectItem>
-              <SelectItem value="500">Show 500</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button size="sm" variant="destructive" className="gap-1.5" disabled={selectedIds.size === 0 || deleteByIds.isPending} onClick={() => setShowDeleteSelectedDialog(true)}>
-            <Trash2 className="h-4 w-4" />Delete Selected ({selectedIds.size})
-          </Button>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 ml-auto">
             <span className="text-sm text-slate-600 whitespace-nowrap">Delete older than</span>
-            <Input type="number" min={1} value={deleteOlderDays} onChange={(e) => setDeleteOlderDays(e.target.value)} className="h-9 w-20 text-center" />
+            <Input type="number" min={1} value={deleteOlderDays} onChange={e => setDeleteOlderDays(e.target.value)} className="h-9 w-20 text-center" />
             <span className="text-sm text-slate-600">days</span>
             <Button size="sm" variant="outline" className="gap-1.5 border-red-300 text-red-600 hover:bg-red-50" disabled={deleteOlderThan.isPending} onClick={() => setShowDeleteOlderDialog(true)}>
               <Trash2 className="h-4 w-4" />Apply
@@ -268,152 +270,100 @@ export default function UserLoginTracking() {
           </div>
         </div>
 
-        {/* Per-User Last Login Summary */}
-        <Card className="mb-6 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Users className="h-5 w-5 text-[#8B1538]" />
-                Last Login per User
-                {allUsers && (
-                  <Badge variant="secondary" className="ml-2">{allUsers.length} users</Badge>
-                )}
-              </CardTitle>
-              <div className="relative w-56">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Filter by username or role…"
-                  value={summarySearch}
-                  onChange={e => setSummarySearch(e.target.value)}
-                  className="pl-8 h-9"
-                />
-              </div>
-            </div>
-            <CardDescription>Most recent login timestamp for each registered user, sorted by recency. Click column headers to sort.</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-50">
-                    <TableHead className="w-10 pl-4">#</TableHead>
-                    <TableHead
-                      className="cursor-pointer select-none hover:text-[#8B1538]"
-                      onClick={() => handleSummarySort('username')}
-                    >
-                      Username <SummarySortIcon col="username" />
-                    </TableHead>
-                    <TableHead
-                      className="cursor-pointer select-none hover:text-[#8B1538]"
-                      onClick={() => handleSummarySort('role')}
-                    >
-                      Role <SummarySortIcon col="role" />
-                    </TableHead>
-                    <TableHead
-                      className="cursor-pointer select-none hover:text-[#8B1538]"
-                      onClick={() => handleSummarySort('lastLogin')}
-                    >
-                      Last Login <SummarySortIcon col="lastLogin" />
-                    </TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {userSummaryRows.map((u, idx) => {
-                    const lastLogin = u.lastSignedIn ? new Date(u.lastSignedIn) : null;
-                    const now = Date.now();
-                    const diffDays = lastLogin ? Math.floor((now - lastLogin.getTime()) / 86400000) : null;
-                    const statusLabel = diffDays === null ? 'Never' : diffDays === 0 ? 'Today' : diffDays === 1 ? 'Yesterday' : `${diffDays}d ago`;
-                    const statusColor = diffDays === null ? 'bg-gray-100 text-gray-600' : diffDays <= 1 ? 'bg-green-100 text-green-800' : diffDays <= 7 ? 'bg-blue-100 text-blue-800' : diffDays <= 30 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-700';
-                    const roleColor = u.role === 'admin' ? 'bg-purple-100 text-purple-800' : u.role === 'editor' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700';
-                    return (
-                      <TableRow key={u.id}>
-                        <TableCell className="pl-4 text-gray-400">{idx + 1}</TableCell>
-                        <TableCell className="font-medium">{u.username}</TableCell>
-                        <TableCell>
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${roleColor}`}>
-                            {u.role}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-sm tabular-nums">
-                          {lastLogin ? format(lastLogin, 'MMM dd, yyyy HH:mm') : <span className="text-gray-400 italic">Never</span>}
-                        </TableCell>
-                        <TableCell>
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
-                            {statusLabel}
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  {userSummaryRows.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                        {summarySearch ? `No users match "${summarySearch}".` : 'No users found.'}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Table */}
-        <Card>
+        {/* Unified Table */}
+        <Card className="shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Activity className="h-5 w-5 text-[#8B1538]" />
               Login Records
-              {loginHistory && (
-                <Badge variant="secondary" className="ml-2">
-                  {filteredHistory.length} shown / {loginHistory.length} loaded
-                </Badge>
+              {rows.length > 0 && (
+                <Badge variant="secondary" className="ml-2">{rows.length} user{rows.length !== 1 ? 's' : ''}</Badge>
               )}
             </CardTitle>
-            <CardDescription>Each row represents one successful login event.</CardDescription>
+            <CardDescription>One row per registered user — showing their most recent login event. Click column headers to sort.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             {isLoading ? (
               <div className="flex items-center justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-[#8B1538]" /></div>
-            ) : filteredHistory.length === 0 ? (
-              <div className="py-16 text-center text-gray-500">
-                {loginHistory?.length === 0 ? 'No login history recorded yet.' : 'No records match the current filters.'}
-              </div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-slate-50">
-                      <TableHead className="w-10 pl-4">
-                        <Checkbox checked={allVisibleSelected} onCheckedChange={toggleSelectAll} aria-label="Select all visible rows" />
+                      <TableHead className="w-10 pl-4">#</TableHead>
+                      <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('username')}>
+                        Username <SortIcon col="username" />
                       </TableHead>
-                      <TableHead>Username</TableHead>
-                      <TableHead>Login Time</TableHead>
-                      <TableHead>IP Address</TableHead>
-                      <TableHead>Device / Browser</TableHead>
-                      <TableHead>Method</TableHead>
+                      <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('role')}>
+                        Role <SortIcon col="role" />
+                      </TableHead>
+                      <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('lastLogin')}>
+                        Last Login <SortIcon col="lastLogin" />
+                      </TableHead>
+                      <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('ip')}>
+                        IP Address <SortIcon col="ip" />
+                      </TableHead>
+                      <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('device')}>
+                        Device / Browser <SortIcon col="device" />
+                      </TableHead>
+                      <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('method')}>
+                        Method <SortIcon col="method" />
+                      </TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredHistory.map((entry) => (
-                      <TableRow key={entry.id} className={selectedIds.has(entry.id) ? 'bg-red-50' : undefined} onClick={() => toggleRow(entry.id)} style={{ cursor: 'pointer' }}>
-                        <TableCell className="pl-4" onClick={(e) => e.stopPropagation()}>
-                          <Checkbox checked={selectedIds.has(entry.id)} onCheckedChange={() => toggleRow(entry.id)} aria-label={`Select row ${entry.id}`} />
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {entry.username || <span className="text-gray-400 italic">N/A</span>}
-                        </TableCell>
-                        <TableCell className="text-sm tabular-nums">{formatDate(entry.loginAt)}</TableCell>
-                        <TableCell className="font-mono text-sm">{formatIpAddress(entry.ipAddress)}</TableCell>
-                        <TableCell className="text-sm">{formatUserAgent(entry.userAgent)}</TableCell>
-                        <TableCell>
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${entry.loginMethod === 'password' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
-                            {entry.loginMethod || 'Unknown'}
-                          </span>
+                    {rows.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center py-12 text-gray-500">
+                          {searchUser || inactivityFilter !== 'all' ? 'No users match the current filters.' : 'No users found.'}
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : rows.map((u, idx) => {
+                      const now = Date.now();
+                      const diffDays = u.lastLoginAt ? Math.floor((now - u.lastLoginAt.getTime()) / 86400000) : null;
+                      const statusLabel = diffDays === null ? 'Never' : diffDays === 0 ? 'Today' : diffDays === 1 ? 'Yesterday' : `${diffDays}d ago`;
+                      const statusColor = diffDays === null
+                        ? 'bg-gray-100 text-gray-600'
+                        : diffDays <= 1 ? 'bg-green-100 text-green-800'
+                        : diffDays <= 7 ? 'bg-blue-100 text-blue-800'
+                        : diffDays <= 30 ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-red-100 text-red-700';
+                      const roleColor = u.role === 'admin'
+                        ? 'bg-purple-100 text-purple-800'
+                        : u.role === 'editor' ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-700';
+                      return (
+                        <TableRow key={u.id}>
+                          <TableCell className="pl-4 text-gray-400">{idx + 1}</TableCell>
+                          <TableCell className="font-medium">{u.username}</TableCell>
+                          <TableCell>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${roleColor}`}>
+                              {u.role}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-sm tabular-nums">
+                            {u.lastLoginAt
+                              ? format(u.lastLoginAt, 'MMM dd, yyyy HH:mm')
+                              : <span className="text-gray-400 italic">Never</span>}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm">{formatIpAddress(u.ipAddress)}</TableCell>
+                          <TableCell className="text-sm">{formatUserAgent(u.userAgent)}</TableCell>
+                          <TableCell>
+                            {u.loginMethod ? (
+                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${u.loginMethod === 'password' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
+                                {u.loginMethod}
+                              </span>
+                            ) : <span className="text-gray-400 italic">—</span>}
+                          </TableCell>
+                          <TableCell>
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
+                              {statusLabel}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
@@ -422,26 +372,15 @@ export default function UserLoginTracking() {
         </Card>
       </div>
 
-      {/* Confirm: Delete Selected */}
-      <AlertDialog open={showDeleteSelectedDialog} onOpenChange={setShowDeleteSelectedDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete {selectedIds.size} selected record(s)?</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently remove the selected login history entries. This action cannot be undone.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={handleDeleteSelected}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       {/* Confirm: Delete Older Than */}
       <AlertDialog open={showDeleteOlderDialog} onOpenChange={setShowDeleteOlderDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete records older than {deleteOlderDays} days?</AlertDialogTitle>
-            <AlertDialogDescription>All login history entries recorded more than {deleteOlderDays} day(s) ago will be permanently deleted. This action cannot be undone.</AlertDialogDescription>
+            <AlertDialogDescription>
+              All login history entries recorded more than {deleteOlderDays} day(s) ago will be permanently deleted.
+              This action cannot be undone.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

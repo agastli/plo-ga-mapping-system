@@ -21,9 +21,30 @@ import {
   Target,
   AlertTriangle,
   CheckCircle2,
-  TrendingDown
+  TrendingDown,
+  Download
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+
+function exportBelowThresholdCSV(programs: { programName: string; collegeName: string; totalPLOs: number; mappedPLOs: number; completenessRate: number }[], threshold: number) {
+  const header = ['#', 'Program', 'College', 'Total PLOs', 'Mapped PLOs', 'Completeness (%)'];
+  const rows = programs.map((p, i) => [
+    i + 1,
+    `"${p.programName.replace(/"/g, '""')}"`,
+    `"${p.collegeName.replace(/"/g, '""')}"`,
+    p.totalPLOs,
+    p.mappedPLOs,
+    p.completenessRate,
+  ]);
+  const csv = [header.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `programs_below_${threshold}pct_threshold.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -270,11 +291,22 @@ export default function AdminDashboard() {
                 Programs Below {completenessAlert.threshold}% Threshold
                 <span className="ml-1 text-sm font-normal text-amber-700">({completenessAlert.belowCount} programs)</span>
               </h2>
-              <Link href="/admin/data-validation">
-                <Button size="sm" variant="outline" className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
-                  View Full Report
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-green-600 text-green-700 hover:bg-green-50 gap-1.5"
+                  onClick={() => exportBelowThresholdCSV(completenessAlert.belowPrograms, completenessAlert.threshold)}
+                >
+                  <Download className="h-4 w-4" />
+                  Export CSV
                 </Button>
-              </Link>
+                <Link href="/admin/data-validation">
+                  <Button size="sm" variant="outline" className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
+                    View Full Report
+                  </Button>
+                </Link>
+              </div>
             </div>
             <Card className="shadow-sm border-amber-200">
               <CardContent className="p-0">
