@@ -707,3 +707,9 @@
 - [ ] Make Assigned Programs table rows clickable (navigate to program detail page)
 - [ ] Add "Last Modified" column to Assigned Programs table in Viewer and Editor Dashboards
 - [ ] Fix "Map PLOs to GAs" bullet in Editor Dashboard intro to focus on weighting only (remove overlap with "Edit Justifications")
+
+## Three New Features Sprint (Mar 2, 2026)
+- [x] Add "Last Login" column to User Management table (backend: include lastSignedIn in users.list, frontend: display in user card)
+- [x] Add Completeness Threshold alert banner to Admin Dashboard (fetch threshold + programCompleteness, show warning when avg below threshold)
+- [x] Add Quick Jump search bar to Editor Dashboard Assigned Programs table
+- [x] Add Quick Jump search bar to Viewer Dashboard Assigned Programs table

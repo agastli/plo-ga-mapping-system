@@ -468,6 +468,10 @@ export default function UserManagement() {
                   </CardTitle>
                   <CardDescription>
                     {user.email || 'No email'} • Joined {new Date(user.createdAt).toLocaleDateString()}
+                    {' '}• Last login:{' '}
+                    {user.lastSignedIn
+                      ? new Date(user.lastSignedIn).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+                      : 'Never'}
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">

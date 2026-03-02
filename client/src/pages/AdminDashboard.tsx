@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
@@ -17,7 +18,10 @@ import {
   User,
   Activity,
   Award,
-  Target
+  Target,
+  AlertTriangle,
+  CheckCircle2,
+  TrendingDown
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -29,6 +33,20 @@ export default function AdminDashboard() {
   const { data: graduateAttributes } = trpc.graduateAttributes.list.useQuery();
   const { data: competencies } = trpc.competencies.list.useQuery();
   
+  // Threshold alert data
+  const { data: completenessData } = trpc.analytics.programCompleteness.useQuery();
+  const { data: thresholdStr } = trpc.analytics.getThreshold.useQuery();
+  const threshold = thresholdStr ? parseFloat(thresholdStr) : 80;
+
+  const completenessAlert = useMemo(() => {
+    if (!completenessData || completenessData.length === 0) return null;
+    const programsWithPLOs = completenessData.filter(p => !p.hasNoPLOs);
+    if (programsWithPLOs.length === 0) return null;
+    const avg = programsWithPLOs.reduce((sum, p) => sum + p.completenessRate, 0) / programsWithPLOs.length;
+    const belowThreshold = programsWithPLOs.filter(p => p.completenessRate < threshold);
+    return { avg: Math.round(avg), belowCount: belowThreshold.length, total: programsWithPLOs.length, threshold };
+  }, [completenessData, threshold]);
+
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
       setLocation('/login');
@@ -207,6 +225,40 @@ export default function AdminDashboard() {
             <li><strong>System Settings</strong> — configure system-wide parameters such as mapping thresholds and report templates.</li>
           </ul>
         </div>
+        {/* Completeness Threshold Alert Banner */}
+        {completenessAlert && (
+          completenessAlert.belowCount > 0 ? (
+            <div className="flex items-start gap-4 rounded-lg border border-amber-300 bg-amber-50 px-5 py-4 shadow-sm">
+              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-amber-800">
+                  Mapping completeness below threshold ({completenessAlert.threshold}%)
+                </p>
+                <p className="text-sm text-amber-700 mt-0.5">
+                  University-wide average is <strong>{completenessAlert.avg}%</strong>.
+                  {' '}<strong>{completenessAlert.belowCount}</strong> of{' '}
+                  <strong>{completenessAlert.total}</strong> programs are below the {completenessAlert.threshold}% threshold.
+                  {' '}Review the <Link href="/admin/data-validation"><span className="underline cursor-pointer hover:text-amber-900">Data Quality</span></Link> page or the Mapping Completeness tracker below for details.
+                </p>
+              </div>
+              <Link href="/admin/data-validation">
+                <Button size="sm" variant="outline" className="border-amber-400 text-amber-800 hover:bg-amber-100 shrink-0">
+                  <TrendingDown className="h-4 w-4 mr-1" />
+                  Review
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-5 py-3 shadow-sm">
+              <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+              <p className="text-sm font-medium text-green-800">
+                All {completenessAlert.total} programs meet the {completenessAlert.threshold}% completeness threshold.
+                University-wide average: <strong>{completenessAlert.avg}%</strong>.
+              </p>
+            </div>
+          )
+        )}
+
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {stats.map((stat) => (

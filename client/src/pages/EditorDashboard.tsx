@@ -1,6 +1,8 @@
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import MappingCompletenessWidget from "@/components/MappingCompletenessWidget";
 import { 
@@ -48,6 +50,18 @@ export default function EditorDashboard() {
 
   // Get only programs accessible to this editor
   const allMyPrograms = accessiblePrograms || [];
+
+  // Quick Jump search state
+  const [programSearch, setProgramSearch] = useState('');
+  const filteredPrograms = useMemo(() => {
+    if (!programSearch.trim()) return allMyPrograms;
+    const q = programSearch.toLowerCase();
+    return allMyPrograms.filter(p =>
+      p.program.nameEn.toLowerCase().includes(q) ||
+      (p.program.code || '').toLowerCase().includes(q) ||
+      p.college.nameEn.toLowerCase().includes(q)
+    );
+  }, [allMyPrograms, programSearch]);
 
   const stats = [
     {
@@ -220,11 +234,29 @@ export default function EditorDashboard() {
         {/* Assigned Programs Quick-List */}
         {allMyPrograms.length > 0 && (
           <div className="mt-10">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <h3 className="text-xl font-bold text-gray-900">Your Assigned Programs</h3>
               <Link href="/program-browser">
                 <span className="text-sm text-[#8B1538] hover:underline font-medium cursor-pointer">View all &rarr;</span>
               </Link>
+            </div>
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <Input
+                placeholder="Quick jump — search by program name, code, or college…"
+                value={programSearch}
+                onChange={e => setProgramSearch(e.target.value)}
+                className="pl-9 pr-9 bg-white border-gray-200 focus:border-[#8B1538] focus:ring-[#8B1538]/20"
+              />
+              {programSearch && (
+                <button
+                  onClick={() => setProgramSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              )}
             </div>
             <Card>
               <CardContent className="p-0">
@@ -242,7 +274,7 @@ export default function EditorDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {allMyPrograms.slice(0, 15).map((p, idx) => {
+                      {filteredPrograms.slice(0, 15).map((p, idx) => {
                         const ploCount = p.ploCount || 0;
                         const mappingCount = p.mappingCount || 0;
                         const completeness = ploCount > 0 ? Math.min(Math.round((mappingCount / (ploCount * 21)) * 100), 100) : 0;
@@ -275,9 +307,14 @@ export default function EditorDashboard() {
                       })}
                     </tbody>
                   </table>
-                  {allMyPrograms.length > 15 && (
+                  {filteredPrograms.length === 0 && programSearch && (
+                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                      No programs match &ldquo;{programSearch}&rdquo;.
+                    </div>
+                  )}
+                  {filteredPrograms.length > 15 && (
                     <div className="px-4 py-3 text-center text-sm text-gray-500 border-t">
-                      Showing 15 of {allMyPrograms.length} programs.{' '}
+                      Showing 15 of {filteredPrograms.length} matching programs.{' '}
                       <Link href="/program-browser"><span className="text-[#8B1538] hover:underline cursor-pointer">View all</span></Link>
                     </div>
                   )}
