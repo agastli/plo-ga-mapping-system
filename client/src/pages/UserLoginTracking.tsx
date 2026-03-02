@@ -23,7 +23,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
-type SortKey = 'username' | 'role' | 'lastLogin' | 'method' | 'ip' | 'device';
+type SortKey = 'username' | 'role' | 'lastLogin' | 'ip' | 'duration';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function formatIpAddress(ip: string | null) {
@@ -31,11 +31,22 @@ function formatIpAddress(ip: string | null) {
   return ip.startsWith('::ffff:') ? ip.replace('::ffff:', '') : ip;
 }
 
-function formatUserAgent(userAgent: string | null) {
-  if (!userAgent) return '—';
-  const browserMatch = userAgent.match(/(Chrome|Firefox|Safari|Edge|Opera)\/[\d.]+/);
-  const osMatch = userAgent.match(/(Windows|Mac OS X|Linux|Android|iOS)/);
-  return `${browserMatch ? browserMatch[1] : 'Unknown'} on ${osMatch ? osMatch[1] : 'Unknown'}`;
+function formatDuration(loginAt: Date, logoutAt: Date | null): string {
+  if (!logoutAt) return 'Active';
+  const ms = logoutAt.getTime() - loginAt.getTime();
+  if (ms < 0) return '—';
+  const totalSecs = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSecs / 3600);
+  const mins = Math.floor((totalSecs % 3600) / 60);
+  const secs = totalSecs % 60;
+  if (hours > 0) return `${hours}h ${mins}m`;
+  if (mins > 0) return `${mins}m ${secs}s`;
+  return `${secs}s`;
+}
+
+function durationMs(loginAt: Date, logoutAt: Date | null): number {
+  if (!logoutAt) return Infinity; // active sessions sort last when ascending
+  return logoutAt.getTime() - loginAt.getTime();
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -53,17 +64,15 @@ export default function UserLoginTracking() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const utils = trpc.useUtils();
-  const { data: allUsers, isLoading: usersLoading } = trpc.users.list.useQuery();
-  const { data: loginSummaryRaw, isLoading: summaryLoading, refetch } = trpc.auth.getLoginHistorySummaryPerUser.useQuery();
 
-  // We also need the full loginHistory to get IP / device for each user's last login
-  const { data: loginHistory } = trpc.auth.getLoginHistory.useQuery({ limit: 500 });
+  // Use the new getLoginHistoryWithDuration procedure (one row per login event, with logoutAt)
+  const { data: allUsers, isLoading: usersLoading } = trpc.users.list.useQuery();
+  const { data: historyWithDuration, isLoading: historyLoading, refetch } = trpc.auth.getLoginHistoryWithDuration.useQuery();
 
   const deleteOlderThan = trpc.auth.deleteLoginHistoryOlderThan.useMutation({
     onSuccess: (data) => {
       toast.success(`Deleted ${data.deleted} record(s) older than ${deleteOlderDays} days.`);
-      utils.auth.getLoginHistory.invalidate();
-      utils.auth.getLoginHistorySummaryPerUser.invalidate();
+      utils.auth.getLoginHistoryWithDuration.invalidate();
     },
     onError: (err) => toast.error(err.message || 'Failed to delete old records.'),
   });
@@ -87,47 +96,40 @@ export default function UserLoginTracking() {
       : <ChevronDown className="inline h-3 w-3 ml-1 text-[#8B1538]" />;
   };
 
-  // Build a map: userId -> most recent full loginHistory row (for IP + device)
+  // Build a map: userId -> most recent history row (for IP, loginAt, logoutAt)
   const lastEventMap = useMemo(() => {
-    const map = new Map<number, { ipAddress: string | null; userAgent: string | null; loginMethod: string | null; loginAt: Date }>();
-    if (!loginHistory) return map;
-    // loginHistory is sorted newest-first by the server; first occurrence per userId wins
-    for (const entry of loginHistory) {
+    const map = new Map<number, {
+      ipAddress: string | null;
+      loginAt: Date;
+      logoutAt: Date | null;
+    }>();
+    if (!historyWithDuration) return map;
+    // historyWithDuration is sorted newest-first; first occurrence per userId wins
+    for (const entry of historyWithDuration) {
       if (!map.has(entry.userId)) {
         map.set(entry.userId, {
           ipAddress: entry.ipAddress ?? null,
-          userAgent: entry.userAgent ?? null,
-          loginMethod: entry.loginMethod ?? null,
           loginAt: new Date(entry.loginAt),
+          logoutAt: entry.logoutAt ? new Date(entry.logoutAt) : null,
         });
       }
     }
     return map;
-  }, [loginHistory]);
+  }, [historyWithDuration]);
 
   // Merged rows: one per registered user
   const rows = useMemo(() => {
     if (!allUsers) return [];
 
-    // Build lastLogin map from loginSummaryRaw
-    const summaryMap = new Map<number, Date>();
-    if (loginSummaryRaw) {
-      for (const row of loginSummaryRaw) {
-        summaryMap.set(row.userId, new Date(row.lastLoginAt));
-      }
-    }
-
     let list = allUsers.map(u => {
       const event = lastEventMap.get(u.id);
-      const lastLoginAt = summaryMap.get(u.id) ?? null;
       return {
         id: u.id,
         username: u.username ?? '—',
         role: u.role,
-        lastLoginAt,
-        loginMethod: event?.loginMethod ?? null,
+        lastLoginAt: event?.loginAt ?? null,
+        logoutAt: event?.logoutAt ?? null,
         ipAddress: event?.ipAddress ?? null,
-        userAgent: event?.userAgent ?? null,
       };
     });
 
@@ -159,16 +161,18 @@ export default function UserLoginTracking() {
       else if (sortKey === 'lastLogin') {
         av = a.lastLoginAt ? a.lastLoginAt.getTime() : 0;
         bv = b.lastLoginAt ? b.lastLoginAt.getTime() : 0;
-      } else if (sortKey === 'method') { av = a.loginMethod ?? ''; bv = b.loginMethod ?? ''; }
-      else if (sortKey === 'ip') { av = formatIpAddress(a.ipAddress); bv = formatIpAddress(b.ipAddress); }
-      else if (sortKey === 'device') { av = formatUserAgent(a.userAgent); bv = formatUserAgent(b.userAgent); }
+      } else if (sortKey === 'ip') { av = formatIpAddress(a.ipAddress); bv = formatIpAddress(b.ipAddress); }
+      else if (sortKey === 'duration') {
+        av = a.lastLoginAt ? durationMs(a.lastLoginAt, a.logoutAt) : -1;
+        bv = b.lastLoginAt ? durationMs(b.lastLoginAt, b.logoutAt) : -1;
+      }
       if (av < bv) return sortDir === 'asc' ? -1 : 1;
       if (av > bv) return sortDir === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [allUsers, loginSummaryRaw, lastEventMap, inactivityFilter, searchUser, sortKey, sortDir]);
+  }, [allUsers, lastEventMap, inactivityFilter, searchUser, sortKey, sortDir]);
 
-  const isLoading = usersLoading || summaryLoading;
+  const isLoading = usersLoading || historyLoading;
 
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col">
@@ -209,8 +213,8 @@ export default function UserLoginTracking() {
           <CardContent className="text-sm text-slate-700 space-y-3">
             <p>
               This page shows the most recent login event for each registered user — including their role, last login
-              timestamp, IP address, browser/device, and authentication method. Use the filters and sort controls to
-              identify inactive accounts.
+              timestamp, IP address, and session duration. Sessions expire automatically after 2 hours of inactivity.
+              Use the filters and sort controls to identify inactive accounts.
             </p>
             <div className="grid sm:grid-cols-3 gap-3 pt-1">
               <div className="flex items-start gap-2 bg-slate-50 rounded-md p-3">
@@ -218,16 +222,16 @@ export default function UserLoginTracking() {
                 <div>
                   <p className="font-semibold text-slate-800">One Row per User</p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Each row summarises the most recent login event for that user. IP address and device reflect that last event.
+                    Each row shows the most recent login event. Duration is the time between login and logout (or "Active" for open sessions).
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-2 bg-slate-50 rounded-md p-3">
                 <Clock className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-semibold text-slate-800">Delete by Age</p>
+                  <p className="font-semibold text-slate-800">Session Expiry</p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Use <strong>Delete Older Than</strong> to purge all login history records beyond a chosen number of days.
+                    Sessions expire after 2 hours of inactivity. Explicit logouts are stamped immediately.
                   </p>
                 </div>
               </div>
@@ -303,36 +307,25 @@ export default function UserLoginTracking() {
                       <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('ip')}>
                         IP Address <SortIcon col="ip" />
                       </TableHead>
-                      <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('device')}>
-                        Device / Browser <SortIcon col="device" />
+                      <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('duration')}>
+                        Duration <SortIcon col="duration" />
                       </TableHead>
-                      <TableHead className="cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('method')}>
-                        Method <SortIcon col="method" />
-                      </TableHead>
-                      <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {rows.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center py-12 text-gray-500">
+                        <TableCell colSpan={6} className="text-center py-12 text-gray-500">
                           {searchUser || inactivityFilter !== 'all' ? 'No users match the current filters.' : 'No users found.'}
                         </TableCell>
                       </TableRow>
                     ) : rows.map((u, idx) => {
-                      const now = Date.now();
-                      const diffDays = u.lastLoginAt ? Math.floor((now - u.lastLoginAt.getTime()) / 86400000) : null;
-                      const statusLabel = diffDays === null ? 'Never' : diffDays === 0 ? 'Today' : diffDays === 1 ? 'Yesterday' : `${diffDays}d ago`;
-                      const statusColor = diffDays === null
-                        ? 'bg-gray-100 text-gray-600'
-                        : diffDays <= 1 ? 'bg-green-100 text-green-800'
-                        : diffDays <= 7 ? 'bg-blue-100 text-blue-800'
-                        : diffDays <= 30 ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-700';
                       const roleColor = u.role === 'admin'
                         ? 'bg-purple-100 text-purple-800'
                         : u.role === 'editor' ? 'bg-blue-100 text-blue-800'
                         : 'bg-gray-100 text-gray-700';
+                      const dur = u.lastLoginAt ? formatDuration(u.lastLoginAt, u.logoutAt) : '—';
+                      const isActive = dur === 'Active';
                       return (
                         <TableRow key={u.id}>
                           <TableCell className="pl-4 text-gray-400">{idx + 1}</TableCell>
@@ -348,18 +341,12 @@ export default function UserLoginTracking() {
                               : <span className="text-gray-400 italic">Never</span>}
                           </TableCell>
                           <TableCell className="font-mono text-sm">{formatIpAddress(u.ipAddress)}</TableCell>
-                          <TableCell className="text-sm">{formatUserAgent(u.userAgent)}</TableCell>
-                          <TableCell>
-                            {u.loginMethod ? (
-                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${u.loginMethod === 'password' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
-                                {u.loginMethod}
+                          <TableCell className="text-sm tabular-nums">
+                            {u.lastLoginAt ? (
+                              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isActive ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-700'}`}>
+                                {dur}
                               </span>
                             ) : <span className="text-gray-400 italic">—</span>}
-                          </TableCell>
-                          <TableCell>
-                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
-                              {statusLabel}
-                            </span>
                           </TableCell>
                         </TableRow>
                       );

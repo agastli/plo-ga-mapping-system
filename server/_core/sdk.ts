@@ -272,6 +272,11 @@ class SDKServer {
       if (!userWithAssignments) {
         throw ForbiddenError("User not found");
       }
+      // Check 2-hour inactivity timeout
+      const expired = await db.checkAndExpireInactiveSession(passwordSession.userId);
+      if (expired) {
+        throw ForbiddenError("Session expired due to inactivity");
+      }
       // Update last signed in
       await db.updateUserLastSignedIn(userWithAssignments.id);
       // Return user without assignments (to match User type)

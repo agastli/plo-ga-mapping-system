@@ -1,0 +1,1 @@
+ALTER TABLE `loginHistory` ADD `logoutAt` timestamp;

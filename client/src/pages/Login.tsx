@@ -12,6 +12,14 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  // Show session-expired message if redirected due to inactivity
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reason') === 'expired') {
+      toast.warning('Your session expired due to 2 hours of inactivity. Please sign in again.');
+    }
+  }, []);
   const [showPassword, setShowPassword] = useState(false);
   const { data: user, isLoading: checkingAuth } = trpc.auth.me.useQuery();
 

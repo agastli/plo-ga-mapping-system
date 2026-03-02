@@ -249,6 +249,9 @@ export const loginHistory = mysqlTable("loginHistory", {
   userAgent: text("userAgent"), // Browser/device information
   loginMethod: varchar("loginMethod", { length: 64 }), // 'password' or 'oauth'
   loginAt: timestamp("loginAt").defaultNow().notNull(),
+  logoutAt: timestamp("logoutAt"),
+  tokenExpiresAt: timestamp("tokenExpiresAt"),
+  lastActiveAt: timestamp("lastActiveAt"), // updated by heartbeat every 2 min
 });
 
 export type LoginHistory = typeof loginHistory.$inferSelect;

@@ -146,21 +146,27 @@ export const appRouter = router({
           maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
         });
         
-        // Record login history
+        // Record login history with token expiry (1 year from now, matching cookie maxAge)
+        const tokenExpiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
         await db.recordLoginHistory({
           userId: user.id,
           username: user.username || undefined,
           ipAddress: ctx.req.ip || ctx.req.headers['x-forwarded-for'] as string || ctx.req.socket.remoteAddress,
           userAgent: ctx.req.headers['user-agent'],
           loginMethod: 'password',
+          tokenExpiresAt,
         });
         
         return { success: true, user };
       }),
     
-    logout: publicProcedure.mutation(({ ctx }) => {
+    logout: publicProcedure.mutation(async ({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+      // Stamp logoutAt on the most recent open login record for this user
+      if (ctx.user?.id) {
+        try { await db.stampLogoutForUser(ctx.user.id); } catch {}
+      }
       return {
         success: true,
       } as const;
@@ -269,6 +275,13 @@ export const appRouter = router({
 
     getLoginHistorySummaryPerUser: adminProcedure.query(async () => {
       return await db.getLoginHistorySummaryPerUser();
+    }),
+    getLoginHistoryWithDuration: adminProcedure.query(async () => {
+      return await db.getLoginHistoryWithDuration(500);
+    }),
+    heartbeat: protectedProcedure.mutation(async ({ ctx }) => {
+      await db.heartbeatSession(ctx.user.id);
+      return { ok: true };
     }),
     deleteLoginHistoryByIds: adminProcedure
       .input(z.object({

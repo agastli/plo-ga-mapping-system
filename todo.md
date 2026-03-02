@@ -721,7 +721,7 @@
 - [x] Add Last Login summary view to Login Tracking page (per-user most-recent-login table alongside the event log)
 
 ## Sprint #3 (Mar 2, 2026)
-- [ ] Fix Login Tracking discrepancy: derive Last Login per User from loginHistory records (not users.lastSignedIn)
+- [x] Fix Login Tracking discrepancy: derive Last Login per User from loginHistory records (not users.lastSignedIn)
 - [ ] Add Export to CSV button for Programs Below Threshold table on Admin Dashboard
 - [ ] Add "Days Since Last Login" inactivity filter to Login Tracking page
 - [ ] Persist sort preference in localStorage for Assigned Programs tables (Editor + Viewer Dashboards)

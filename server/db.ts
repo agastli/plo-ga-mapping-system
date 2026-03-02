@@ -2641,6 +2641,104 @@ export async function getLoginHistorySummaryPerUser(): Promise<
   }));
 }
 
+const INACTIVITY_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+/**
+ * Update lastActiveAt on the most recent open login record (heartbeat)
+ */
+export async function heartbeatSession(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.execute(
+    sql`UPDATE loginHistory SET lastActiveAt = NOW()
+        WHERE userId = ${userId} AND logoutAt IS NULL
+        ORDER BY loginAt DESC LIMIT 1`
+  );
+}
+
+/**
+ * Check if the user's session has been inactive for more than 2 hours.
+ * If so, stamp logoutAt and return true (caller should clear the cookie).
+ */
+export async function checkAndExpireInactiveSession(userId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const rows = await db.execute(
+    sql`SELECT id, loginAt, lastActiveAt FROM loginHistory
+        WHERE userId = ${userId} AND logoutAt IS NULL
+        ORDER BY loginAt DESC LIMIT 1`
+  ) as any;
+  const result = Array.isArray(rows[0]) ? rows[0] : rows;
+  if (result.length === 0) return false;
+  const row = result[0];
+  const lastActivity: Date = row.lastActiveAt
+    ? (row.lastActiveAt instanceof Date ? row.lastActiveAt : new Date(row.lastActiveAt))
+    : (row.loginAt instanceof Date ? row.loginAt : new Date(row.loginAt));
+  const inactiveDuration = Date.now() - lastActivity.getTime();
+  if (inactiveDuration > INACTIVITY_TIMEOUT_MS) {
+    // Stamp logoutAt
+    await db.execute(
+      sql`UPDATE loginHistory SET logoutAt = NOW() WHERE id = ${row.id}`
+    );
+    return true; // session expired
+  }
+  return false;
+}
+
+/**
+ * Stamp logoutAt on the most recent login record for a user
+ */
+export async function stampLogoutForUser(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  // Find the most recent login record that has not yet been logged out
+  const rows = await db.execute(
+    sql`SELECT id FROM loginHistory WHERE userId = ${userId} AND logoutAt IS NULL ORDER BY loginAt DESC LIMIT 1`
+  ) as any;
+  const result = Array.isArray(rows[0]) ? rows[0] : rows;
+  if (result.length === 0) return;
+  const id = result[0].id;
+  await db.execute(
+    sql`UPDATE loginHistory SET logoutAt = NOW() WHERE id = ${id}`
+  );
+}
+
+/**
+ * Get login history with duration info for the Login Tracking page
+ */
+export async function getLoginHistoryWithDuration(limit: number = 500): Promise<{
+  id: number;
+  userId: number;
+  username: string | null;
+  ipAddress: string | null;
+  loginMethod: string | null;
+  loginAt: Date;
+  logoutAt: Date | null;
+  tokenExpiresAt: Date | null;
+  lastActiveAt: Date | null;
+}[]> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.execute(
+    sql`SELECT id, userId, username, ipAddress, loginMethod, loginAt, logoutAt, tokenExpiresAt, lastActiveAt
+        FROM loginHistory
+        ORDER BY loginAt DESC
+        LIMIT ${limit}`
+  ) as any;
+  const result = Array.isArray(rows[0]) ? rows[0] : rows;
+  return result.map((r: any) => ({
+    id: r.id,
+    userId: r.userId,
+    username: r.username ?? null,
+    ipAddress: r.ipAddress ?? null,
+    loginMethod: r.loginMethod ?? null,
+    loginAt: r.loginAt instanceof Date ? r.loginAt : new Date(r.loginAt),
+    logoutAt: r.logoutAt ? (r.logoutAt instanceof Date ? r.logoutAt : new Date(r.logoutAt)) : null,
+    tokenExpiresAt: r.tokenExpiresAt ? (r.tokenExpiresAt instanceof Date ? r.tokenExpiresAt : new Date(r.tokenExpiresAt)) : null,
+    lastActiveAt: r.lastActiveAt ? (r.lastActiveAt instanceof Date ? r.lastActiveAt : new Date(r.lastActiveAt)) : null,
+  }));
+}
+
 // ============================================================================
 // Mapping Completeness Tracker
 // ============================================================================
