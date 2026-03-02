@@ -16,7 +16,10 @@ import {
   Building2,
   Layers,
   BookOpen,
-  GraduationCap
+  GraduationCap,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -52,15 +55,51 @@ export default function ViewerDashboard() {
 
   // Quick Jump search state
   const [programSearch, setProgramSearch] = useState('');
+
+  // Sort state
+  type SortKey = 'name' | 'college' | 'completeness' | 'updatedAt';
+  const [sortKey, setSortKey] = useState<SortKey>('name');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir('asc'); }
+  };
+
+  const SortIcon = ({ col }: { col: SortKey }) => {
+    if (sortKey !== col) return <ChevronsUpDown className="inline h-3 w-3 ml-1 text-gray-400" />;
+    return sortDir === 'asc'
+      ? <ChevronUp className="inline h-3 w-3 ml-1 text-[#8B1538]" />
+      : <ChevronDown className="inline h-3 w-3 ml-1 text-[#8B1538]" />;
+  };
+
   const filteredPrograms = useMemo(() => {
-    if (!programSearch.trim()) return allMyPrograms;
-    const q = programSearch.toLowerCase();
-    return allMyPrograms.filter(p =>
-      p.program.nameEn.toLowerCase().includes(q) ||
-      (p.program.code || '').toLowerCase().includes(q) ||
-      p.college.nameEn.toLowerCase().includes(q)
-    );
-  }, [allMyPrograms, programSearch]);
+    let list = allMyPrograms;
+    if (programSearch.trim()) {
+      const q = programSearch.toLowerCase();
+      list = list.filter(p =>
+        p.program.nameEn.toLowerCase().includes(q) ||
+        (p.program.code || '').toLowerCase().includes(q) ||
+        p.college.nameEn.toLowerCase().includes(q)
+      );
+    }
+    return [...list].sort((a, b) => {
+      let av: string | number = 0, bv: string | number = 0;
+      if (sortKey === 'name')        { av = a.program.nameEn; bv = b.program.nameEn; }
+      else if (sortKey === 'college') { av = a.college.nameEn; bv = b.college.nameEn; }
+      else if (sortKey === 'completeness') {
+        const ac = (a.ploCount || 0) > 0 ? Math.min(Math.round(((a.mappingCount || 0) / ((a.ploCount || 0) * 21)) * 100), 100) : 0;
+        const bc = (b.ploCount || 0) > 0 ? Math.min(Math.round(((b.mappingCount || 0) / ((b.ploCount || 0) * 21)) * 100), 100) : 0;
+        av = ac; bv = bc;
+      } else if (sortKey === 'updatedAt') {
+        av = a.program.updatedAt ? new Date(a.program.updatedAt).getTime() : 0;
+        bv = b.program.updatedAt ? new Date(b.program.updatedAt).getTime() : 0;
+      }
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [allMyPrograms, programSearch, sortKey, sortDir]);
 
   const stats = [
     {
@@ -261,12 +300,20 @@ export default function ViewerDashboard() {
                     <thead>
                       <tr className="border-b bg-gray-50">
                         <th className="text-left px-4 py-3 font-semibold text-gray-600">#</th>
-                        <th className="text-left px-4 py-3 font-semibold text-gray-600">Program</th>
-                        <th className="text-left px-4 py-3 font-semibold text-gray-600">College</th>
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('name')}>
+                          Program <SortIcon col="name" />
+                        </th>
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('college')}>
+                          College <SortIcon col="college" />
+                        </th>
                         <th className="text-right px-4 py-3 font-semibold text-gray-600">PLOs</th>
                         <th className="text-right px-4 py-3 font-semibold text-gray-600">Mappings</th>
-                        <th className="text-right px-4 py-3 font-semibold text-gray-600">Completeness</th>
-                        <th className="text-right px-4 py-3 font-semibold text-gray-600">Last Modified</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('completeness')}>
+                          Completeness <SortIcon col="completeness" />
+                        </th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600 cursor-pointer select-none hover:text-[#8B1538]" onClick={() => handleSort('updatedAt')}>
+                          Last Modified <SortIcon col="updatedAt" />
+                        </th>
                       </tr>
                     </thead>
                     <tbody>

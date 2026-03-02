@@ -713,3 +713,9 @@
 - [x] Add Completeness Threshold alert banner to Admin Dashboard (fetch threshold + programCompleteness, show warning when avg below threshold)
 - [x] Add Quick Jump search bar to Editor Dashboard Assigned Programs table
 - [x] Add Quick Jump search bar to Viewer Dashboard Assigned Programs table
+
+## Three New Features Sprint #2 (Mar 2, 2026)
+- [x] Add sortable column headers (Program, College, Completeness, Last Modified) to Assigned Programs table in Editor Dashboard
+- [x] Add sortable column headers (Program, College, Completeness, Last Modified) to Assigned Programs table in Viewer Dashboard
+- [x] Add Programs Below Threshold summary table to Admin Dashboard (below the alert banner, shows name, college, completeness %)
+- [x] Add Last Login summary view to Login Tracking page (per-user most-recent-login table alongside the event log)

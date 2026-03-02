@@ -43,8 +43,10 @@ export default function AdminDashboard() {
     const programsWithPLOs = completenessData.filter(p => !p.hasNoPLOs);
     if (programsWithPLOs.length === 0) return null;
     const avg = programsWithPLOs.reduce((sum, p) => sum + p.completenessRate, 0) / programsWithPLOs.length;
-    const belowThreshold = programsWithPLOs.filter(p => p.completenessRate < threshold);
-    return { avg: Math.round(avg), belowCount: belowThreshold.length, total: programsWithPLOs.length, threshold };
+    const belowThreshold = [...programsWithPLOs]
+      .filter(p => p.completenessRate < threshold)
+      .sort((a, b) => a.completenessRate - b.completenessRate);
+    return { avg: Math.round(avg), belowCount: belowThreshold.length, total: programsWithPLOs.length, threshold, belowPrograms: belowThreshold };
   }, [completenessData, threshold]);
 
   const logoutMutation = trpc.auth.logout.useMutation({
@@ -257,6 +259,71 @@ export default function AdminDashboard() {
               </p>
             </div>
           )
+        )}
+
+        {/* Programs Below Threshold Summary Table */}
+        {completenessAlert && completenessAlert.belowCount > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <TrendingDown className="h-5 w-5 text-amber-600" />
+                Programs Below {completenessAlert.threshold}% Threshold
+                <span className="ml-1 text-sm font-normal text-amber-700">({completenessAlert.belowCount} programs)</span>
+              </h2>
+              <Link href="/admin/data-validation">
+                <Button size="sm" variant="outline" className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
+                  View Full Report
+                </Button>
+              </Link>
+            </div>
+            <Card className="shadow-sm border-amber-200">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-amber-50">
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600">#</th>
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600">Program</th>
+                        <th className="text-left px-4 py-3 font-semibold text-gray-600">College</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">PLOs</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">Mapped</th>
+                        <th className="text-right px-4 py-3 font-semibold text-gray-600">Completeness</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {completenessAlert.belowPrograms.slice(0, 20).map((p, idx) => {
+                        const barColor = p.completenessRate >= 50 ? 'bg-yellow-400' : p.completenessRate >= 25 ? 'bg-orange-400' : 'bg-red-400';
+                        const textColor = p.completenessRate >= 50 ? 'text-yellow-700' : p.completenessRate >= 25 ? 'text-orange-700' : 'text-red-600';
+                        return (
+                          <tr key={p.programId} className="border-b hover:bg-amber-50/60 transition-colors">
+                            <td className="px-4 py-3 text-gray-400">{idx + 1}</td>
+                            <td className="px-4 py-3 font-medium text-[#8B1538]">{p.programName}</td>
+                            <td className="px-4 py-3 text-gray-600">{p.collegeName}</td>
+                            <td className="px-4 py-3 text-right text-gray-700">{p.totalPLOs}</td>
+                            <td className="px-4 py-3 text-right text-gray-700">{p.mappedPLOs}</td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <div className="w-20 bg-gray-200 rounded-full h-2">
+                                  <div className={`h-2 rounded-full ${barColor}`} style={{ width: `${p.completenessRate}%` }} />
+                                </div>
+                                <span className={`text-xs font-semibold ${textColor}`}>{p.completenessRate}%</span>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {completenessAlert.belowCount > 20 && (
+                    <div className="px-4 py-3 text-center text-sm text-gray-500 border-t">
+                      Showing 20 of {completenessAlert.belowCount} programs below threshold.{' '}
+                      <Link href="/admin/data-validation"><span className="text-[#8B1538] hover:underline cursor-pointer">View all in Data Quality</span></Link>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Statistics Cards */}

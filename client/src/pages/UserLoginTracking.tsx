@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Loader2, ArrowLeft, Activity, RefreshCw, Trash2, Info, Shield, Clock, Search } from 'lucide-react';
+import { Loader2, ArrowLeft, Activity, RefreshCw, Trash2, Info, Shield, Clock, Search, Users, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -35,6 +35,46 @@ export default function UserLoginTracking() {
 
   const utils = trpc.useUtils();
   const { data: loginHistory, isLoading, refetch } = trpc.auth.getLoginHistory.useQuery({ limit });
+  const { data: allUsers } = trpc.users.list.useQuery();
+
+  // Per-user last login summary (derived from users.lastSignedIn)
+  type UserSummarySortKey = 'username' | 'role' | 'lastLogin';
+  const [summarySortKey, setSummarySortKey] = useState<UserSummarySortKey>('lastLogin');
+  const [summarySortDir, setSummarySortDir] = useState<'asc' | 'desc'>('desc');
+  const [summarySearch, setSummarySearch] = useState('');
+
+  const handleSummarySort = (key: UserSummarySortKey) => {
+    if (summarySortKey === key) setSummarySortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSummarySortKey(key); setSummarySortDir(key === 'lastLogin' ? 'desc' : 'asc'); }
+  };
+
+  const SummarySortIcon = ({ col }: { col: UserSummarySortKey }) => {
+    if (summarySortKey !== col) return <ChevronsUpDown className="inline h-3 w-3 ml-1 text-gray-400" />;
+    return summarySortDir === 'asc'
+      ? <ChevronUp className="inline h-3 w-3 ml-1 text-[#8B1538]" />
+      : <ChevronDown className="inline h-3 w-3 ml-1 text-[#8B1538]" />;
+  };
+
+  const userSummaryRows = useMemo(() => {
+    if (!allUsers) return [];
+    let list = allUsers;
+    if (summarySearch.trim()) {
+      const q = summarySearch.toLowerCase();
+      list = list.filter(u => (u.username || '').toLowerCase().includes(q) || (u.role || '').toLowerCase().includes(q));
+    }
+    return [...list].sort((a, b) => {
+      let av: string | number = 0, bv: string | number = 0;
+      if (summarySortKey === 'username') { av = a.username || ''; bv = b.username || ''; }
+      else if (summarySortKey === 'role') { av = a.role || ''; bv = b.role || ''; }
+      else if (summarySortKey === 'lastLogin') {
+        av = a.lastSignedIn ? new Date(a.lastSignedIn).getTime() : 0;
+        bv = b.lastSignedIn ? new Date(b.lastSignedIn).getTime() : 0;
+      }
+      if (av < bv) return summarySortDir === 'asc' ? -1 : 1;
+      if (av > bv) return summarySortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [allUsers, summarySearch, summarySortKey, summarySortDir]);
 
   const deleteByIds = trpc.auth.deleteLoginHistoryByIds.useMutation({
     onSuccess: (data) => {
@@ -227,6 +267,97 @@ export default function UserLoginTracking() {
             </Button>
           </div>
         </div>
+
+        {/* Per-User Last Login Summary */}
+        <Card className="mb-6 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Users className="h-5 w-5 text-[#8B1538]" />
+                Last Login per User
+                {allUsers && (
+                  <Badge variant="secondary" className="ml-2">{allUsers.length} users</Badge>
+                )}
+              </CardTitle>
+              <div className="relative w-56">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Filter by username or role…"
+                  value={summarySearch}
+                  onChange={e => setSummarySearch(e.target.value)}
+                  className="pl-8 h-9"
+                />
+              </div>
+            </div>
+            <CardDescription>Most recent login timestamp for each registered user, sorted by recency. Click column headers to sort.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50">
+                    <TableHead className="w-10 pl-4">#</TableHead>
+                    <TableHead
+                      className="cursor-pointer select-none hover:text-[#8B1538]"
+                      onClick={() => handleSummarySort('username')}
+                    >
+                      Username <SummarySortIcon col="username" />
+                    </TableHead>
+                    <TableHead
+                      className="cursor-pointer select-none hover:text-[#8B1538]"
+                      onClick={() => handleSummarySort('role')}
+                    >
+                      Role <SummarySortIcon col="role" />
+                    </TableHead>
+                    <TableHead
+                      className="cursor-pointer select-none hover:text-[#8B1538]"
+                      onClick={() => handleSummarySort('lastLogin')}
+                    >
+                      Last Login <SummarySortIcon col="lastLogin" />
+                    </TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {userSummaryRows.map((u, idx) => {
+                    const lastLogin = u.lastSignedIn ? new Date(u.lastSignedIn) : null;
+                    const now = Date.now();
+                    const diffDays = lastLogin ? Math.floor((now - lastLogin.getTime()) / 86400000) : null;
+                    const statusLabel = diffDays === null ? 'Never' : diffDays === 0 ? 'Today' : diffDays === 1 ? 'Yesterday' : `${diffDays}d ago`;
+                    const statusColor = diffDays === null ? 'bg-gray-100 text-gray-600' : diffDays <= 1 ? 'bg-green-100 text-green-800' : diffDays <= 7 ? 'bg-blue-100 text-blue-800' : diffDays <= 30 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-700';
+                    const roleColor = u.role === 'admin' ? 'bg-purple-100 text-purple-800' : u.role === 'editor' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700';
+                    return (
+                      <TableRow key={u.id}>
+                        <TableCell className="pl-4 text-gray-400">{idx + 1}</TableCell>
+                        <TableCell className="font-medium">{u.username}</TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${roleColor}`}>
+                            {u.role}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-sm tabular-nums">
+                          {lastLogin ? format(lastLogin, 'MMM dd, yyyy HH:mm') : <span className="text-gray-400 italic">Never</span>}
+                        </TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
+                            {statusLabel}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {userSummaryRows.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                        {summarySearch ? `No users match "${summarySearch}".` : 'No users found.'}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Table */}
         <Card>
