@@ -730,3 +730,8 @@
 ## Session Warning & Login History Drawer Sprint
 - [x] Add 5-minute countdown warning banner before session expiry with "Stay logged in" button
 - [x] Add Login History detail drawer per user on Login Tracking page
+
+## Mapping Guide Page
+- [x] Create MappingGuide.tsx page with written guide and YouTube video popup
+- [x] Add Mapping Guide button to ProgramDetail header
+- [x] Register /programs/guide route in App.tsx

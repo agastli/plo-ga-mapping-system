@@ -18,7 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Edit2, Save, X, Download, ChevronDown, Home, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, Edit2, Save, X, Download, ChevronDown, Home, Trash2, Plus, BookOpen } from "lucide-react";
 import HelpTooltip from "@/components/HelpTooltip";
 import PLOBulkImport from "@/components/PLOBulkImport";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -222,6 +222,12 @@ export default function ProgramDetail() {
               <Button variant="ghost" className="text-[#8B1538] hover:bg-[#8B1538]/10" onClick={() => window.history.back()}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
+              </Button>
+              <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
+                <Link href="/programs/guide">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Mapping Guide
+                </Link>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

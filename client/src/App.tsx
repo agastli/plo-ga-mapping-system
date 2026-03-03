@@ -21,6 +21,7 @@ import Analytics from "./pages/Analytics";
 import CollegeAnalytics from "./pages/CollegeAnalytics";
 import DepartmentAnalytics from "./pages/DepartmentAnalytics";
 import AnalyticsGuide from "./pages/AnalyticsGuide";
+import MappingGuide from "./pages/MappingGuide";
 import GAAnalytics from "./pages/GAAnalytics";
 import GAAnalyticsGuide from "./pages/GAAnalyticsGuide";
 import CompetencyAnalytics from "./pages/CompetencyAnalytics";
@@ -82,6 +83,7 @@ function Router() {
       <Route path={"/programs"} component={Programs} />
       <Route path={"/programs/new"} component={AddProgram} />
       <Route path={"/programs/delete"} component={DeleteProgram} />
+      <Route path={"/programs/guide"} component={MappingGuide} />
       <Route path={"/programs/:id"} component={ProgramDetail} />
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/dashboard"} component={Dashboard} />
