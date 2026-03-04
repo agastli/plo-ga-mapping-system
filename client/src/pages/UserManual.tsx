@@ -381,11 +381,13 @@ export default function UserManual() {
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" asChild className="border-gray-400 text-gray-600 hover:bg-gray-50">
-                  <Link href={dashboardPath}>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back
-                  </Link>
+                <Button
+                  variant="outline"
+                  className="border-gray-400 text-gray-600 hover:bg-gray-50"
+                  onClick={() => window.history.back()}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
                 </Button>
                 <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
                   <Link href="/">
