@@ -23,11 +23,18 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   }
 };
 
+const isUnauthorizedError = (error: unknown) => {
+  if (!(error instanceof TRPCClientError)) return false;
+  return error.message === UNAUTHED_ERR_MSG || (error.data as any)?.code === 'UNAUTHORIZED' || (error.data as any)?.code === 'FORBIDDEN';
+};
+
 queryClient.getQueryCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.query.state.error;
     redirectToLoginIfUnauthorized(error);
-    console.error("[API Query Error]", error);
+    if (!isUnauthorizedError(error)) {
+      console.error("[API Query Error]", error);
+    }
   }
 });
 
@@ -35,7 +42,9 @@ queryClient.getMutationCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.mutation.state.error;
     redirectToLoginIfUnauthorized(error);
-    console.error("[API Mutation Error]", error);
+    if (!isUnauthorizedError(error)) {
+      console.error("[API Mutation Error]", error);
+    }
   }
 });
 
