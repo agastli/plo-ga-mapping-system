@@ -188,26 +188,6 @@ export default function Programs() {
                   </Select>
                 </div>
 
-                {/* Department Filter - shown when a college is selected */}
-                {selectedCollegeId && departmentsForFilter.length > 0 && (
-                  <div className="flex-shrink-0 md:w-64">
-                    <label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
-                      🏢 Filter by Department
-                    </label>
-                    <Select value={selectedDepartmentId} onValueChange={setSelectedDepartmentId}>
-                      <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
-                        <SelectValue placeholder="All departments" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departmentsForFilter.map((dept: any) => (
-                          <SelectItem key={dept.id} value={dept.id.toString()}>
-                            {dept.nameEn}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
                 {/* Cluster Filter - Only show if selected college has clusters */}
                 {hasCluster && (
                   <div className="flex-shrink-0 md:w-64">
@@ -222,6 +202,26 @@ export default function Programs() {
                         {clusters.map((cluster: any) => (
                           <SelectItem key={cluster.id} value={cluster.id.toString()}>
                             {cluster.nameEn}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {/* Department Filter - shown when a college is selected */}
+                {selectedCollegeId && departmentsForFilter.length > 0 && (
+                  <div className="flex-shrink-0 md:w-64">
+                    <label className="text-sm font-medium text-slate-700 mb-2 block flex items-center gap-2">
+                      🏢 Filter by Department
+                    </label>
+                    <Select value={selectedDepartmentId} onValueChange={setSelectedDepartmentId}>
+                      <SelectTrigger className="border-[#8B1538]/20 focus:ring-[#8B1538]">
+                        <SelectValue placeholder="All departments" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departmentsForFilter.map((dept: any) => (
+                          <SelectItem key={dept.id} value={dept.id.toString()}>
+                            {dept.nameEn}
                           </SelectItem>
                         ))}
                       </SelectContent>

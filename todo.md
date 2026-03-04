@@ -766,3 +766,6 @@
 
 ## Bug Fix: Editor Dashboard Access Card (Mar 4, 2026)
 - [x] Fix Editor Dashboard "College Access" card showing only one college when multiple are assigned (also fixed ViewerDashboard — both now show all assigned colleges as pill badges)
+
+## Programs Directory Filter Order Fix (Mar 4, 2026)
+- [x] Reorder filters on Programs page: College → Cluster → Department → Search (was College → Department → Cluster → Search)
