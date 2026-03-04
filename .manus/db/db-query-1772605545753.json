@@ -1,0 +1,36 @@
+{
+  "query": "SHOW CREATE TABLE userAssignments;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 582RunNG3RGjvE7.85f193ee7630 --database DF8hhJErzDeZBFGeijL5fW --execute SHOW CREATE TABLE userAssignments;",
+  "rows": [
+    {
+      "Table": "userAssignments",
+      "Create Table": "CREATE TABLE `userAssignments` ("
+    }
+  ],
+  "messages": [
+    "  `id` int NOT NULL AUTO_INCREMENT,",
+    "  `userId` int NOT NULL,",
+    "  `assignmentType` enum('university','college','cluster','department','program') COLLATE utf8mb4_unicode_ci NOT NULL,",
+    "  `collegeId` int DEFAULT NULL,",
+    "  `clusterId` int DEFAULT NULL,",
+    "  `departmentId` int DEFAULT NULL,",
+    "  `programId` int DEFAULT NULL,",
+    "  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,",
+    "  KEY `userAssignments_userId_users_id_fk` (`userId`),",
+    "  KEY `userAssignments_collegeId_colleges_id_fk` (`collegeId`),",
+    "  KEY `userAssignments_clusterId_clusters_id_fk` (`clusterId`),",
+    "  KEY `userAssignments_departmentId_departments_id_fk` (`departmentId`),",
+    "  KEY `userAssignments_programId_programs_id_fk` (`programId`),",
+    "  CONSTRAINT `userAssignments_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,",
+    "  CONSTRAINT `userAssignments_collegeId_colleges_id_fk` FOREIGN KEY (`collegeId`) REFERENCES `colleges` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,",
+    "  CONSTRAINT `userAssignments_clusterId_clusters_id_fk` FOREIGN KEY (`clusterId`) REFERENCES `clusters` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,",
+    "  CONSTRAINT `userAssignments_departmentId_departments_id_fk` FOREIGN KEY (`departmentId`) REFERENCES `departments` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,",
+    "  CONSTRAINT `userAssignments_programId_programs_id_fk` FOREIGN KEY (`programId`) REFERENCES `programs` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+  ],
+  "stdout": "Table\tCreate Table\nuserAssignments\tCREATE TABLE `userAssignments` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `userId` int NOT NULL,\n  `assignmentType` enum('university','college','cluster','department','program') COLLATE utf8mb4_unicode_ci NOT NULL,\n  `collegeId` int DEFAULT NULL,\n  `clusterId` int DEFAULT NULL,\n  `departmentId` int DEFAULT NULL,\n  `programId` int DEFAULT NULL,\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,\n  KEY `userAssignments_userId_users_id_fk` (`userId`),\n  KEY `userAssignments_collegeId_colleges_id_fk` (`collegeId`),\n  KEY `userAssignments_clusterId_clusters_id_fk` (`clusterId`),\n  KEY `userAssignments_departmentId_departments_id_fk` (`departmentId`),\n  KEY `userAssignments_programId_programs_id_fk` (`programId`),\n  CONSTRAINT `userAssignments_userId_users_id_fk` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,\n  CONSTRAINT `userAssignments_collegeId_colleges_id_fk` FOREIGN KEY (`collegeId`) REFERENCES `colleges` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,\n  CONSTRAINT `userAssignments_clusterId_clusters_id_fk` FOREIGN KEY (`clusterId`) REFERENCES `clusters` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,\n  CONSTRAINT `userAssignments_departmentId_departments_id_fk` FOREIGN KEY (`departmentId`) REFERENCES `departments` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,\n  CONSTRAINT `userAssignments_programId_programs_id_fk` FOREIGN KEY (`programId`) REFERENCES `programs` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\n",
+  "stderr": "",
+  "execution_time_ms": 1583
+}

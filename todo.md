@@ -763,3 +763,6 @@
 ## Bug Fixes (Mar 4, 2026)
 - [x] Fix VPS login failure: isActive column missing from users table on VPS database (provide SQL migration)
 - [x] Fix duplicate key error when assigning a second college or program to a user (add duplicate check in createUserAssignment)
+
+## Bug Fix: Editor Dashboard Access Card (Mar 4, 2026)
+- [x] Fix Editor Dashboard "College Access" card showing only one college when multiple are assigned (also fixed ViewerDashboard — both now show all assigned colleges as pill badges)

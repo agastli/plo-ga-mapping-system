@@ -188,14 +188,26 @@ export default function EditorDashboard() {
 
         {/* Access Scope Badge */}
         {accessScope && (
-          <div className={`flex items-center gap-4 p-4 rounded-lg border-l-4 ${scopeInfo.bg} ${scopeInfo.border} shadow-sm`}>
-            <div className="p-3 rounded-full bg-white shadow-sm">
-              <ScopeIcon className={`h-6 w-6 ${scopeInfo.color}`} />
-            </div>
-            <div>
-              <p className={`text-xs font-semibold uppercase tracking-wide ${scopeInfo.color} opacity-70`}>{scopeInfo.title}</p>
-              <p className={`text-base font-bold ${scopeInfo.color}`}>{accessScope.label}</p>
-              <p className="text-xs text-gray-500 mt-0.5">You can edit mappings and analytics within this scope.</p>
+          <div className={`p-4 rounded-lg border-l-4 ${scopeInfo.bg} ${scopeInfo.border} shadow-sm`}>
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-full bg-white shadow-sm flex-shrink-0">
+                <ScopeIcon className={`h-6 w-6 ${scopeInfo.color}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-xs font-semibold uppercase tracking-wide ${scopeInfo.color} opacity-70 mb-1.5`}>{scopeInfo.title}</p>
+                {(accessScope as any).allLabels && (accessScope as any).allLabels.length > 1 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {((accessScope as any).allLabels as { scope: string; label: string; entityId: number | null }[]).map((item, i) => (
+                      <span key={i} className={`inline-block text-sm font-semibold ${scopeInfo.color} bg-white rounded-full px-3 py-0.5 shadow-sm border border-opacity-30`} style={{ borderColor: 'currentColor' }}>
+                        {item.label}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={`text-base font-bold ${scopeInfo.color}`}>{accessScope.label}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-1.5">You can edit mappings and analytics within these scopes.</p>
+              </div>
             </div>
           </div>
         )}

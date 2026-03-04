@@ -488,53 +488,71 @@ export const appRouter = router({
 
     getMyAccessScope: protectedProcedure.query(async ({ ctx }) => {
       // Admins always have university-wide scope
-      if (ctx.user.role === 'admin') return { scope: 'university' as const, label: 'Qatar University (All)', entityId: null as number | null };
-      // For viewers/editors, return the broadest assignment type they have
+      if (ctx.user.role === 'admin') return {
+        scope: 'university' as const,
+        label: 'Qatar University (All)',
+        entityId: null as number | null,
+        allLabels: [{ scope: 'university' as const, label: 'Qatar University (All)', entityId: null as number | null }],
+      };
+      // For viewers/editors, return all assignments with resolved names
       const assignments = await db.getUserAssignments(ctx.user.id);
-      if (assignments.length === 0) return { scope: 'program' as const, label: 'No assignments', entityId: null as number | null };
+      if (assignments.length === 0) return {
+        scope: 'program' as const,
+        label: 'No assignments',
+        entityId: null as number | null,
+        allLabels: [] as { scope: string; label: string; entityId: number | null }[],
+      };
       const scopePriority = ['university', 'college', 'cluster', 'department', 'program'] as const;
+      // Resolve names for ALL assignments
+      const allLabels: { scope: string; label: string; entityId: number | null }[] = [];
+      try {
+        const dbConn = await db.getDb();
+        const { colleges: collegesTable, clusters: clustersTable, departments: depsTable, programs: progsTable } = await import('../drizzle/schema.js');
+        const { eq } = await import('drizzle-orm');
+        for (const a of assignments) {
+          let label: string = a.assignmentType;
+          let entityId: number | null = null;
+          if (a.assignmentType === 'university') {
+            label = 'Qatar University (All)';
+          } else if (a.assignmentType === 'college' && a.collegeId && dbConn) {
+            const [c] = await dbConn.select({ nameEn: collegesTable.nameEn }).from(collegesTable).where(eq(collegesTable.id, a.collegeId));
+            if (c) label = c.nameEn;
+            entityId = a.collegeId;
+          } else if (a.assignmentType === 'cluster' && a.clusterId && dbConn) {
+            const [c] = await dbConn.select({ nameEn: clustersTable.nameEn }).from(clustersTable).where(eq(clustersTable.id, a.clusterId));
+            if (c) label = c.nameEn;
+            entityId = a.clusterId;
+          } else if (a.assignmentType === 'department' && a.departmentId && dbConn) {
+            const [d] = await dbConn.select({ nameEn: depsTable.nameEn }).from(depsTable).where(eq(depsTable.id, a.departmentId));
+            if (d) label = d.nameEn;
+            entityId = a.departmentId;
+          } else if (a.assignmentType === 'program' && a.programId && dbConn) {
+            const [p] = await dbConn.select({ nameEn: progsTable.nameEn }).from(progsTable).where(eq(progsTable.id, a.programId));
+            if (p) label = p.nameEn;
+            entityId = a.programId;
+          }
+          allLabels.push({ scope: a.assignmentType, label, entityId });
+        }
+      } catch {}
+      // Also determine the broadest scope for backward-compat
       let broadestAssignment = assignments[0];
       for (const a of assignments) {
         const idx = scopePriority.indexOf(a.assignmentType as any);
         if (idx < scopePriority.indexOf(broadestAssignment.assignmentType as any)) broadestAssignment = a;
       }
-      // Get the entity name for the broadest assignment
-      let label: string = broadestAssignment.assignmentType;
-      try {
-        const dbConn = await db.getDb();
-        if (dbConn) {
-          if (broadestAssignment.assignmentType === 'university') {
-            label = 'Qatar University (All)';
-          } else if (broadestAssignment.assignmentType === 'college' && broadestAssignment.collegeId) {
-            const { colleges: collegesTable } = await import('../drizzle/schema.js');
-            const { eq } = await import('drizzle-orm');
-            const [c] = await dbConn.select({ nameEn: collegesTable.nameEn }).from(collegesTable).where(eq(collegesTable.id, broadestAssignment.collegeId));
-            if (c) label = c.nameEn;
-          } else if (broadestAssignment.assignmentType === 'cluster' && broadestAssignment.clusterId) {
-            const { clusters: clustersTable } = await import('../drizzle/schema.js');
-            const { eq } = await import('drizzle-orm');
-            const [c] = await dbConn.select({ nameEn: clustersTable.nameEn }).from(clustersTable).where(eq(clustersTable.id, broadestAssignment.clusterId));
-            if (c) label = c.nameEn;
-          } else if (broadestAssignment.assignmentType === 'department' && broadestAssignment.departmentId) {
-            const { departments: depsTable } = await import('../drizzle/schema.js');
-            const { eq } = await import('drizzle-orm');
-            const [d] = await dbConn.select({ nameEn: depsTable.nameEn }).from(depsTable).where(eq(depsTable.id, broadestAssignment.departmentId));
-            if (d) label = d.nameEn;
-          } else if (broadestAssignment.assignmentType === 'program' && broadestAssignment.programId) {
-            const { programs: progsTable } = await import('../drizzle/schema.js');
-            const { eq } = await import('drizzle-orm');
-            const [p] = await dbConn.select({ nameEn: progsTable.nameEn }).from(progsTable).where(eq(progsTable.id, broadestAssignment.programId));
-            if (p) label = p.nameEn;
-          }
-        }
-      } catch {}
+      const broadestLabel = allLabels.find(l => l.entityId === (
+        broadestAssignment.assignmentType === 'college' ? broadestAssignment.collegeId :
+        broadestAssignment.assignmentType === 'cluster' ? broadestAssignment.clusterId :
+        broadestAssignment.assignmentType === 'department' ? broadestAssignment.departmentId :
+        broadestAssignment.assignmentType === 'program' ? broadestAssignment.programId : null
+      ))?.label ?? broadestAssignment.assignmentType;
       const entityId: number | null =
         broadestAssignment.assignmentType === 'college' ? (broadestAssignment.collegeId ?? null) :
         broadestAssignment.assignmentType === 'cluster' ? (broadestAssignment.clusterId ?? null) :
         broadestAssignment.assignmentType === 'department' ? (broadestAssignment.departmentId ?? null) :
         broadestAssignment.assignmentType === 'program' ? (broadestAssignment.programId ?? null) :
         null;
-      return { scope: broadestAssignment.assignmentType as typeof scopePriority[number], label, entityId };
+      return { scope: broadestAssignment.assignmentType as typeof scopePriority[number], label: broadestLabel, entityId, allLabels };
     }),
     
     update: adminProcedure
