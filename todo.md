@@ -756,3 +756,10 @@
 - [x] Add breadcrumb to ProgramBrowser
 - [x] Add breadcrumb to ForgotPassword page (skipped — auth-flow centered card, no header)
 - [x] Add breadcrumb to RecoverUsername page (skipped — auth-flow centered card, no header)
+
+## Bug Fix: Duplicate Assignment Error (Mar 4, 2026)
+- [x] Fix createAssignment failing with duplicate key error when assigning a second college or program to a user
+
+## Bug Fixes (Mar 4, 2026)
+- [x] Fix VPS login failure: isActive column missing from users table on VPS database (provide SQL migration)
+- [x] Fix duplicate key error when assigning a second college or program to a user (add duplicate check in createUserAssignment)

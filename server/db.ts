@@ -2227,7 +2227,20 @@ export async function updateUserRole(userId: number, role: 'admin' | 'viewer' | 
 export async function createUserAssignment(assignment: InsertUserAssignment): Promise<number> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-
+  // Check for an existing identical assignment to avoid duplicate key errors
+  const conditions = [
+    eq(userAssignments.userId, assignment.userId),
+    eq(userAssignments.assignmentType, assignment.assignmentType),
+  ];
+  if (assignment.collegeId != null) conditions.push(eq(userAssignments.collegeId, assignment.collegeId));
+  if (assignment.clusterId != null) conditions.push(eq(userAssignments.clusterId, assignment.clusterId));
+  if (assignment.departmentId != null) conditions.push(eq(userAssignments.departmentId, assignment.departmentId));
+  if (assignment.programId != null) conditions.push(eq(userAssignments.programId, assignment.programId));
+  const existing = await db.select({ id: userAssignments.id }).from(userAssignments).where(and(...conditions)).limit(1);
+  if (existing.length > 0) {
+    // Already exists — return the existing id without inserting a duplicate
+    return existing[0].id;
+  }
   const result = await db.insert(userAssignments).values(assignment);
   return result[0].insertId;
 }
