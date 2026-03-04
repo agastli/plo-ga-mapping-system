@@ -5,33 +5,14 @@ import Breadcrumb from "@/components/Breadcrumb";
 import PageFooter from "@/components/PageFooter";
 import { BookOpen, Download, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 // Inline the manual content so it works in production without a file server
 const MANUAL_CONTENT = `# PLO-GA Mapping Management System — User Manual
 
 **Qatar University | Academic Planning & Quality Assurance**
 Version 1.0 — February 2026
-
----
-
-## Table of Contents
-
-1. [Introduction](#1-introduction)
-2. [Getting Started](#2-getting-started)
-3. [Dashboards](#3-dashboards)
-4. [Programs Management](#4-programs-management)
-5. [PLO Management](#5-plo-management)
-6. [PLO-to-GA Mapping](#6-plo-to-ga-mapping)
-7. [Mapping Completeness Tracker](#7-mapping-completeness-tracker)
-8. [Mapping Audit Log](#8-mapping-audit-log-change-history)
-9. [Analytics Dashboards](#9-analytics-dashboards)
-10. [Admin Tools](#10-admin-tools)
-11. [User Profile](#11-user-profile)
-12. [Email Notifications](#12-email-notifications)
-13. [Database Backup](#13-database-backup)
-14. [Roles and Permissions Reference](#14-roles-and-permissions-reference)
-15. [Glossary](#15-glossary)
 
 ---
 
@@ -381,7 +362,10 @@ export default function UserManual() {
     printWindow.document.close();
   };
 
-  const [, goBack] = useLocation();
+  const { user } = useAuth();
+  const role = user?.role ?? "viewer";
+  const dashboardPath = role === "admin" ? "/admin" : role === "editor" ? "/editor" : "/viewer";
+
   return (
     <div className="min-h-screen bg-amber-50 flex flex-col">
       {/* Standard QU Header */}
@@ -398,10 +382,10 @@ export default function UserManual() {
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" asChild className="border-gray-400 text-gray-600 hover:bg-gray-50">
-                  <a href="javascript:history.back()">
+                  <Link href={dashboardPath}>
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
-                  </a>
+                  </Link>
                 </Button>
                 <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
                   <Link href="/">
