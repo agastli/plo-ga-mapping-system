@@ -249,39 +249,27 @@ Copy the output and paste it as the value of `JWT_SECRET` in `.env`.
 
 ---
 
-## 8. Database Setup and Migrations
+## 8. Database Setup — Import Seed File
 
-Run the Drizzle ORM migrations to create all database tables:
-
-```bash
-pnpm db:push
-```
-
-Expected output:
-
-```
-[✓] Migrations applied successfully
-```
-
-This command runs `drizzle-kit generate && drizzle-kit migrate` and creates all 14 tables in the `plo_ga_mapping` database.
-
-Verify the tables were created:
+The repository includes a full production database dump at `database/plo_ga_mapping_seed.sql`. Importing this file is the recommended approach for all fresh installations — it creates the complete schema and populates every table with production data (programs, PLOs, mappings, Graduate Attributes, competencies, and user accounts) in a single step.
 
 ```bash
-mysql -u plo_user -p plo_ga_mapping -e "SHOW TABLES;"
+mysql -u root -p plo_ga_mapping < database/plo_ga_mapping_seed.sql
 ```
 
-Expected output should list: `auditLog`, `clusters`, `colleges`, `competencies`, `departments`, `graduateattributes`, `justifications`, `loginHistory`, `mappings`, `plos`, `programs`, `reportTemplates`, `userAssignments`, `users`.
+After a successful import, skip `pnpm db:push` and the admin account creation script — both are already handled by the seed file.
 
-Create the first administrator account:
+Verify the import:
 
 ```bash
-node scripts/create-admin-user.mjs
+mysql -u root -p plo_ga_mapping -e "SHOW TABLES;"
 ```
 
-Follow the prompts to set the admin username, email, and password.
+Expected output lists: `auditLog`, `clusters`, `colleges`, `competencies`, `departments`, `graduateattributes`, `justifications`, `loginHistory`, `mappings`, `plos`, `programs`, `reportTemplates`, `systemSettings`, `userAssignments`, `users`, `__drizzle_migrations`.
 
-> **Known Issue:** If the script fails with `Cannot find module`, ensure you are in the project root directory and have run `pnpm install` first.
+> **Alternative — empty schema only:** If you prefer a completely blank database (no data), run `pnpm db:push` instead, then create the first admin account with `node scripts/create-admin-user.mjs`.
+
+> **Updating the seed file:** When a new production export is available, rename it to `plo_ga_mapping_seed.sql`, replace the existing file in the `database/` directory, and commit it to the repository. See `database/README.md` for the full naming convention.
 
 ---
 

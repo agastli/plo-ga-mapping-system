@@ -131,19 +131,20 @@ mysql -u root -p -e "CREATE DATABASE plo_ga_mapping CHARACTER SET utf8mb4 COLLAT
 
 Create a `.env` file in the project root. See [`docs/ENVIRONMENT_VARIABLES.md`](docs/ENVIRONMENT_VARIABLES.md) for the complete template and description of all variables.
 
-**6. Run database migrations:**
+**6. Import the seed database:**
 
 ```bash
-pnpm db:push
+mysql -u root -p plo_ga_mapping < database/plo_ga_mapping_seed.sql
 ```
 
-**7. Create the first admin account:**
+This imports the full schema and all production data in one step. Skip `pnpm db:push` and the admin account creation script — both are already handled by the seed file.
 
-```bash
-node scripts/create-admin-user.mjs
-```
+> **Fresh install with no data:** If you prefer an empty database, run `pnpm db:push` instead and then create the first admin account:
+> ```bash
+> node scripts/create-admin-user.mjs
+> ```
 
-**8. Start the development server:**
+**7. Start the development server:**
 
 ```bash
 pnpm dev

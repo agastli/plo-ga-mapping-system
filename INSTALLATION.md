@@ -209,41 +209,38 @@ TiDB Cloud:
 DATABASE_URL=mysql://user.root:password@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/plo_ga_mapping?ssl={"rejectUnauthorized":true}
 ```
 
-### Step 3: Run Database Migrations
+### Step 3: Import the Seed Database
 
-Initialize the database schema:
-
-```bash
-pnpm db:push
-```
-
-This command will:
-1. Read the schema from `drizzle/schema.ts`
-2. Generate SQL migration files in `drizzle/` directory
-3. Execute the migrations to create all necessary tables
-
-**Tables created:**
-- `users` - User accounts
-- `colleges` - Academic colleges
-- `departments` - Academic departments
-- `programs` - Academic programs
-- `graduateAttributes` - 5 Graduate Attributes
-- `competencies` - 21 Competencies
-- `plos` - Program Learning Outcomes
-- `mappings` - PLO-to-Competency weight mappings
-- `justifications` - Competency justifications
-- `auditLog` - Change tracking
-- `reportTemplates` - Custom export templates
-
-### Step 4: Seed Initial Data (Graduate Attributes & Competencies)
-
-The system requires 5 Graduate Attributes and 21 Competencies to be pre-populated. Run:
+The repository includes a full production database dump at `database/plo_ga_mapping_seed.sql`. Importing this file is the recommended way to set up the database — it creates all tables and populates them with the complete organisational structure, Graduate Attributes, competencies, programs, PLOs, mappings, and user accounts.
 
 ```bash
-node scripts/seed-ga-competencies.js
+mysql -u root -p plo_ga_mapping < database/plo_ga_mapping_seed.sql
 ```
 
-If this script doesn't exist, you can manually insert the data using the SQL scripts in `drizzle/seed/` directory, or use the web interface to add them after starting the application.
+This single command replaces both the schema migration step (`pnpm db:push`) and any manual seeding. After a successful import, skip directly to [Environment Configuration](#environment-configuration).
+
+**Tables created and populated:**
+- `users` — User accounts (with bcrypt-hashed passwords)
+- `colleges` — Academic colleges
+- `clusters` — College clusters (e.g., CAS sub-clusters)
+- `departments` — Academic departments
+- `programs` — Academic programs
+- `graduateAttributes` — 5 QU Graduate Attributes
+- `competencies` — 21 competencies
+- `plos` — Program Learning Outcomes
+- `mappings` — PLO-to-competency weight mappings
+- `justifications` — Mapping justification texts
+- `userAssignments` — User-to-program/college/department assignments
+- `auditLog` — Change tracking
+- `loginHistory` — Login session records
+- `reportTemplates` — Custom export templates
+- `systemSettings` — System configuration
+
+> **Note:** If you are setting up a completely fresh installation with no prior data, you may alternatively run `pnpm db:push` to create an empty schema and then create the first admin account with `node scripts/create-admin-user.mjs`.
+
+### Step 4: Keeping the Seed File Up to Date
+
+Whenever a new production export is available, export the database from phpMyAdmin (or `mysqldump`), rename the file to `plo_ga_mapping_seed.sql`, replace the existing file in the `database/` directory, and commit it to the repository. See `database/README.md` for the full naming convention.
 
 ---
 
