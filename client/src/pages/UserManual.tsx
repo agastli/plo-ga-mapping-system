@@ -320,13 +320,65 @@ export default function UserManual() {
   }, []);
 
   const downloadManual = () => {
-    const blob = new Blob([MANUAL_CONTENT], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "PLO-GA_User_Manual.md";
-    a.click();
-    URL.revokeObjectURL(url);
+    const contentEl = document.getElementById('manual-content');
+    const printWindow = window.open('', '_blank');
+    if (!printWindow || !contentEl) return;
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PLO-GA Mapping System \u2014 User Manual</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', Arial, sans-serif; font-size: 11pt; line-height: 1.65; color: #1a1a1a; background: #fff; }
+    .cover { background: #8B1538; color: #fff; padding: 56px 48px 48px; }
+    .cover .org { font-size: 12pt; opacity: 0.85; margin-bottom: 10px; letter-spacing: 0.03em; }
+    .cover h1 { font-size: 26pt; font-weight: 700; margin-bottom: 8px; }
+    .cover .meta { font-size: 10pt; opacity: 0.7; margin-top: 18px; }
+    .content { padding: 36px 48px 56px; max-width: 860px; margin: 0 auto; }
+    h1 { font-size: 18pt; font-weight: 700; color: #8B1538; margin: 36px 0 12px; border-bottom: 2px solid #8B1538; padding-bottom: 6px; }
+    h2 { font-size: 14pt; font-weight: 700; color: #8B1538; margin: 28px 0 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+    h3 { font-size: 11.5pt; font-weight: 600; color: #374151; margin: 18px 0 7px; }
+    p { margin: 8px 0; text-align: justify; }
+    ul, ol { margin: 8px 0 8px 26px; }
+    li { margin: 4px 0; }
+    strong { font-weight: 600; }
+    em { font-style: italic; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 10pt; }
+    th { background: #8B1538; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; border: 1px solid #6B1028; }
+    td { padding: 7px 12px; border: 1px solid #e5e7eb; }
+    tr:nth-child(even) td { background: #fdf8f8; }
+    blockquote { border-left: 4px solid #8B1538; background: #fef9f0; padding: 10px 16px; margin: 14px 0; border-radius: 0 4px 4px 0; }
+    code { background: #f3f4f6; padding: 2px 5px; border-radius: 3px; font-size: 9pt; font-family: 'Courier New', monospace; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 14px 18px; border-radius: 6px; overflow-x: auto; margin: 14px 0; }
+    pre code { background: none; padding: 0; font-size: 9pt; }
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+    .footer { background: #f9fafb; border-top: 2px solid #8B1538; padding: 14px 48px; text-align: center; font-size: 9pt; color: #6b7280; margin-top: 40px; }
+    @media print {
+      body { font-size: 10pt; }
+      .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      tr:nth-child(even) td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      blockquote { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      h1, h2, h3 { page-break-after: avoid; }
+      table, blockquote, pre { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cover">
+    <div class="org">Qatar University | Academic Planning &amp; Quality Assurance</div>
+    <h1>PLO-GA Mapping System<br/>User Manual</h1>
+    <div class="meta">Version 1.0 \u2014 February 2026</div>
+  </div>
+  <div class="content">${contentEl.innerHTML}</div>
+  <div class="footer">PLO-GA Mapping Management System \u2014 Qatar University \u2014 Academic Planning &amp; Quality Assurance Office</div>
+  <script>window.onload = function() { window.print(); }<\/script>
+</body>
+</html>`;
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   const [, goBack] = useLocation();
@@ -417,7 +469,7 @@ export default function UserManual() {
 
           {/* Manual content */}
           <main className="flex-1 min-w-0">
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 sm:p-10 prose prose-sm max-w-none
+            <div id="manual-content" className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 sm:p-10 prose prose-sm max-w-none
               prose-headings:text-[#8B1538] prose-headings:font-bold
               prose-h1:text-2xl prose-h2:text-xl prose-h2:border-b prose-h2:border-gray-200 prose-h2:pb-2 prose-h2:mt-8
               prose-h3:text-base prose-h3:text-gray-800

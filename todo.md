@@ -769,3 +769,7 @@
 
 ## Programs Directory Filter Order Fix (Mar 4, 2026)
 - [x] Reorder filters on Programs page: College → Cluster → Department → Search (was College → Department → Cluster → Search)
+
+## User Manual Content Formatting (Mar 4, 2026)
+- [x] Register @tailwindcss/typography plugin in index.css (Tailwind v4 @plugin directive) — prose classes now render headings, lists, tables, blockquotes correctly
+- [x] Fix User Manual Download button: replaced Markdown download with browser print-to-PDF (styled print stylesheet with maroon cover page, formatted sections)
