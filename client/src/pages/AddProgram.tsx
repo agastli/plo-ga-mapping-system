@@ -326,11 +326,13 @@ export default function AddProgram() {
                     Home
                   </Link>
                 </Button>
-                <Button variant="ghost" asChild className="text-[#8B1538] hover:bg-[#8B1538]/10">
-                  <Link href="/programs">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Programs
-                  </Link>
+                <Button
+                  variant="ghost"
+                  className="text-[#8B1538] hover:bg-[#8B1538]/10"
+                  onClick={() => window.history.back()}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
                 </Button>
               </div>
             </div>

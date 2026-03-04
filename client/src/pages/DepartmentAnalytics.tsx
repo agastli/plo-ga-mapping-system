@@ -116,10 +116,10 @@ export default function DepartmentAnalytics() {
         <Button
           variant="ghost"
           className="mb-4"
-          onClick={() => setLocation("/analytics")}
+          onClick={() => window.history.back()}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to University Overview
+          Back
         </Button>
         <div className="flex justify-between items-start">
           <div>

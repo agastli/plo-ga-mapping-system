@@ -113,11 +113,13 @@ export default function DeleteProgram() {
                     Home
                   </Link>
                 </Button>
-                <Button variant="outline" asChild className="border-slate-400 text-slate-600 hover:bg-slate-50">
-                  <Link href="/admin">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Admin
-                  </Link>
+                <Button
+                  variant="outline"
+                  className="border-slate-400 text-slate-600 hover:bg-slate-50"
+                  onClick={() => window.history.back()}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
                 </Button>
               </div>
             </div>

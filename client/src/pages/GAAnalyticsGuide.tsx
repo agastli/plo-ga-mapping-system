@@ -26,11 +26,11 @@ export default function GAAnalyticsGuide() {
             Home
           </button>
           <button
-            onClick={() => setLocation("/analytics/ga")}
+            onClick={() => window.history.back()}
             className="bg-[#A91D3A] text-white px-4 py-2 rounded hover:bg-[#8B1538] transition-colors flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to GA Analytics
+            Back
           </button>
         </div>
       </div>

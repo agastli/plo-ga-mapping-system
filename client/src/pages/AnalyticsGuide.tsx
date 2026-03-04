@@ -27,10 +27,10 @@ export default function AnalyticsGuide() {
             Home
           </button>
           <button
-            onClick={() => setLocation("/analytics")}
+            onClick={() => window.history.back()}
             className="bg-[#8B1538] text-white px-4 py-2 rounded hover:bg-[#6B1028] transition-colors"
           >
-            Back to Analytics
+            Back
           </button>
         </div>
       </div>
@@ -54,10 +54,10 @@ export default function AnalyticsGuide() {
           <Button
             variant="ghost"
             className="mb-4"
-            onClick={() => setLocation("/analytics")}
+            onClick={() => window.history.back()}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Analytics Dashboard
+            Back
           </Button>
           <h1 className="text-4xl font-bold text-[#8B1538] mb-2">Analytics Guide</h1>
           <p className="text-lg text-muted-foreground">
