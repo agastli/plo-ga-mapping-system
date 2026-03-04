@@ -745,3 +745,14 @@
 - [x] Add Activate/Deactivate toggle button to user cards in UserManagement.tsx
 - [x] Add red "Deactivated" badge to user card title for inactive accounts
 - [x] Write vitest tests for toggleActive (4 tests: deactivate, activate, self-block, non-admin)
+
+## Breadcrumb Navigation & User Manual Redesign (Mar 4, 2026)
+- [x] Redesign UserManual.tsx with standard QU header/footer, Back/Home buttons, icons, and proper formatting
+- [x] Add breadcrumb to AdminDashboard
+- [x] Add breadcrumb to EditorDashboard
+- [x] Add breadcrumb to ViewerDashboard
+- [x] Add breadcrumb to Programs (Programs Directory)
+- [x] Add breadcrumb to Upload page
+- [x] Add breadcrumb to ProgramBrowser
+- [x] Add breadcrumb to ForgotPassword page (skipped — auth-flow centered card, no header)
+- [x] Add breadcrumb to RecoverUsername page (skipped — auth-flow centered card, no header)

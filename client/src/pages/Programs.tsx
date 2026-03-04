@@ -6,6 +6,7 @@ import { ArrowLeft, Search, BookOpen, GraduationCap, Home, Plus, FileText, X, Gr
 import { Link, useLocation, useSearch } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState, useEffect } from "react";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function Programs() {
   const [, setLocation] = useLocation();
@@ -142,6 +143,9 @@ export default function Programs() {
       </header>
       </div>
 
+      <div className="container mx-auto px-4 pb-1 max-w-7xl">
+        <Breadcrumb items={[{ label: "Programs Directory" }]} />
+      </div>
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Programs Directory</h1>
         <p className="text-gray-700 mb-4">

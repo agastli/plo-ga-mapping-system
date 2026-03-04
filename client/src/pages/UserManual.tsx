@@ -3,8 +3,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Breadcrumb from "@/components/Breadcrumb";
 import PageFooter from "@/components/PageFooter";
-import { BookOpen, Download, ChevronRight } from "lucide-react";
+import { BookOpen, Download, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link, useLocation } from "wouter";
 
 // Inline the manual content so it works in production without a file server
 const MANUAL_CONTENT = `# PLO-GA Mapping Management System — User Manual
@@ -328,35 +329,68 @@ export default function UserManual() {
     URL.revokeObjectURL(url);
   };
 
+  const [, goBack] = useLocation();
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="container mx-auto max-w-7xl px-4 py-6 flex-grow">
-        <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "User Manual" }]} />
-
-        {/* Page header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-[#8B1538] flex items-center gap-2">
-              <BookOpen className="h-6 w-6" />
-              User Manual
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Complete guide to all features of the PLO-GA Mapping Management System.
-              Use the table of contents on the left to jump to any section, or scroll through the full document.
-              Download the manual as a Markdown file to keep an offline copy.
-            </p>
+    <div className="min-h-screen bg-amber-50 flex flex-col">
+      {/* Standard QU Header */}
+      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+        <header className="bg-white rounded-lg shadow-md mb-4">
+          <div className="px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <img src="/qu-logo.png" alt="Qatar University" className="h-16 w-auto" />
+                <div className="border-l-2 border-[#8B1538] pl-4">
+                  <h1 className="text-2xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
+                  <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" asChild className="border-gray-400 text-gray-600 hover:bg-gray-50">
+                  <a href="javascript:history.back()">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                  </a>
+                </Button>
+                <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">
+                  <Link href="/">
+                    <Home className="mr-2 h-4 w-4" />
+                    Home
+                  </Link>
+                </Button>
+                <Button
+                  onClick={downloadManual}
+                  className="bg-[#8B1538] hover:bg-[#6B1028] text-white"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Manual
+                </Button>
+              </div>
+            </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={downloadManual}
-            className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538] hover:text-white flex-shrink-0"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download Manual
-          </Button>
+        </header>
+      </div>
+      {/* Breadcrumb */}
+      <div className="container mx-auto px-4 pb-2 max-w-7xl">
+        <Breadcrumb items={[{ label: "User Manual" }]} />
+      </div>
+      {/* Page title card */}
+      <div className="container mx-auto px-4 pb-4 max-w-7xl">
+        <div className="bg-white border-l-4 border-[#8B1538] rounded-lg shadow-sm p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="p-3 rounded-full bg-[#8B1538]/10">
+              <BookOpen className="h-7 w-7 text-[#8B1538]" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-[#8B1538]">User Manual</h2>
+              <p className="text-sm text-gray-600 mt-0.5">
+                Complete guide to all features of the PLO-GA Mapping Management System.
+                Use the table of contents on the left to jump to any section, or scroll through the full document.
+              </p>
+            </div>
+          </div>
         </div>
-
+      </div>
+      <div className="container mx-auto px-4 max-w-7xl flex-grow">
         <div className="flex gap-8">
           {/* Sticky sidebar TOC */}
           <aside className="hidden lg:block w-56 flex-shrink-0">

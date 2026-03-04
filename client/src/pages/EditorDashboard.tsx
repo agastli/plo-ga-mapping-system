@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "wouter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function EditorDashboard() {
   const [, setLocation] = useLocation();
@@ -174,6 +175,9 @@ export default function EditorDashboard() {
             </div>
           </div>
         </header>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 pb-1">
+        <Breadcrumb items={[{ label: "Editor Dashboard" }]} />
       </div>
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Dashboard Title and Welcome */}

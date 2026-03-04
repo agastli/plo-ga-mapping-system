@@ -22,6 +22,7 @@ import {
   ChevronsUpDown
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function ViewerDashboard() {
   const [, setLocation] = useLocation();
@@ -173,6 +174,9 @@ export default function ViewerDashboard() {
             </div>
           </div>
         </header>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 pb-1">
+        <Breadcrumb items={[{ label: "Viewer Dashboard" }]} />
       </div>
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Dashboard Title and Welcome */}

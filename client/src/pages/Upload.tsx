@@ -9,6 +9,7 @@ import { ArrowLeft, Upload as UploadIcon, FileText, CheckCircle2, AlertCircle } 
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function Upload() {
   const [selectedCollege, setSelectedCollege] = useState<string>("");
@@ -149,6 +150,9 @@ export default function Upload() {
       </header>
       </div>
 
+      <div className="container mx-auto px-4 pb-1 max-w-6xl">
+        <Breadcrumb items={[{ label: "Upload Document" }]} />
+      </div>
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         <h1 className="text-3xl font-bold mb-2 text-[#8B1538]">Upload Mapping Document</h1>
         <p className="text-gray-700 mb-8">

@@ -25,6 +25,7 @@ import {
   Download
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import Breadcrumb from "@/components/Breadcrumb";
 
 function exportBelowThresholdCSV(programs: { programName: string; collegeName: string; totalPLOs: number; mappedPLOs: number; completenessRate: number }[], threshold: number) {
   const header = ['#', 'Program', 'College', 'Total PLOs', 'Mapped PLOs', 'Completeness (%)'];
@@ -227,6 +228,9 @@ export default function AdminDashboard() {
         </header>
       </div>
 
+      <div className="container mx-auto px-4 pb-1 max-w-7xl">
+        <Breadcrumb items={[{ label: "Admin Dashboard" }]} />
+      </div>
       <div className="container mx-auto px-4 py-8 space-y-8 max-w-7xl">
         {/* Intro Panel */}
         <div className="bg-white border-l-4 border-[#8B1538] rounded-lg shadow-sm p-5">

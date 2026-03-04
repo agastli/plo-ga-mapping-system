@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function ProgramBrowser() {
   const [, setLocation] = useLocation();
@@ -119,6 +120,9 @@ export default function ProgramBrowser() {
         </header>
       </div>
       
+      <div className="max-w-7xl mx-auto px-4 pb-1">
+        <Breadcrumb items={[{ label: "Browse Programs" }]} />
+      </div>
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Page Title */}
         <div className="mb-6">
