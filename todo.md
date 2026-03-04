@@ -735,3 +735,13 @@
 - [x] Create MappingGuide.tsx page with written guide and YouTube video popup
 - [x] Add Mapping Guide button to ProgramDetail header
 - [x] Register /programs/guide route in App.tsx
+
+## Deactivate Account Feature (Mar 4, 2026)
+- [x] Add `isActive` boolean column to users table in schema (drizzle/schema.ts)
+- [x] Run db:push to migrate isActive column to database
+- [x] Implement `toggleUserActive(userId, isActive)` helper in server/db.ts
+- [x] Add `users.toggleActive` tRPC mutation (admin-only, blocks self-deactivation)
+- [x] Block deactivated users from logging in (server/auth.ts)
+- [x] Add Activate/Deactivate toggle button to user cards in UserManagement.tsx
+- [x] Add red "Deactivated" badge to user card title for inactive accounts
+- [x] Write vitest tests for toggleActive (4 tests: deactivate, activate, self-block, non-admin)

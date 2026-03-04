@@ -127,7 +127,18 @@ export const appRouter = router({
         // authenticateUser is now imported at the top
         const { createPasswordSession } = await import('./_core/passwordAuth.js');
         
-        const user = await authenticateUser(input.username, input.password);
+        let user;
+        try {
+          user = await authenticateUser(input.username, input.password);
+        } catch (authErr: any) {
+          if (authErr.message === 'ACCOUNT_DISABLED') {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: 'Your account has been deactivated. Please contact the administrator.',
+            });
+          }
+          throw authErr;
+        }
         
         if (!user) {
           throw new Error('Invalid username or password');
@@ -382,6 +393,27 @@ export const appRouter = router({
         return { success: true };
       }),
     
+    toggleActive: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        isActive: z.boolean(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Prevent admin from deactivating their own account
+        if (input.userId === ctx.user.id) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'You cannot deactivate your own account.' });
+        }
+        await db.toggleUserActive(input.userId, input.isActive);
+        await db.logAudit({
+          userId: ctx.user.id,
+          action: 'update',
+          entityType: 'user',
+          entityId: input.userId,
+          details: JSON.stringify({ isActive: input.isActive }),
+        });
+        return { success: true };
+      }),
+
     createAssignment: adminProcedure
       .input(z.object({
         userId: z.number(),

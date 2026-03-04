@@ -2163,6 +2163,18 @@ export async function getAllUsers(): Promise<(User & { assignments: UserAssignme
 }
 
 /**
+ * Toggle user active/inactive status
+ */
+export async function toggleUserActive(userId: number, isActive: boolean): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  await db
+    .update(users)
+    .set({ isActive, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+}
+
+/**
  * Get user by ID with assignments
  */
 export async function getUserById(userId: number): Promise<(User & { assignments: UserAssignment[] }) | null> {

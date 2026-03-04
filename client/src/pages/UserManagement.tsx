@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Trash2, Shield, Eye, EyeOff, Edit, LogOut, Edit2, Home, Search, X } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Shield, Eye, EyeOff, Edit, LogOut, Edit2, Home, Search, X, Ban, CheckCircle } from 'lucide-react';
 import Breadcrumb from '@/components/Breadcrumb';
 import { useLocation } from 'wouter';
 
@@ -87,6 +87,16 @@ export default function UserManagement() {
   );
 
   // Mutations
+  const toggleActiveMutation = trpc.users.toggleActive.useMutation({
+    onSuccess: (_data, variables) => {
+      toast.success(variables.isActive ? 'Account activated successfully.' : 'Account deactivated successfully.');
+      refetchUsers();
+    },
+    onError: (err) => {
+      toast.error(err.message || 'Failed to update account status.');
+    },
+  });
+
   const updateRoleMutation = trpc.users.updateRole.useMutation({
     onSuccess: (_data, variables) => {
       const roleLabel = variables.role.charAt(0).toUpperCase() + variables.role.slice(1);
@@ -465,6 +475,12 @@ export default function UserManagement() {
                       {getRoleIcon(user.role)}
                       {user.role}
                     </Badge>
+                    {!user.isActive && (
+                      <Badge variant="destructive" className="flex items-center gap-1">
+                        <Ban className="h-3 w-3" />
+                        Deactivated
+                      </Badge>
+                    )}
                   </CardTitle>
                   <CardDescription>
                     {user.email || 'No email'} • Joined {new Date(user.createdAt).toLocaleDateString()}
@@ -495,6 +511,19 @@ export default function UserManagement() {
                   >
                     <Edit2 className="h-4 w-4 mr-1" />
                     Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={user.isActive ? 'outline' : 'secondary'}
+                    onClick={() => toggleActiveMutation.mutate({ userId: user.id, isActive: !user.isActive })}
+                    disabled={user.id === currentUser?.id || toggleActiveMutation.isPending}
+                    title={user.isActive ? 'Deactivate this account' : 'Activate this account'}
+                  >
+                    {user.isActive ? (
+                      <><Ban className="h-4 w-4 mr-1 text-amber-500" />Deactivate</>
+                    ) : (
+                      <><CheckCircle className="h-4 w-4 mr-1 text-green-500" />Activate</>
+                    )}
                   </Button>
                   <Button
                     size="sm"

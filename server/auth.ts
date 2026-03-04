@@ -38,6 +38,11 @@ export async function authenticateUser(username: string, password: string): Prom
     return null;
   }
 
+  // Block deactivated accounts before checking password
+  if (!user.isActive) {
+    throw new Error('ACCOUNT_DISABLED');
+  }
+
   // Verify password
   const isValid = await verifyPassword(password, user.password);
   if (!isValid) {
