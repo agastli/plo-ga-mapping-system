@@ -957,3 +957,64 @@ PLO2,Apply critical thinking,تطبيق التفكير النقدي
 - Only `code` is required; `description_en` and `description_ar` are optional.
 - Duplicate PLO codes (already existing in the program) are skipped silently.
 - A downloadable CSV template is available inside the import panel.
+
+---
+
+## 24. Upgrading from v1.0.0 to v1.1.0
+
+Version 1.1.0 introduces two database schema changes that require manual SQL migrations on the VPS **before** pulling and rebuilding the application. The standard `pnpm db:push` command cannot apply these changes to an already-running production database without the manual steps below.
+
+### Step 1 — Apply the manual SQL migrations
+
+Connect to the MySQL database on the VPS and run the following two statements:
+
+```sql
+-- 1. Add the isActive column to the users table (required for the Deactivate Account feature)
+ALTER TABLE users ADD COLUMN isActive TINYINT(1) NOT NULL DEFAULT 1;
+
+-- 2. Drop the unique constraint on userAssignments (required to allow multiple assignments per user)
+ALTER TABLE userAssignments DROP INDEX unique_user_assignment;
+```
+
+> **Why manual?** Drizzle ORM's `db:push` command is designed for fresh schema creation. On a live production database it will not drop an existing unique index or add a column that already exists, so these two changes must be applied by hand exactly once.
+
+To connect to MySQL on the VPS:
+
+```bash
+mysql -u root -p plo_ga_mapping
+```
+
+Paste the two `ALTER TABLE` statements above, then type `EXIT;`.
+
+### Step 2 — Deploy the new code
+
+After the SQL migrations are applied, follow the standard update procedure:
+
+```bash
+cd /home/agastli/htdocs/plo-ga.gastli.org
+
+git pull origin main
+pnpm install
+pnpm db:push
+rm -rf dist/ node_modules/.vite
+pnpm run build
+pm2 restart plo-ga-mapping-system
+pm2 logs plo-ga-mapping-system --lines 20
+```
+
+### Step 3 — Verify the deployment
+
+After restarting, confirm the following in the browser:
+
+| Check | Expected result |
+|---|---|
+| Login page | Loads without errors |
+| Admin → User Management | Activate/Deactivate button visible on each user card |
+| Assigning a second college to a user | No duplicate-key error |
+| User Manual page | Sidebar ToC visible; no duplicate ToC in main content |
+| Back buttons on all pages | Returns to the actual previous page |
+
+---
+
+*Last updated: March 2026*
+*Version: 1.1.0*
