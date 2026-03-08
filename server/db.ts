@@ -605,7 +605,7 @@ export async function getCompetencyTotalWeight(
     .reduce((sum, r) => sum + (typeof r.weight === 'string' ? parseFloat(r.weight) : Number(r.weight)), 0);
 }
 
-export async function upsertMapping(ploId: number, competencyId: number, weight: string) {
+export async function upsertMapping(ploId: number, competencyId: number, weight: string, justification?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -618,11 +618,18 @@ export async function upsertMapping(ploId: number, competencyId: number, weight:
   // The frontend shows a warning badge when the total exceeds 100%,
   // but never blocks the user from adjusting weights.
 
+  const insertValues: any = { ploId, competencyId, weight };
+  const updateValues: any = { weight, updatedAt: new Date() };
+  if (justification !== undefined && justification.trim() !== "") {
+    insertValues.justification = justification.trim();
+    updateValues.justification = justification.trim();
+  }
+
   await db
     .insert(mappings)
-    .values({ ploId, competencyId, weight })
+    .values(insertValues)
     .onDuplicateKeyUpdate({
-      set: { weight, updatedAt: new Date() },
+      set: updateValues,
     });
 }
 

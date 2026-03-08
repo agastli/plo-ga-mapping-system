@@ -153,7 +153,7 @@ function ReviewItemCard({
   weightsSaved: string[];
   onAccept: (code: string, justification: string) => void;
   onReject: (code: string) => void;
-  onApplyWeights: (code: string, weights: { ploCode: string; weight: number }[]) => Promise<void>;
+  onApplyWeights: (code: string, weights: { ploCode: string; weight: number }[], justification: string) => Promise<void>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [editedJustification, setEditedJustification] = useState(
@@ -175,10 +175,8 @@ function ReviewItemCard({
     item.mappingVerdict !== "Missing" &&
     item.mappingVerdict !== "Strong";
 
-  const showWeightEditor = item.currentMappedPLOs.length > 0 && (
-    item.recommendedAction === "Revise Weight" ||
-    item.suggestedWeightAdjustment !== null
-  );
+  // Always show weight editor when there are mapped PLOs
+  const showWeightEditor = item.currentMappedPLOs.length > 0;
 
   // Compute current weight sum from edited values
   const editedWeightSum = Object.values(editedWeights).reduce((s, v) => {
@@ -195,7 +193,7 @@ function ReviewItemCard({
     }));
     setSavingWeights(true);
     try {
-      await onApplyWeights(item.competencyCode, weights);
+      await onApplyWeights(item.competencyCode, weights, editedJustification);
     } finally {
       setSavingWeights(false);
     }
@@ -290,18 +288,19 @@ function ReviewItemCard({
             </div>
           </div>
 
-          {/* Inline weight editor */}
+          {/* Inline weight + justification editor */}
           {showWeightEditor && (
-            <div className="rounded bg-amber-50 border border-amber-200 p-3">
-              <p className="text-xs font-semibold text-amber-700 mb-2 flex items-center gap-1">
-                <Scale className="w-3 h-3" /> Edit Weights Inline
+            <div className="rounded bg-amber-50 border border-amber-200 p-3 space-y-3">
+              <p className="text-xs font-semibold text-amber-700 flex items-center gap-1">
+                <Scale className="w-3 h-3" /> Edit Weights &amp; Justification
               </p>
               {item.suggestedWeightAdjustment && (
-                <p className="text-xs text-amber-700 mb-2 italic">
-                  AI suggestion: {item.suggestedWeightAdjustment}
+                <p className="text-xs text-amber-700 italic">
+                  AI weight suggestion: {item.suggestedWeightAdjustment}
                 </p>
               )}
-              <div className="flex flex-wrap gap-3 mb-2">
+              {/* Weight inputs */}
+              <div className="flex flex-wrap gap-3">
                 {item.currentMappedPLOs.map((m) => (
                   <div key={m.ploCode} className="flex items-center gap-1.5">
                     <span className="text-xs font-mono font-semibold text-gray-700 w-12">{m.ploCode}</span>
@@ -323,23 +322,41 @@ function ReviewItemCard({
                   {weightSumValid ? " ✓" : " ✗ (must be 0 or 1)"}
                 </div>
               </div>
-              <Button
-                size="sm"
-                disabled={!weightSumValid || savingWeights || isWeightSaved}
-                onClick={handleSaveWeights}
-                className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
-              >
-                {savingWeights ? (
-                  <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Saving…</>
-                ) : isWeightSaved ? (
-                  <><CheckCircle className="w-3 h-3 mr-1" /> Weights Saved</>
-                ) : (
-                  <><Scale className="w-3 h-3 mr-1" /> Apply Weights to Database</>
-                )}
-              </Button>
-              <p className="text-xs text-amber-600 mt-1">
-                Weight sum must equal exactly 1.0 (or 0 if removing all mappings). Changes are written directly to the database.
-              </p>
+              {/* Justification editor */}
+              <div>
+                <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1">
+                  <Brain className="w-3 h-3" /> Justification
+                </p>
+                <Textarea
+                  value={editedJustification}
+                  onChange={(e) => setEditedJustification(e.target.value)}
+                  rows={4}
+                  className="text-sm bg-white border-amber-200"
+                  placeholder="Enter or edit the justification for this mapping. It should reference each PLO by code, explain its contribution to the competency, and justify the assigned weights."
+                />
+                <p className="text-xs text-amber-600 mt-1">
+                  The justification must be consistent with the weights above. Reference each PLO by code and explain why the weight is proportional to its contribution.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  size="sm"
+                  disabled={!weightSumValid || savingWeights || isWeightSaved}
+                  onClick={handleSaveWeights}
+                  className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
+                >
+                  {savingWeights ? (
+                    <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Saving…</>
+                  ) : isWeightSaved ? (
+                    <><CheckCircle className="w-3 h-3 mr-1" /> Saved</>
+                  ) : (
+                    <><Scale className="w-3 h-3 mr-1" /> Apply Weights &amp; Justification</>  
+                  )}
+                </Button>
+                <p className="text-xs text-amber-600">
+                  Weight sum must equal exactly 1.0 (or 0 to remove all mappings).
+                </p>
+              </div>
             </div>
           )}
 
@@ -540,7 +557,7 @@ export default function AIReview() {
     }
   };
 
-  const handleApplyWeights = async (code: string, weights: { ploCode: string; weight: number }[]) => {
+  const handleApplyWeights = async (code: string, weights: { ploCode: string; weight: number }[], justification: string) => {
     if (!savedReviewId) {
       toast.error("Please run the review first before applying weights.");
       return;
@@ -551,9 +568,10 @@ export default function AIReview() {
         programId,
         competencyCode: code,
         weights,
+        justification: justification.trim() || undefined,
       });
       setWeightsSaved(prev => [...prev.filter(c => c !== code), code]);
-      toast.success(`Weights for ${code} updated in database.`);
+      toast.success(`Weights & justification for ${code} updated in database.`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to apply weights.";
       toast.error(msg);

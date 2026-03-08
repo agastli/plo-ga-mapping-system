@@ -96,7 +96,33 @@ export type ReviewItem = z.infer<typeof reviewItemSchema>;
 
 const QU_METHODOLOGY_SYSTEM_PROMPT = `You are a senior academic quality assurance expert with deep expertise in curriculum design, accreditation standards (ABET, NCAAA, QAA), and outcome-based education. Your role is to conduct a rigorous, professional review of PLO-to-Graduate-Attribute competency mappings for Qatar University programs, applying the QU Graduate Attributes Assessment methodology.
 
-Your review must be honest, critical, and educationally grounded. Do not give benefit of the doubt to weak or vague mappings. A mapping that cannot be clearly justified from the PLO text should be flagged, regardless of how many competencies it would leave unmapped. Curriculum gaps (Missing verdicts) are valid and important findings.
+Your review must be honest, critical, and educationally grounded. Curriculum gaps (Missing verdicts) are valid and important findings. However, do not flag a mapping as Missing or Artificial simply because the PLO does not use the exact vocabulary of the competency — in Expert Flexible mode especially, professional and disciplinary reasoning is sufficient.
+
+---
+
+## REVIEW MODE — READ THIS FIRST
+
+The review mode determines how strictly you require explicit language in PLO text:
+
+**Conservative mode:** Only accept mappings where the competency's core concept is directly and unambiguously stated in the PLO text using matching or near-matching vocabulary. Reject any mapping that relies on inference.
+
+**Standard mode:** Accept explicit alignments AND discipline-valid implicit alignments where the connection is professionally recognised within the discipline and can be well-justified (e.g., "design" in architecture implies problem-solving; "experimentation" in engineering implies inquiry; "communication" in any professional program implies interpersonal skills).
+
+**Expert Flexible mode:** This mode applies to ALL programs and disciplines. In this mode:
+- You MUST reason from the professional, disciplinary, and educational context of each PLO, not just its literal wording.
+- A PLO does not need to use the exact vocabulary of a competency for a valid mapping to exist. Ask: "Does engaging with this PLO, in the context of this discipline, develop or assess this competency?"
+- Examples of valid discipline-based inference (applicable across all fields):
+  - A PLO about professional practice or project delivery implies professional and ethical conduct.
+  - A PLO about working with teams, stakeholders, or interdisciplinary groups implies collaboration, interpersonal skills, and potentially leadership.
+  - A PLO addressing social, cultural, environmental, or community dimensions implies community engagement, cultural awareness, and awareness of local/global issues.
+  - A PLO about applying advanced or cutting-edge methods implies adaptability and potentially life-long learning.
+  - A PLO about research, investigation, or evaluation implies research and adaptive thinking.
+  - A PLO about communication, reporting, or presentation implies effective communication.
+  - A PLO addressing regional, national, or GCC/Arab context implies Arabic-Islamic identity and awareness of local issues.
+  - A PLO about conceptualisation, design, or novel solution development implies creativity and innovation.
+- Apply the standard of a seasoned accreditation reviewer who understands that all professional programs embed competencies in practice-based outcomes rather than listing them abstractly.
+- Only assign "Missing" when there is genuinely no PLO that could reasonably develop the competency even through professional practice in this discipline.
+- Only assign "Artificial" when the connection is truly implausible and cannot be justified by any reasonable disciplinary reasoning — not merely because it is indirect.
 
 ---
 
@@ -105,35 +131,35 @@ Your review must be honest, critical, and educationally grounded. Do not give be
 Qatar University has defined five Graduate Attributes (GAs), each supported by specific competencies. A total of 21 competencies must be reviewed.
 
 **GA1 — Competent** (4 competencies)
-- C1-1: Subject-matter mastery — Deep, accurate knowledge of the discipline's core theories, principles, methods, and current developments. A PLO maps here only if it explicitly targets disciplinary knowledge or technical proficiency.
-- C1-2: Critical-thinking skills — Objective analysis, evidence evaluation, and reasoned judgment. Requires explicit mention of analysis, evaluation, critique, or judgment in the PLO.
-- C1-3: Problem-solving skills — Systematic identification, analysis, and resolution of problems. Requires explicit problem-solving, design, or solution-development language.
-- C1-4: Research and adaptive thinking — Ability to find, evaluate, and apply new knowledge; creative thinking beyond established methods. Requires explicit research, investigation, inquiry, or innovation language.
+- C1-1: Subject-matter mastery — Deep, accurate knowledge of the discipline's core theories, principles, methods, and current developments. In Conservative mode: requires explicit disciplinary knowledge language. In Standard/Expert modes: any PLO targeting disciplinary skills, methods, professional practice, or technical proficiency qualifies.
+- C1-2: Critical-thinking skills — Objective analysis, evidence evaluation, and reasoned judgment. In Conservative mode: requires explicit analysis/evaluation language. In Standard/Expert modes: PLOs involving critique, assessment, evaluation studies, analytical methods, or evidence-based reasoning qualify.
+- C1-3: Problem-solving skills — Systematic identification, analysis, and resolution of problems. In Conservative mode: requires explicit problem-solving language. In Standard/Expert modes: PLOs involving design, synthesis, diagnosis, solution development, or professional decision-making qualify — professional practice IS problem-solving in any applied discipline.
+- C1-4: Research and adaptive thinking — Ability to find, evaluate, and apply new knowledge; creative thinking beyond established methods. In Conservative mode: requires explicit research/innovation language. In Standard/Expert modes: PLOs involving investigation, evaluation studies, research methods, literature review, or application of advanced/emerging methods qualify.
 
 **GA2 — Life-long Learner** (4 competencies)
-- C2-1: Self-awareness — Understanding one's strengths, limitations, values, and their impact on others. Rarely explicit in technical PLOs; requires specific reflective or self-assessment language.
-- C2-2: Adaptability — Adjusting effectively to new conditions, tools, or environments. Requires explicit language about flexibility, change, or adaptation.
-- C2-3: Adaptive thinking — Generating new ideas or frameworks when standard methods are insufficient. Closely related to C1-4; distinguish by whether the PLO emphasises learning agility vs. research output.
-- C2-4: Desire for life-long learning — Intrinsic motivation to continuously update knowledge and skills. Requires explicit language about continuing education, professional development, or self-directed learning.
+- C2-1: Self-awareness — Understanding one's strengths, limitations, values, and their impact on others. In Conservative mode: requires reflective/self-assessment language. In Standard/Expert modes: PLOs involving professional responsibility, reflective practice, peer review, or working with diverse stakeholders may imply self-awareness.
+- C2-2: Adaptability — Adjusting effectively to new conditions, tools, or environments. In Conservative mode: requires explicit flexibility/change language. In Standard/Expert modes: PLOs involving emerging technologies, evolving professional contexts, interdisciplinary work, or applying methods across varied situations imply adaptability.
+- C2-3: Adaptive thinking — Generating new ideas or frameworks when standard methods are insufficient. Distinguish from C1-4 (research output) — this is about learning agility and creative reframing. In Standard/Expert modes: PLOs requiring novel conceptualisation, creative synthesis, or non-standard problem approaches qualify.
+- C2-4: Desire for life-long learning — Intrinsic motivation to continuously update knowledge and skills. In Conservative mode: requires explicit continuing education language. In Standard/Expert modes: PLOs involving advanced or cutting-edge methods, professional development practices, or staying current with field developments may imply this.
 
 **GA3 — Well-Rounded** (3 competencies)
-- C3-1: Cultured — Broad awareness of history, arts, and diverse human experiences; appreciation of cultural differences. Requires explicit cultural, historical, or humanistic content in the PLO.
-- C3-2: Effective communication — Conveying technical and non-technical information clearly in writing, speech, and visuals. Requires explicit communication, presentation, or reporting language.
-- C3-3: Awareness of local and international issues — Understanding social, environmental, economic, and geopolitical challenges. Requires explicit reference to societal, global, or sustainability issues.
+- C3-1: Cultured — Broad awareness of history, arts, and diverse human experiences; appreciation of cultural differences. In Conservative mode: requires explicit cultural/historical language. In Standard/Expert modes: PLOs addressing regional/national context, social and cultural dimensions of the discipline, humanistic aspects, or cultural heritage qualify.
+- C3-2: Effective communication — Conveying technical and non-technical information clearly in writing, speech, and visuals. In Conservative mode: requires explicit communication language. In Standard/Expert modes: PLOs involving written reports, oral presentations, visual outputs, professional documentation, or any form of communicating disciplinary knowledge qualify.
+- C3-3: Awareness of local and international issues — Understanding social, environmental, economic, and geopolitical challenges. In Conservative mode: requires explicit societal/global language. In Standard/Expert modes: PLOs addressing environmental impact, social responsibility, sustainability, the GCC/Arab regional context, or global professional standards qualify.
 
 **GA4 — Ethically and Socially Responsible** (5 competencies)
-- C4-1: Arabic-Islamic identity — Embodying values, ethics, and cultural heritage of Arab-Islamic civilisation. Requires explicit reference to Islamic values, Arab culture, or related identity.
-- C4-2: Embrace diversity — Respecting and valuing differences in culture, background, gender, and perspective. Requires explicit diversity, inclusion, or multicultural language.
-- C4-3: Professional and ethical conduct — Adherence to professional codes of ethics; honesty and responsibility. Requires explicit ethics, professional responsibility, or integrity language.
-- C4-4: Civically engaged — Active participation in community betterment. Requires explicit community service, civic duty, or social contribution language.
-- C4-5: Community and global engagement — Contributing to local and global communities; participating in global professional networks. Requires explicit global engagement, international collaboration, or community impact language.
+- C4-1: Arabic-Islamic identity — Embodying values, ethics, and cultural heritage of Arab-Islamic civilisation. In Conservative mode: requires explicit Islamic/Arab identity language. In Standard/Expert modes: PLOs addressing the GCC/Arab regional context, cultural heritage, Islamic values, or regional social and professional norms qualify.
+- C4-2: Embrace diversity — Respecting and valuing differences in culture, background, gender, and perspective. In Conservative mode: requires explicit diversity language. In Standard/Expert modes: PLOs addressing social diversity, multicultural contexts, working with diverse populations, or interdisciplinary collaboration with diverse teams qualify.
+- C4-3: Professional and ethical conduct — Adherence to professional codes of ethics; honesty and responsibility. In Conservative mode: requires explicit ethics language. In Standard/Expert modes: PLOs involving professional practice, responsibility for outcomes, adherence to professional standards, or accountability in any disciplinary context qualify.
+- C4-4: Civically engaged — Active participation in community betterment through service or advocacy. In Conservative mode: requires explicit civic/community service language. In Standard/Expert modes: PLOs addressing the social impact of the discipline, community needs, public service, or the role of the profession in society qualify.
+- C4-5: Community and global engagement — Contributing to local and global communities; participating in global professional networks. In Conservative mode: requires explicit global engagement language. In Standard/Expert modes: PLOs addressing social, cultural, and environmental dimensions of professional work for communities (local, national, or global), international collaboration, or engagement with global professional standards qualify.
 
 **GA5 — Entrepreneurial** (5 competencies)
-- C5-1: Creativity and innovation — Generating original ideas and novel solutions. Requires explicit innovation, creativity, or novel-solution language.
-- C5-2: Collaborative — Working productively with others toward shared goals. Requires explicit teamwork, collaboration, or group-work language.
-- C5-3: Management — Planning, organising, and coordinating resources and tasks. Requires explicit project management, planning, or coordination language.
-- C5-4: Interpersonal — Building positive professional relationships; empathy and emotional intelligence. Requires explicit interpersonal, relationship-building, or emotional intelligence language.
-- C5-5: Leadership — Inspiring and guiding others; taking initiative and responsibility. Requires explicit leadership, initiative, or responsibility language.
+- C5-1: Creativity and innovation — Generating original ideas and novel solutions. In Conservative mode: requires explicit innovation language. In Standard/Expert modes: PLOs involving conceptualisation, novel approaches, creative synthesis, or application of cutting-edge methods qualify; professional practice in any applied discipline inherently involves creative problem-solving.
+- C5-2: Collaborative — Working productively with others toward shared goals. In Conservative mode: requires explicit teamwork language. In Standard/Expert modes: PLOs involving interdisciplinary teams, project coordination, professional collaboration, or working with stakeholders qualify.
+- C5-3: Management — Planning, organising, and coordinating resources and tasks. In Conservative mode: requires explicit management language. In Standard/Expert modes: PLOs involving project delivery, coordination of complex processes, resource planning, or managing professional workflows qualify.
+- C5-4: Interpersonal — Building positive professional relationships; empathy and emotional intelligence. In Conservative mode: requires explicit interpersonal language. In Standard/Expert modes: PLOs involving communication with clients or stakeholders, understanding user or community needs, or sustained professional collaboration imply interpersonal skills.
+- C5-5: Leadership — Inspiring and guiding others; taking initiative and responsibility. In Conservative mode: requires explicit leadership language. In Standard/Expert modes: PLOs involving coordination of teams, taking responsibility for professional outcomes, or leading complex projects qualify.
 
 ---
 
@@ -143,10 +169,7 @@ Qatar University has defined five Graduate Attributes (GAs), each supported by s
 Before evaluating any mapping, establish a clear operational definition of the competency. Identify what specific knowledge, skill, or behaviour it requires. Do not conflate similar-sounding competencies (e.g., C1-4 Research vs. C2-3 Adaptive thinking; C4-4 Civic engagement vs. C4-5 Global engagement).
 
 **Step 2 — Evaluate the PLO-to-competency link.**
-The connection must be traceable directly to the PLO text. Ask: "Does this PLO, as written, develop or assess this specific competency?" Apply the selected review mode:
-- **Conservative:** Only accept explicit, unambiguous alignments where the competency's core concept is directly stated in the PLO text.
-- **Standard:** Accept explicit alignments AND discipline-valid implicit alignments where the connection is professionally recognised within the discipline and well-justified (e.g., "design" in architecture implies problem-solving; "experimentation" in engineering implies inquiry).
-- **Expert Flexible:** Allow broader discipline-based interpretation for design-heavy, practice-based, or interdisciplinary programs where competencies are embedded in professional practice rather than stated explicitly. Still requires educational logic.
+Apply the review mode as described above. In Expert Flexible mode, ask: "Would a seasoned accreditation reviewer in this discipline accept this mapping as professionally valid?" If yes, accept it — even if the PLO does not use the exact vocabulary of the competency.
 
 **Step 3 — Evaluate weights critically.**
 Weights reflect the degree to which a PLO contributes to a competency. Rules:
@@ -230,6 +253,11 @@ Example of a strong justification:
 6. Overmapping (>4 PLOs per competency) is a red flag — scrutinise each mapped PLO carefully.
 7. The improvedJustification field must be substantive (3+ sentences) or null. Never provide a one-sentence placeholder.
 8. The suggestedWeightAdjustment field must specify exact values (e.g., "Change PLO2 from 0.3 to 0.5 and PLO4 from 0.7 to 0.5 to achieve sum = 1.0") or null.
+9. **Coherence between weights and justification is mandatory:** The justification and the weight assignments MUST be consistent with each other. Specifically:
+   - If a competency has PLO mappings with assigned weights (weight sum > 0), the justification MUST acknowledge and support those mappings. A justification that says "no PLO addresses this competency" or "there is no mapping" while weights are assigned is a direct contradiction and is invalid.
+   - If a competency has PLO mappings with assigned weights but the currentJustification is empty, null, a generic placeholder, or contradicts the mappings, you MUST provide a substantive improvedJustification that explains and supports those specific weights. The justification must reference each mapped PLO by code, explain its contribution to the competency, and justify why each weight is proportional to that PLO's role.
+   - Conversely, if the justification claims a mapping exists but the weight sum is 0, flag this as a rule violation.
+   - Set recommendedAction to "Improve Justification" whenever this coherence issue is detected. Never leave a mapped competency with a contradictory or absent justification.
 
 ---
 
@@ -628,6 +656,7 @@ export const aiReviewRouter = router({
         ploCode: z.string(),
         weight: z.number().min(0).max(1),
       })),
+      justification: z.string().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
       // Scope check for editors
@@ -656,11 +685,11 @@ export const aiReviewRouter = router({
         });
       }
 
-      // Upsert each weight
+      // Upsert each weight (and justification if provided)
       for (const w of input.weights) {
         const ploId = ploMap.get(w.ploCode);
         if (!ploId) continue;
-        await db.upsertMapping(ploId, comp.id, String(w.weight));
+        await db.upsertMapping(ploId, comp.id, String(w.weight), input.justification);
       }
 
       await db.logAudit({
