@@ -585,9 +585,10 @@ export default function AIReview() {
   const stats = reviewResult?.summaryStats;
 
   return (
-    <div className="min-h-screen bg-amber-50 flex flex-col">
+    <div className="min-h-screen bg-amber-50">
+      <div className="container mx-auto px-4 max-w-7xl">
       {/* ── Standard Header ── */}
-      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+        <div className="pt-4">
         <header className="bg-white rounded-lg shadow-md mb-4">
           <div className="px-6 py-4">
             <div className="flex justify-between items-center">
@@ -619,9 +620,7 @@ export default function AIReview() {
             </div>
           </div>
         </header>
-      </div>
-
-      <div className="container mx-auto px-4 max-w-7xl flex-1">
+        </div>
         {/* Breadcrumb */}
         <Breadcrumb
           className="mb-4"
@@ -924,11 +923,12 @@ export default function AIReview() {
             </p>
           </div>
         )}
-      </div>
 
       {/* ── Standard Footer ── */}
-      <div className="container mx-auto px-4 max-w-7xl pb-6">
+      <div className="pb-6">
         <PageFooter />
+      </div>
+
       </div>
     </div>
   );
