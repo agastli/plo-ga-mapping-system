@@ -18,6 +18,42 @@ import { adminProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import * as db from "../db";
 
+// ─── Dual-mode LLM caller ─────────────────────────────────────────────────────
+// On the Manus platform, BUILT_IN_FORGE_API_KEY is injected automatically.
+// On the VPS (or any external deployment), fall back to OpenAI directly.
+async function callLLM(params: Parameters<typeof invokeLLM>[0]) {
+  const forgeKey = process.env.BUILT_IN_FORGE_API_KEY;
+  if (forgeKey) {
+    // Manus platform — use the built-in helper
+    return invokeLLM(params);
+  }
+  // VPS / external — call OpenAI directly
+  const openaiKey = process.env.OPENAI_API_KEY;
+  if (!openaiKey) {
+    throw new Error(
+      "No LLM API key configured. Set OPENAI_API_KEY in your .env file."
+    );
+  }
+  const body = {
+    model: "gpt-4o",
+    messages: params.messages,
+    ...(params.response_format ? { response_format: params.response_format } : {}),
+  };
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${openaiKey}`,
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`OpenAI API error ${res.status}: ${errText}`);
+  }
+  return res.json() as ReturnType<typeof invokeLLM>;
+}
+
 // ─── Shared Zod schemas ────────────────────────────────────────────────────────
 
 const disciplineEnum = z.enum([
@@ -304,7 +340,7 @@ export const aiReviewRouter = router({
         })),
       );
 
-      const llmResponse = await invokeLLM({
+      const llmResponse = await callLLM({
         messages: [
           { role: "system", content: QU_METHODOLOGY_SYSTEM_PROMPT },
           { role: "user", content: userMessage },
