@@ -23,7 +23,8 @@ import * as db from "../db";
 // On the VPS (or any external deployment), fall back to OpenAI directly.
 async function callLLM(params: Parameters<typeof invokeLLM>[0]) {
   const forgeKey = process.env.BUILT_IN_FORGE_API_KEY;
-  if (forgeKey) {
+  // Only use the built-in LLM when the key is a real token (not the placeholder "disabled")
+  if (forgeKey && forgeKey !== "disabled") {
     // Manus platform — use the built-in helper
     return invokeLLM(params);
   }
