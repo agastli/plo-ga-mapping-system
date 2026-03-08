@@ -13,6 +13,7 @@ import ViewerDashboard from "./pages/ViewerDashboard";
 import Upload from "./pages/Upload";
 import Programs from "./pages/Programs";
 import ProgramDetail from "./pages/ProgramDetail";
+import AIReview from "./pages/AIReview";
 import AddProgram from "./pages/AddProgram";
 import AdminDashboard from "./pages/AdminDashboard";
 import DeleteProgram from "./pages/DeleteProgram";
@@ -84,6 +85,7 @@ function Router() {
       <Route path={"/programs/new"} component={AddProgram} />
       <Route path={"/programs/delete"} component={DeleteProgram} />
       <Route path={"/programs/guide"} component={MappingGuide} />
+      <Route path={"/programs/:programId/ai-review"} component={AIReview} />
       <Route path={"/programs/:id"} component={ProgramDetail} />
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/dashboard"} component={Dashboard} />

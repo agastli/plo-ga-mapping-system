@@ -18,12 +18,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Edit2, Save, X, Download, ChevronDown, Home, Trash2, Plus, BookOpen } from "lucide-react";
+import { ArrowLeft, Edit2, Save, X, Download, ChevronDown, Home, Trash2, Plus, BookOpen, Brain } from "lucide-react";
 import HelpTooltip from "@/components/HelpTooltip";
 import PLOBulkImport from "@/components/PLOBulkImport";
 import Breadcrumb from "@/components/Breadcrumb";
 import MappingAuditLog from "@/components/MappingAuditLog";
-import { Link, useParams } from "wouter";
+import { Link, useParams, useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -31,6 +32,8 @@ import { toast } from "sonner";
 export default function ProgramDetail() {
   const { id } = useParams();
   const programId = parseInt(id || "0");
+  const [, navigate] = useLocation();
+  const { user } = useAuth();
 
   // Auto-scroll to mapping matrix if URL hash is #mapping
   useEffect(() => {
@@ -229,6 +232,16 @@ export default function ProgramDetail() {
                   Mapping Guide
                 </Link>
               </Button>
+              {user?.role === "admin" && (
+                <Button
+                  variant="outline"
+                  className="border-purple-600 text-purple-700 hover:bg-purple-50"
+                  onClick={() => navigate(`/programs/${programId}/ai-review`)}
+                >
+                  <Brain className="mr-2 h-4 w-4" />
+                  AI Review
+                </Button>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button className="bg-[#8B1538] hover:bg-[#6B1028]">

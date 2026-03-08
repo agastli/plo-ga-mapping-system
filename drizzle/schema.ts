@@ -107,6 +107,7 @@ export const programs = mysqlTable("programs", {
   nameAr: varchar("nameAr", { length: 255 }),
   code: varchar("code", { length: 50 }).notNull(),
   language: mysqlEnum("language", ["en", "ar", "both"]).notNull().default("en"),
+  discipline: mysqlEnum("discipline", ["engineering", "architecture", "business", "health", "education", "humanities", "science", "law", "other"]).default("other"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
@@ -272,3 +273,28 @@ export const systemSettings = mysqlTable("systemSettings", {
 });
 export type SystemSetting = typeof systemSettings.$inferSelect;
 export type InsertSystemSetting = typeof systemSettings.$inferInsert;
+
+/**
+ * AI Reviews - Stores AI-generated mapping review sessions per program
+ * Each review captures the full LLM analysis and per-competency proposals
+ */
+export const aiReviews = mysqlTable("aiReviews", {
+  id: int("id").autoincrement().primaryKey(),
+  programId: int("programId").notNull().references(() => programs.id, { onDelete: "cascade" }),
+  reviewedBy: int("reviewedBy").notNull().references(() => users.id, { onDelete: "cascade" }),
+  discipline: varchar("discipline", { length: 64 }).notNull().default("other"),
+  reviewMode: mysqlEnum("reviewMode", ["conservative", "standard", "expert"]).notNull().default("standard"),
+  // Full JSON array of per-competency AI proposals
+  reviewData: text("reviewData").notNull(), // JSON string
+  // Summary counts: { strong, acceptable, weak, artificial, missing, needsAttention }
+  summaryStats: text("summaryStats").notNull(), // JSON string
+  status: mysqlEnum("status", ["draft", "finalised"]).notNull().default("draft"),
+  // Tracks which competency items have been accepted/rejected by the reviewer
+  acceptedItems: text("acceptedItems"), // JSON array of competency codes
+  rejectedItems: text("rejectedItems"), // JSON array of competency codes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AIReview = typeof aiReviews.$inferSelect;
+export type InsertAIReview = typeof aiReviews.$inferInsert;

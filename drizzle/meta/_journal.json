@@ -99,6 +99,13 @@
       "when": 1772589423023,
       "tag": "0013_goofy_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1772952090736,
+      "tag": "0014_lean_baron_strucker",
+      "breakpoints": true
     }
   ]
 }

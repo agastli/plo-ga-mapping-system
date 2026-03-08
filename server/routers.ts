@@ -1,6 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
+import { aiReviewRouter } from "./routers/aiReview";
 import { publicProcedure, protectedProcedure, adminProcedure, editorProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -52,6 +53,7 @@ function requireEditorOrAdmin(ctx: { user: { id: number; role: string } | null |
 
 export const appRouter = router({
   system: systemRouter,
+  aiReview: aiReviewRouter,
   
   // Health check endpoint
   health: router({
@@ -842,6 +844,7 @@ export const appRouter = router({
         nameAr: z.string().optional(),
         code: z.string(),
         language: z.enum(["en", "ar", "both"]),
+        discipline: z.enum(["engineering", "architecture", "business", "health", "education", "humanities", "science", "law", "other"]).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         requireEditorOrAdmin(ctx);
@@ -885,6 +888,7 @@ export const appRouter = router({
         nameAr: z.string().optional(),
         code: z.string().optional(),
         language: z.enum(["en", "ar", "both"]).optional(),
+        discipline: z.enum(["engineering", "architecture", "business", "health", "education", "humanities", "science", "law", "other"]).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         await requireProgramAccess(ctx, input.id);

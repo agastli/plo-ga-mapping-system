@@ -43,6 +43,9 @@ import {
   type InsertReportTemplate,
   type InsertLoginHistory,
   systemSettings,
+  aiReviews,
+  type AIReview,
+  type InsertAIReview,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -2977,3 +2980,37 @@ export async function bulkCreatePLOs(programId: number, rows: Array<{
 }
 
 // getUserById already exists above (returns user with assignments)
+
+// ============================================================================
+// AI Reviews
+// ============================================================================
+
+export async function createAIReview(data: InsertAIReview): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(aiReviews).values(data);
+  return Number(result[0].insertId);
+}
+
+export async function getAIReviewsByProgram(programId: number): Promise<AIReview[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(aiReviews)
+    .where(eq(aiReviews.programId, programId))
+    .orderBy(sql`${aiReviews.createdAt} DESC`);
+}
+
+export async function getAIReviewById(id: number): Promise<AIReview | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(aiReviews).where(eq(aiReviews.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function updateAIReview(id: number, data: Partial<InsertAIReview>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(aiReviews).set(data).where(eq(aiReviews.id, id));
+}
