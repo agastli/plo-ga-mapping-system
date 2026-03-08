@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
-import { useParams, useLocation } from "wouter";
+import { useParams, useLocation, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -33,6 +34,11 @@ import {
   RefreshCw,
   ShieldCheck,
   Lightbulb,
+  Home,
+  Scale,
+  BookOpen,
+  Microscope,
+  Zap,
 } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
 import PageFooter from "@/components/PageFooter";
@@ -134,30 +140,66 @@ function ReviewItemCard({
   programId,
   accepted,
   rejected,
+  weightsSaved,
   onAccept,
   onReject,
+  onApplyWeights,
 }: {
   item: ReviewItem;
   reviewId: number;
   programId: number;
   accepted: string[];
   rejected: string[];
+  weightsSaved: string[];
   onAccept: (code: string, justification: string) => void;
   onReject: (code: string) => void;
+  onApplyWeights: (code: string, weights: { ploCode: string; weight: number }[]) => Promise<void>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [editedJustification, setEditedJustification] = useState(
     item.improvedJustification ?? item.currentJustification ?? ""
   );
+  // Inline weight editing state: map of ploCode -> weight string
+  const [editedWeights, setEditedWeights] = useState<Record<string, string>>(
+    Object.fromEntries(item.currentMappedPLOs.map(m => [m.ploCode, String(m.weight)]))
+  );
+  const [savingWeights, setSavingWeights] = useState(false);
 
   const isAccepted = accepted.includes(item.competencyCode);
   const isRejected = rejected.includes(item.competencyCode);
+  const isWeightSaved = weightsSaved.includes(item.competencyCode);
   const cfg = VERDICT_CONFIG[item.mappingVerdict];
 
   const canAccept =
     item.recommendedAction !== "Keep" &&
     item.mappingVerdict !== "Missing" &&
     item.mappingVerdict !== "Strong";
+
+  const showWeightEditor = item.currentMappedPLOs.length > 0 && (
+    item.recommendedAction === "Revise Weight" ||
+    item.suggestedWeightAdjustment !== null
+  );
+
+  // Compute current weight sum from edited values
+  const editedWeightSum = Object.values(editedWeights).reduce((s, v) => {
+    const n = parseFloat(v);
+    return s + (isNaN(n) ? 0 : n);
+  }, 0);
+  const weightSumRounded = Math.round(editedWeightSum * 100) / 100;
+  const weightSumValid = weightSumRounded === 0 || weightSumRounded === 1;
+
+  const handleSaveWeights = async () => {
+    const weights = item.currentMappedPLOs.map(m => ({
+      ploCode: m.ploCode,
+      weight: parseFloat(editedWeights[m.ploCode] ?? String(m.weight)),
+    }));
+    setSavingWeights(true);
+    try {
+      await onApplyWeights(item.competencyCode, weights);
+    } finally {
+      setSavingWeights(false);
+    }
+  };
 
   return (
     <div className={`border rounded-lg p-4 ${cfg.bg} transition-all`}>
@@ -181,12 +223,17 @@ function ReviewItemCard({
         <div className="flex items-center gap-2 shrink-0">
           {isAccepted && (
             <span className="text-xs text-green-700 font-medium flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" /> Accepted
+              <CheckCircle className="w-3 h-3" /> Justification Accepted
             </span>
           )}
           {isRejected && (
             <span className="text-xs text-red-600 font-medium flex items-center gap-1">
               <XCircle className="w-3 h-3" /> Rejected
+            </span>
+          )}
+          {isWeightSaved && (
+            <span className="text-xs text-amber-700 font-medium flex items-center gap-1">
+              <Scale className="w-3 h-3" /> Weights Saved
             </span>
           )}
           <button
@@ -243,19 +290,60 @@ function ReviewItemCard({
             </div>
           </div>
 
-          {/* AI suggestions */}
-          {item.suggestedWeightAdjustment && (
+          {/* Inline weight editor */}
+          {showWeightEditor && (
             <div className="rounded bg-amber-50 border border-amber-200 p-3">
-              <p className="text-xs font-semibold text-amber-700 mb-1 flex items-center gap-1">
-                <Lightbulb className="w-3 h-3" /> Suggested Weight Adjustment
+              <p className="text-xs font-semibold text-amber-700 mb-2 flex items-center gap-1">
+                <Scale className="w-3 h-3" /> Edit Weights Inline
               </p>
-              <p className="text-sm text-amber-800">{item.suggestedWeightAdjustment}</p>
+              {item.suggestedWeightAdjustment && (
+                <p className="text-xs text-amber-700 mb-2 italic">
+                  AI suggestion: {item.suggestedWeightAdjustment}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-3 mb-2">
+                {item.currentMappedPLOs.map((m) => (
+                  <div key={m.ploCode} className="flex items-center gap-1.5">
+                    <span className="text-xs font-mono font-semibold text-gray-700 w-12">{m.ploCode}</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={editedWeights[m.ploCode] ?? String(m.weight)}
+                      onChange={(e) => setEditedWeights(prev => ({ ...prev, [m.ploCode]: e.target.value }))}
+                      className="w-20 h-7 text-xs font-mono bg-white"
+                    />
+                  </div>
+                ))}
+                <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-semibold ${
+                  weightSumValid ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                }`}>
+                  Σ = {weightSumRounded.toFixed(2)}
+                  {weightSumValid ? " ✓" : " ✗ (must be 0 or 1)"}
+                </div>
+              </div>
+              <Button
+                size="sm"
+                disabled={!weightSumValid || savingWeights || isWeightSaved}
+                onClick={handleSaveWeights}
+                className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
+              >
+                {savingWeights ? (
+                  <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Saving…</>
+                ) : isWeightSaved ? (
+                  <><CheckCircle className="w-3 h-3 mr-1" /> Weights Saved</>
+                ) : (
+                  <><Scale className="w-3 h-3 mr-1" /> Apply Weights to Database</>
+                )}
+              </Button>
               <p className="text-xs text-amber-600 mt-1">
-                Note: Weight adjustments must be applied manually in the Mapping Matrix.
+                Weight sum must equal exactly 1.0 (or 0 if removing all mappings). Changes are written directly to the database.
               </p>
             </div>
           )}
 
+          {/* AI-improved justification editor */}
           {canAccept && item.improvedJustification && (
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1">
@@ -287,17 +375,15 @@ function ReviewItemCard({
           </Collapsible>
 
           {/* Accept / Reject buttons */}
-          {!isAccepted && !isRejected && (
+          {!isAccepted && !isRejected && canAccept && (
             <div className="flex gap-2 pt-1">
-              {canAccept && (
-                <Button
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => onAccept(item.competencyCode, editedJustification)}
-                >
-                  <CheckCircle className="w-3 h-3 mr-1" /> Accept Justification
-                </Button>
-              )}
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => onAccept(item.competencyCode, editedJustification)}
+              >
+                <CheckCircle className="w-3 h-3 mr-1" /> Accept Justification
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
@@ -308,7 +394,7 @@ function ReviewItemCard({
               </Button>
             </div>
           )}
-          {(isAccepted || isRejected) && (
+          {(isAccepted || isRejected) && canAccept && (
             <div className="flex gap-2 pt-1">
               <Button
                 size="sm"
@@ -338,23 +424,24 @@ export default function AIReview() {
   const [, navigate] = useLocation();
   const { user } = useAuth();
 
-  // Guard: admin only
-  if (user && user.role !== "admin") {
+  // Guard: admin or editor only
+  if (user && user.role !== "admin" && user.role !== "editor") {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">This feature is available to administrators only.</p>
+        <p className="text-gray-500">This feature is available to administrators and editors only.</p>
       </div>
     );
   }
 
-  const [discipline, setDiscipline] = useState<string>("other");
   const [reviewMode, setReviewMode] = useState<string>("standard");
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
   const [savedReviewId, setSavedReviewId] = useState<number | null>(null);
   const [accepted, setAccepted] = useState<string[]>([]);
   const [rejected, setRejected] = useState<string[]>([]);
+  const [weightsSaved, setWeightsSaved] = useState<string[]>([]);
   const [filterVerdict, setFilterVerdict] = useState<string>("all");
   const [showHistory, setShowHistory] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   // Load program info
   const { data: program } = trpc.programs.getById.useQuery({ id: programId }, { enabled: !!programId });
@@ -369,24 +456,41 @@ export default function AIReview() {
   const generateReview = trpc.aiReview.generateReview.useMutation();
   const saveReview = trpc.aiReview.saveReview.useMutation();
   const applyItem = trpc.aiReview.applyItem.useMutation();
+  const applyWeights = trpc.aiReview.applyWeights.useMutation();
   const finaliseReview = trpc.aiReview.finaliseReview.useMutation();
+
+  // Auto-detect discipline from program's stored discipline field, fallback to "other"
+  const detectedDiscipline = (program as any)?.discipline ?? "other";
+
+  const DISCIPLINE_LABELS: Record<string, string> = {
+    engineering: "Engineering",
+    architecture: "Architecture",
+    business: "Business",
+    health: "Health Sciences",
+    education: "Education",
+    humanities: "Humanities",
+    science: "Science",
+    law: "Law",
+    other: "General / Other",
+  };
 
   const handleGenerate = async () => {
     try {
       const result = await generateReview.mutateAsync({
         programId,
-        discipline: discipline as Parameters<typeof generateReview.mutateAsync>[0]["discipline"],
+        discipline: detectedDiscipline as Parameters<typeof generateReview.mutateAsync>[0]["discipline"],
         reviewMode: reviewMode as Parameters<typeof generateReview.mutateAsync>[0]["reviewMode"],
       });
       setReviewResult(result);
       setAccepted([]);
       setRejected([]);
+      setWeightsSaved([]);
       setSavedReviewId(null);
 
       // Auto-save as draft
       const saved = await saveReview.mutateAsync({
         programId,
-        discipline: discipline as Parameters<typeof saveReview.mutateAsync>[0]["discipline"],
+        discipline: detectedDiscipline as Parameters<typeof saveReview.mutateAsync>[0]["discipline"],
         reviewMode: reviewMode as Parameters<typeof saveReview.mutateAsync>[0]["reviewMode"],
         reviewData: JSON.stringify(result.items),
         summaryStats: JSON.stringify(result.summaryStats),
@@ -436,6 +540,26 @@ export default function AIReview() {
     }
   };
 
+  const handleApplyWeights = async (code: string, weights: { ploCode: string; weight: number }[]) => {
+    if (!savedReviewId) {
+      toast.error("Please run the review first before applying weights.");
+      return;
+    }
+    try {
+      await applyWeights.mutateAsync({
+        reviewId: savedReviewId,
+        programId,
+        competencyCode: code,
+        weights,
+      });
+      setWeightsSaved(prev => [...prev.filter(c => c !== code), code]);
+      toast.success(`Weights for ${code} updated in database.`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to apply weights.";
+      toast.error(msg);
+    }
+  };
+
   const handleFinalise = async () => {
     if (!savedReviewId) return;
     try {
@@ -461,35 +585,64 @@ export default function AIReview() {
   const stats = reviewResult?.summaryStats;
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8]">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-amber-50 flex flex-col">
+      {/* ── Standard Header ── */}
+      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+        <header className="bg-white rounded-lg shadow-md mb-4">
+          <div className="px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <img src="/qu-logo.png" alt="Qatar University" className="h-12 w-auto" />
+                <div className="border-l-2 border-[#8B1538] pl-4">
+                  <h2 className="text-lg font-bold text-[#8B1538] flex items-center gap-2">
+                    <Brain className="w-5 h-5" /> AI Mapping Review
+                  </h2>
+                  <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="ghost" asChild className="text-[#8B1538] hover:bg-[#8B1538]/10">
+                  <Link href="/">
+                    <Home className="mr-2 h-4 w-4" />
+                    Home
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-[#8B1538] hover:bg-[#8B1538]/10"
+                  onClick={() => window.history.back()}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+              </div>
+            </div>
+          </div>
+        </header>
+      </div>
+
+      <div className="container mx-auto px-4 max-w-7xl flex-1">
         {/* Breadcrumb */}
         <Breadcrumb
+          className="mb-4"
           items={[
-            { label: "Home", href: "/" },
             { label: "Programs", href: "/programs" },
             { label: program?.nameEn ?? "Program", href: `/programs/${programId}` },
             { label: "AI Review" },
           ]}
         />
 
-        {/* Page header */}
-        <div className="flex items-center justify-between mb-6 mt-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => window.history.back()}
-              className="flex items-center gap-1 text-sm text-gray-500 hover:text-[#8B1A1A] transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" /> Back
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-[#8B1A1A] flex items-center gap-2">
-                <Brain className="w-6 h-6" /> AI Mapping Review
-              </h1>
-              <p className="text-sm text-gray-500 mt-0.5">
-                {program?.nameEn ?? "Loading..."} — Admin only
-              </p>
-            </div>
+        {/* Page title row */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-xl font-bold text-[#8B1A1A]">
+              {program?.nameEn ?? "Loading…"}
+            </h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Discipline: <span className="font-medium text-gray-700">{DISCIPLINE_LABELS[detectedDiscipline] ?? detectedDiscipline}</span>
+              {" · "}
+              {user?.role === "admin" ? "Admin" : "Editor"} access
+            </p>
           </div>
           <Button
             variant="outline"
@@ -502,9 +655,81 @@ export default function AIReview() {
           </Button>
         </div>
 
+        {/* ── Explanation Panel ── */}
+        <Card className="mb-5 bg-white border-[#8B1A1A]/20">
+          <CardHeader className="pb-2 pt-4 px-5">
+            <CardTitle className="text-sm font-semibold text-[#8B1A1A] flex items-center gap-2">
+              <Info className="w-4 h-4" /> About the AI Mapping Review Assistant
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-5 pb-4">
+            <p className="text-sm text-gray-700 mb-3">
+              This tool reads all PLOs, mappings, and justifications for this program directly from the database and evaluates them against the <strong>QU Graduate Attributes methodology</strong> (4-step process). It reviews all 21 competencies across 5 Graduate Attributes, identifies rule violations, assesses justification quality, and proposes improvements. Reviews typically take 30–60 seconds.
+            </p>
+            <p className="text-sm text-gray-700 mb-3">
+              <strong>What you can do with the results:</strong> Accept or reject AI-suggested justification improvements (written directly to the database), edit and apply weight corrections inline, and finalise the review as a permanent record.
+            </p>
+
+            {/* Review mode descriptions */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Microscope className="w-4 h-4 text-blue-700" />
+                  <span className="text-xs font-bold text-blue-800 uppercase tracking-wide">Conservative</span>
+                </div>
+                <p className="text-xs text-blue-700">
+                  Accepts <strong>only explicit, unambiguous alignments</strong> where the connection is stated directly in the PLO text. Rejects any mapping that relies on inference or indirect reasoning. Best for programs seeking rigorous, defensible mappings.
+                </p>
+              </div>
+              <div className="rounded-lg border border-[#8B1A1A]/30 bg-[#8B1A1A]/5 p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <BookOpen className="w-4 h-4 text-[#8B1A1A]" />
+                  <span className="text-xs font-bold text-[#8B1A1A] uppercase tracking-wide">Standard (Recommended)</span>
+                </div>
+                <p className="text-xs text-[#8B1A1A]/80">
+                  Accepts explicit alignments and <strong>discipline-valid implicit alignments</strong> when well justified. For example, "experimentation" in engineering may imply inquiry; "design" in architecture may imply problem-solving. Suitable for most programs.
+                </p>
+              </div>
+              <div className="rounded-lg border border-purple-200 bg-purple-50 p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap className="w-4 h-4 text-purple-700" />
+                  <span className="text-xs font-bold text-purple-800 uppercase tracking-wide">Expert Flexible</span>
+                </div>
+                <p className="text-xs text-purple-700">
+                  Allows <strong>broader discipline-based interpretation</strong> for design-heavy, interdisciplinary, or practice-based programs where competencies are embedded in professional practice rather than stated explicitly.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowGuide(!showGuide)}
+              className="mt-3 text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1"
+            >
+              <ChevronDown className={`w-3 h-3 transition-transform ${showGuide ? "rotate-180" : ""}`} />
+              {showGuide ? "Hide" : "Show"} verdict definitions
+            </button>
+            {showGuide && (
+              <div className="mt-2 grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+                {[
+                  { label: "Strong", color: "bg-green-100 text-green-800", desc: "Explicit link, correct weight, strong justification." },
+                  { label: "Acceptable", color: "bg-blue-100 text-blue-800", desc: "Valid but justification is generic or weight could be better calibrated." },
+                  { label: "Weak", color: "bg-amber-100 text-amber-800", desc: "Indirect or inferred connection, poorly justified. Revision required." },
+                  { label: "Artificial", color: "bg-red-100 text-red-800", desc: "Mapping appears inflated. No genuine educational connection. Remove." },
+                  { label: "Missing", color: "bg-gray-100 text-gray-700", desc: "No PLO addresses this competency. Curriculum gap." },
+                ].map(v => (
+                  <div key={v.label} className="rounded p-2 border border-gray-200 bg-white">
+                    <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-semibold mb-1 ${v.color}`}>{v.label}</span>
+                    <p className="text-gray-600">{v.desc}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Review History Panel */}
         {showHistory && history && history.length > 0 && (
-          <Card className="mb-6 bg-white">
+          <Card className="mb-5 bg-white">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Review History</CardTitle>
             </CardHeader>
@@ -518,14 +743,14 @@ export default function AIReview() {
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${r.status === "finalised" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
                           {r.status}
                         </span>
-                        <span className="text-gray-600">{r.discipline} · {r.reviewMode}</span>
+                        <span className="text-gray-600 capitalize">{r.discipline} · {r.reviewMode}</span>
                         <span className="text-gray-400 text-xs">{new Date(r.createdAt).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <span className="text-green-700">✓ {s.strong ?? 0}</span>
-                        <span className="text-amber-700">⚠ {s.weak ?? 0}</span>
-                        <span className="text-red-700">✗ {s.artificial ?? 0}</span>
-                        <span className="text-gray-500">? {s.missing ?? 0}</span>
+                        <span className="text-green-700">✓ {s.strong ?? 0} Strong</span>
+                        <span className="text-amber-700">⚠ {s.weak ?? 0} Weak</span>
+                        <span className="text-red-700">✗ {s.artificial ?? 0} Artificial</span>
+                        <span className="text-gray-500">? {s.missing ?? 0} Missing</span>
                       </div>
                     </div>
                   );
@@ -536,7 +761,7 @@ export default function AIReview() {
         )}
 
         {/* Configuration Panel */}
-        <Card className="mb-6 bg-white">
+        <Card className="mb-5 bg-white">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#8B1A1A]" />
@@ -544,26 +769,7 @@ export default function AIReview() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              <div>
-                <label className="text-sm font-medium text-gray-700 block mb-1">Program Discipline</label>
-                <Select value={discipline} onValueChange={setDiscipline}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="engineering">Engineering</SelectItem>
-                    <SelectItem value="architecture">Architecture</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
-                    <SelectItem value="health">Health Sciences</SelectItem>
-                    <SelectItem value="education">Education</SelectItem>
-                    <SelectItem value="humanities">Humanities</SelectItem>
-                    <SelectItem value="science">Science</SelectItem>
-                    <SelectItem value="law">Law</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               <div>
                 <label className="text-sm font-medium text-gray-700 block mb-1">Review Mode</label>
                 <Select value={reviewMode} onValueChange={setReviewMode}>
@@ -572,10 +778,13 @@ export default function AIReview() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="conservative">Conservative — explicit links only</SelectItem>
-                    <SelectItem value="standard">Standard — explicit + discipline-valid</SelectItem>
+                    <SelectItem value="standard">Standard — explicit + discipline-valid (recommended)</SelectItem>
                     <SelectItem value="expert">Expert Flexible — broader interpretation</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-gray-400 mt-1">
+                  The discipline (<strong>{DISCIPLINE_LABELS[detectedDiscipline]}</strong>) is automatically detected from the program record.
+                </p>
               </div>
               <Button
                 onClick={handleGenerate}
@@ -595,9 +804,6 @@ export default function AIReview() {
                 )}
               </Button>
             </div>
-            <p className="text-xs text-gray-400 mt-3">
-              The AI reads all PLOs, mappings, and justifications directly from the database and evaluates them against the QU methodology guide. Reviews typically take 30–60 seconds.
-            </p>
           </CardContent>
         </Card>
 
@@ -605,7 +811,7 @@ export default function AIReview() {
         {reviewResult && (
           <>
             {/* Summary stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-5">
               {[
                 { label: "Strong", value: stats?.strong ?? 0, color: "text-green-700 bg-green-50 border-green-200" },
                 { label: "Acceptable", value: stats?.acceptable ?? 0, color: "text-blue-700 bg-blue-50 border-blue-200" },
@@ -663,8 +869,10 @@ export default function AIReview() {
                     programId={programId}
                     accepted={accepted}
                     rejected={rejected}
+                    weightsSaved={weightsSaved}
                     onAccept={handleAccept}
                     onReject={handleReject}
+                    onApplyWeights={handleApplyWeights}
                   />
                 ))
               )}
@@ -672,7 +880,7 @@ export default function AIReview() {
 
             {/* Finalise button */}
             {savedReviewId && (
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-3 mb-6">
                 <Button
                   variant="outline"
                   onClick={() => navigate(`/programs/${programId}`)}
@@ -689,7 +897,7 @@ export default function AIReview() {
                   ) : (
                     <ShieldCheck className="w-4 h-4 mr-2" />
                   )}
-                  Finalise Review ({accepted.length} accepted, {rejected.length} rejected)
+                  Finalise Review ({accepted.length} accepted, {rejected.length} rejected, {weightsSaved.length} weights updated)
                 </Button>
               </div>
             )}
@@ -702,7 +910,7 @@ export default function AIReview() {
             <Brain className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p className="text-lg font-medium">No review yet</p>
             <p className="text-sm mt-1">
-              Select a discipline and review mode above, then click <strong>Run AI Review</strong>.
+              Select a review mode above, then click <strong>Run AI Review</strong>.
             </p>
           </div>
         )}
@@ -717,7 +925,11 @@ export default function AIReview() {
           </div>
         )}
       </div>
-      <PageFooter />
+
+      {/* ── Standard Footer ── */}
+      <div className="container mx-auto px-4 max-w-7xl pb-6">
+        <PageFooter />
+      </div>
     </div>
   );
 }

@@ -232,7 +232,7 @@ export default function ProgramDetail() {
                   Mapping Guide
                 </Link>
               </Button>
-              {user?.role === "admin" && (
+              {(user?.role === "admin" || user?.role === "editor") && (
                 <Button
                   variant="outline"
                   className="border-purple-600 text-purple-700 hover:bg-purple-50"

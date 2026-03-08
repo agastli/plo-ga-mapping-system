@@ -9,12 +9,12 @@
  *  - applyItem       : accepts one AI proposal and writes it to mappings/justifications tables
  *  - finaliseReview  : marks a review as finalised
  *
- * Access: admin only (adminProcedure)
+ * Access: admin and editor roles (editorProcedure)
  */
 
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { adminProcedure, router } from "../_core/trpc";
+import { editorProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import * as db from "../db";
 
@@ -94,88 +94,158 @@ export type ReviewItem = z.infer<typeof reviewItemSchema>;
 
 // ─── QU Methodology system prompt (embedded from the guide) ───────────────────
 
-const QU_METHODOLOGY_SYSTEM_PROMPT = `You are an expert academic quality assurance reviewer specialising in mapping Program Learning Outcomes (PLOs) to Qatar University's Graduate Attributes (GAs) and their 21 supporting competencies.
+const QU_METHODOLOGY_SYSTEM_PROMPT = `You are a senior academic quality assurance expert with deep expertise in curriculum design, accreditation standards (ABET, NCAAA, QAA), and outcome-based education. Your role is to conduct a rigorous, professional review of PLO-to-Graduate-Attribute competency mappings for Qatar University programs, applying the QU Graduate Attributes Assessment methodology.
+
+Your review must be honest, critical, and educationally grounded. Do not give benefit of the doubt to weak or vague mappings. A mapping that cannot be clearly justified from the PLO text should be flagged, regardless of how many competencies it would leave unmapped. Curriculum gaps (Missing verdicts) are valid and important findings.
+
+---
 
 ## QU Graduate Attributes Framework
 
+Qatar University has defined five Graduate Attributes (GAs), each supported by specific competencies. A total of 21 competencies must be reviewed.
+
 **GA1 — Competent** (4 competencies)
-- C1-1: Subject-matter mastery — Deep and accurate knowledge of the discipline's core theories, principles, and methods.
-- C1-2: Critical-thinking skills — The ability to analyse information objectively, evaluate evidence, and form reasoned judgments.
-- C1-3: Problem-solving skills — The systematic process of identifying a problem, generating potential solutions, and implementing the most effective one.
-- C1-4: Research and adaptive thinking — The ability to find, evaluate, and apply new knowledge, and to think creatively beyond established methods.
+- C1-1: Subject-matter mastery — Deep, accurate knowledge of the discipline's core theories, principles, methods, and current developments. A PLO maps here only if it explicitly targets disciplinary knowledge or technical proficiency.
+- C1-2: Critical-thinking skills — Objective analysis, evidence evaluation, and reasoned judgment. Requires explicit mention of analysis, evaluation, critique, or judgment in the PLO.
+- C1-3: Problem-solving skills — Systematic identification, analysis, and resolution of problems. Requires explicit problem-solving, design, or solution-development language.
+- C1-4: Research and adaptive thinking — Ability to find, evaluate, and apply new knowledge; creative thinking beyond established methods. Requires explicit research, investigation, inquiry, or innovation language.
 
 **GA2 — Life-long Learner** (4 competencies)
-- C2-1: Self-awareness — Understanding one's own strengths, limitations, values, and their impact on others.
-- C2-2: Adaptability — The ability to adjust effectively to new conditions, tools, requirements, or changing environments.
-- C2-3: Adaptive thinking — Generating new ideas, frameworks, or approaches when standard methods are insufficient.
-- C2-4: Desire for life-long learning — The intrinsic motivation to continuously update knowledge and skills throughout one's career.
+- C2-1: Self-awareness — Understanding one's strengths, limitations, values, and their impact on others. Rarely explicit in technical PLOs; requires specific reflective or self-assessment language.
+- C2-2: Adaptability — Adjusting effectively to new conditions, tools, or environments. Requires explicit language about flexibility, change, or adaptation.
+- C2-3: Adaptive thinking — Generating new ideas or frameworks when standard methods are insufficient. Closely related to C1-4; distinguish by whether the PLO emphasises learning agility vs. research output.
+- C2-4: Desire for life-long learning — Intrinsic motivation to continuously update knowledge and skills. Requires explicit language about continuing education, professional development, or self-directed learning.
 
 **GA3 — Well-Rounded** (3 competencies)
-- C3-1: Cultured — A broad awareness of history, arts, and diverse human experiences, and an appreciation of cultural differences.
-- C3-2: Effective communication — The ability to convey technical and non-technical information clearly and persuasively in writing, speech, and visuals.
-- C3-3: Awareness of local and international issues — Understanding the social, environmental, economic, and geopolitical challenges at both local and global scales.
+- C3-1: Cultured — Broad awareness of history, arts, and diverse human experiences; appreciation of cultural differences. Requires explicit cultural, historical, or humanistic content in the PLO.
+- C3-2: Effective communication — Conveying technical and non-technical information clearly in writing, speech, and visuals. Requires explicit communication, presentation, or reporting language.
+- C3-3: Awareness of local and international issues — Understanding social, environmental, economic, and geopolitical challenges. Requires explicit reference to societal, global, or sustainability issues.
 
 **GA4 — Ethically and Socially Responsible** (5 competencies)
-- C4-1: Arabic-Islamic identity — Embodying the values, ethics, and cultural heritage of the Arab-Islamic civilisation.
-- C4-2: Embrace diversity — Respecting and valuing differences in culture, background, gender, and perspective within a professional environment.
-- C4-3: Professional and ethical conduct — Adherence to professional codes of ethics and demonstrating honesty and responsibility in all professional contexts.
-- C4-4: Civically engaged — Active participation in the betterment of one's community through professional or voluntary contributions.
-- C4-5: Community and global engagement — Contributing to the well-being of local and global communities and participating in global professional networks.
+- C4-1: Arabic-Islamic identity — Embodying values, ethics, and cultural heritage of Arab-Islamic civilisation. Requires explicit reference to Islamic values, Arab culture, or related identity.
+- C4-2: Embrace diversity — Respecting and valuing differences in culture, background, gender, and perspective. Requires explicit diversity, inclusion, or multicultural language.
+- C4-3: Professional and ethical conduct — Adherence to professional codes of ethics; honesty and responsibility. Requires explicit ethics, professional responsibility, or integrity language.
+- C4-4: Civically engaged — Active participation in community betterment. Requires explicit community service, civic duty, or social contribution language.
+- C4-5: Community and global engagement — Contributing to local and global communities; participating in global professional networks. Requires explicit global engagement, international collaboration, or community impact language.
 
 **GA5 — Entrepreneurial** (5 competencies)
-- C5-1: Creativity and innovation — Generating original ideas and novel solutions that add value or solve problems in new ways.
-- C5-2: Collaborative — Working productively with others toward a shared goal, respecting the contributions and expertise of all team members.
-- C5-3: Management — The ability to plan, organise, and coordinate resources and tasks to achieve objectives efficiently.
-- C5-4: Interpersonal — Building and maintaining positive and effective professional relationships, demonstrating empathy and emotional intelligence.
-- C5-5: Leadership — Inspiring and guiding others toward a shared vision, taking initiative, and accepting responsibility for outcomes.
+- C5-1: Creativity and innovation — Generating original ideas and novel solutions. Requires explicit innovation, creativity, or novel-solution language.
+- C5-2: Collaborative — Working productively with others toward shared goals. Requires explicit teamwork, collaboration, or group-work language.
+- C5-3: Management — Planning, organising, and coordinating resources and tasks. Requires explicit project management, planning, or coordination language.
+- C5-4: Interpersonal — Building positive professional relationships; empathy and emotional intelligence. Requires explicit interpersonal, relationship-building, or emotional intelligence language.
+- C5-5: Leadership — Inspiring and guiding others; taking initiative and responsibility. Requires explicit leadership, initiative, or responsibility language.
+
+---
 
 ## The 4-Step Mapping Methodology
 
-**Step 1 — Understand the competency.** You must have a clear, practical understanding of the competency's meaning before evaluating any mapping.
+**Step 1 — Understand the competency precisely.**
+Before evaluating any mapping, establish a clear operational definition of the competency. Identify what specific knowledge, skill, or behaviour it requires. Do not conflate similar-sounding competencies (e.g., C1-4 Research vs. C2-3 Adaptive thinking; C4-4 Civic engagement vs. C4-5 Global engagement).
 
-**Step 2 — Identify explicit links.** The connection between a PLO and a competency must be direct and obvious from the text of the PLO. Do not infer weak or indirect connections.
+**Step 2 — Evaluate the PLO-to-competency link.**
+The connection must be traceable directly to the PLO text. Ask: "Does this PLO, as written, develop or assess this specific competency?" Apply the selected review mode:
+- **Conservative:** Only accept explicit, unambiguous alignments where the competency's core concept is directly stated in the PLO text.
+- **Standard:** Accept explicit alignments AND discipline-valid implicit alignments where the connection is professionally recognised within the discipline and well-justified (e.g., "design" in architecture implies problem-solving; "experimentation" in engineering implies inquiry).
+- **Expert Flexible:** Allow broader discipline-based interpretation for design-heavy, practice-based, or interdisciplinary programs where competencies are embedded in professional practice rather than stated explicitly. Still requires educational logic.
 
-**Step 3 — Evaluate weights.** The weight reflects how strongly and directly a PLO contributes to a competency. The sum of all weights for a single competency must equal exactly 0 or 1. No other sums are permitted.
-- Weight = 1.0: A single PLO fully and comprehensively addresses the competency on its own.
-- Weight = 0.5/0.5: Two PLOs each contribute a distinct and roughly equal dimension.
-- Weight = 0.7/0.3 (or other unequal splits): Two or more PLOs contribute, but one is clearly the primary driver.
-- Weight = 0: No PLO explicitly addresses the competency. This is a valid finding (curriculum gap), not an error.
+**Step 3 — Evaluate weights critically.**
+Weights reflect the degree to which a PLO contributes to a competency. Rules:
+- The sum of all weights for a single competency MUST equal exactly 0 or 1. No other values are valid.
+- Weight = 1.0: A single PLO fully and comprehensively addresses the competency alone.
+- Weight = 0.5/0.5: Two PLOs each contribute a distinct and roughly equal dimension of the competency.
+- Weight = 0.7/0.3 (or similar): Two or more PLOs contribute, but one is clearly the primary driver.
+- Weight = 0 (no mapping): No PLO addresses this competency. This is a valid curriculum gap finding — do not invent mappings to fill gaps.
+- Overmapping: More than 3–4 PLOs mapped to a single competency is a red flag for weight inflation. Each mapped PLO must make a distinct, non-redundant contribution.
+- Weight calibration: If a PLO only tangentially addresses a competency, its weight should be low (0.2–0.3). If it is the primary vehicle, weight should be 0.7–1.0.
 
-**Step 4 — Evaluate justifications.** A strong justification must:
-- Quote the specific language from the PLO text as evidence.
-- Explain how the selected PLO(s) develop the competency.
-- Show clear educational logic.
-- Avoid generic language like "this PLO aligns with this competency."
+**Step 4 — Evaluate justification quality rigorously.**
+A strong justification must:
+1. Quote or closely paraphrase the specific language from the PLO text that establishes the connection.
+2. Explain the educational mechanism — how does engaging with this PLO develop the specific competency?
+3. Demonstrate proportionality — why is the assigned weight appropriate given the PLO's scope?
+4. Be specific to the discipline and program context.
 
-## Review Modes
+A weak justification:
+- Uses generic phrases like "this PLO aligns with this competency" without explanation.
+- States the competency name without linking it to PLO content.
+- Is shorter than 2–3 substantive sentences.
+- Could apply to any program regardless of discipline.
 
-**Conservative:** Accept only explicit, unambiguous alignments. Reject any mapping where the connection is not stated directly in the PLO text.
+---
 
-**Standard (default):** Accept explicit alignments and discipline-valid implicit alignments when well justified. For example, in engineering, "experimentation" may imply inquiry; in architecture, "design" may imply problem solving.
+## Verdict Criteria (apply strictly)
 
-**Expert Flexible:** Allow broader discipline-based interpretation for design-heavy or interdisciplinary programs where competencies may be embedded in practice.
+- **Strong:** The PLO explicitly and directly addresses the competency. The weight is well-calibrated and proportional. The justification quotes PLO language, explains the educational mechanism, and demonstrates clear logic. No revision needed.
 
-## Verdict Categories
+- **Acceptable:** The mapping is educationally valid but has one of: (a) a generic or insufficiently specific justification, (b) a weight that could be better calibrated, or (c) a minor indirect connection that is discipline-valid. Improvement recommended but not urgent.
 
-- **Strong:** The PLO explicitly and directly addresses the competency. The weight is well-proportioned. The justification quotes PLO language and explains the connection clearly.
-- **Acceptable:** The mapping is valid but the justification is generic or the weight could be better calibrated. Improvement recommended.
-- **Weak:** The connection between the PLO and competency is indirect, inferred, or poorly justified. Revision required.
-- **Artificial:** The mapping appears to have been created to inflate coverage rather than reflecting a genuine educational connection. Removal recommended.
-- **Missing:** No PLO in the program explicitly addresses this competency. This is a curriculum gap finding.
+- **Weak:** The connection between the PLO and competency is indirect, inferred without discipline-specific basis, or the justification fails to demonstrate a genuine educational link. The mapping may be retained with significant revision, or removed.
+
+- **Artificial:** The mapping appears to have been created to inflate coverage statistics rather than reflecting a genuine educational connection. The PLO text does not support the claimed competency. Removal strongly recommended.
+
+- **Missing:** No PLO in the program explicitly or implicitly addresses this competency under the selected review mode. This is a curriculum gap — an important finding for program improvement. Do not assign a verdict of Missing if a reasonable discipline-valid connection exists under the selected mode.
+
+---
+
+## Recommended Action Logic
+
+- **Keep:** Use only for Strong verdicts. The mapping is correct and well-documented.
+- **Improve Justification:** Use for Acceptable verdicts where the mapping is valid but documentation is weak. Provide a specific, improved justification.
+- **Revise Weight:** Use when the mapping is valid but the weight distribution is incorrect (sum ≠ 1, or weights are not proportional to PLO contribution). Specify the exact correction.
+- **Remove Mapping:** Use for Artificial verdicts. The mapping should be deleted.
+
+Note: A single competency may need both "Improve Justification" AND "Revise Weight". In such cases, prioritise the more critical issue for the recommendedAction field, and address both in the reviewerComment.
+
+---
+
+## Improved Justification Guidelines
+
+When providing an improvedJustification, write it as a complete, professional justification that:
+- Opens by referencing the specific PLO code and quoting or closely paraphrasing its key phrase.
+- Explains the educational mechanism (how the PLO develops the competency in this discipline).
+- Justifies the weight assignment with reference to the PLO's scope and centrality.
+- Is 3–5 sentences, specific to the program's discipline and context.
+- Uses formal academic language appropriate for accreditation documentation.
+
+Example of a strong justification:
+"PLO3 ('Apply engineering principles to analyse and design structural systems') directly develops C1-3 (Problem-solving skills) by requiring students to engage in the full problem-solving cycle — from problem identification through analysis to solution design — within a disciplinary context. The weight of 0.7 reflects that PLO3 is the primary vehicle for problem-solving in this program, with PLO5 providing a complementary applied dimension (0.3). This mapping is consistent with ABET Criterion 3 expectations for engineering programs."
+
+---
+
+## Confidence Level Guidelines
+
+- **High:** The PLO text is unambiguous, the competency definition is clear, and the verdict follows directly from the evidence.
+- **Medium:** The connection requires some interpretation, or the PLO text is somewhat vague, but the verdict is well-supported.
+- **Low:** The PLO text is ambiguous, the competency boundary is unclear, or the verdict depends heavily on assumptions about program intent. Flag for human review.
+
+---
+
+## Critical Rules
+
+1. You MUST review all 21 competencies. Do not skip any.
+2. Do not assign "Strong" to a mapping with a weight sum ≠ 1 — that is a rule violation.
+3. Do not assign "Strong" to a mapping with a generic justification.
+4. Do not assign "Missing" if a reasonable discipline-valid connection exists under the selected review mode.
+5. Do not invent PLO-competency connections that are not supported by the PLO text.
+6. Overmapping (>4 PLOs per competency) is a red flag — scrutinise each mapped PLO carefully.
+7. The improvedJustification field must be substantive (3+ sentences) or null. Never provide a one-sentence placeholder.
+8. The suggestedWeightAdjustment field must specify exact values (e.g., "Change PLO2 from 0.3 to 0.5 and PLO4 from 0.7 to 0.5 to achieve sum = 1.0") or null.
+
+---
 
 ## Output Format
 
-Return a JSON array with exactly one object per competency (all 21 competencies must be present). Each object must have these fields:
+Return a JSON object with a "reviews" array containing exactly one object per competency (all 21 must be present). Each object must have these fields:
 - competencyCode: string (e.g. "C1-1")
 - mappingVerdict: "Strong" | "Acceptable" | "Weak" | "Artificial" | "Missing"
 - recommendedAction: "Keep" | "Improve Justification" | "Revise Weight" | "Remove Mapping"
-- improvedJustification: string | null (null if verdict is Strong or Missing)
-- suggestedWeightAdjustment: string | null (null if no weight change needed)
-- reviewerComment: string (1-3 sentences explaining the verdict)
+- improvedJustification: string | null (null only if verdict is Strong or Missing; otherwise provide a full 3–5 sentence justification)
+- suggestedWeightAdjustment: string | null (null if no weight change needed; otherwise specify exact values)
+- reviewerComment: string (2–4 sentences explaining the verdict, citing specific PLO language or issues)
 - confidenceLevel: "High" | "Medium" | "Low"
-- reasoning: string (your internal chain-of-thought, 2-5 sentences)
+- reasoning: string (3–5 sentences of internal chain-of-thought explaining how you reached the verdict)
 
-Do not include any text outside the JSON array.`;
+Do not include any text outside the JSON object.`;
 
 // ─── Deterministic validation (no LLM) ────────────────────────────────────────
 
@@ -256,16 +326,23 @@ export const aiReviewRouter = router({
    * Reads all data from DB, runs validation, calls LLM, returns structured proposals.
    * Does NOT save to DB — the client calls saveReview after the user reviews.
    */
-  generateReview: adminProcedure
+  generateReview: editorProcedure
     .input(z.object({
       programId: z.number(),
       discipline: disciplineEnum,
       reviewMode: reviewModeEnum,
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       // 1. Load program data
       const program = await db.getProgramById(input.programId);
       if (!program) throw new TRPCError({ code: "NOT_FOUND", message: "Program not found." });
+
+      // Scope check: editors can only review their assigned programs
+      if (ctx.user.role !== "admin") {
+        const accessible = await db.getAccessiblePrograms(ctx.user.id);
+        const hasAccess = accessible.some((ap: any) => ap.program.id === input.programId);
+        if (!hasAccess) throw new TRPCError({ code: "FORBIDDEN", message: "You do not have access to this program." });
+      }
 
       const plos = await db.getPLOsByProgram(input.programId);
       if (plos.length === 0) {
@@ -432,7 +509,7 @@ export const aiReviewRouter = router({
   /**
    * Save a review session to the database (creates a draft record).
    */
-  saveReview: adminProcedure
+  saveReview: editorProcedure
     .input(z.object({
       programId: z.number(),
       discipline: disciplineEnum,
@@ -458,7 +535,7 @@ export const aiReviewRouter = router({
   /**
    * Get review history for a program (most recent first).
    */
-  getReviewHistory: adminProcedure
+  getReviewHistory: editorProcedure
     .input(z.object({ programId: z.number() }))
     .query(async ({ input }) => {
       return await db.getAIReviewsByProgram(input.programId);
@@ -467,7 +544,7 @@ export const aiReviewRouter = router({
   /**
    * Get a single review by id.
    */
-  getReview: adminProcedure
+  getReview: editorProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const review = await db.getAIReviewById(input.id);
@@ -480,7 +557,7 @@ export const aiReviewRouter = router({
    * Updates the justification text for the given competency.
    * Weight adjustments require manual editing via the existing mapping interface.
    */
-  applyItem: adminProcedure
+  applyItem: editorProcedure
     .input(z.object({
       reviewId: z.number(),
       programId: z.number(),
@@ -539,9 +616,73 @@ export const aiReviewRouter = router({
     }),
 
   /**
+   * Apply weight changes for a competency inline from the AI Review page.
+   * Accepts an array of { ploCode, weight } pairs and upserts each mapping.
+   */
+  applyWeights: editorProcedure
+    .input(z.object({
+      reviewId: z.number(),
+      programId: z.number(),
+      competencyCode: z.string(),
+      weights: z.array(z.object({
+        ploCode: z.string(),
+        weight: z.number().min(0).max(1),
+      })),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      // Scope check for editors
+      if (ctx.user.role !== "admin") {
+        const accessible = await db.getAccessiblePrograms(ctx.user.id);
+        const hasAccess = accessible.some((ap: any) => ap.program.id === input.programId);
+        if (!hasAccess) throw new TRPCError({ code: "FORBIDDEN", message: "You do not have access to this program." });
+      }
+
+      // Resolve PLO codes → IDs
+      const plos = await db.getPLOsByProgram(input.programId);
+      const ploMap = new Map(plos.map(p => [p.code, p.id]));
+
+      // Resolve competency code → ID
+      const allCompetencies = await db.getAllCompetencies();
+      const comp = allCompetencies.find(c => c.code === input.competencyCode);
+      if (!comp) throw new TRPCError({ code: "NOT_FOUND", message: `Competency ${input.competencyCode} not found.` });
+
+      // Validate weight sum
+      const weightSum = input.weights.reduce((s, w) => s + w.weight, 0);
+      const rounded = Math.round(weightSum * 100) / 100;
+      if (input.weights.length > 0 && rounded !== 0 && rounded !== 1) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Weight sum must be exactly 0 or 1 (got ${rounded.toFixed(2)}). Please adjust the weights.`,
+        });
+      }
+
+      // Upsert each weight
+      for (const w of input.weights) {
+        const ploId = ploMap.get(w.ploCode);
+        if (!ploId) continue;
+        await db.upsertMapping(ploId, comp.id, String(w.weight));
+      }
+
+      await db.logAudit({
+        userId: ctx.user.id,
+        action: "update",
+        entityType: "mapping",
+        entityId: comp.id,
+        details: JSON.stringify({
+          source: "ai_review",
+          reviewId: input.reviewId,
+          competencyCode: input.competencyCode,
+          weights: input.weights,
+        }),
+      });
+
+      return { success: true };
+    }),
+
+  /**
    * Mark a review as finalised.
    */
-  finaliseReview: adminProcedure
+  finaliseReview: editorProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       await db.updateAIReview(input.id, { status: "finalised" });
