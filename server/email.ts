@@ -72,7 +72,8 @@ export async function sendPasswordResetEmail(
   resetToken: string
 ): Promise<boolean> {
   try {
-    const resetUrl = `${process.env.VITE_OAUTH_PORTAL_URL}/reset-password?token=${resetToken}`;
+    const appBaseUrl = process.env.APP_URL || 'https://plo-ga.gastli.org';
+    const resetUrl = `${appBaseUrl}/reset-password?token=${resetToken}`;
     
     const mailOptions = {
       from: '"PLO-GA Mapping System" <no-reply@gastli.org>',
