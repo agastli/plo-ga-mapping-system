@@ -56,7 +56,7 @@ export default function ClusterManagement() {
             />
             <div>
               <h1 className="text-2xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
-              <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
+              <p className="text-sm text-gray-600">Academic Planning and Quality Assurance Office</p>
             </div>
           </div>
           <Link href="/">

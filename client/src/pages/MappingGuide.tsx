@@ -19,7 +19,7 @@ export default function MappingGuide() {
           <img src="/qu-logo.png" alt="QU Logo" className="h-14" />
           <div>
             <h1 className="text-xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
-            <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
+            <p className="text-sm text-gray-600">Academic Planning and Quality Assurance Office</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -591,7 +591,7 @@ export default function MappingGuide() {
           <CardContent>
             <p className="text-gray-700">
               For questions about the mapping process or assistance with interpreting the competency definitions, please contact the
-              Academic Planning &amp; Quality Assurance Office at Qatar University. You can also re-watch the video tutorial above for a
+              Academic Planning and Quality Assurance Office at Qatar University. You can also re-watch the video tutorial above for a
               visual walkthrough of the complete mapping workflow.
             </p>
           </CardContent>

@@ -92,7 +92,7 @@ export default function TemplateEditor({ template, onClose }: TemplateEditorProp
               <img src="/qu-logo.png" alt="QU Logo" className="h-14" />
               <div>
                 <h1 className="text-xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
-                <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
+                <p className="text-sm text-gray-600">Academic Planning and Quality Assurance Office</p>
               </div>
             </div>
             <Button variant="outline" onClick={onClose}>
@@ -230,7 +230,7 @@ export default function TemplateEditor({ template, onClose }: TemplateEditorProp
                     id="footerText"
                     value={footerText}
                     onChange={(e) => setFooterText(e.target.value)}
-                    placeholder="e.g., Academic Planning & Quality Assurance Office"
+                    placeholder="e.g., Academic Planning and Quality Assurance Office"
                   />
                 </div>
               </CardContent>

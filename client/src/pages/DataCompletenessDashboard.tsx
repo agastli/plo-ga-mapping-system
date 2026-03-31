@@ -31,7 +31,7 @@ export default function DataCompletenessDashboard() {
                 <img src="/qu-logo.png" alt="Qatar University" className="h-16 w-auto" />
                 <div className="border-l-2 border-[#8B1538] pl-4">
                   <h1 className="text-2xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
-                  <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
+                  <p className="text-sm text-slate-600">Academic Planning and Quality Assurance Office</p>
                 </div>
               </div>
               <Button variant="outline" asChild className="border-[#8B1538] text-[#8B1538] hover:bg-[#8B1538]/10">

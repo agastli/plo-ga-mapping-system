@@ -616,7 +616,7 @@ export default function AIReview() {
                   <h2 className="text-lg font-bold text-[#8B1538] flex items-center gap-2">
                     <Brain className="w-5 h-5" /> AI Mapping Review
                   </h2>
-                  <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
+                  <p className="text-sm text-slate-600">Academic Planning and Quality Assurance Office</p>
                 </div>
               </div>
               <div className="flex gap-2">

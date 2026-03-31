@@ -14,7 +14,7 @@ export default function CompetencyAnalyticsGuide() {
           <img src="/qu-logo.png" alt="QU Logo" className="h-14" />
           <div>
             <h1 className="text-xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
-            <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
+            <p className="text-sm text-gray-600">Academic Planning and Quality Assurance Office</p>
           </div>
         </div>
         <div className="flex gap-2">

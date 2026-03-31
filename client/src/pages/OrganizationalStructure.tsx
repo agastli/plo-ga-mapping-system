@@ -314,7 +314,7 @@ export default function OrganizationalStructure() {
               <img src="/qu-logo.png" alt="QU Logo" className="h-12" />
               <div>
                 <h1 className="text-2xl font-bold text-[#8B1538]">Organizational Structure Management</h1>
-                <p className="text-sm text-gray-600">Academic Planning &amp; Quality Assurance Office</p>
+                <p className="text-sm text-gray-600">Academic Planning and Quality Assurance Office</p>
               </div>
             </div>
             <div className="flex items-center gap-3">

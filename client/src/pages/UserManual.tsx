@@ -11,14 +11,14 @@ import { useAuth } from "@/_core/hooks/useAuth";
 // Inline the manual content so it works in production without a file server
 const MANUAL_CONTENT = `# PLO-GA Mapping Management System — User Manual
 
-**Qatar University | Academic Planning & Quality Assurance**
+**Qatar University | Academic Planning and Quality Assurance**
 Version 1.0 — February 2026
 
 ---
 
 ## 1. Introduction
 
-The **PLO-GA Mapping Management System** is a web-based platform developed for Qatar University to support the systematic mapping of Program Learning Outcomes (PLOs) to the five Graduate Attributes (GAs) and their associated competencies, as defined by the Qatar University Academic Planning & Quality Assurance framework.
+The **PLO-GA Mapping Management System** is a web-based platform developed for Qatar University to support the systematic mapping of Program Learning Outcomes (PLOs) to the five Graduate Attributes (GAs) and their associated competencies, as defined by the Qatar University Academic Planning and Quality Assurance framework.
 
 The system enables academic departments and colleges to:
 
@@ -255,7 +255,7 @@ crontab -e
 | **Mapping** | The association between a PLO and a competency, characterised by a weighting factor and a written justification. |
 | **Alignment Score** | An aggregated metric calculated from the weighting factors, used to compare programs, departments, and colleges. |
 | **Completeness Rate** | The percentage of a program's PLOs that have at least one non-zero mapping to a GA/competency. |
-| **APQA** | Academic Planning & Quality Assurance — the Qatar University office responsible for accreditation and quality assurance. |
+| **APQA** | Academic Planning and Quality Assurance — the Qatar University office responsible for accreditation and quality assurance. |
 | **Audit Log** | A tamper-evident record of all changes made to PLOs, mappings, and justifications. |
 
 ---
@@ -349,12 +349,12 @@ export default function UserManual() {
 </head>
 <body>
   <div class="cover">
-    <div class="org">Qatar University | Academic Planning &amp; Quality Assurance</div>
+    <div class="org">Qatar University | Academic Planning and Quality Assurance</div>
     <h1>PLO-GA Mapping System<br/>User Manual</h1>
     <div class="meta">Version 1.0 \u2014 February 2026</div>
   </div>
   <div class="content">${contentEl.innerHTML}</div>
-  <div class="footer">PLO-GA Mapping Management System \u2014 Qatar University \u2014 Academic Planning &amp; Quality Assurance Office</div>
+  <div class="footer">PLO-GA Mapping Management System \u2014 Qatar University \u2014 Academic Planning and Quality Assurance Office</div>
   <script>window.onload = function() { window.print(); }<\/script>
 </body>
 </html>`;
@@ -377,7 +377,7 @@ export default function UserManual() {
                 <img src="/qu-logo.png" alt="Qatar University" className="h-16 w-auto" />
                 <div className="border-l-2 border-[#8B1538] pl-4">
                   <h1 className="text-2xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
-                  <p className="text-sm text-slate-600">Academic Planning & Quality Assurance Office</p>
+                  <p className="text-sm text-slate-600">Academic Planning and Quality Assurance Office</p>
                 </div>
               </div>
               <div className="flex gap-3">

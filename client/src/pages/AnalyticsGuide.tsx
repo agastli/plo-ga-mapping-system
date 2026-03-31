@@ -16,7 +16,7 @@ export default function AnalyticsGuide() {
           <img src="/qu-logo.png" alt="QU Logo" className="h-14" />
           <div>
             <h1 className="text-xl font-bold text-[#8B1538]">PLO-GA Mapping System</h1>
-            <p className="text-sm text-gray-600">Academic Planning & Quality Assurance Office</p>
+            <p className="text-sm text-gray-600">Academic Planning and Quality Assurance Office</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -265,7 +265,7 @@ export default function AnalyticsGuide() {
           <CardContent>
             <p className="text-gray-700">
               For questions about the analytics dashboard or assistance with interpreting the data, please contact the 
-              Academic Planning & Quality Assurance Office at Qatar University.
+              Academic Planning and Quality Assurance Office at Qatar University.
             </p>
           </CardContent>
         </Card>

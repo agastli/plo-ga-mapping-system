@@ -122,7 +122,7 @@ export async function sendPasswordResetEmail(
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Qatar University. All rights reserved.</p>
-              <p>PLO-GA Mapping System | Academic Planning & Quality Assurance Office</p>
+              <p>PLO-GA Mapping System | Academic Planning and Quality Assurance Office</p>
             </div>
           </div>
         </body>
@@ -141,7 +141,7 @@ This link will expire in 1 hour.
 If you didn't request a password reset, please ignore this email or contact your administrator.
 
 © ${new Date().getFullYear()} Qatar University. All rights reserved.
-PLO-GA Mapping System | Academic Planning & Quality Assurance Office
+PLO-GA Mapping System | Academic Planning and Quality Assurance Office
       `,
     };
 
@@ -220,7 +220,7 @@ export async function sendUsernameReminderEmail(
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Qatar University. All rights reserved.</p>
-              <p>PLO-GA Mapping System | Academic Planning & Quality Assurance Office</p>
+              <p>PLO-GA Mapping System | Academic Planning and Quality Assurance Office</p>
             </div>
           </div>
         </body>
@@ -239,7 +239,7 @@ ${loginUrl}
 If you didn't request this information, please contact your administrator.
 
 © ${new Date().getFullYear()} Qatar University. All rights reserved.
-PLO-GA Mapping System | Academic Planning & Quality Assurance Office
+PLO-GA Mapping System | Academic Planning and Quality Assurance Office
       `,
     };
 
@@ -412,7 +412,7 @@ export async function sendWelcomeEmail(
           <div class="container">
             <div class="header">
               <h1>Welcome to PLO-GA Mapping System</h1>
-              <p>Academic Planning & Quality Assurance Office</p>
+              <p>Academic Planning and Quality Assurance Office</p>
             </div>
             <div class="content">
               <h2>Your Account Has Been Created</h2>
@@ -472,11 +472,11 @@ export async function sendWelcomeEmail(
                 <a href="${loginUrl}" class="button">Login to System</a>
               </p>
 
-              <p>If you have any questions or need assistance, please contact the system administrator or the Academic Planning & Quality Assurance Office.</p>
+              <p>If you have any questions or need assistance, please contact the system administrator or the Academic Planning and Quality Assurance Office.</p>
             </div>
             <div class="footer">
               <p>&copy; ${new Date().getFullYear()} Qatar University. All rights reserved.</p>
-              <p>PLO-GA Mapping System | Academic Planning & Quality Assurance Office</p>
+              <p>PLO-GA Mapping System | Academic Planning and Quality Assurance Office</p>
             </div>
           </div>
         </body>
@@ -484,7 +484,7 @@ export async function sendWelcomeEmail(
       `,
       text: `
 Welcome to PLO-GA Mapping System
-Academic Planning & Quality Assurance Office
+Academic Planning and Quality Assurance Office
 
 Your Account Has Been Created
 ==============================
@@ -519,10 +519,10 @@ GETTING STARTED
 3. Change your password in your profile settings
 4. Explore your dashboard and assigned programs
 
-If you have any questions or need assistance, please contact the system administrator or the Academic Planning & Quality Assurance Office.
+If you have any questions or need assistance, please contact the system administrator or the Academic Planning and Quality Assurance Office.
 
 © ${new Date().getFullYear()} Qatar University. All rights reserved.
-PLO-GA Mapping System | Academic Planning & Quality Assurance Office
+PLO-GA Mapping System | Academic Planning and Quality Assurance Office
       `,
     };
 
